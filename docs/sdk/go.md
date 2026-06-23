@@ -953,7 +953,7 @@ API calls may return a `*NexusError` with a structured machine-readable `Code`:
 
 | Code                 | Meaning                                | Retryable |
 |----------------------|----------------------------------------|-----------|
-| `invalid_token`      | Token format or HMAC check failed      | No        |
+| `invalid_token`      | Token format or database hash lookup failed | No        |
 | `token_expired`      | Token has been manually revoked        | No        |
 | `scope_denied`       | Bot lacks the required permission scope| No        |
 | `channel_not_found`  | Channel does not exist or bot not in it| No        |
@@ -1685,9 +1685,9 @@ func main() {
 | Property | Detail |
 |----------|--------|
 | **Transport** | `wss://` — TLS 1.3 WebSocket |
-| **Token format** | `nxbot_v1_<HMAC-SHA256 base64url>` |
+| **Token format** | `nxbot_v1_<base64url(random_32_bytes)>` |
 | **Token storage** | Never logged; redacted in error messages. Store in environment variables or a secrets manager. |
-| **Server auth** | Server HMAC-validates token; rejects invalid tokens before the `connected` frame. |
+| **Server auth** | Server validates prefix/version, hashes the token, and resolves `SHA256(token)` in the database before the `connected` frame. |
 | **E2E channels** | Bots are excluded from E2E-encrypted channels at the routing layer. No event from an encrypted channel enters the bot dispatch path. |
 | **Scope enforcement** | Every API call is validated against the bot's declared scopes. |
 

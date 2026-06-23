@@ -36,7 +36,7 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 - **First-class streaming message protocol** — progressive token-by-token AI responses rendered in-channel
 - **Bot SDK in 6 languages** — TypeScript, Java, Python, PHP, Go, Rust
 - **Bundled base bots** — Welcome, Help, Notifications, Reminders, Polls, Webhooks, Kudos out of the box
-- **AI Assistant Bot** — summarize, translate, draft, search with RAG, all streamed live
+- **AI Assistant Bot** — summarize, translate, draft, and search using core full-text search in Phase 2; RAG/semantic memory is Phase 3
 
 ---
 
@@ -60,7 +60,7 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 | HTTP Server | **Hono v4.12** | <50ms cold start, cross-runtime, built-in middleware |
 | WebSocket | **Socket.IO v4 + Redis Adapter** | Room management, reconnect, heartbeat, horizontal scaling |
 | ORM | **Drizzle ORM** | Type-safe SQL queries, lightweight migration runner |
-| Database | **PostgreSQL 16 + pgvector** | ACID storage, full-text search (tsvector), vector embeddings for RAG |
+| Database | **PostgreSQL 16** | ACID storage, full-text search (tsvector), attachment metadata, bot/core state |
 | Cache / PubSub | **Redis 7** | Session cache, presence, rate limiting, event bus, Socket.IO adapter |
 | Event Bus | **Redis Streams → NATS JetStream** | Phase 1 event bus → Phase 3 upgrade for subject-hierarchy routing |
 | Task Queue | **BullMQ** | Per-bot isolation, retries, dead letter queue |
@@ -72,7 +72,7 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 | E2E Encryption | **@signalapp/libsignal** (Signal Protocol) | X3DH key exchange + Double Ratchet for 1:1 and group E2E |
 | AI Agent Framework | **Vercel AI SDK v6** (Phase 2), **LangGraph** (Phase 3) | Streaming-first agent orchestration, tool calling, multi-agent |
 | LLM Providers | **OpenAI / Anthropic / Google / OpenRouter / Ollama** | Multi-provider abstraction with fallback chain |
-| Vector Store | **pgvector** | In-database semantic search over channel history for RAG |
+| Vector Store | **pgvector** (Phase 3) | In-database semantic search after full-text search, retention, and deletion semantics are stable |
 
 ### Monorepo & DevOps
 
@@ -113,7 +113,7 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 ┌─────────────────────────────┴────────────────────────────────────┐
 │            Business Logic & Persistence Backend                    │
 │     Auth · Workspace · Channel · Message · File · Signal Key     │
-│     PostgreSQL + pgvector · Redis (Cache + Pub/Sub + Rate Limit) │
+│     PostgreSQL · Redis (Cache + Pub/Sub + Rate Limit)            │
 └─────────────────────────────┬────────────────────────────────────┘
                               │
 ┌─────────────────────────────┴────────────────────────────────────┐
@@ -166,6 +166,7 @@ nexus-chat/
 │   ├── ai/                      # AI session context
 │   ├── design/                  # Architecture & design documents
 │   ├── research/                # Technical research & surveys
+│   ├── tasks/                   # Phase implementation task breakdowns
 │   └── sdk/                     # Multi-language Bot SDK documentation
 ├── package.json                 # Workspace root
 ├── turbo.json
@@ -180,6 +181,8 @@ nexus-chat/
 ## 5. Phase Roadmap
 
 > **Full breakdown**: [06 — Phase Roadmap & Milestone Plan](design/06_Phase_Roadmap.md)
+>
+> **Phase 1 implementation tasks**: see [Implementation Task Documents](#63-implementation-task-documents)
 
 ### Phase 1 — MVP Foundation (0–3 months)
 
@@ -205,7 +208,7 @@ nexus-chat/
 - Online presence, typing indicators, read receipts
 - Group E2E via Sender Key for multi-member channels
 - Bot interactive components (buttons, modals, Block Kit), webhook delivery
-- **AI Assistant Bot**: `/ai ask`, `/ai summarize`, `/ai translate`, `/ai draft`, `/ai search` with RAG
+- **AI Assistant Bot**: `/ai ask`, `/ai summarize`, `/ai translate`, `/ai draft`, `/ai search` using core full-text search; RAG is Phase 3
 - **Streaming message protocol**: stream_start → stream_chunk → stream_end
 - **7 more base bots**: Todo, GitHub/GitLab, CI/CD, Standup, Celebration, Feedback
 - Electron cross-platform packaging, code signing, auto-update
@@ -241,7 +244,7 @@ nexus-chat/
 | 02 | [Long Connection & Core Gateway](design/02_Long_Connection_and_Core_Gateway_Layer.md) | WebSocket protocol envelope, connection state machine, REST API route groups, auth flow, rate limiting, message relay pipeline |
 | 03 | [Business Logic & Persistence](design/03_Business_Logic_and_Persistence_Backend.md) | Module breakdown (7 services), Drizzle ORM schema (13 tables), message/channel state machines, Signal key server, Redis caching (6 layers), security |
 | 04 | [Async Bot Engine & Event Dispatch](design/04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) | Event pipeline, connection lifecycle, Bot SDK design, slash command framework, BullMQ queues, streaming protocol extension, base bot catalog |
-| 05 | [AI Agent Orchestration & Streaming](design/05_AI_Agent_Orchestration_and_Streaming.md) | Streaming protocol, engine architecture (5 subsystems), command router, LLM provider abstraction, tool system, memory/RAG, prompt engineering, privacy |
+| 05 | [AI Agent Orchestration & Streaming](design/05_AI_Agent_Orchestration_and_Streaming.md) | Streaming protocol, engine architecture (5 subsystems), command router, LLM provider abstraction, tool system, memory, Phase 3 RAG, prompt engineering, privacy |
 | 06 | [Phase Roadmap & Milestone Plan](design/06_Phase_Roadmap.md) | Consolidated Phase 1/2/3 goals, week-by-week breakdown, bot catalog rollout, AI implementation sequence, package delivery matrix, infrastructure evolution |
 
 ### 6.2 Research Documents
@@ -256,7 +259,28 @@ nexus-chat/
 | [Base Bot Catalog](research/base-bot-catalog.md) | Platform survey (Slack/Discord/Teams/Telegram), 17 recommended bots across 5 domains, priority matrix, interaction models, implementation strategy |
 | [AI Agent Orchestration](research/ai-agent-orchestration.md) | Streaming message design, agent frameworks survey (Vercel AI SDK/LangGraph/Mastra/CrewAI), LLM provider abstraction, context/memory, tool calling, prompt engineering |
 
-### 6.3 Bot SDK Documentation (Multi-Language)
+### 6.3 Implementation Task Documents
+
+| # | Task | Description |
+|---|------|-------------|
+| 01 | [Project Scaffold](tasks/01-phase-1-project-scaffold.md) | pnpm monorepo, Turborepo, TypeScript, lint/test/build workflow |
+| 02 | [Shared Contracts](tasks/02-phase-1-shared-contracts.md) | Zod schemas, API envelopes, message content, attachment refs, bot events |
+| 03 | [Database Schema](tasks/03-phase-1-database-schema.md) | Drizzle schema, migrations, core tables, attachment tables, bot membership/subscriptions |
+| 04 | [Auth & Security](tasks/04-phase-1-auth-session-security.md) | Registration/login, Argon2id, JWT rotation, Redis sessions, security baseline |
+| 05 | [Core Gateway](tasks/05-phase-1-core-gateway.md) | Hono + Socket.IO, auth middleware, rate limits, protocol routing |
+| 06 | [Workspace & Channel Service](tasks/06-phase-1-workspace-channel-service.md) | Workspaces, members, public/private channels, DMs, channel mode |
+| 07 | [Message Service](tasks/07-phase-1-message-service.md) | Message state machine, pagination, edit/delete, reactions, read receipts, forward/save |
+| 08 | [Attachment Service Foundation](tasks/08-phase-1-attachment-service-foundation.md) | Core upload sessions, file records, signed URLs, E2E-safe attachment boundary |
+| 09 | [Signal DM E2EE](tasks/09-phase-1-signal-dm-e2ee.md) | PreKeyBundle flow, X3DH, Double Ratchet, 1:1 encrypted DMs |
+| 10 | [Bot Engine Core](tasks/10-phase-1-bot-engine-core.md) | Bot registration, opaque tokens, event subscriptions, BullMQ queues, command routing |
+| 11 | [Node Bot SDK](tasks/11-phase-1-bot-sdk-node-reference.md) | First Bot SDK implementation, WebSocket transport, reconnect, event API |
+| 12 | [Minimal Base Bots](tasks/12-phase-1-base-bots-minimal.md) | Welcome, Help, Notification bots; optional Reminder/Poll/Webhook/Kudos stretch |
+| 13 | [Web Client Shell](tasks/13-phase-1-web-client-shell.md) | React app, Zustand stores, chat layout, virtual list, generic bot extension slots |
+| 14 | [Electron Shell](tasks/14-phase-1-electron-shell.md) | Secure Electron main/preload, tray, notifications, native integration |
+| 15 | [Observability & Hardening](tasks/15-phase-1-observability-security-hardening.md) | Pino logs, audit events, metrics, rate-limit metrics, security checks |
+| 16 | [Local Dev, CI & Release](tasks/16-phase-1-local-dev-ci-release.md) | Docker Compose, CI jobs, docs build, preview deploy, closed beta checklist |
+
+### 6.4 Bot SDK Documentation (Multi-Language)
 
 | Language | Document | Package / Module |
 |----------|----------|------------------|
@@ -269,7 +293,7 @@ nexus-chat/
 
 Each SDK doc covers: installation, quick start, connection lifecycle, 9 event types, message/channel API, middleware pipeline, rate limiting, reconnection strategy, slash command registration, bot manifest, error handling, and 3+ complete examples.
 
-### 6.4 Meta Documents
+### 6.5 Meta Documents
 
 | Document | Description |
 |----------|-------------|

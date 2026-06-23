@@ -839,40 +839,36 @@ Bots declare required scopes at registration. Scopes are validated on every API 
 | `members:read` | Read member list | `getMemberList`, `member_joined`, `member_left` events |
 | `commands` | Register and respond to slash commands | Slash command dispatch |
 | `interactions` | Respond to button / modal interactions | Interactive component events |
-| `files:read` | Read files shared in channels | File-related events |
-| `files:write` | Upload files | `uploadFile` |
+| `files:read` | Request authorized file metadata / signed download URLs through the core Attachment Service | File-related events |
+| `files:write` | Request upload sessions through the core Attachment Service | `createUploadSession`, `attachFileToMessage` |
 
 ### 8.2 Bot Token Format
 
 ```
-Format:   nxbot_v1_<base64url(hmac)>
+Format:   nxbot_v1_<base64url(random_32_bytes)>
 Example:  nxbot_v1_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8
 
 ┌──────────┬─────┬───────────────────────────────────────────┐
-│  nxbot   │ v1  │       HMAC-SHA256 base64url encoded       │
-│ (prefix) │(ver)│           (self-validating)                │
+│  nxbot   │ v1  │          opaque random base64url token     │
+│ (prefix) │(ver)│          hashed in DB for revocation       │
 └──────────┴─────┴───────────────────────────────────────────┘
 ```
 
-**Self-validation**: The server can verify the token's authenticity without a DB lookup by recomputing the HMAC using the `BOT_TOKEN_SIGNING_SECRET`. A DB lookup (by `SHA256(token)`) is only needed to retrieve the bot's ID and scopes.
+**Validation**: Bot tokens are opaque credentials. The server stores only `SHA256(token)` in `bot_integrations.token_hash` and performs a DB lookup on connection to resolve bot ID, workspace, scopes, revocation state, and installation policy. This is simpler to revoke and rotate than a self-contained token and avoids inconsistent "self-validation" semantics.
 
 ```typescript
 // packages/bot-engine/src/auth/token.ts
 import crypto from 'node:crypto';
 
-const SECRET = Buffer.from(process.env.BOT_TOKEN_SIGNING_SECRET!, 'hex'); // 64 bytes
-
 export function generateBotToken(botId: string): string {
-  const payload = `${botId}:${Date.now()}:${crypto.randomBytes(12).toString('hex')}`;
-  const sig = crypto.createHmac('sha256', SECRET).update(payload).digest('base64url');
-  return `nxbot_v1_${sig}`;
+  // botId is associated with hashToken(token) in the database.
+  // It is not embedded in the token itself.
+  return `nxbot_v1_${crypto.randomBytes(32).toString('base64url')}`;
 }
 
 export function verifyTokenFormat(token: string): boolean {
   // Fast check: valid prefix and minimum length
   if (!token.startsWith('nxbot_v1_') || token.length < 30) return false;
-  // HMAC self-validation: can only be produced with the secret
-  // Full validation requires DB lookup by token hash
   return true;
 }
 
@@ -946,6 +942,23 @@ export class SlidingWindowRateLimiter {
 | Cannot access other workspaces | Every query scoped by `workspace_id` from token context |
 | Cannot exceed declared scopes | Scope check on every API call and event delivery |
 | Cannot read DMs not part of | Bots can only be added to multi-user channels, never DMs |
+
+### 8.5 Bot Responsibility Boundary
+
+The platform follows a **bot-first feature model**, but bots do not own lifecycle-critical platform primitives. This keeps the core lean without delegating security-sensitive state to untrusted or replaceable services.
+
+| Responsibility | Owner | Rationale |
+|----------------|-------|-----------|
+| Message persistence, delivery, edits, deletes, read state | Core IM | Fundamental IM correctness and history integrity |
+| Channel / workspace membership and authorization | Core IM | Every feature depends on consistent access control |
+| Search indexes for normal-mode messages | Core IM | Search is a necessary IM primitive and must honor authz/retention |
+| Signal Protocol key distribution and E2E routing | Core IM | Encryption boundary cannot depend on bots |
+| Attachment upload sessions, object keys, scan status, signed URLs, retention | Core Attachment Service | Required for authorization, malware scanning, E2E opaque blobs, and compliance |
+| Bot installation, token validation, scopes, event subscriptions | Core Bot Engine | Required for safe extensibility |
+| Polls, reminders, kudos, standups, CI/CD, GitHub/GitLab, AI workflows | Bots | Product workflows and integrations; safe to evolve independently |
+| File-management UX (`/file upload`, `/file list`, cleanup reminders) | @FileBot | Workflow over core Attachment Service; not storage authority |
+
+Rule of thumb: **bots may initiate workflows and render UX, but core services own data integrity, authorization, persistence, indexing, encryption boundaries, and lifecycle-critical state.**
 
 ---
 

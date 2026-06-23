@@ -37,6 +37,20 @@ Month 0            Month 3                    Month 6                Month 12
 | **Phase 2** | Months 3–6 | Feature-complete IM platform ready for public launch | Public GA launch |
 | **Phase 3** | Months 6–12 | Enterprise-grade platform with advanced AI and ecosystem | Enterprise plans |
 
+### 1.1 Feasibility Guardrails
+
+The roadmap is intentionally ambitious, but implementation should remain milestone-gated. The core principle is: **ship a narrow, reliable IM core first; move optional product surface area into bots; defer complex infrastructure until the underlying primitives are stable.**
+
+| Track | Must Ship Before Beta | Stretch / Can Slip |
+|-------|-----------------------|--------------------|
+| **Phase 1 Core** | Auth, workspace, channels, normal-mode text messages, basic desktop shell, WebSocket gateway | DM E2E, all 7 base bots, auto-update polish |
+| **Phase 1 Bot Infra** | Bot registration, token validation, command invocation, one reference bot | Full first-party bot catalog |
+| **Phase 2 Core** | Attachment Service, full-text search, threads, presence/read receipts, packaging | Group E2E if Signal Sender Key complexity delays launch |
+| **Phase 2 AI** | Streaming protocol, `/ai ask/summarize/translate/draft`, full-text search tool | pgvector RAG, autonomous recap, advanced tools |
+| **Phase 3** | Enterprise/marketplace/microservice work split into independent tracks | Any item can ship independently without blocking the rest |
+
+This guardrail keeps Phase 1 feasible for a small team and prevents Phase 2 from becoming a single oversized release train.
+
 ---
 
 ## 2. Phase 1 — MVP Foundation (0–3 months)
@@ -112,18 +126,16 @@ Feature-complete IM platform with file sharing, search, threads, AI Assistant, a
 
 | Feature Area | Deliverables | Reference Design |
 |-------------|-------------|------------------|
-| **File & Image** | File upload (S3/R2 presigned URLs), inline image previews, attachment thumbnails, file type validation, virus scanning | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
+| **Streaming Protocol** | Core WebSocket extension: stream_start → stream_chunk → stream_end events, ChunkBatcher (100ms), generation limits — infrastructure usable by any bot | [05 - AI Agent](05_AI_Agent_Orchestration_and_Streaming.md) |
 | **Full-Text Search** | PostgreSQL `tsvector` + GIN index, message search, channel search, user search, date range + user filters | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Threads** | Threaded replies, thread sidebar panel, thread notifications, thread parent preview in main feed | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **Online Presence** | Real-time online/offline status, typing indicators, last seen timestamp, away/idle detection | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Read Receipts** | Per-channel read cursors, unread badge counts, "new messages" divider | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Message Enhancements** | Pin/unpin messages, message permalink/copy link, forward message, save for later | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **Channel E2E** | Group E2E via Sender Key, key distribution for multi-member channels, member-change key rotation, pending join | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
-| **Bot Advanced** | Bot SDK interactive components (buttons, modals, Block Kit), bot permission scopes, bot analytics dashboard | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
-| **Webhook Delivery** | HTTP webhook for low-frequency bots, HMAC-SHA256 signature, retry policy (3 attempts), delivery tracker | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
-| **AI Assistant** | `/ai ask`, `/ai summarize`, `/ai translate`, `/ai draft`, `/ai search`, `@ai` mention, streaming message protocol (stream_start → stream_chunk → stream_end), pgvector RAG | [05 - AI Agent](05_AI_Agent_Orchestration_and_Streaming.md) |
-| **Base Bots (Phase 2)** | Todo Bot, GitHub/GitLab Bot, CI/CD Bot, Standup Bot, Celebration Bot, Feedback Bot | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
-| **Electron Packaging** | Cross-platform packaging (macOS .dmg, Windows .exe/.msi, Linux .AppImage/.deb), code signing, auto-update via GitHub Releases | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
+| **Bot Advanced** | Bot SDK interactive components (buttons, modals, Block Kit), webhook delivery (HMAC-SHA256, retry 3×), bot permission scopes, bot analytics dashboard | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
+| **Base Bots (Phase 2)** | @FileBot (file workflow UX over core Attachment Service), @TodoBot, @GitBot, @GitLabBot, @CIBot, @StandupBot, @CelebrateBot, @FeedbackBot, @AIBot (/ai ask|summarize|translate|draft|search using core full-text search, streaming reply) | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
+| **Electron Packaging**  | Cross-platform packaging (macOS .dmg, Windows .exe/.msi, Linux .AppImage/.deb), code signing, auto-update via GitHub Releases | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **Offline Support** | Offline message queue with exponential retry, IndexedDB message cache, offline indicator, reconnect UI | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **Performance** | Web Vitals monitoring, React Profiler in CI, memory window control (200 messages in-memory), image lazy loading, code splitting | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **Infrastructure** | Multi-instance deployment, Redis Sentinel/Cluster, database read replicas, load testing | [00 - System Architecture](00_System_High_Level_Architecture.md) |
@@ -137,21 +149,21 @@ Feature-complete IM platform with file sharing, search, threads, AI Assistant, a
 | **M3: Basic Commands** | 5–6 | `/ai ask`, `/ai summarize`, `/ai translate`, `/ai draft` — single agent with system prompt |
 | **M4: Tool Integration** | 7–8 | `ToolRegistry`, SDK API tools (searchChannelHistory, getChannelInfo, listChannelMembers, sendMessage, fetchWebPage), safety classification (GREEN/YELLOW/RED), confirmation UI |
 | **M5: Memory Management** | 9–10 | `ConversationWindow` (sliding, 50 msg / 24K tokens), `ConversationSummarizer`, `ContextCache` (Redis) |
-| **M6: RAG (pgvector)** | 11–12 | pgvector extension, message embedding pipeline, `BatchEmbeddingGenerator`, semantic search, hybrid search |
+| **M6: Search Tool + Memory** | 11–12 | Permission-aware core full-text search tool, `ConversationWindow`, `ConversationSummarizer`, `ContextCache` (Redis) |
 | **M7: UI Polish + Privacy** | 13–14 | Typewriter animation, progressive markdown, cancel button, tool call indicators, workspace AI settings, GDPR compliance |
 
 ### 3.4 Week-by-Week Breakdown
 
 | Weeks | Focus Area | Key Deliverables |
 |-------|-----------|-----------------|
-| 1–2 | File upload infrastructure | S3 presigned URLs, upload service, image processing pipeline |
-| 3–4 | Full-text search | PostgreSQL tsvector, search UI, filters |
+| 1–2 | Streaming protocol infrastructure | Core WebSocket streaming events (stream_start/chunk/end/cancel), ChunkBatcher (100ms), progressive markdown renderer in web client |
+| 3–4 | Core Attachment Service + @FileBot + Full-text search | Core upload sessions, signed URL issuance, scan status, thumbnails, message attachments. @FileBot adds `/file` commands and cleanup workflows. PostgreSQL tsvector, search UI, filters |
 | 5–6 | Threads | Thread model, thread UI (sidebar panel), thread notifications |
 | 7–8 | Online presence + Read receipts | Presence system, typing indicators, read cursors, unread badges |
 | 9–12 | AI Agent Engine (M1–M4) | Provider layer, streaming protocol, basic commands, tool integration |
-| 13–14 | Channel E2E + AI memory | Sender Key, pgvector RAG, memory management |
-| 15–16 | AI UI (M6–M7) | Progressive rendering, workspace settings, privacy compliance |
-| 17–18 | Bot advanced features | Interactive components, webhook delivery, Phase 2 base bots |
+| 13–14 | Channel E2E + AI memory | Sender Key, AI conversation memory, permission-aware search tool integration |
+| 15–16 | AI UI + Bot SDK polish | Progressive rendering, workspace AI settings, bot interactive components (buttons, modals, Block Kit), webhook delivery system |
+| 17–18 | Base bots (Phase 2) | @TodoBot, @GitBot, @GitLabBot, @CIBot, @StandupBot, @CelebrateBot, @FeedbackBot — using Bot SDK |
 | 19–20 | Electron packaging | Cross-platform build, code signing, auto-update |
 | 21–22 | Offline + Performance | Offline queue, IndexedDB cache, Web Vitals, profiler |
 | 23–24 | Testing + QA | End-to-end tests, load testing, security audit, documentation |
@@ -257,26 +269,27 @@ Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 
 | 6 | Webhook Bot | `@WebhookBot` | DB (URLs, templates, logs) | Low |
 | 7 | Kudos Bot | `@KudosBot` | DB (records, leaderboard) | Medium |
 
-### Phase 2 Bots (Engagement — 7 bots)
+### Phase 2 Bots (Engagement — 9 bots)
 
 | # | Bot | `@handle` | Storage Tier | i18n Priority |
 |---|-----|-----------|-------------|---------------|
-| 8 | Todo Bot | `@TodoBot` | DB (tasks, due dates) | Medium |
-| 9 | GitHub Bot | `@GitBot` | DB (repo subscriptions) | Low |
-| 10 | GitLab Bot | `@GitLabBot` | DB (repo subscriptions) | Low |
-| 11 | CI/CD Bot | `@CIBot` | DB (deploy history) | Low |
-| 12 | Standup Bot | `@StandupBot` | DB (templates, responses) | Medium |
-| 13 | Celebration Bot | `@CelebrateBot` | DB (birthdays, anniversaries) | Medium |
-| 14 | Feedback Bot | `@FeedbackBot` | DB (surveys, responses) | Medium |
-| — | **AI Assistant Bot** | `@AI` | Stateless per request | N/A (language-agnostic via LLM) |
+| 8 | File Bot | `@FileBot` | KV/DB (workflow settings, cleanup policies, file ID references) | Low |
+| 9 | Todo Bot | `@TodoBot` | DB (tasks, due dates) | Medium |
+| 10 | GitHub Bot | `@GitBot` | DB (repo subscriptions) | Low |
+| 11 | GitLab Bot | `@GitLabBot` | DB (repo subscriptions) | Low |
+| 12 | CI/CD Bot | `@CIBot` | DB (deploy history) | Low |
+| 13 | Standup Bot | `@StandupBot` | DB (templates, responses) | Medium |
+| 14 | Celebration Bot | `@CelebrateBot` | DB (birthdays, anniversaries) | Medium |
+| 15 | Feedback Bot | `@FeedbackBot` | DB (surveys, responses) | Medium |
+| 16 | **AI Assistant Bot** | `@AI` | Stateless per request (LLM provider) | N/A (language-agnostic via LLM) |
 
 ### Phase 3 Bots (Advanced — 5 bots)
 
 | # | Bot | `@handle` | Storage Tier | i18n Priority |
 |---|-----|-----------|-------------|---------------|
-| 15 | Status Bot | `@StatusBot` | DB (service subscriptions) | Low |
-| 16 | Scheduler Bot | `@SchedulerBot` | DB (meeting proposals, availability) | Medium |
-| 17 | Meeting Notes Bot | `@MeetingBot` | DB (transcripts, summaries) | Medium |
+| 17 | Status Bot | `@StatusBot` | DB (service subscriptions) | Low |
+| 18 | Scheduler Bot | `@SchedulerBot` | DB (meeting proposals, availability) | Medium |
+| 19 | Meeting Notes Bot | `@MeetingBot` | DB (transcripts, summaries) | Medium |
 | 18 | AutoMod Bot | `@AutoMod` | DB (rules, violation log) | High |
 | — | Bot Marketplace | — | — | — |
 
@@ -284,7 +297,7 @@ Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 
 
 | Classification | Count | Owner | Development Model |
 |---------------|-------|-------|-------------------|
-| **First-party** (bundled) | 11 | Nexus Chat core team | Developed in monorepo `packages/bots/`, shipped with platform |
+| **First-party** (bundled) | 13 | Nexus Chat core team | Developed in monorepo `packages/bots/`, shipped with platform |
 | **Official seeded** (third-party) | 6 | Nexus Chat team using public SDK | Separate repos, demonstrate SDK capabilities, community templates |
 
 ---
@@ -322,10 +335,10 @@ Week 9-10:  M5 Memory Management              M12: Meeting AI
   └─ ConversationSummarizer (cascading)          └─ Meeting summarization
   └─ ContextCache (Redis TTLs)                   └─ Action item extraction
 
-Week 11-12: M6 RAG + M7 Polish                M13: Custom Agents
-  └─ pgvector extension + embedding pipeline     └─ Agent builder UI
-  └─ BatchEmbeddingGenerator                     └─ Community agent marketplace
-  └─ Semantic search + hybrid                    └─ User-defined prompts/tools
+Week 11-12: M6 Search Tool + M7 Polish        M13: Custom Agents
+  └─ Permission-aware full-text search tool       └─ Agent builder UI
+  └─ Conversation memory + Redis summaries        └─ Community agent marketplace
+  └─ Basic hybrid search hooks (no pgvector yet)  └─ User-defined prompts/tools
   └─ Typewriter animation, scroll lock
   └─ Workspace AI settings, GDPR compliance
 ```
@@ -336,7 +349,7 @@ Week 11-12: M6 RAG + M7 Polish                M13: Custom Agents
 |-----------|---------|------------------------|
 | **Agent Framework** | Vercel AI SDK (streaming-first, TypeScript) | LangGraph (multi-agent) |
 | **Tool Standard** | OpenAI function calling format | MCP (Model Context Protocol) |
-| **Vector Store** | pgvector (in PostgreSQL) | Pinecone / Qdrant (>10M vectors) |
+| **Vector Store** | Core full-text search only | pgvector in PostgreSQL; Pinecone / Qdrant if >10M vectors |
 | **Primary Models** | GPT-4o, Claude 4 Sonnet | Self-hosted Ollama/vLLM |
 | **Model Gateway** | Direct provider API | OpenRouter (unified + fallback) |
 | **Embedding Model** | OpenAI text-embedding-3-small | Self-hosted BGE-M3 |

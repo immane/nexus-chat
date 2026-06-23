@@ -1,6 +1,7 @@
 # Nexus Chat — Session Context Document
 
 > Last updated: 2026-06-24
+> Current status: Phase 1 implementation tasks generated under `docs/tasks/`
 
 ## 1. Project Overview
 
@@ -28,7 +29,7 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 | Cache / Pub/Sub | Redis | 7.4+ |
 | Encryption | Signal Protocol (`@signalapp/libsignal-client`) | ^0.96.2 |
 | Task Queue | BullMQ | ^5.x |
-| Object Storage | S3-compatible (R2 / MinIO) | — |
+| Object Storage | Core Attachment Service + S3-compatible storage (R2 / MinIO) | — |
 | Desktop Packaging | electron-builder + electron-updater | ^26.0, ^6.3 |
 
 ### 2.2 Monorepo & Deployment
@@ -50,7 +51,7 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 
 ## 3. Architecture Summary
 
-### 3.1 Five-Layer Architecture
+### 3.1 Core Architecture Layers
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -66,6 +67,7 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 │ Layer 3: Business Logic                       │
 │ REST API (Hono) + Channel/Member management   │
 │ Message CRUD + state machine                  │
+│ Attachment Service (file lifecycle authority) │
 │ Cursor-based pagination + UUID v7 IDs         │
 ├──────────────────────────────────────────────┤
 │ Layer 4: Async Bot Engine                     │
@@ -85,6 +87,22 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 - **Normal Channels**: Server-side plaintext storage — enables server-side search, Bot access, message history for new members
 - **E2EE Channels**: Signal Protocol end-to-end encryption — server stores only ciphertext. New members see only messages after join (Pending Join). Server-side search disabled; client-side local search only
 - **Per-Channel Granularity**: Each channel/DM independently selects encryption level
+- **E2E Attachments**: Client encrypts files before upload. Core Attachment Service stores opaque encrypted blobs and authorization metadata. Bots, including `@FileBot`, do not participate in E2E attachment upload/download.
+
+### 3.2.1 Bot Responsibility Boundary
+
+Bots are used for product workflows and integrations, but core services own lifecycle-critical platform primitives.
+
+| Responsibility | Owner |
+|----------------|-------|
+| Message persistence, delivery, edits, deletes, read state | Core IM |
+| Workspace/channel membership and authorization | Core IM |
+| Search indexes for normal-mode messages | Core IM |
+| Signal Protocol key distribution and E2E routing | Core IM |
+| Attachment upload sessions, object keys, scan status, signed URLs, retention | Core Attachment Service |
+| Bot installation, token validation, scopes, event subscriptions | Core Bot Engine |
+| Polls, reminders, kudos, standups, CI/CD, GitHub/GitLab, AI workflows | Bots |
+| File-management UX (`/file upload`, `/file list`, cleanup reminders) | `@FileBot` over Core Attachment Service |
 
 ### 3.3 Message State Machine
 
@@ -116,11 +134,11 @@ Phase 3 (Full Microservices, 9-18 months):
 
 ### 3.5 Database Design
 
-**Core Tables**: `users`, `workspaces`, `channels`, `channel_members`, `messages`, `files`, `read_receipts`
+**Core Tables**: `users`, `workspaces`, `workspace_members`, `channels`, `channel_members`, `messages`, `message_reactions`, `files`, `upload_sessions`, `message_attachments`, `bot_integrations`, `bot_channel_memberships`, `bot_event_subscriptions`, `signal_prekey_bundles`, `signal_one_time_prekeys`, `signal_sessions`, `audit_logs`
 
 - JSONB for polymorphic data (message `content`, channel `metadata`, reaction counts)
 - Cursor-based pagination on `(channel_id, created_at DESC, id DESC)` compound index
-- `client_msg_id` UNIQUE constraint for idempotency
+- `(sender_id, client_msg_id)` UNIQUE constraint for idempotency
 - Schema-based logical isolation (`chat.`, `bot.`, `auth.`, `signal.`) preparing for future microservice split
 
 ### 3.6 Redis Cache Layers
@@ -142,7 +160,7 @@ Layer 6: Rate Limiting (Sliding Window, Redis-backed)
 Comprehensive backend architecture research covering HTTP framework selection (Hono recommended over Fastify/NestJS), WebSocket real-time communication (Socket.IO v4 + Redis Adapter), message state machine design (8 states: DRAFT through DELETED), channel/DM state management with RBAC permissions (owner/admin/member), PostgreSQL database schema with Drizzle ORM, 6-layer Redis caching strategy, and security/rate limiting. Recommends Hono for its small bundle size, cross-runtime support, built-in middleware, and fast cold start; Socket.IO for room management and horizontal scaling; and cursor-based pagination with UUID v7.
 
 ### 4.2 `bot-engine-microservices.md`
-Event-driven Bot engine and microservices decoupling strategy. Recommends Redis Streams for Phase 1 event bus (zero additional cost on existing Redis) with migration to NATS JetStream in Phase 2 for low-latency persistent events with subject hierarchy filtering. Bot connection uses hybrid WebSocket (primary, via SDK) + HTTP Webhook (fallback). Custom `@nexus-chat/bot-sdk` package with declarative event listeners and type-safe operation APIs. BullMQ for task queuing with Inngest integration point for complex long-running workflows. Message processing pipeline: validate → E2EE branch (conditional) → persist → Bot dispatch (async) → real-time broadcast (async). Bot security uses HMAC self-verifying tokens (`nxbot-v1-xxx`), OAuth2 scopes, two-tier rate limiting, and data isolation via `bot_channel_memberships`.
+Event-driven Bot engine and microservices decoupling strategy. Recommends Redis Streams for Phase 1 event bus (zero additional cost on existing Redis) with migration to NATS JetStream in Phase 2 for low-latency persistent events with subject hierarchy filtering. Bot connection uses hybrid WebSocket (primary, via SDK) + HTTP Webhook (fallback). Custom `@nexus-chat/bot-sdk` package with declarative event listeners and type-safe operation APIs. BullMQ provides per-bot queue isolation. The updated token model uses opaque random `nxbot_v1_...` tokens stored as database hashes for revocation and scope lookup. Bots are excluded from E2E channels and cannot own lifecycle-critical core data.
 
 ### 4.3 `frontend-architecture.md`
 Desktop client architecture with `vite-plugin-electron` v1.0.4 for seamless Vite integration. Process communication via `contextBridge` + IPC with `contextIsolation: true, sandbox: true`. `react-virtuoso` selected as the sole recommendation for IM message list virtual scrolling (dynamic height, bidirectional infinite scroll, auto-follow). Zustand multi-store pattern with `Map`-based normalized message storage for O(1) lookup and deduplication. Tailwind CSS v4 with `@theme` directive for design tokens, `class-variance-authority` for component variants, shadcn/ui on-demand integration. Offline-first strategy using Electron main process caching (not Service Worker), IndexedDB for message persistence, and an offline queue with automatic resend on reconnection. Web Vitals monitoring and React Profiler for performance regression detection.
@@ -169,9 +187,32 @@ Componentized UI architecture with Atomic Design methodology across three packag
 - Shared PostgreSQL with schema isolation
 - Caddy/Nginx reverse proxy
 
+### Phase 1 Implementation Tasks
+
+Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
+
+| # | Task |
+|---|------|
+| 01 | Project Scaffold & Developer Workflow |
+| 02 | Shared Contracts, Event Schemas & Runtime Validation |
+| 03 | Database Schema, Migrations & Persistence Boundary |
+| 04 | Authentication, Sessions & Security Baseline |
+| 05 | Core Gateway: REST, WebSocket, Rate Limits & Protocol |
+| 06 | Workspace, Channel, DM & Membership Services |
+| 07 | Message Service, State Machine & Core IM Actions |
+| 08 | Attachment Service Foundation & E2E-Safe File Boundary |
+| 09 | Signal Protocol 1:1 DM E2EE |
+| 10 | Bot Engine Core, Event Dispatch & Command Invocation |
+| 11 | Node.js Bot SDK Reference Implementation |
+| 12 | Minimal First-Party Base Bots |
+| 13 | React Web Client Shell & Core Chat UI |
+| 14 | Electron Shell, IPC Boundary & Desktop Integration |
+| 15 | Observability, Audit Logs & Security Hardening |
+| 16 | Local Development, CI, Preview Deploy & Closed Beta Release |
+
 ### Later Phases
-- **Phase 2 (Growth, 3-9 months)**: File/image transfer, Group E2EE, microservices split, Elasticsearch full-text search, voice/video calling infrastructure, Inngest for complex Bot workflows, OpenTelemetry tracing
-- **Phase 3 (Scale, 9-18 months)**: Disappearing messages, Sealed Sender, Safety Number verification, Bot marketplace, multi-region deployment
+- **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
+- **Phase 3 (Scale, 9-18 months)**: pgvector RAG, multi-agent AI, disappearing messages, Sealed Sender, Safety Number verification, Bot marketplace, multi-region deployment
 
 ---
 

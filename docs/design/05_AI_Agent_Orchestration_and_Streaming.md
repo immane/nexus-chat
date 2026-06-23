@@ -53,13 +53,14 @@ The AI Assistant supports two interaction modes, both routed through the existin
 - Single-agent architecture: one LLM call orchestrated with tool invocation
 - Five built-in commands: `ask`, `summarize`, `translate`, `draft`, `search`
 - Two LLM providers: OpenAI (GPT-4o / GPT-4o Mini) + Anthropic (Claude 4 Sonnet / Claude 3.5 Haiku)
-- pgvector-based RAG for semantic search over channel history
+- Basic permission-aware search tool over normal-mode message search (`tsvector`). pgvector-based RAG is deferred to Phase 3 after indexing and retention policies are stable.
 - Streaming WebSocket protocol for progressive message rendering
 - Workspace-level opt-in with provider selection and cost tracking
 
 **Phase 3 (Advanced AI)** — deferred, sketched for roadmap alignment:
 
 - Multi-agent orchestration via LangGraph (supervisor-worker, debate patterns)
+- pgvector-based RAG for semantic search over channel history
 - E2B-based code execution sandbox
 - Voice/video meeting summarization
 - Autonomous recap generation (daily/weekly digests)
@@ -423,7 +424,7 @@ This diagram, reproduced from the research document (§2.3), shows the AI Bot En
 │  │                                          │                         │
 │  │  ┌──────────────┐ ┌──────────────────┐  │                         │
 │  │  │ Conversation │ │ Vector Store     │  │                         │
-│  │  │ History      │ │ (pgvector)       │  │                         │
+│  │  │ History      │ │ (Phase 3)        │  │                         │
 │  │  │ (Sliding     │ │                  │  │                         │
 │  │  │  Window)     │ │ Semantic search  │  │                         │
 │  │  │              │ │ over channel     │  │                         │
@@ -452,7 +453,7 @@ This diagram, reproduced from the research document (§2.3), shows the AI Bot En
 | **Agent Router** | Map intent to `AgentDefinition` (system prompt, tools, model, context config) | `AgentInvocation` | Resolved `AgentDefinition` |
 | **LLM Provider** | Abstract over OpenAI, Anthropic, Google, OpenRouter, and Ollama; provide unified `chat()` and `embeddings()` | Messages, tools, options | `AsyncGenerator<StreamChunk>` |
 | **Tool Executor** | Execute tool calls requested by the LLM; classify by safety (GREEN/YELLOW/RED) | `ToolCall`, `ToolContext` | Tool result injected into LLM context |
-| **Memory Manager** | Maintain conversation sliding window, generate summaries, query pgvector for semantic search | Channel context, user query | `ChatMessage[]` for LLM context |
+| **Memory Manager** | Maintain conversation sliding window, generate summaries, use core full-text search in Phase 2, and query pgvector for semantic search in Phase 3 | Channel context, user query | `ChatMessage[]` for LLM context |
 | **Stream Manager** | Batcher → Emitter pipeline; handle cancellation and tool confirmation events | `AsyncGenerator<StreamChunk>` | Socket.IO `stream_*` events |
 
 ### 3.3 Integration with Bot Engine (04 Design)
@@ -470,8 +471,9 @@ Message Received (non-E2E channel only)
                 ▼
 ┌───────────────────────────────────────┐
 │      Bot Subscription Router           │  (existing pipeline, §2.2 of 04 design)
-│  AI Bot is registered for all channels │
-│  where it has been added as a member.  │
+│  AI Bot is eligible only when installed │
+│  in this channel, enabled by workspace  │
+│  policy, non-E2E, and user-authorized. │
 └───────────────┬───────────────────────┘
                 │
                 ▼
@@ -612,7 +614,7 @@ export interface ModelInfo {
 | `summarize` | `/ai summarize [N\|thread\|today\|yesterday]` | `summarizeAgent` | Summarize conversation scope |
 | `translate` | `/ai translate <text> to <lang>` | `translateAgent` | Translate text; defaults to last message if no text given |
 | `draft` | `/ai draft <topic>` | `draftAgent` | Generate draft message; user can copy, edit, send |
-| `search` | `/ai search <query>` | `searchAgent` | Semantic search across channel history via pgvector |
+| `search` | `/ai search <query>` | `searchAgent` | Phase 2: permission-aware full-text search. Phase 3: semantic search via pgvector/RAG |
 | `recap` | `/ai recap [today\|week]` | `recapAgent` | Daily/weekly channel recap summary |
 | `help` | `/ai help` | N/A | Lists available commands with descriptions |
 | `feedback` | `/ai feedback` | N/A | Opens feedback form for AI feature |
@@ -1404,9 +1406,9 @@ export async function summarizeConversation(
 }
 ```
 
-### 7.4 RAG: Semantic Search with pgvector
+### 7.4 Phase 3 RAG: Semantic Search with pgvector
 
-As established in the research document (§3.4), pgvector is the primary vector store recommendation because PostgreSQL is already deployed in the stack (see [03_Business_Logic_and_Persistence_Backend](./03_Business_Logic_and_Persistence_Backend.md)).
+RAG is a Phase 3 capability. Phase 2 `/ai search` uses the core full-text search API so the team can stabilize authorization, retention, deletion, and indexing first. Once those guarantees are mature, pgvector becomes the primary vector store because PostgreSQL is already deployed in the stack (see [03_Business_Logic_and_Persistence_Backend](./03_Business_Logic_and_Persistence_Backend.md)).
 
 #### 7.4.1 Schema
 

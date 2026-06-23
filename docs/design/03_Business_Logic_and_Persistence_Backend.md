@@ -24,7 +24,7 @@ lang: en
 
 ## 1. Business Logic Module Breakdown
 
-The backend domain logic is organized into seven self-contained modules. Each module owns its routes, service layer, and persistence concerns.
+The backend domain logic is organized into eight self-contained modules. Each module owns its routes, service layer, and persistence concerns.
 
 ```
 server/
@@ -33,6 +33,7 @@ server/
     ├── workspace/     # Workspace CRUD, member management, roles (owner/admin/member)
     ├── channel/       # Channel CRUD, type (public/private/DM), mode (normal/e2e), member management
     ├── message/       # Message CRUD, pagination, edit/delete, encryption metadata
+    ├── attachment/    # Upload sessions, file metadata, scan status, signed URLs, E2E opaque blobs
     ├── signal/        # PreKeyBundle upload/fetch/revoke, key server (public keys only)
     ├── bot/           # Bot registration, token issuance, permission scoping, webhook config
     └── presence/      # Online status, last seen, typing indicators
@@ -46,8 +47,9 @@ server/
 | `workspace` | Workspace CRUD, join/leave, role promotion/demotion, ownership transfer | `auth` (JWT middleware) |
 | `channel` | Channel lifecycle, DM auto-creation, member add/remove, E2EE mode toggle | `workspace` (membership check), `signal` (key rotation) |
 | `message` | Message send/receive, cursor pagination, edit/delete, encryption metadata passthrough | `channel` (membership), Redis (hot cache), Socket.IO |
+| `attachment` | File upload sessions, object metadata, scan status, thumbnail references, signed download URLs, E2E opaque blob lifecycle | `message`, object storage, virus scanner |
 | `signal` | Public-key store — PreKeyBundle upload/fetch, one-time prekey consumption, exhaustion detection | PostgreSQL (transactional prekey ops) |
-| `bot` | Bot user creation, token generation (HMAC-SHA256 self-validating format), permission scoping, webhook delivery | `workspace`, `channel` |
+| `bot` | Bot user creation, opaque token issuance (DB hash for revocation), permission scoping, webhook delivery | `workspace`, `channel` |
 | `presence` | WebSocket-backed online/offline state, typing indicators, last-seen timestamp | Redis (TTL-based), Socket.IO |
 
 ### 1.2 Inter-Module Communication
@@ -152,7 +154,7 @@ export const channels = pgTable("channels", {
     customEmoji?: Record<string, string>;
   }>(),
   createdBy: uuid("created_by")
-    .references(() => users.id, { onDelete: "set null" }).notNull(),
+    .references(() => users.id, { onDelete: "restrict" }).notNull(),
   archivedAt: timestamp("archived_at", { withTimezone: true }),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -193,14 +195,23 @@ export const messages = pgTable("messages", {
   channelId: uuid("channel_id")
     .references(() => channels.id, { onDelete: "cascade" }).notNull(),
   senderId: uuid("sender_id")
-    .references(() => users.id, { onDelete: "set null" }).notNull(),
+    .references(() => users.id, { onDelete: "restrict" }).notNull(),
   clientMsgId: varchar("client_msg_id", { length: 64 }),
-  content: jsonb("content").$type<{
-    type: "text" | "image" | "file" | "system";
-    text?: string;
-    ciphertext?: string;
-    attachments?: {
-      id: string; name: string; url: string; mimeType: string; size: number;
+   content: jsonb("content").$type<{
+     type: "text" | "image" | "file" | "system";
+     text?: string;
+     ciphertext?: string;
+     // attachments[] stores message-render references to core Attachment
+     // Service records. Clients never submit arbitrary URLs; download URLs
+     // are minted by the Attachment Service after authz and scan checks.
+     // @FileBot is only a UX/workflow layer over this core service.
+     attachments?: {
+      fileId: string;
+      name: string;
+      mimeType: string;
+      size: number;
+      scanStatus: "pending" | "clean" | "blocked";
+      thumbnailFileId?: string;
     }[];
     mentions?: string[];
   }>().notNull(),
@@ -221,10 +232,67 @@ export const messages = pgTable("messages", {
 }, (table) => ({
   channelCursorIdx: index("msg_channel_cursor_idx")
     .on(table.channelId, sql`id DESC`),
-  clientMsgIdx: uniqueIndex("msg_client_msg_idx").on(table.clientMsgId),
+  clientMsgIdx: uniqueIndex("msg_client_msg_idx")
+    .on(table.senderId, table.clientMsgId),
   senderIdx: index("msg_sender_idx").on(table.senderId, table.createdAt),
   threadIdx: index("msg_thread_idx").on(table.threadId, table.createdAt),
   encryptionIdx: index("msg_encryption_idx").on(table.encryption),
+}));
+
+// ═══════════════════════════════════════════════════════════
+// files / attachments (core infrastructure)
+// ═══════════════════════════════════════════════════════════
+// Files are core because authz, scan status, retention, signed URL issuance,
+// and E2E opaque blob lifecycle cannot safely be delegated to a bot.
+// FileBot uses these APIs but does not own storage authority.
+export const files = pgTable("files", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  workspaceId: uuid("workspace_id")
+    .references(() => workspaces.id, { onDelete: "cascade" }).notNull(),
+  ownerId: uuid("owner_id")
+    .references(() => users.id, { onDelete: "restrict" }).notNull(),
+  objectKey: text("object_key").notNull(),
+  name: varchar("name", { length: 500 }).notNull(),
+  mimeType: varchar("mime_type", { length: 255 }).notNull(),
+  size: integer("size").notNull(),
+  contentHash: varchar("content_hash", { length: 128 }).notNull(),
+  encryption: varchar("encryption", { length: 20 }).default("none").notNull(),
+  // "none" | "e2e". E2E files are client-encrypted opaque blobs.
+  scanStatus: varchar("scan_status", { length: 20 }).default("pending").notNull(),
+  // "pending" | "clean" | "blocked" | "failed"
+  retentionUntil: timestamp("retention_until", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  workspaceIdx: index("files_workspace_idx").on(table.workspaceId, table.createdAt),
+  hashIdx: index("files_hash_idx").on(table.contentHash),
+  scanIdx: index("files_scan_idx").on(table.scanStatus),
+}));
+
+export const uploadSessions = pgTable("upload_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  workspaceId: uuid("workspace_id")
+    .references(() => workspaces.id, { onDelete: "cascade" }).notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" }).notNull(),
+  objectKey: text("object_key").notNull(),
+  status: varchar("status", { length: 20 }).default("pending").notNull(),
+  // "pending" | "uploaded" | "expired" | "cancelled"
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("upload_sessions_user_idx").on(table.userId, table.createdAt),
+  statusIdx: index("upload_sessions_status_idx").on(table.status, table.expiresAt),
+}));
+
+export const messageAttachments = pgTable("message_attachments", {
+  messageId: uuid("message_id")
+    .references(() => messages.id, { onDelete: "cascade" }).notNull(),
+  fileId: uuid("file_id")
+    .references(() => files.id, { onDelete: "restrict" }).notNull(),
+  position: integer("position").default(0).notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.messageId, table.fileId] }),
+  fileIdx: index("message_attachments_file_idx").on(table.fileId),
 }));
 
 // ═══════════════════════════════════════════════════════════
@@ -264,6 +332,30 @@ export const botIntegrations = pgTable("bot_integrations", {
   workspaceBotIdx: uniqueIndex("bots_workspace_name_idx")
     .on(table.workspaceId, table.name),
   botUserIdx: index("bots_user_idx").on(table.botUserId),
+}));
+
+export const botChannelMemberships = pgTable("bot_channel_memberships", {
+  botId: uuid("bot_id")
+    .references(() => botIntegrations.id, { onDelete: "cascade" }).notNull(),
+  channelId: uuid("channel_id")
+    .references(() => channels.id, { onDelete: "cascade" }).notNull(),
+  addedBy: uuid("added_by")
+    .references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.botId, table.channelId] }),
+  channelIdx: index("bot_channel_memberships_channel_idx").on(table.channelId),
+}));
+
+export const botEventSubscriptions = pgTable("bot_event_subscriptions", {
+  botId: uuid("bot_id")
+    .references(() => botIntegrations.id, { onDelete: "cascade" }).notNull(),
+  eventType: varchar("event_type", { length: 100 }).notNull(),
+  scope: jsonb("scope").$type<{ channelId?: string; workspaceId?: string }>().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.botId, table.eventType] }),
+  eventIdx: index("bot_event_subscriptions_event_idx").on(table.eventType),
 }));
 
 // ═══════════════════════════════════════════════════════════

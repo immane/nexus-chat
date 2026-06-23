@@ -120,7 +120,7 @@ const ClientEvents = {
   "presence.update":       (data: { status: "online" | "away" | "dnd" | "offline" }) => void,
   "channel.join":          (data: { channelId: string }) => void,
   "channel.leave":         (data: { channelId: string }) => void,
-  "bot.command":           (data: { command: string; args: string; channelId: string }) => void,
+  "bot.command.invoke":    (data: { botName: string; command: string; args: string[]; channelId: string; triggerId?: string }) => void,
   "signal.prekey.fetch":   (data: { userIds: string[] }) => void,
   "signal.prekey.upload":  (data: { prekeys: PreKeyBundle[] }) => void,
 } as const;
@@ -723,7 +723,7 @@ const WS_RATE_LIMITS: Record<string, { max: number; windowSec: number }> = {
   "typing.stop":      { max: 5,  windowSec: 3 },
   "presence.update":  { max: 2,  windowSec: 10 },  // 2 updates/10sec
   "channel.join":     { max: 10, windowSec: 60 },  // 10 joins/min
-  "bot.command":      { max: 20, windowSec: 1 },   // 20 commands/sec
+  "bot.command.invoke": { max: 20, windowSec: 1 }, // 20 commands/sec
 };
 
 async function checkWsRateLimit(
@@ -860,11 +860,14 @@ const MessageContentSchema = z.object({
   type: z.enum(["text", "image", "file", "system"]),
   text: z.string().max(40_000).optional(),
   attachments: z.array(z.object({
-    id: z.string().uuid(),
+    fileId: z.string().uuid(),
     name: z.string().max(500),
-    url: z.string().url(),
     mimeType: z.string(),
     size: z.number().max(50 * 1024 * 1024),
+    scanStatus: z.enum(["pending", "clean", "blocked"]),
+    thumbnailFileId: z.string().uuid().optional(),
+    // No client-provided URLs. Download URLs are issued by the core
+    // Attachment Service after authz, retention, scan, and E2E checks.
   })).optional(),
   mentions: z.array(z.string().uuid()).max(50).optional(),
 });
@@ -894,7 +897,7 @@ socket.on("message.send", async (rawData, ack) => {
     ack({ status: "failed", error: "validation_error", details: parsed.error.issues });
     return;
   }
-  const { payload, channelId, workspaceId, seq } = parsed.data;
+  const { payload, channelId, workspaceId, seq, encryption } = parsed.data;
 
   // 2. Auth Check — verify channel membership
   const isMember = await isChannelMember(userId, channelId);
@@ -910,9 +913,16 @@ socket.on("message.send", async (rawData, ack) => {
     return;
   }
 
-  // 4. E2E Check — skip content validation for encrypted messages
+  // 4. E2E Check — the client hint is not trusted. The channel mode from
+  // the database is authoritative and must match the requested encryption.
   let messageId: string;
-  if (payload.encryption === "e2e") {
+  const channelMode = await getChannelMode(channelId);
+  if (channelMode === "e2e" && encryption !== "e2e") {
+    ack({ status: "failed", error: "encryption_required" });
+    return;
+  }
+
+  if (channelMode === "e2e") {
     // Store as-is (opaque payload); no content validation
     messageId = await storeE2EMessage(userId, channelId, payload);
   } else {
@@ -928,7 +938,7 @@ socket.on("message.send", async (rawData, ack) => {
   io.to(`channel:${channelId}`).emit("message.receive", message);
 
   // 7. Bot Event Dispatch (normal mode only)
-  if (payload.encryption !== "e2e") {
+  if (channelMode !== "e2e") {
     await publishBotEvent("message.created", {
       messageId,
       channelId,

@@ -684,9 +684,10 @@ App
 │   │   │   │       ├── MessageContent       (markdown/emoji)
 │   │   │   │       └── MessageToolbar       (hover: react, edit, delete, copy)
 │   │   │   └── MessageInput
-│   │   │       ├── FileUploadButton
-│   │   │       ├── TextEditor               (Slate.js or textarea)
-│   │   │       ├── EmojiPicker              (lazy-loaded)
+│   │   │       ├── InputActionBar             (bot-registered actions:
+│   │   │       │   file upload, polls, etc.)  │   (extension slot)
+│   │   │       ├── TextEditor                 (Slate.js or textarea)
+│   │   │       ├── EmojiPicker                (lazy-loaded)
 │   │   │       └── SendButton
 │   │   └── DetailPanel                      (conditional: uiStore.detailPanelOpen)
 │   │       ├── ChannelInfo
@@ -793,26 +794,28 @@ User types "/" in MessageInput
         ▼
 Autocomplete popup appears (filtered list of available slash commands)
         │
-        ├── Commands sourced from botStore or static manifest:
-        │   /giphy <query>, /poll <question>, /remind <time> <message>, /weather <city>
+        ├── Commands sourced from botStore (installed bots' manifests):
+        │   /botname <command> [args...]  ← dynamically populated by installed bots
+        │   e.g. @PollBot: /poll "Q" "A" "B" · @RemindBot: /remind me <when> <msg>
+        │        @AIBot: /ai ask|summarize|translate · @FileBot: /file upload|list
         │
         ▼
 User selects command (click or Tab + Enter)
         │
         ▼
-TextEditor inserts command template: "/giphy "
+TextEditor inserts command template: "/botname "
         │
         ▼
 User completes arguments and presses Enter
         │
         ▼
-Message sent with type: 'bot_command' and payload: {command, args}
+Interaction sent as `bot.command.invoke` with payload: {botName, command, args}
         │
         ▼
-messageStore.upsertMessages → optimistic bot command message rendered
+uiStore.commandPending → transient command status rendered (not persisted message)
         │
         ▼
-wsSend('message:send', {type: 'bot_command', command, args})
+wsSend('bot.command.invoke', {botName, command, args, channelId})
         │
         ▼
 Server routes to bot engine → bot processes → response message pushed back via WS

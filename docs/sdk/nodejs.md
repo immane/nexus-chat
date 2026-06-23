@@ -1582,10 +1582,10 @@ bot.on('error', (event) => {
 
 ## 12. Bot Token Format
 
-Bot tokens follow a structured, self-validating format:
+Bot tokens follow a structured, opaque format:
 
 ```
-nxbot_v1_<base64url(hmac-sha256)>
+nxbot_v1_<base64url(random_32_bytes)>
 
 Example:
 nxbot_v1_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0
@@ -1595,12 +1595,11 @@ nxbot_v1_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0
 |-----------|-------------|
 | `nxbot` | Token prefix identifying the nexus-chat platform |
 | `v1` | Token version (for future rotation/upgrade) |
-| `base64url(HMAC)` | Self-validating signature — the server can verify authenticity without a DB lookup |
+| `base64url(random)` | Opaque high-entropy secret. The server stores only `SHA256(token)` for lookup and revocation. |
 
 ### Security Properties
 
-- **Self-validation**: The server recomputes the HMAC using a private signing secret (`BOT_TOKEN_SIGNING_SECRET`, 64-byte hex). A matching HMAC proves the token was issued by the platform.
-- **DB lookup for auth**: After format validation, the server hashes the token with SHA-256 and looks up `SHA256(token)` in the database to retrieve the bot's ID, workspace, and scopes.
+- **Opaque validation**: The server checks the prefix/version, hashes the token with SHA-256, and looks up `SHA256(token)` in the database to retrieve the bot's ID, workspace, scopes, revocation state, and installation policy.
 - **No logging**: Tokens are redacted from all log output by default.
 - **Revocable**: Workspace admins can revoke tokens instantly via the workspace settings UI.
 - **Rotatable**: The `v1` version prefix enables seamless token format upgrades without breaking existing bots.

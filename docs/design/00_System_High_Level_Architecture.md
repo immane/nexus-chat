@@ -120,9 +120,9 @@ The platform follows a standard SaaS multi-tenant model:
 │  │          │  │          │  │          │  │ └── Read Receipts│  │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────────────┘  │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────────────────────┐ │
-│  │ File     │  │ Signal   │  │ Bot Router + Event Bus           │ │
-│  │ Storage  │  │ Key      │  │ (Redis Streams → NATS Phase 2)   │ │
-│  │ Service  │  │ Service  │  │                                  │ │
+│  │ Signal   │  │ Attach.  │  │ Bot Router + Event Bus           │ │
+│  │ Key      │  │ Service  │  │ (Redis Streams → NATS Phase 2)   │ │
+│  │ Service  │  │          │  │                                  │ │
 │  └──────────┘  └──────────┘  └──────────────────────────────────┘ │
 │                                                                   │
 │  ┌────────────────────────┐  ┌────────────────────────────────┐  │
@@ -131,8 +131,8 @@ The platform follows a standard SaaS multi-tenant model:
 │  │  ├── Workspaces         │  │  ├── Online Presence           │  │
 │  │  ├── Channels           │  │  ├── Channel Members (cache)   │  │
 │  │  ├── Messages (JSONB)   │  │  ├── Recent Messages (hot)     │  │
-│  │  ├── Read Receipts      │  │  ├── Read Cursors             │  │
-│  │  ├── Files              │  │  ├── Rate Limit Counters       │  │
+│  │  ├── Attachments / Files│  │  ├── Read Cursors             │  │
+│  │  ├── Read Receipts      │  │  ├── Rate Limit Counters       │  │
 │  │  └── Signal Key Bundles │  │  └── Socket.IO Pub/Sub Adapter│  │
 │  └────────────────────────┘  └────────────────────────────────┘  │
 └─────────────────────────────┬────────────────────────────────────┘
@@ -141,37 +141,30 @@ The platform follows a standard SaaS multi-tenant model:
 │           Async Bot Engine & Event Dispatch                       │
 │  ┌─────────────────────┐  ┌───────────────┐  ┌────────────────┐  │
 │  │ Event Listener      │  │ Bot SDK       │  │ Bot WebSocket  │  │
-│  │ (Redis Streams      │  │ (TypeScript   │  │ Connection     │  │
-│  │  Consumer Group)    │  │  SDK for devs)│  │ (per-bot WS)   │  │
+│  │ (Redis Streams      │  │ (Multi-lang    │  │ Connection     │  │
+│  │  Consumer Group)    │  │  SDK for devs) │  │ (per-bot WS)   │  │
 │  └────────┬────────────┘  └───────────────┘  └────────────────┘  │
 │           │                                                       │
-│  ┌────────┴────────────┐                                          │
-│  │ Bot Command Router  │                                          │
-│  │ ├── /slash commands │                                          │
-│  │ ├── @mentions       │                                          │
-│  │ └── Interactive     │                                          │
-│  └─────────────────────┘                                          │
-└─────────────────────────────┬────────────────────────────────────┘
-                              │
-┌─────────────────────────────┴────────────────────────────────────┐
-│           AI Agent & Streaming Engine                              │
-│  ┌─────────────────────┐  ┌───────────────┐  ┌────────────────┐  │
-│  │ Command Parser      │  │ Agent Router  │  │ LLM Provider   │  │
-│  │ (/ai ask, summarize │  │ (Intent →     │  │ Abstraction     │  │
-│  │  translate, draft,  │  │  Agent)        │  │ (OpenAI/Claude/ │  │
-│  │  search, @ai mention│  │                │  │  Gemini/Ollama) │  │
-│  └────────┬────────────┘  └───────┬───────┘  └────────────────┘  │
-│           │                       │                                │
-│  ┌────────┴────────────┐  ┌───────┴────────┐                      │
-│  │ Tool Executor       │  │ Memory Manager │                      │
-│  │ (SDK API, Web Fetch │  │ (Sliding Window│                      │
-│  │  Code Sandbox)      │  │  pgvector RAG) │                      │
-│  └─────────────────────┘  └────────────────┘                      │
-│  ┌─────────────────────┐                                          │
-│  │ Stream Manager      │                                          │
-│  │ (Chunk Batcher 100ms│                                          │
-│  │  WS Emitter)        │                                          │
-│  └─────────────────────┘                                          │
+│  ┌────────┴──────────────────────────────────────────────────┐   │
+│  │ Bot Command Router                                         │   │
+│  │ ├── /slash commands → per-bot BullMQ queues                │   │
+│  │ ├── @mentions → event dispatch                             │   │
+│  │ ├── Interactive (buttons, modals)                          │   │
+│  │ └── Streaming relay (stream_start/chunk/end/cancel)        │   │
+│  └────────────────────────────────────────────────────────────┘   │
+│                                                                   │
+│  ┌───────────────┐  ┌───────────────┐  ┌────────────────────┐   │
+│  │ Built-in Bots │  │ @AIBot        │  │ @FileBot           │   │
+│  │ (Welcome/Help │  │ (LLM/Agent/   │  │ (UX/workflow over  │   │
+│  │  Notify/Poll/ │  │  Tools)       │  │  Attachment Svc)   │   │
+│  │  Remind/Kudos)│  │               │  │                    │   │
+│  └───────────────┘  └───────────────┘  └────────────────────┘   │
+│                                                                   │
+│  ┌────────────────────────────────────────────────────────────┐   │
+│  │ 3rd-party Bots (any language — SDK: TS/Java/Py/PHP/Go/Rs) │   │
+│  │ ├── GitHub/GitLab Bot    ├── CI/CD Bot    ├── Standup Bot  │   │
+│  │ ├── Todo Bot             ├── Status Bot   └── ...          │   │
+│  └────────────────────────────────────────────────────────────┘   │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -181,9 +174,8 @@ The platform follows a standard SaaS multi-tenant model:
 |-------|---------------|----------------|
 | **Client Shell** | Desktop runtime, native OS integration, offline persistence, Signal Protocol E2EE client | Electron main process, preload bridge, Zustand stores, IndexedDB |
 | **Core Gateway** | Authentication, request validation, WebSocket connection management, rate limiting, message routing | Hono HTTP server, Socket.IO server, Redis Adapter for horizontal WebSocket scaling |
-| **Business Logic Backend** | Domain logic for auth, workspaces, channels, messages, file storage, Signal key distribution, bot event routing | Service modules, Drizzle ORM, PostgreSQL, Redis caching layers |
-| **Async Bot Engine** | Decoupled bot lifecycle, event-driven message processing, bot SDK for third-party development | Redis Streams consumer groups, Bot WebSocket connections, slash-command router |
-| **AI Agent Engine** | AI command routing, LLM provider abstraction, tool execution, memory/RAG, streaming chunk relay | Command parser, agent router, LLM abstraction layer, pgvector, chunk batcher |
+| **Business Logic Backend** | Domain logic for auth, workspaces, channels, messages, Signal key distribution, attachment lifecycle, and bot event routing. Bots may initiate workflows, but core owns persistence, authorization, indexing, encryption boundaries, and lifecycle-critical state. | Service modules, Drizzle ORM, PostgreSQL, Redis caching layers, Attachment Service |
+| **Async Bot Engine** | Decoupled bot lifecycle, event-driven message processing, multi-language Bot SDK, streaming relay, built-in bots (@AIBot, @FileBot, @WelcomeBot, etc.), third-party bot hosting | Redis Streams consumer groups, BullMQ per-bot queues, Bot WebSocket connections, slash-command router, chunk batcher |
 
 ---
 
@@ -309,11 +301,11 @@ apps/desktop ──→ apps/web ──→ packages/ui
 | **Encryption** | @signalapp/libsignal | latest | Signal Protocol (X3DH key agreement + Double Ratchet), FOSS, audited |
 | **Validation** | Zod | ^3.23 | Runtime type validation at API boundaries, schema sharing between client and server |
 | **Logging** | Pino | ^9.5 | High-performance structured JSON logging, negligible overhead |
-| **File Storage** | S3-compatible (R2 / MinIO) | — | Low cost, CDN-ready, presigned upload URLs |
+| **File Storage** | Core Attachment Service + S3-compatible storage (R2 / MinIO) | — | Core owns upload sessions, authorization, scan status, object keys, signed URLs, and E2E opaque blobs; @FileBot only provides file-management UX/workflows |
 | **Package Manager** | pnpm + Turborepo | latest | Fast, disk-efficient, parallel builds with dependency-aware pipeline |
 | **Packaging** | electron-builder + electron-updater | ^26.0 / ^6.3 | Cross-platform packaging, GitHub Releases auto-update |
 | **AI SDK** | Vercel AI SDK v6 (Phase 2), LangGraph (Phase 3) | — | Streaming-first, MCP support, TypeScript-native |
-| **Vector Store** | pgvector (PostgreSQL extension) | — | In-database, no additional infra |
+| **Vector Store** | pgvector (PostgreSQL extension, Phase 3) | — | In-database semantic search after core full-text search, retention, and deletion semantics are stable |
 | **LLM Providers** | OpenAI / Anthropic / Google / OpenRouter / Ollama | — | Multi-provider abstraction |
 
 ---
@@ -417,16 +409,15 @@ User Client                Gateway/Server                   Bot Engine          
      │                         │                                │                            │
      │ 1. Type /poll          │                                │                            │
      │    "Best language?"    │                                │                            │
-     │ 2. message:send ───────→│                                │                            │
-     │    {content: {type:     │                                │                            │
-     │     "slash_command",    │                                │                            │
-     │     command: "/poll",   │                                │                            │
-     │     args: "Best lang?"}}│                                │                            │
-     │                         │ 3. Store message + detect      │                            │
-     │                         │    slash command prefix        │                            │
+     │ 2. bot.command.invoke ─→│                                │                            │
+     │    {botName: "poll",    │                                │                            │
+     │     command: "create",  │                                │                            │
+     │     args: [...]}         │                                │                            │
+     │                         │ 3. Auth + command lookup       │                            │
+     │                         │    (bot installed in channel)  │                            │
      │                         │ 4. Publish to Redis Streams    │                            │
      │                         │    XADD events:bot-commands    │                            │
-     │ 5. message:ack ────────│                                │                            │
+     │ 5. command:ack ───────│                                │                            │
      │                         │                                │ 6. Consumer Group reads    │
      │                         │                                │    event                   │
      │                         │                                │ 7. Route to installed bot  │
@@ -447,7 +438,7 @@ User Client                Gateway/Server                   Bot Engine          
 
 **Key characteristics:**
 
-- Bot command detection happens server-side (prefix `/`). The message is stored as a regular message with `content.type = "slash_command"`.
+- Slash commands are interaction events (`bot.command.invoke`), not persisted user messages by default. If an audit trail is required, the server creates a separate `system` message or audit log entry after accepting the command.
 - Bot commands are delivered to the bot engine via Redis Streams, decoupling the request-response lifecycle from the main message pipeline.
 - Each installed bot maintains a persistent WebSocket connection to the Bot Engine. Commands and responses flow through this dedicated channel.
 - Bot responses are injected back into the channel as regular messages (with a `botId` attribution), visible to all channel members.
@@ -460,11 +451,10 @@ User Client                Gateway/Server               AI Agent Engine         
      │                         │                              │                          │
      │ 1. /ai summarize        │                              │                          │
      │    yesterday            │                              │                          │
-     │ 2. message:send ───────→│                              │                          │
-     │                         │ 3. Auth + detect /ai         │                          │
-     │                         │    command prefix            │                          │
+     │ 2. bot.command.invoke ─→│                              │                          │
+     │                         │ 3. Auth + route /ai command  │                          │
      │                         │ 4. Publish to AI Streams ───→│                          │
-     │ 5. message:ack ────────│                              │                          │
+     │ 5. command:ack ───────│                              │                          │
      │                         │                              │ 6. Command Parser        │
      │                         │                              │    identifies "summarize" │
      │                         │                              │    agent, extracts intent │
@@ -472,7 +462,7 @@ User Client                Gateway/Server               AI Agent Engine         
      │                         │                              │    SummarizeAgent + model │
      │                         │                              │ 8. Memory Manager builds  │
      │                         │                              │    context (recent msgs,  │
-     │                         │                              │    pgvector RAG)          │
+      │                         │                              │    full-text search tool) │
      │                         │                              │                           │
      │                         │ ← 9. message.stream_start ──│                           │
      │                         │    {placeholderMessageId}    │                           │
@@ -622,18 +612,17 @@ For detailed microservices decoupling strategy, inter-service communication patt
 
 | Feature Area | Deliverables |
 |-------------|-------------|
-| **File & Image** | File upload (S3/R2), inline image previews, attachment thumbnails, file search |
 | **Search** | Full-text message search (PostgreSQL `tsvector`), channel/user search, search filters |
 | **Threads** | Threaded replies, thread sidebar panel, thread notifications |
 | **Reactions** | Reaction picker, reaction counts, reaction notifications |
 | **Online Presence** | Real-time online/offline status, typing indicators, last seen |
 | **Channel E2E** | Group E2E via Sender Key, key distribution for multi-member channels |
-| **Bot (advanced)** | Bot SDK package (`packages/bot-sdk`), interactive components (buttons, modals), bot marketplace, bot permissions |
+| **Bot (advanced)** | Bot SDK interactive components (buttons, modals), webhook delivery, bot permission scopes |
+| **Streaming Protocol** | Core WebSocket extension: stream_start → stream_chunk → stream_end events, ChunkBatcher, generation limits — usable by any bot |
+| **Base Bots (Phase 2)** | @FileBot (file workflow UX over core Attachment Service), @TodoBot, @GitBot, @CIBot, @StandupBot, @CelebrateBot, @FeedbackBot, @AIBot (LLM/agent/summarize/translate/draft/search) |
 | **Electron Package** | Cross-platform packaging (macOS, Windows, Linux), code signing, auto-update via GitHub Releases |
 | **Offline Support** | Offline message queue, automated retry on reconnect, IndexedDB message cache, offline indicator |
 | **Performance** | Web Vitals monitoring, React Profiler in CI, memory window control (200 messages in-memory), render optimization |
-| **AI Assistant** | Thread summarization, `/ai ask`, `/ai translate`, `/ai draft`, `/ai search` with RAG, streaming message protocol (stream_start → stream_chunk → stream_end) |
-| **Base Bots** | Todo Bot, GitHub/GitLab Bot, CI/CD Bot, Standup Bot, Celebration Bot, Feedback Bot |
 | **Infrastructure** | Multi-instance deployment, Redis Sentinel/Cluster, database read replicas |
 
 ### Phase 3: Advanced & Enterprise
