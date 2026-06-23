@@ -1,0 +1,3048 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only)">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/design/06_Phase_Roadmap/">
+      
+      
+        <link rel="prev" href="../05_AI_Agent_Orchestration_and_Streaming/">
+      
+      
+        <link rel="next" href="../../research/frontend-architecture/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Phase Roadmap - Nexus Chat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#06-phase-roadmap-milestone-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Phase Roadmap
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00_System_High_Level_Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System High-Level Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Shell & UI Rendering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long Connection & Core Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic & Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async Bot Engine & Event Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration & Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Roadmap
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Overview &amp; Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-phase-1-mvp-foundation-03-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Phase 1 — MVP Foundation (0–3 months)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Phase 1 — MVP Foundation (0–3 months)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-core-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Core Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-feature-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Feature Deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-base-bots-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Base Bots (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-packages-to-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Packages to Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-week-by-week-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Week-by-Week Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-phase-2-rich-features-production-hardening-36-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-core-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Core Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-feature-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Feature Deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-ai-agent-milestones-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 AI Agent Milestones (Phase 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-week-by-week-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Week-by-Week Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-phase-3-advanced-enterprise-612-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Phase 3 — Advanced &amp; Enterprise (+6–12 months)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Phase 3 — Advanced &amp; Enterprise (+6–12 months)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-core-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Core Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-feature-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Feature Deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-ai-agent-milestones-phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 AI Agent Milestones (Phase 3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-infrastructure-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Infrastructure Evolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Infrastructure Evolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-infrastructure-milestones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Infrastructure Milestones
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-bot-catalog-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Bot Catalog Rollout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Bot Catalog Rollout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-bots-mvp-7-bots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1 Bots (MVP — 7 bots)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-bots-engagement-7-bots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2 Bots (Engagement — 7 bots)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-bots-advanced-5-bots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3 Bots (Advanced — 5 bots)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bot-implementation-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bot Implementation Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-ai-agent-implementation-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. AI Agent Implementation Sequence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. AI Agent Implementation Sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#technology-stack-by-ai-phase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technology Stack by AI Phase
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-package-delivery-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Package Delivery Matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend IM & State Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI Components & Plugin Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot Engine & Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Defense & E2EE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base Bot Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Overview &amp; Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-phase-1-mvp-foundation-03-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Phase 1 — MVP Foundation (0–3 months)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Phase 1 — MVP Foundation (0–3 months)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-core-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Core Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-feature-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Feature Deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-base-bots-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Base Bots (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-packages-to-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Packages to Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-week-by-week-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Week-by-Week Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-phase-2-rich-features-production-hardening-36-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-core-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Core Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-feature-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Feature Deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-ai-agent-milestones-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 AI Agent Milestones (Phase 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-week-by-week-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Week-by-Week Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-phase-3-advanced-enterprise-612-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Phase 3 — Advanced &amp; Enterprise (+6–12 months)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Phase 3 — Advanced &amp; Enterprise (+6–12 months)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-core-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Core Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-feature-deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Feature Deliverables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-ai-agent-milestones-phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 AI Agent Milestones (Phase 3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-infrastructure-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Infrastructure Evolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Infrastructure Evolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-infrastructure-milestones" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Infrastructure Milestones
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-bot-catalog-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Bot Catalog Rollout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Bot Catalog Rollout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-bots-mvp-7-bots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1 Bots (MVP — 7 bots)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-bots-engagement-7-bots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2 Bots (Engagement — 7 bots)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-bots-advanced-5-bots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3 Bots (Advanced — 5 bots)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bot-implementation-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bot Implementation Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-ai-agent-implementation-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. AI Agent Implementation Sequence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. AI Agent Implementation Sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#technology-stack-by-ai-phase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technology Stack by AI Phase
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-package-delivery-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Package Delivery Matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="06-phase-roadmap-milestone-plan">06 — Phase Roadmap &amp; Milestone Plan<a class="headerlink" href="#06-phase-roadmap-milestone-plan" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>nexus-chat · Slack-like IM application<br />
+Design date: June 2026 · Status: Draft v1.0<br />
+Target: SaaS multi-tenant cloud deployment</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-overview--timeline">Overview &amp; Timeline</a></li>
+<li><a href="#2-phase-1--mvp-foundation-03-months">Phase 1 — MVP Foundation (0–3 months)</a></li>
+<li><a href="#3-phase-2--rich-features--production-hardening-36-months">Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)</a></li>
+<li><a href="#4-phase-3--advanced--enterprise-612-months">Phase 3 — Advanced &amp; Enterprise (+6–12 months)</a></li>
+<li><a href="#5-infrastructure-evolution">Infrastructure Evolution</a></li>
+<li><a href="#6-bot-catalog-rollout">Bot Catalog Rollout</a></li>
+<li><a href="#7-ai-agent-implementation-sequence">AI Agent Implementation Sequence</a></li>
+<li><a href="#8-package-delivery-matrix">Package Delivery Matrix</a></li>
+</ol>
+<hr />
+<h2 id="1-overview-timeline">1. Overview &amp; Timeline<a class="headerlink" href="#1-overview-timeline" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Phase 1 (MVP)           Phase 2 (Production)        Phase 3 (Enterprise)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├───────────────────────┼───────────────────────────┼───────────────────────→
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Month 0            Month 3                    Month 6                Month 12
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Duration</th>
+<th>Goal</th>
+<th>Launch Readiness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Phase 1</strong></td>
+<td>Months 0–3</td>
+<td>Usable Slack-like IM with hybrid encryption</td>
+<td>Internal alpha, closed beta</td>
+</tr>
+<tr>
+<td><strong>Phase 2</strong></td>
+<td>Months 3–6</td>
+<td>Feature-complete IM platform ready for public launch</td>
+<td>Public GA launch</td>
+</tr>
+<tr>
+<td><strong>Phase 3</strong></td>
+<td>Months 6–12</td>
+<td>Enterprise-grade platform with advanced AI and ecosystem</td>
+<td>Enterprise plans</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-phase-1-mvp-foundation-03-months">2. Phase 1 — MVP Foundation (0–3 months)<a class="headerlink" href="#2-phase-1-mvp-foundation-03-months" title="Permanent link">&para;</a></h2>
+<h3 id="21-core-goal">2.1 Core Goal<a class="headerlink" href="#21-core-goal" title="Permanent link">&para;</a></h3>
+<p>Deliver a working Slack-like IM that demonstrates the key differentiator: <strong>per-channel hybrid encryption</strong> (normal = IM + Bot, E2E = IM only).</p>
+<h3 id="22-feature-deliverables">2.2 Feature Deliverables<a class="headerlink" href="#22-feature-deliverables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature Area</th>
+<th>Deliverables</th>
+<th>Reference Design</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Project Scaffold</strong></td>
+<td>pnpm monorepo + Turborepo, TypeScript strict mode, ESLint + Prettier, Vitest, CI/CD pipeline</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>Email/password registration + login, JWT (access 15 min + refresh 7 days), Argon2id password hashing, token rotation, session management</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Workspace</strong></td>
+<td>Create/join workspace, workspace settings, member invite, role management (owner/admin/member)</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Channels</strong></td>
+<td>Public/private channels, DM conversations, channel creation, archive, member management, per-channel mode toggle (normal/e2e)</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Messages</strong></td>
+<td>Text messages, message state machine (Draft → Sending → Sent → Delivered → Read), cursor-based pagination (UUID v7), edit/delete (soft), emoji reactions</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Rich Content</strong></td>
+<td>Markdown rendering (markdown-it + Shiki for code), emoji picker (emoji-mart), @mention autocomplete</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>DM E2E</strong></td>
+<td>Signal Protocol for 1:1 DMs, X3DH key negotiation, Double Ratchet, client-side encrypt/decrypt, server opaque relay, PreKeyBundle server</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Bot (basic)</strong></td>
+<td>Bot registration + token issuance (<code>nxbot_v1_xxx</code>), <code>/slash</code> command parse + routing, bot WebSocket connection lifecycle, Redis Streams event bus</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>Gateway</strong></td>
+<td>Hono HTTP server + Socket.IO WebSocket, JWT auth middleware, rate limiting (sliding window), CORS/Helmet.js/CSP, Zod validation, heartbeat (30s)</td>
+<td><a href="../02_Long_Connection_and_Core_Gateway_Layer/">02 - Gateway</a></td>
+</tr>
+<tr>
+<td><strong>UI Shell</strong></td>
+<td>Single-window Electron layout (sidebar + chat view + detail panel), Zustand stores (auth/workspace/channel/message/presence/signal/ui), react-virtuoso message list, dark/light theme, Tailwind CSS v4</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>Desktop Shell</strong></td>
+<td>Electron window management, system tray, native notifications, auto-update (electron-updater), contextBridge IPC</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>Infrastructure</strong></td>
+<td>Monolith deployment (Hono + Socket.IO + Bot Engine in one process), PostgreSQL 16, Redis 7, Pino structured logging, dotenv config</td>
+<td><a href="../00_System_High_Level_Architecture/">00 - System Architecture</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-base-bots-mvp">2.3 Base Bots (MVP)<a class="headerlink" href="#23-base-bots-mvp" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Bot</th>
+<th>Category</th>
+<th>Key Deliverable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Welcome Bot</strong></td>
+<td>System/Onboarding</td>
+<td>Auto-DM new members, <code>#welcome</code> channel announcement, onboarding guide</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Help Bot</strong></td>
+<td>System</td>
+<td><code>/help</code> command listing, static FAQ, documentation lookup</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Notification Bot</strong></td>
+<td>System</td>
+<td><code>/announce</code> to channel and workspace-wide broadcasts</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Reminder Bot</strong></td>
+<td>Productivity</td>
+<td><code>/remind me &lt;when&gt; &lt;what&gt;</code>, <code>/reminders list</code>, <code>/reminders cancel</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Poll Bot</strong></td>
+<td>Productivity</td>
+<td><code>/poll "Question" "Opt1" "Opt2"...</code>, real-time reaction-based voting</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Webhook Bot</strong></td>
+<td>Developer</td>
+<td>Channel webhook URL generation, JSON → message template</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Kudos Bot</strong></td>
+<td>Culture</td>
+<td><code>/kudos @user &lt;reason&gt;</code>, workspace leaderboard</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-packages-to-build">2.4 Packages to Build<a class="headerlink" href="#24-packages-to-build" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared</code></td>
+<td><code>packages/shared/</code></td>
+<td>Shared types, Zod schemas, constants</td>
+</tr>
+<tr>
+<td><code>signal</code></td>
+<td><code>packages/signal/</code></td>
+<td>Signal Protocol wrapper (@signalapp/libsignal)</td>
+</tr>
+<tr>
+<td><code>bot-sdk</code></td>
+<td><code>packages/bot-sdk/</code></td>
+<td>Public Bot SDK (TypeScript/Node.js)</td>
+</tr>
+<tr>
+<td><code>ui</code></td>
+<td><code>packages/ui/</code></td>
+<td>Shared React UI components</td>
+</tr>
+<tr>
+<td><code>server</code></td>
+<td><code>apps/server/</code></td>
+<td>Monolith backend</td>
+</tr>
+<tr>
+<td><code>web</code></td>
+<td><code>apps/web/</code></td>
+<td>React SPA frontend</td>
+</tr>
+<tr>
+<td><code>desktop</code></td>
+<td><code>apps/desktop/</code></td>
+<td>Electron shell</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-week-by-week-breakdown">2.5 Week-by-Week Breakdown<a class="headerlink" href="#25-week-by-week-breakdown" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Focus</th>
+<th>Key Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1–2</td>
+<td>Project scaffold + Data model</td>
+<td>pnpm workspace, Turbo config, ESLint/Prettier, Drizzle ORM schema, DB migrations</td>
+</tr>
+<tr>
+<td>3–4</td>
+<td>Auth + Gateway skeleton</td>
+<td>Registration/login, JWT, Hono routes, Socket.IO setup, middleware chain</td>
+</tr>
+<tr>
+<td>5–6</td>
+<td>Workspace + Channel CRUD</td>
+<td>Workspace management, channel create/join/archive, DM creation flow</td>
+</tr>
+<tr>
+<td>7–8</td>
+<td>Message pipeline</td>
+<td>Send/receive via WS, message state machine, cursor pagination, edit/delete</td>
+</tr>
+<tr>
+<td>9–10</td>
+<td>Signal Protocol integration</td>
+<td>PreKeyBundle server, X3DH + Double Ratchet, E2E DM flow</td>
+</tr>
+<tr>
+<td>11–12</td>
+<td>Bot engine + Base bots (3)</td>
+<td>Bot registration, slash command routing, Redis Streams, Welcome/Help/Notification bots</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Remaining base bots (4)</td>
+<td>Reminder, Poll, Webhook, Kudos bots</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Electron shell + Polish</td>
+<td>Window management, tray, notifications, dark/light theme, error states</td>
+</tr>
+<tr>
+<td>15–16</td>
+<td>Testing + Bug fixing + Closed beta</td>
+<td>Integration tests, performance audit, closed beta deployment</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-phase-2-rich-features-production-hardening-36-months">3. Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)<a class="headerlink" href="#3-phase-2-rich-features-production-hardening-36-months" title="Permanent link">&para;</a></h2>
+<h3 id="31-core-goal">3.1 Core Goal<a class="headerlink" href="#31-core-goal" title="Permanent link">&para;</a></h3>
+<p>Feature-complete IM platform with file sharing, search, threads, AI Assistant, and full bot ecosystem — ready for public GA launch.</p>
+<h3 id="32-feature-deliverables">3.2 Feature Deliverables<a class="headerlink" href="#32-feature-deliverables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature Area</th>
+<th>Deliverables</th>
+<th>Reference Design</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File &amp; Image</strong></td>
+<td>File upload (S3/R2 presigned URLs), inline image previews, attachment thumbnails, file type validation, virus scanning</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Full-Text Search</strong></td>
+<td>PostgreSQL <code>tsvector</code> + GIN index, message search, channel search, user search, date range + user filters</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Threads</strong></td>
+<td>Threaded replies, thread sidebar panel, thread notifications, thread parent preview in main feed</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>Online Presence</strong></td>
+<td>Real-time online/offline status, typing indicators, last seen timestamp, away/idle detection</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Read Receipts</strong></td>
+<td>Per-channel read cursors, unread badge counts, "new messages" divider</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Message Enhancements</strong></td>
+<td>Pin/unpin messages, message permalink/copy link, forward message, save for later</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>Channel E2E</strong></td>
+<td>Group E2E via Sender Key, key distribution for multi-member channels, member-change key rotation, pending join</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Bot Advanced</strong></td>
+<td>Bot SDK interactive components (buttons, modals, Block Kit), bot permission scopes, bot analytics dashboard</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>Webhook Delivery</strong></td>
+<td>HTTP webhook for low-frequency bots, HMAC-SHA256 signature, retry policy (3 attempts), delivery tracker</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>AI Assistant</strong></td>
+<td><code>/ai ask</code>, <code>/ai summarize</code>, <code>/ai translate</code>, <code>/ai draft</code>, <code>/ai search</code>, <code>@ai</code> mention, streaming message protocol (stream_start → stream_chunk → stream_end), pgvector RAG</td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>Base Bots (Phase 2)</strong></td>
+<td>Todo Bot, GitHub/GitLab Bot, CI/CD Bot, Standup Bot, Celebration Bot, Feedback Bot</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>Electron Packaging</strong></td>
+<td>Cross-platform packaging (macOS .dmg, Windows .exe/.msi, Linux .AppImage/.deb), code signing, auto-update via GitHub Releases</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>Offline Support</strong></td>
+<td>Offline message queue with exponential retry, IndexedDB message cache, offline indicator, reconnect UI</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Web Vitals monitoring, React Profiler in CI, memory window control (200 messages in-memory), image lazy loading, code splitting</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>Infrastructure</strong></td>
+<td>Multi-instance deployment, Redis Sentinel/Cluster, database read replicas, load testing</td>
+<td><a href="../00_System_High_Level_Architecture/">00 - System Architecture</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-ai-agent-milestones-phase-2">3.3 AI Agent Milestones (Phase 2)<a class="headerlink" href="#33-ai-agent-milestones-phase-2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Milestone</th>
+<th>Week</th>
+<th>Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>M1: Provider Layer</strong></td>
+<td>1–2</td>
+<td><code>LLMProvider</code> interface, <code>OpenAIProvider</code>, <code>AnthropicProvider</code>, <code>ProviderRegistry</code>, <code>CostTracker</code></td>
+</tr>
+<tr>
+<td><strong>M2: Streaming Protocol</strong></td>
+<td>3–4</td>
+<td><code>message.stream_start/chunk/end/cancel</code> events, <code>ChunkBatcher</code> (100ms), <code>StreamManager</code>, <code>StreamingMarkdownRenderer</code></td>
+</tr>
+<tr>
+<td><strong>M3: Basic Commands</strong></td>
+<td>5–6</td>
+<td><code>/ai ask</code>, <code>/ai summarize</code>, <code>/ai translate</code>, <code>/ai draft</code> — single agent with system prompt</td>
+</tr>
+<tr>
+<td><strong>M4: Tool Integration</strong></td>
+<td>7–8</td>
+<td><code>ToolRegistry</code>, SDK API tools (searchChannelHistory, getChannelInfo, listChannelMembers, sendMessage, fetchWebPage), safety classification (GREEN/YELLOW/RED), confirmation UI</td>
+</tr>
+<tr>
+<td><strong>M5: Memory Management</strong></td>
+<td>9–10</td>
+<td><code>ConversationWindow</code> (sliding, 50 msg / 24K tokens), <code>ConversationSummarizer</code>, <code>ContextCache</code> (Redis)</td>
+</tr>
+<tr>
+<td><strong>M6: RAG (pgvector)</strong></td>
+<td>11–12</td>
+<td>pgvector extension, message embedding pipeline, <code>BatchEmbeddingGenerator</code>, semantic search, hybrid search</td>
+</tr>
+<tr>
+<td><strong>M7: UI Polish + Privacy</strong></td>
+<td>13–14</td>
+<td>Typewriter animation, progressive markdown, cancel button, tool call indicators, workspace AI settings, GDPR compliance</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-week-by-week-breakdown">3.4 Week-by-Week Breakdown<a class="headerlink" href="#34-week-by-week-breakdown" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Weeks</th>
+<th>Focus Area</th>
+<th>Key Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1–2</td>
+<td>File upload infrastructure</td>
+<td>S3 presigned URLs, upload service, image processing pipeline</td>
+</tr>
+<tr>
+<td>3–4</td>
+<td>Full-text search</td>
+<td>PostgreSQL tsvector, search UI, filters</td>
+</tr>
+<tr>
+<td>5–6</td>
+<td>Threads</td>
+<td>Thread model, thread UI (sidebar panel), thread notifications</td>
+</tr>
+<tr>
+<td>7–8</td>
+<td>Online presence + Read receipts</td>
+<td>Presence system, typing indicators, read cursors, unread badges</td>
+</tr>
+<tr>
+<td>9–12</td>
+<td>AI Agent Engine (M1–M4)</td>
+<td>Provider layer, streaming protocol, basic commands, tool integration</td>
+</tr>
+<tr>
+<td>13–14</td>
+<td>Channel E2E + AI memory</td>
+<td>Sender Key, pgvector RAG, memory management</td>
+</tr>
+<tr>
+<td>15–16</td>
+<td>AI UI (M6–M7)</td>
+<td>Progressive rendering, workspace settings, privacy compliance</td>
+</tr>
+<tr>
+<td>17–18</td>
+<td>Bot advanced features</td>
+<td>Interactive components, webhook delivery, Phase 2 base bots</td>
+</tr>
+<tr>
+<td>19–20</td>
+<td>Electron packaging</td>
+<td>Cross-platform build, code signing, auto-update</td>
+</tr>
+<tr>
+<td>21–22</td>
+<td>Offline + Performance</td>
+<td>Offline queue, IndexedDB cache, Web Vitals, profiler</td>
+</tr>
+<tr>
+<td>23–24</td>
+<td>Testing + QA</td>
+<td>End-to-end tests, load testing, security audit, documentation</td>
+</tr>
+<tr>
+<td>25–26</td>
+<td>Public GA launch</td>
+<td>Production deployment, monitoring, launch announcement</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-phase-3-advanced-enterprise-612-months">4. Phase 3 — Advanced &amp; Enterprise (+6–12 months)<a class="headerlink" href="#4-phase-3-advanced-enterprise-612-months" title="Permanent link">&para;</a></h2>
+<h3 id="41-core-goal">4.1 Core Goal<a class="headerlink" href="#41-core-goal" title="Permanent link">&para;</a></h3>
+<p>Enterprise-grade platform with voice/video, multi-agent AI, SSO, and a public bot marketplace.</p>
+<h3 id="42-feature-deliverables">4.2 Feature Deliverables<a class="headerlink" href="#42-feature-deliverables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature Area</th>
+<th>Deliverables</th>
+<th>Reference Design</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Voice &amp; Video</strong></td>
+<td>1:1 and group voice/video calls (WebRTC), screen sharing, call history, raise hand, push-to-talk</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>SSO &amp; OAuth</strong></td>
+<td>SAML/OIDC integration, Google/Microsoft/GitHub OAuth login, directory sync (SCIM), enterprise identity provider</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Advanced E2E</strong></td>
+<td>Verified safety numbers (QR code compare), device management (list/revoke), disappearing messages, sealed sender, E2E audit log</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Multi-Device Sync</strong></td>
+<td>Per-device PreKeyBundle management, multi-device session relay, device enrollment/revocation</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>Enterprise Admin</strong></td>
+<td>Admin dashboard, workspace analytics, audit logs, data retention policies, compliance exports (GDPR/CCPA), custom data residency regions</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Enterprise Bots</strong></td>
+<td>AutoMod (content filtering, spam detection, rate limiting), Status Bot (service health monitoring), Scheduler Bot (meeting scheduling), Meeting Notes Bot</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>Multi-Agent AI</strong></td>
+<td>LangGraph supervisor-worker + debate patterns, task decomposition, agent handoff, <code>/ai research</code>, <code>/ai code</code></td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>AI Self-Hosted</strong></td>
+<td>Ollama + vLLM integration, enterprise on-premise LLM deployment guide</td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>Bot Marketplace</strong></td>
+<td>Public marketplace listing, OAuth2 install flow, bot versioning, review/rating system, paid bots with billing, sandbox testing environment</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>Custom Agents</strong></td>
+<td>Agent builder UI for workspace admins, community-contributed agent marketplace, user-defined prompts and tools</td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>Microservices Split</strong></td>
+<td>Gateway / Message / Bot Engine / File services separated, NATS JetStream event bus, gRPC for sync calls, database-per-service</td>
+<td><a href="../00_System_High_Level_Architecture/">00 - System Architecture</a></td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>Distributed tracing (OpenTelemetry + Jaeger), centralized metrics (Prometheus + Grafana), alerting, SLO dashboards</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-ai-agent-milestones-phase-3">4.3 AI Agent Milestones (Phase 3)<a class="headerlink" href="#43-ai-agent-milestones-phase-3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Milestone</th>
+<th>Deliverables</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>M8: Multi-Agent Orchestration</strong></td>
+<td>LangGraph supervisor-worker, debate pattern, task decomposition, agent handoff</td>
+<td>LangGraph (Python microservice via TypeScript API)</td>
+</tr>
+<tr>
+<td><strong>M9: Advanced Tools</strong></td>
+<td>Code sandbox (E2B/gVisor), web fetch with domain allowlisting, MCP server for tool exposure</td>
+<td>E2B, MCP protocol</td>
+</tr>
+<tr>
+<td><strong>M10: Self-Hosted LLM</strong></td>
+<td>Ollama provider, vLLM integration, enterprise on-premise guide</td>
+<td>Ollama, vLLM</td>
+</tr>
+<tr>
+<td><strong>M11: AI Analytics</strong></td>
+<td>Usage dashboards, cost allocation per workspace/user, prompt effectiveness metrics, A/B testing</td>
+<td>Prometheus + Grafana</td>
+</tr>
+<tr>
+<td><strong>M12: Meeting AI</strong></td>
+<td>Voice/video meeting transcription (Whisper), meeting summarization, action item extraction</td>
+<td>Whisper API + LLM</td>
+</tr>
+<tr>
+<td><strong>M13: Custom Agents</strong></td>
+<td>Agent builder UI, community agent marketplace, user-defined tools and prompts</td>
+<td>Plugin protocol</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-infrastructure-evolution">5. Infrastructure Evolution<a class="headerlink" href="#5-infrastructure-evolution" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 3: Microservices
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>┌────────────────────┐              ┌────────────────────┐              ┌────────────────────┐
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│  Single Process:    │              │  App Node × N:      │              │  Gateway Service   │
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│  Hono + Socket.IO   │              │  ├─ Hono REST       │              │  (stateless, N×)   │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  + Bot Engine       │              │  ├─ Socket.IO       │              ├────────────────────┤
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│  + AI Agent Engine  │              │  ├─ Bot Engine      │              │  Message Service   │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>└────────┬───────────┘              │  └─ AI Engine       │              │  (stateful, N×)    │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>         │                           └────────┬───────────┘              ├────────────────────┤
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    ┌────┴────┐                           ┌───┴────┐                    │  Bot Engine        │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   PG    │                           │  Redis │                    │  (NATS consumer)   │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │  Redis  │                           │Cluster │                    ├────────────────────┤
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    └─────────┘                           └───┬────┘                    │  AI Agent Engine   │
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    Event bus:                               │                         │  (NATS consumer)   │
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    Redis Streams                     ┌──────┴──────┐                   ├────────────────────┤
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                                      │    PG       │                   │  File Service      │
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                                      │  Primary +  │                   │  (stateless, N×)   │
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>                                      │  Read Repl. │                   └────────┬───────────┘
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                                      └─────────────┘                            │
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                                      Event bus:                            ┌────┴──────┐
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                                      Redis Streams → NATS                  │   NATS    │
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                                                                            │ JetStream │
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                                                                            └────┬──────┘
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>                                                                                 │
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                                                                          ┌──────┴──────┐
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                                                                          │  PG per svc │
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                                                                          │  Redis Cluster│
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                                                                          └─────────────┘
+</code></pre></div>
+<h3 id="key-infrastructure-milestones">Key Infrastructure Milestones<a class="headerlink" href="#key-infrastructure-milestones" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HTTP Server</strong></td>
+<td>Single Hono instance</td>
+<td>Multiple Hono instances behind LB</td>
+<td>Dedicated Gateway service (stateless, N×)</td>
+</tr>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td>Single Socket.IO node</td>
+<td>Socket.IO + Redis Adapter (multi-node)</td>
+<td>Dedicated Message Service</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>Single PostgreSQL</td>
+<td>Primary + read replicas</td>
+<td>Database-per-service</td>
+</tr>
+<tr>
+<td><strong>Cache</strong></td>
+<td>Single Redis</td>
+<td>Redis Sentinel / Cluster</td>
+<td>Redis Cluster per service domain</td>
+</tr>
+<tr>
+<td><strong>Event Bus</strong></td>
+<td>Redis Streams</td>
+<td>Redis Streams → NATS migration start</td>
+<td>NATS JetStream</td>
+</tr>
+<tr>
+<td><strong>Service Mesh</strong></td>
+<td>N/A</td>
+<td>N/A</td>
+<td>gRPC for sync, NATS for async</td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>Pino logs</td>
+<td>Pino + Prometheus metrics</td>
+<td>OpenTelemetry + Jaeger + Grafana</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>GitHub Actions</td>
+<td>GitHub Actions + Docker</td>
+<td>K8s + ArgoCD / Flux</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-bot-catalog-rollout">6. Bot Catalog Rollout<a class="headerlink" href="#6-bot-catalog-rollout" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-bots-mvp-7-bots">Phase 1 Bots (MVP — 7 bots)<a class="headerlink" href="#phase-1-bots-mvp-7-bots" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Bot</th>
+<th><code>@handle</code></th>
+<th>Storage Tier</th>
+<th>i18n Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Welcome Bot</td>
+<td><code>@WelcomeBot</code></td>
+<td>DB (templates, channel mappings)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Help Bot</td>
+<td><code>@HelpBot</code></td>
+<td>DB (FAQ, doc index)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Notification Bot</td>
+<td><code>@NotifyBot</code></td>
+<td>DB (announcement history)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reminder Bot</td>
+<td><code>@RemindBot</code></td>
+<td>DB (active reminders)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Poll Bot</td>
+<td><code>@PollBot</code></td>
+<td>DB (polls, votes)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Webhook Bot</td>
+<td><code>@WebhookBot</code></td>
+<td>DB (URLs, templates, logs)</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Kudos Bot</td>
+<td><code>@KudosBot</code></td>
+<td>DB (records, leaderboard)</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2-bots-engagement-7-bots">Phase 2 Bots (Engagement — 7 bots)<a class="headerlink" href="#phase-2-bots-engagement-7-bots" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Bot</th>
+<th><code>@handle</code></th>
+<th>Storage Tier</th>
+<th>i18n Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>Todo Bot</td>
+<td><code>@TodoBot</code></td>
+<td>DB (tasks, due dates)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>9</td>
+<td>GitHub Bot</td>
+<td><code>@GitBot</code></td>
+<td>DB (repo subscriptions)</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>10</td>
+<td>GitLab Bot</td>
+<td><code>@GitLabBot</code></td>
+<td>DB (repo subscriptions)</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>11</td>
+<td>CI/CD Bot</td>
+<td><code>@CIBot</code></td>
+<td>DB (deploy history)</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Standup Bot</td>
+<td><code>@StandupBot</code></td>
+<td>DB (templates, responses)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Celebration Bot</td>
+<td><code>@CelebrateBot</code></td>
+<td>DB (birthdays, anniversaries)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Feedback Bot</td>
+<td><code>@FeedbackBot</code></td>
+<td>DB (surveys, responses)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>—</td>
+<td><strong>AI Assistant Bot</strong></td>
+<td><code>@AI</code></td>
+<td>Stateless per request</td>
+<td>N/A (language-agnostic via LLM)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3-bots-advanced-5-bots">Phase 3 Bots (Advanced — 5 bots)<a class="headerlink" href="#phase-3-bots-advanced-5-bots" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Bot</th>
+<th><code>@handle</code></th>
+<th>Storage Tier</th>
+<th>i18n Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>Status Bot</td>
+<td><code>@StatusBot</code></td>
+<td>DB (service subscriptions)</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Scheduler Bot</td>
+<td><code>@SchedulerBot</code></td>
+<td>DB (meeting proposals, availability)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Meeting Notes Bot</td>
+<td><code>@MeetingBot</code></td>
+<td>DB (transcripts, summaries)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>18</td>
+<td>AutoMod Bot</td>
+<td><code>@AutoMod</code></td>
+<td>DB (rules, violation log)</td>
+<td>High</td>
+</tr>
+<tr>
+<td>—</td>
+<td>Bot Marketplace</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bot-implementation-strategy">Bot Implementation Strategy<a class="headerlink" href="#bot-implementation-strategy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Classification</th>
+<th>Count</th>
+<th>Owner</th>
+<th>Development Model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>First-party</strong> (bundled)</td>
+<td>11</td>
+<td>Nexus Chat core team</td>
+<td>Developed in monorepo <code>packages/bots/</code>, shipped with platform</td>
+</tr>
+<tr>
+<td><strong>Official seeded</strong> (third-party)</td>
+<td>6</td>
+<td>Nexus Chat team using public SDK</td>
+<td>Separate repos, demonstrate SDK capabilities, community templates</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-ai-agent-implementation-sequence">7. AI Agent Implementation Sequence<a class="headerlink" href="#7-ai-agent-implementation-sequence" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Phase 2 AI (12 weeks)                         Phase 3 AI (on-going)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Week 1-2:   M1 Provider Layer                 M8: Multi-Agent (LangGraph)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  └─ packages/ai-bot/ with Vercel AI SDK        └─ Supervisor-worker pattern
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  └─ OpenAIProvider + AnthropicProvider          └─ Debate/collaboration pattern
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  └─ ProviderRegistry + CostTracker              └─ Task decomposition
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>Week 3-4:   M2 Streaming Protocol              M9: Advanced Tools
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  └─ StreamingEvents in packages/shared/         └─ Code sandbox (E2B/gVisor)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  └─ ChunkBatcher (100ms flush)                  └─ Web fetch domain allowlisting
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  └─ StreamManager + Socket.IO bridge            └─ MCP server for tool exposure
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>  └─ Client StreamingMarkdownRenderer
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>Week 5-6:   M3 Basic Commands                 M10: Self-Hosted LLM
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>  └─ AgentDefinition for ask/summarize/...       └─ Ollama provider
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>  └─ AiCommandRouter (slash + @ai mention)       └─ vLLM integration
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>  └─ System prompt template substitution         └─ Enterprise on-prem guide
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  └─ Simple generation loop (no tools)
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>Week 7-8:   M4 Tool Integration               M11: AI Analytics
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  └─ ToolRegistry + NEXUS_CHAT_TOOLS             └─ Usage dashboards per workspace
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>  └─ Bot SDK API client for tools                └─ Cost allocation
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>  └─ Safety classification (GREEN/YELLOW/RED)   └─ Prompt effectiveness metrics
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>  └─ Interactive confirmation (Block Kit)
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>Week 9-10:  M5 Memory Management              M12: Meeting AI
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>  └─ ConversationWindow (sliding 50 msg)         └─ Whisper transcription
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>  └─ ConversationSummarizer (cascading)          └─ Meeting summarization
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>  └─ ContextCache (Redis TTLs)                   └─ Action item extraction
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>Week 11-12: M6 RAG + M7 Polish                M13: Custom Agents
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>  └─ pgvector extension + embedding pipeline     └─ Agent builder UI
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>  └─ BatchEmbeddingGenerator                     └─ Community agent marketplace
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>  └─ Semantic search + hybrid                    └─ User-defined prompts/tools
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>  └─ Typewriter animation, scroll lock
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>  └─ Workspace AI settings, GDPR compliance
+</code></pre></div>
+<h3 id="technology-stack-by-ai-phase">Technology Stack by AI Phase<a class="headerlink" href="#technology-stack-by-ai-phase" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Phase 2</th>
+<th>Phase 3 (Consideration)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Agent Framework</strong></td>
+<td>Vercel AI SDK (streaming-first, TypeScript)</td>
+<td>LangGraph (multi-agent)</td>
+</tr>
+<tr>
+<td><strong>Tool Standard</strong></td>
+<td>OpenAI function calling format</td>
+<td>MCP (Model Context Protocol)</td>
+</tr>
+<tr>
+<td><strong>Vector Store</strong></td>
+<td>pgvector (in PostgreSQL)</td>
+<td>Pinecone / Qdrant (&gt;10M vectors)</td>
+</tr>
+<tr>
+<td><strong>Primary Models</strong></td>
+<td>GPT-4o, Claude 4 Sonnet</td>
+<td>Self-hosted Ollama/vLLM</td>
+</tr>
+<tr>
+<td><strong>Model Gateway</strong></td>
+<td>Direct provider API</td>
+<td>OpenRouter (unified + fallback)</td>
+</tr>
+<tr>
+<td><strong>Embedding Model</strong></td>
+<td>OpenAI text-embedding-3-small</td>
+<td>Self-hosted BGE-M3</td>
+</tr>
+<tr>
+<td><strong>Stream Transport</strong></td>
+<td>WebSocket (Socket.IO)</td>
+<td>WebSocket + Durable Sessions</td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>Pino + Prometheus</td>
+<td>OpenTelemetry (LangSmith/Signoz)</td>
+</tr>
+<tr>
+<td><strong>Code Sandbox</strong></td>
+<td>N/A</td>
+<td>E2B (gVisor-isolated)</td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>Sliding window + Redis summaries</td>
+<td>LangGraph long-term memory store</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-package-delivery-matrix">8. Package Delivery Matrix<a class="headerlink" href="#8-package-delivery-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Phase 1</th>
+<th>Phase 2</th>
+<th>Phase 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/shared</code></td>
+<td>Types, Zod schemas, constants</td>
+<td>+ Streaming events, AI types, MCP schemas</td>
+<td>+ Enterprise types</td>
+</tr>
+<tr>
+<td><code>packages/signal</code></td>
+<td>X3DH + Double Ratchet</td>
+<td>+ Sender Key, group E2E</td>
+<td>+ Sealed sender, device mgmt</td>
+</tr>
+<tr>
+<td><code>packages/bot-sdk</code></td>
+<td>Core SDK (WS + events + messages)</td>
+<td>+ Interactive components, webhook, KV store, DB access, localization</td>
+<td>+ AI tool access, marketplace hooks</td>
+</tr>
+<tr>
+<td><code>packages/ui</code></td>
+<td>Button, Input, Modal, Avatar, Layout</td>
+<td>+ StreamRenderer, ToolCallCard, ConfirmationDialog</td>
+<td>+ AgentBuilder, AdminDashboard</td>
+</tr>
+<tr>
+<td><code>packages/ai-bot</code></td>
+<td>—</td>
+<td>ProviderLayer, StreamManager, AgentRouter, Tools, Memory</td>
+<td>+ MultiAgent, CodeSandbox, SelfHosted</td>
+</tr>
+<tr>
+<td><code>apps/server</code></td>
+<td>Auth, Workspace, Channel, Message, Signal, Bot, Presence</td>
+<td>+ File, Search, Thread, ReadReceipt, Webhook</td>
+<td>+ SSO, Enterprise, Analytics</td>
+</tr>
+<tr>
+<td><code>apps/web</code></td>
+<td>AuthPage, ChatPage, SettingsPage</td>
+<td>+ FilePreview, SearchPage, ThreadPanel, PresenceIndicator, StreamRenderer</td>
+<td>+ VoiceCall, AdminConsole</td>
+</tr>
+<tr>
+<td><code>apps/desktop</code></td>
+<td>Window, Tray, Notifications, Updater</td>
+<td>+ Offline cache, protocol links</td>
+<td>+ Screen share, native call controls</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>Related Documents</strong>:
+- <a href="../00_System_High_Level_Architecture/">00 — System High-Level Architecture</a>
+- <a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 — Client Shell &amp; UI Rendering</a>
+- <a href="../02_Long_Connection_and_Core_Gateway_Layer/">02 — Long Connection &amp; Core Gateway</a>
+- <a href="../03_Business_Logic_and_Persistence_Backend/">03 — Business Logic &amp; Persistence</a>
+- <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 — Async Bot Engine &amp; Event Dispatch</a>
+- <a href="../05_AI_Agent_Orchestration_and_Streaming/">05 — AI Agent Orchestration &amp; Streaming</a>
+- <a href="../../research/base-bot-catalog/">Base Bot Catalog Research</a>
+- <a href="../../research/ai-agent-orchestration/">AI Agent Orchestration Research</a></p>
+</blockquote>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

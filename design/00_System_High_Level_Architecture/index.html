@@ -1,0 +1,2886 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only)">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/design/00_System_High_Level_Architecture/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../01_Client_Shell_and_UI_Rendering_Layer/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>System High-Level Architecture - Nexus Chat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nexus-chat-system-high-level-architecture-design" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              System High-Level Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System High-Level Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System High-Level Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-system-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. System Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. System Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-project-vision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Project Vision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-core-differentiator-hybrid-encryption-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Core Differentiator: Hybrid Encryption Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-multi-tenant-saas-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Multi-Tenant SaaS Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-architecture-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture Layers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Architecture Layers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layer-responsibilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer Responsibilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-monorepo-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Monorepo Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Monorepo Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cross-package-dependency-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Package Dependency Graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tech-stack-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Tech Stack Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-data-flow-diagrams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Data Flow Diagrams
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Data Flow Diagrams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-normal-mode-message-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Normal Mode Message Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-e2e-mode-message-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 E2E Mode Message Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-bot-command-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Bot Command Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-ai-streaming-message-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 AI Streaming Message Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-deployment-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Deployment Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Deployment Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-phase-1-monolith-with-clear-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Phase 1: Monolith with Clear Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-future-phase-2-service-split-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Future Phase 2+: Service Split Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-phase-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Phase Roadmap
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Phase Roadmap">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-mvp-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: MVP Foundation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-rich-features-production-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Rich Features &amp; Production Hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-enterprise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Advanced &amp; Enterprise
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-related-design-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Related Design Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-key-architecture-decisions-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix: Key Architecture Decisions Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Shell & UI Rendering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long Connection & Core Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic & Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async Bot Engine & Event Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration & Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06_Phase_Roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend IM & State Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI Components & Plugin Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot Engine & Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Defense & E2EE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base Bot Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-system-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. System Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. System Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-project-vision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Project Vision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-core-differentiator-hybrid-encryption-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Core Differentiator: Hybrid Encryption Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-multi-tenant-saas-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Multi-Tenant SaaS Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-architecture-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture Layers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Architecture Layers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layer-responsibilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer Responsibilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-monorepo-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Monorepo Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Monorepo Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cross-package-dependency-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Package Dependency Graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tech-stack-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Tech Stack Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-data-flow-diagrams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Data Flow Diagrams
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Data Flow Diagrams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-normal-mode-message-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Normal Mode Message Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-e2e-mode-message-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 E2E Mode Message Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-bot-command-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Bot Command Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-ai-streaming-message-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 AI Streaming Message Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-deployment-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Deployment Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Deployment Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-phase-1-monolith-with-clear-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Phase 1: Monolith with Clear Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-future-phase-2-service-split-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Future Phase 2+: Service Split Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-phase-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Phase Roadmap
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Phase Roadmap">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-mvp-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: MVP Foundation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-rich-features-production-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Rich Features &amp; Production Hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-enterprise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Advanced &amp; Enterprise
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-related-design-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Related Design Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-key-architecture-decisions-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix: Key Architecture Decisions Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="nexus-chat-system-high-level-architecture-design">Nexus Chat — System High-Level Architecture Design<a class="headerlink" href="#nexus-chat-system-high-level-architecture-design" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Document version</strong>: v1.0<br />
+<strong>Last updated</strong>: 2026-06-24<br />
+<strong>Status</strong>: Draft<br />
+<strong>References</strong>:
+- <a href="../../research/frontend-architecture/">Frontend Architecture Research</a>
+- <a href="../../research/backend-im-state-machine/">IM Backend Architecture Research</a>
+- <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>
+- <a href="../../research/bot-engine-microservices/">Bot Engine &amp; Microservices Research</a>
+- <a href="../../research/base-bot-catalog/">Base Bot Catalog Research</a>
+- <a href="../../research/ai-agent-orchestration/">AI Agent Orchestration Research</a></p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-system-overview">System Overview</a></li>
+<li><a href="#2-architecture-layers">Architecture Layers</a></li>
+<li><a href="#3-monorepo-structure">Monorepo Structure</a></li>
+<li><a href="#4-tech-stack-summary">Tech Stack Summary</a></li>
+<li><a href="#5-data-flow-diagrams">Data Flow Diagrams</a></li>
+<li><a href="#6-deployment-architecture">Deployment Architecture</a></li>
+<li><a href="#7-phase-roadmap">Phase Roadmap</a></li>
+<li><a href="#8-related-design-documents">Related Design Documents</a></li>
+</ol>
+<hr />
+<h2 id="1-system-overview">1. System Overview<a class="headerlink" href="#1-system-overview" title="Permanent link">&para;</a></h2>
+<h3 id="11-project-vision">1.1 Project Vision<a class="headerlink" href="#11-project-vision" title="Permanent link">&para;</a></h3>
+<p>Nexus Chat is a <strong>Slack-like instant messaging (IM) platform</strong> built as an Electron desktop application with a Node.js backend. It supports workspaces, channels, direct messages (DMs), threaded conversations, file sharing, and an extensible bot framework — all delivered as a <strong>SaaS multi-tenant cloud deployment</strong>.</p>
+<h3 id="12-core-differentiator-hybrid-encryption-modes">1.2 Core Differentiator: Hybrid Encryption Modes<a class="headerlink" href="#12-core-differentiator-hybrid-encryption-modes" title="Permanent link">&para;</a></h3>
+<p>Every channel and DM in Nexus Chat operates in one of two encryption modes, selectable at creation time:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Label</th>
+<th>Capabilities</th>
+<th>Limitations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Normal</strong></td>
+<td><code>normal</code></td>
+<td>Full IM features + Bot integration + server-side search/indexing</td>
+<td>Messages are readable by the server</td>
+</tr>
+<tr>
+<td><strong>End-to-End Encrypted</strong></td>
+<td><code>e2e</code></td>
+<td>IM only (text, attachments); server is opaque relay</td>
+<td>No bot participation; no server-side search; no message previews</td>
+</tr>
+</tbody>
+</table>
+<p>Key design implications of the hybrid model:</p>
+<ul>
+<li><strong>Normal channels</strong> allow bots to participate in conversations, execute slash commands, and react to message events. The server processes and stores message content in plaintext (encrypted at rest via PostgreSQL TDE or filesystem encryption).</li>
+<li><strong>E2E channels</strong> use the <a href="https://github.com/signalapp/libsignal">Signal Protocol</a> (<code>@signalapp/libsignal</code>). The server sees only ciphertext blobs and encrypted metadata. Key exchange, ratchet advancement, and message decryption happen exclusively on clients. The server's role is reduced to store-and-forward relay.</li>
+<li>A single workspace can contain both normal and E2E channels side-by-side. The mode badge is visible in the channel sidebar.</li>
+</ul>
+<p>For detailed E2EE threat modeling and Signal Protocol integration design, see <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>.</p>
+<h3 id="13-multi-tenant-saas-architecture">1.3 Multi-Tenant SaaS Architecture<a class="headerlink" href="#13-multi-tenant-saas-architecture" title="Permanent link">&para;</a></h3>
+<p>The platform follows a standard SaaS multi-tenant model:</p>
+<ul>
+<li>A <strong>tenant</strong> maps to a <strong>Workspace</strong> — an isolated namespace containing users, channels, bots, and files.</li>
+<li>Workspace data is logically separated at the application layer (workspace-scoped queries with <code>workspaceId</code> foreign keys). No shared database-per-tenant strategy is used in Phase 1 (single PostgreSQL cluster for all tenants).</li>
+<li>Authentication is workspace-scoped: a user may belong to multiple workspaces and switch between them in the client.</li>
+</ul>
+<hr />
+<h2 id="2-architecture-layers">2. Architecture Layers<a class="headerlink" href="#2-architecture-layers" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌──────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    Client Shell (Electron)                        │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  ┌────────────────────────────────────────────────────────────┐  │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  │              UI Rendering (React 19 + Vite 7)              │  │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │  │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  │  │ Sidebar  │  │ Chat View│  │ Thread   │  │ Settings  │  │  │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  │  │ Panel    │  │ (Virtuoso│  │ Panel    │  │ Panel     │  │  │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  │  │          │  │  virtual)│  │          │  │           │  │  │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  │  └──────────┘  └──────────┘  └──────────┘  └───────────┘  │  │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  │                    Zustand State Layer                      │  │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │  │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│  │  │ Message  │  │ Channel  │  │ User/    │  │ UI State  │  │  │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  │  │ Store    │  │ Store    │  │ Presence │  │ Store     │  │  │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  │  └──────────┘  └──────────┘  └──────────┘  └───────────┘  │  │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  │  ┌──────────┐  ┌──────────┐  ┌──────────────────────────┐  │  │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│  │  │ Offline  │  │ Signal   │  │ IndexedDB / localStorage │  │  │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│  │  │ Queue    │  │ Protocol │  │ (persistence)            │  │  │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  │  └──────────┘  │ Client   │  └──────────────────────────┘  │  │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│  │                └──────────┘                                 │  │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│  └────────────────────────────────────────────────────────────┘  │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│  ┌────────────────────────────────────────────────────────────┐  │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│  │              Preload Bridge (contextBridge + IPC)           │  │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│  └────────────────────────────────────────────────────────────┘  │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│  ┌────────────────────────────────────────────────────────────┐  │
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│  │         Main Process (Node.js)                              │  │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│  │  ├── Window Manager  ├── Tray &amp; Notifications              │  │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│  │  ├── Auto Updater    ├── Network Monitor                    │  │
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│  │  └── Offline Cache (protocol.handle)                        │  │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│  └────────────────────────────────────────────────────────────┘  │
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>└──────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                              │ HTTPS / WSS
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>                              │ (REST API + WebSocket)
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>┌─────────────────────────────┴────────────────────────────────────┐
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│               Long Connection &amp; Core Gateway                      │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>│  ┌──────────────────────────┐  ┌──────────────────────────────┐  │
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>│  │   Hono HTTP Server        │  │   Socket.IO WebSocket Server │  │
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>│  │  ├── Auth (JWT + Session) │  │  ├── Auth Middleware         │  │
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│  │  ├── REST API Routes      │  │  ├── Connection Manager     │  │
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│  │  ├── Rate Limiter         │  │  ├── Room/Channel Routing   │  │
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│  │  ├── CORS / Helmet / CSP  │  │  ├── Message ACK + Retry   │  │
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>│  │  └── Zod Validation       │  │  └── Heartbeat (25s/20s)   │  │
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>│  └──────────────────────────┘  └──────────────────────────────┘  │
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>└─────────────────────────────┬────────────────────────────────────┘
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>                              │
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>┌─────────────────────────────┴────────────────────────────────────┐
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│            Business Logic &amp; Persistence Backend                    │
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│  │ Auth     │  │ Workspace│  │ Channel  │  │ Message Service  │  │
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>│  │ Service  │  │ Service  │  │ Service  │  │ ├── Send/Receive │  │
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>│  │          │  │          │  │          │  │ ├── Edit/Delete  │  │
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>│  │          │  │          │  │          │  │ ├── Pagination   │  │
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>│  │          │  │          │  │          │  │ └── Read Receipts│  │
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│  └──────────┘  └──────────┘  └──────────┘  └──────────────────┘  │
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│  ┌──────────┐  ┌──────────┐  ┌──────────────────────────────────┐ │
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│  │ File     │  │ Signal   │  │ Bot Router + Event Bus           │ │
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│  │ Storage  │  │ Key      │  │ (Redis Streams → NATS Phase 2)   │ │
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>│  │ Service  │  │ Service  │  │                                  │ │
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>│  └──────────┘  └──────────┘  └──────────────────────────────────┘ │
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>│                                                                   │
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>│  ┌────────────────────────┐  ┌────────────────────────────────┐  │
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>│  │  PostgreSQL             │  │  Redis                         │  │
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>│  │  ├── Users              │  │  ├── Session / Auth Token      │  │
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>│  │  ├── Workspaces         │  │  ├── Online Presence           │  │
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>│  │  ├── Channels           │  │  ├── Channel Members (cache)   │  │
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>│  │  ├── Messages (JSONB)   │  │  ├── Recent Messages (hot)     │  │
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>│  │  ├── Read Receipts      │  │  ├── Read Cursors             │  │
+<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a>│  │  ├── Files              │  │  ├── Rate Limit Counters       │  │
+<a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a>│  │  └── Signal Key Bundles │  │  └── Socket.IO Pub/Sub Adapter│  │
+<a id="__codelineno-0-69" name="__codelineno-0-69" href="#__codelineno-0-69"></a>│  └────────────────────────┘  └────────────────────────────────┘  │
+<a id="__codelineno-0-70" name="__codelineno-0-70" href="#__codelineno-0-70"></a>└─────────────────────────────┬────────────────────────────────────┘
+<a id="__codelineno-0-71" name="__codelineno-0-71" href="#__codelineno-0-71"></a>                              │
+<a id="__codelineno-0-72" name="__codelineno-0-72" href="#__codelineno-0-72"></a>┌─────────────────────────────┴────────────────────────────────────┐
+<a id="__codelineno-0-73" name="__codelineno-0-73" href="#__codelineno-0-73"></a>│           Async Bot Engine &amp; Event Dispatch                       │
+<a id="__codelineno-0-74" name="__codelineno-0-74" href="#__codelineno-0-74"></a>│  ┌─────────────────────┐  ┌───────────────┐  ┌────────────────┐  │
+<a id="__codelineno-0-75" name="__codelineno-0-75" href="#__codelineno-0-75"></a>│  │ Event Listener      │  │ Bot SDK       │  │ Bot WebSocket  │  │
+<a id="__codelineno-0-76" name="__codelineno-0-76" href="#__codelineno-0-76"></a>│  │ (Redis Streams      │  │ (TypeScript   │  │ Connection     │  │
+<a id="__codelineno-0-77" name="__codelineno-0-77" href="#__codelineno-0-77"></a>│  │  Consumer Group)    │  │  SDK for devs)│  │ (per-bot WS)   │  │
+<a id="__codelineno-0-78" name="__codelineno-0-78" href="#__codelineno-0-78"></a>│  └────────┬────────────┘  └───────────────┘  └────────────────┘  │
+<a id="__codelineno-0-79" name="__codelineno-0-79" href="#__codelineno-0-79"></a>│           │                                                       │
+<a id="__codelineno-0-80" name="__codelineno-0-80" href="#__codelineno-0-80"></a>│  ┌────────┴────────────┐                                          │
+<a id="__codelineno-0-81" name="__codelineno-0-81" href="#__codelineno-0-81"></a>│  │ Bot Command Router  │                                          │
+<a id="__codelineno-0-82" name="__codelineno-0-82" href="#__codelineno-0-82"></a>│  │ ├── /slash commands │                                          │
+<a id="__codelineno-0-83" name="__codelineno-0-83" href="#__codelineno-0-83"></a>│  │ ├── @mentions       │                                          │
+<a id="__codelineno-0-84" name="__codelineno-0-84" href="#__codelineno-0-84"></a>│  │ └── Interactive     │                                          │
+<a id="__codelineno-0-85" name="__codelineno-0-85" href="#__codelineno-0-85"></a>│  └─────────────────────┘                                          │
+<a id="__codelineno-0-86" name="__codelineno-0-86" href="#__codelineno-0-86"></a>└─────────────────────────────┬────────────────────────────────────┘
+<a id="__codelineno-0-87" name="__codelineno-0-87" href="#__codelineno-0-87"></a>                              │
+<a id="__codelineno-0-88" name="__codelineno-0-88" href="#__codelineno-0-88"></a>┌─────────────────────────────┴────────────────────────────────────┐
+<a id="__codelineno-0-89" name="__codelineno-0-89" href="#__codelineno-0-89"></a>│           AI Agent &amp; Streaming Engine                              │
+<a id="__codelineno-0-90" name="__codelineno-0-90" href="#__codelineno-0-90"></a>│  ┌─────────────────────┐  ┌───────────────┐  ┌────────────────┐  │
+<a id="__codelineno-0-91" name="__codelineno-0-91" href="#__codelineno-0-91"></a>│  │ Command Parser      │  │ Agent Router  │  │ LLM Provider   │  │
+<a id="__codelineno-0-92" name="__codelineno-0-92" href="#__codelineno-0-92"></a>│  │ (/ai ask, summarize │  │ (Intent →     │  │ Abstraction     │  │
+<a id="__codelineno-0-93" name="__codelineno-0-93" href="#__codelineno-0-93"></a>│  │  translate, draft,  │  │  Agent)        │  │ (OpenAI/Claude/ │  │
+<a id="__codelineno-0-94" name="__codelineno-0-94" href="#__codelineno-0-94"></a>│  │  search, @ai mention│  │                │  │  Gemini/Ollama) │  │
+<a id="__codelineno-0-95" name="__codelineno-0-95" href="#__codelineno-0-95"></a>│  └────────┬────────────┘  └───────┬───────┘  └────────────────┘  │
+<a id="__codelineno-0-96" name="__codelineno-0-96" href="#__codelineno-0-96"></a>│           │                       │                                │
+<a id="__codelineno-0-97" name="__codelineno-0-97" href="#__codelineno-0-97"></a>│  ┌────────┴────────────┐  ┌───────┴────────┐                      │
+<a id="__codelineno-0-98" name="__codelineno-0-98" href="#__codelineno-0-98"></a>│  │ Tool Executor       │  │ Memory Manager │                      │
+<a id="__codelineno-0-99" name="__codelineno-0-99" href="#__codelineno-0-99"></a>│  │ (SDK API, Web Fetch │  │ (Sliding Window│                      │
+<a id="__codelineno-0-100" name="__codelineno-0-100" href="#__codelineno-0-100"></a>│  │  Code Sandbox)      │  │  pgvector RAG) │                      │
+<a id="__codelineno-0-101" name="__codelineno-0-101" href="#__codelineno-0-101"></a>│  └─────────────────────┘  └────────────────┘                      │
+<a id="__codelineno-0-102" name="__codelineno-0-102" href="#__codelineno-0-102"></a>│  ┌─────────────────────┐                                          │
+<a id="__codelineno-0-103" name="__codelineno-0-103" href="#__codelineno-0-103"></a>│  │ Stream Manager      │                                          │
+<a id="__codelineno-0-104" name="__codelineno-0-104" href="#__codelineno-0-104"></a>│  │ (Chunk Batcher 100ms│                                          │
+<a id="__codelineno-0-105" name="__codelineno-0-105" href="#__codelineno-0-105"></a>│  │  WS Emitter)        │                                          │
+<a id="__codelineno-0-106" name="__codelineno-0-106" href="#__codelineno-0-106"></a>│  └─────────────────────┘                                          │
+<a id="__codelineno-0-107" name="__codelineno-0-107" href="#__codelineno-0-107"></a>└──────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="layer-responsibilities">Layer Responsibilities<a class="headerlink" href="#layer-responsibilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Responsibility</th>
+<th>Key Components</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Client Shell</strong></td>
+<td>Desktop runtime, native OS integration, offline persistence, Signal Protocol E2EE client</td>
+<td>Electron main process, preload bridge, Zustand stores, IndexedDB</td>
+</tr>
+<tr>
+<td><strong>Core Gateway</strong></td>
+<td>Authentication, request validation, WebSocket connection management, rate limiting, message routing</td>
+<td>Hono HTTP server, Socket.IO server, Redis Adapter for horizontal WebSocket scaling</td>
+</tr>
+<tr>
+<td><strong>Business Logic Backend</strong></td>
+<td>Domain logic for auth, workspaces, channels, messages, file storage, Signal key distribution, bot event routing</td>
+<td>Service modules, Drizzle ORM, PostgreSQL, Redis caching layers</td>
+</tr>
+<tr>
+<td><strong>Async Bot Engine</strong></td>
+<td>Decoupled bot lifecycle, event-driven message processing, bot SDK for third-party development</td>
+<td>Redis Streams consumer groups, Bot WebSocket connections, slash-command router</td>
+</tr>
+<tr>
+<td><strong>AI Agent Engine</strong></td>
+<td>AI command routing, LLM provider abstraction, tool execution, memory/RAG, streaming chunk relay</td>
+<td>Command parser, agent router, LLM abstraction layer, pgvector, chunk batcher</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-monorepo-structure">3. Monorepo Structure<a class="headerlink" href="#3-monorepo-structure" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>nexus-chat/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── apps/
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── server/                 # Hono + Socket.IO backend application
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   │   ├── src/
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   │   │   ├── index.ts        # Entry point (Hono serve + Socket.IO attach)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   │   │   ├── routes/         # REST API route handlers
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   │   │   ├── services/       # Business logic (auth, workspace, channel, message)
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   │   │   ├── ws/             # WebSocket event handlers, connection manager
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   │   │   ├── middleware/     # Helmet, CORS, rate-limiter, JWT guard
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   │   │   ├── db/             # Drizzle schema, migrations, seed scripts
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   │   │   ├── bot/            # Bot engine: event bus, router, bot WS manager
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   │   │   └── lib/            # Utilities (pagination, id generation, logging)
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│   │   ├── drizzle/            # Drizzle migration files
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   │   └── package.json
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   │
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>│   ├── web/                    # Vite + React renderer application
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│   │   ├── src/
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   │   │   ├── main.tsx        # React entry point
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   │   │   ├── App.tsx         # Root layout + routing
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   │   │   ├── components/     # UI components (shared + page-specific)
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>│   │   │   ├── pages/          # Page-level components
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│   │   │   ├── stores/         # Zustand stores (message, channel, user, ui, etc.)
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│   │   │   ├── hooks/          # Custom React hooks
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>│   │   │   ├── lib/            # API client, WebSocket client, crypto utils
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   │   │   └── styles/         # Tailwind CSS theme + global styles
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   │   └── package.json
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│   │
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│   └── desktop/                # Electron main process + preload
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│       ├── src/
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│       │   ├── main.ts         # Electron entry, window creation, tray
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│       │   ├── preload.ts      # contextBridge API exposure
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│       │   ├── ipc-handlers.ts # IPC handler registration
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│       │   ├── window-manager.ts
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│       │   ├── tray.ts         # System tray icon
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│       │   ├── notifications.ts
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│       │   ├── updater.ts      # Auto-update logic
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│       │   ├── offline-cache.ts # protocol.handle offline cache
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│       │   └── network-monitor.ts
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│       └── package.json
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>│
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>├── packages/
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>│   ├── shared/                 # Shared types, constants, validation schemas
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>│   │   ├── src/
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>│   │   │   ├── types/          # Message, Channel, User, Workspace types
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>│   │   │   ├── schemas/        # Zod validation schemas (shared between client &amp; server)
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>│   │   │   ├── constants/      # Event names, error codes, status enums
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>│   │   │   └── utils/          # Shared utility functions
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>│   │   └── package.json
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>│   │
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>│   ├── signal/                 # @signalapp/libsignal abstraction layer
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>│   │   ├── src/
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>│   │   │   ├── protocol.ts     # Key generation, PreKey bundle management
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>│   │   │   ├── session.ts      # Session cipher (encrypt/decrypt per session)
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>│   │   │   ├── store.ts        # Signal Protocol Store implementation
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>│   │   │   └── group.ts        # Group messaging (Sender Key distribution)
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>│   │   └── package.json
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>│   │
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>│   ├── bot-sdk/                # Bot development SDK for third-party developers
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>│   │   ├── src/
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>│   │   │   ├── client.ts       # Bot WebSocket client
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>│   │   │   ├── handler.ts      # Event handler registration
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>│   │   │   ├── commands.ts     # Slash command builder
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>│   │   │   └── types.ts        # Bot-specific type definitions
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>│   │   └── package.json
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>│   │
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>│   └── ui/                     # Shared UI component library (shadcn/ui based)
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>│       ├── src/
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>│       │   ├── components/     # Button, Input, Dialog, Avatar, etc.
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>│       │   ├── hooks/          # Shared UI hooks
+<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>│       │   └── lib/            # cn() utility, CVA variants
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>│       └── package.json
+<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>│
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>├── docs/
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>│   ├── research/               # Technology research reports
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>│   ├── design/                 # Architecture &amp; design documents
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>│   └── ai/                     # AI-assisted development context
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>│
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>├── turbo.json                  # Turborepo pipeline configuration
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>├── pnpm-workspace.yaml         # pnpm workspace definition
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>├── package.json                # Root package.json (scripts + devDependencies)
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>└── tsconfig.base.json          # Shared TypeScript configuration
+</code></pre></div>
+<h3 id="cross-package-dependency-graph">Cross-Package Dependency Graph<a class="headerlink" href="#cross-package-dependency-graph" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>apps/desktop ──→ apps/web ──→ packages/ui
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    │                │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    │                ├──→ packages/shared
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    │                ├──→ packages/signal
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    │                └──→ packages/bot-sdk
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    │
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    └──→ apps/server ──→ packages/shared
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>                         └──→ packages/signal
+</code></pre></div>
+<hr />
+<h2 id="4-tech-stack-summary">4. Tech Stack Summary<a class="headerlink" href="#4-tech-stack-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Version</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Desktop Shell</strong></td>
+<td>Electron</td>
+<td>^42.5</td>
+<td>Cross-platform desktop, mature ecosystem, native OS integration</td>
+</tr>
+<tr>
+<td><strong>UI Framework</strong></td>
+<td>React 19 + Vite 7</td>
+<td>^19.0 / ^7.0</td>
+<td>Concurrent features (<code>useTransition</code>, <code>useDeferredValue</code>), fast HMR, ESM-native</td>
+</tr>
+<tr>
+<td><strong>Build Integration</strong></td>
+<td>vite-plugin-electron</td>
+<td>^1.0.4</td>
+<td>Flexible Vite+Electron integration, supports multi-env mode, notBundle for fast HMR</td>
+</tr>
+<tr>
+<td><strong>State Management</strong></td>
+<td>Zustand</td>
+<td>^5.0</td>
+<td>Lightweight, selector-precision rendering, Map-based normalized storage, middleware ecosystem</td>
+</tr>
+<tr>
+<td><strong>Styling</strong></td>
+<td>Tailwind CSS v4 + CVA</td>
+<td>^4.0 / ^0.4</td>
+<td>Utility-first with CSS-variable design tokens, <code>class-variance-authority</code> for component variants</td>
+</tr>
+<tr>
+<td><strong>Virtual Scrolling</strong></td>
+<td>react-virtuoso</td>
+<td>latest</td>
+<td>Built-in bidirectional infinite scroll, auto-follow-output, sticky group headers</td>
+</tr>
+<tr>
+<td><strong>UI Primitives</strong></td>
+<td>shadcn/ui (cherry-picked)</td>
+<td>latest</td>
+<td>Accessible Radix UI primitives, copy-paste ownership, Tailwind v4 compatible</td>
+</tr>
+<tr>
+<td><strong>HTTP Server</strong></td>
+<td>Hono</td>
+<td>^4.12</td>
+<td>Cold start &lt;50ms, cross-runtime (Node/Bun/CF Workers), built-in middleware (CORS, JWT, rate-limiter), RPC type sharing</td>
+</tr>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td>Socket.IO v4 + Redis Adapter</td>
+<td>^4.8 / ^8.3</td>
+<td>Room/channel management, reconnect, heartbeat, ACK built-in; Redis Adapter for horizontal scaling</td>
+</tr>
+<tr>
+<td><strong>ORM</strong></td>
+<td>Drizzle ORM</td>
+<td>^0.40</td>
+<td>Type-safe SQL, lightweight, native PostgreSQL JSONB support, cursor pagination</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>PostgreSQL 16+</td>
+<td>—</td>
+<td>ACID compliance, JSONB for polymorphic message content, mature indexing, UUID v7 support</td>
+</tr>
+<tr>
+<td><strong>Cache / Pub/Sub</strong></td>
+<td>Redis 7+</td>
+<td>—</td>
+<td>Multi-layer caching (session, presence, hot messages, read cursors), Pub/Sub for Socket.IO horizontal scaling, rate limiting</td>
+</tr>
+<tr>
+<td><strong>Event Bus (Phase 1)</strong></td>
+<td>Redis Streams</td>
+<td>built-in via ioredis</td>
+<td>Zero-cost event bus on existing Redis; consumer groups for bot engine</td>
+</tr>
+<tr>
+<td><strong>Event Bus (Phase 2+)</strong></td>
+<td>NATS JetStream</td>
+<td>latest</td>
+<td>Subject-hierarchy routing, persistence, cross-cluster federation, &lt;0.5ms p50 latency</td>
+</tr>
+<tr>
+<td><strong>Encryption</strong></td>
+<td>@signalapp/libsignal</td>
+<td>latest</td>
+<td>Signal Protocol (X3DH key agreement + Double Ratchet), FOSS, audited</td>
+</tr>
+<tr>
+<td><strong>Validation</strong></td>
+<td>Zod</td>
+<td>^3.23</td>
+<td>Runtime type validation at API boundaries, schema sharing between client and server</td>
+</tr>
+<tr>
+<td><strong>Logging</strong></td>
+<td>Pino</td>
+<td>^9.5</td>
+<td>High-performance structured JSON logging, negligible overhead</td>
+</tr>
+<tr>
+<td><strong>File Storage</strong></td>
+<td>S3-compatible (R2 / MinIO)</td>
+<td>—</td>
+<td>Low cost, CDN-ready, presigned upload URLs</td>
+</tr>
+<tr>
+<td><strong>Package Manager</strong></td>
+<td>pnpm + Turborepo</td>
+<td>latest</td>
+<td>Fast, disk-efficient, parallel builds with dependency-aware pipeline</td>
+</tr>
+<tr>
+<td><strong>Packaging</strong></td>
+<td>electron-builder + electron-updater</td>
+<td>^26.0 / ^6.3</td>
+<td>Cross-platform packaging, GitHub Releases auto-update</td>
+</tr>
+<tr>
+<td><strong>AI SDK</strong></td>
+<td>Vercel AI SDK v6 (Phase 2), LangGraph (Phase 3)</td>
+<td>—</td>
+<td>Streaming-first, MCP support, TypeScript-native</td>
+</tr>
+<tr>
+<td><strong>Vector Store</strong></td>
+<td>pgvector (PostgreSQL extension)</td>
+<td>—</td>
+<td>In-database, no additional infra</td>
+</tr>
+<tr>
+<td><strong>LLM Providers</strong></td>
+<td>OpenAI / Anthropic / Google / OpenRouter / Ollama</td>
+<td>—</td>
+<td>Multi-provider abstraction</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-data-flow-diagrams">5. Data Flow Diagrams<a class="headerlink" href="#5-data-flow-diagrams" title="Permanent link">&para;</a></h2>
+<h3 id="51-normal-mode-message-flow">5.1 Normal Mode Message Flow<a class="headerlink" href="#51-normal-mode-message-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Sender Client                  Gateway/Server                   Recipient Client(s)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>     │                              │                                  │
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>     │ 1. message:send ────────────→│                                  │
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>     │    {channelId, clientMsgId,  │                                  │
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>     │     content}                 │                                  │
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>     │                              │ 2. Auth + Rate Limit Check       │
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>     │                              │ 3. Idempotency Check (Redis)     │
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>     │                              │ 4. Validate Content (Zod)        │
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>     │                              │ 5. INSERT INTO messages          │
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>     │                              │    (assign server ID, UUID v7)   │
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>     │ 6. message:ack ─────────────│                                  │
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>     │    {messageId, status:      │                                  │
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>     │     &quot;sent&quot;}                  │                                  │
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>     │                              │ 7. Cache → Redis (ZADD hot)      │
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>     │                              │ 8. Publish Event → Redis Streams │
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>     │                              │ 9. Bot Engine consumes event     │
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>     │                              │    (if channel has bots)         │
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>     │                              │10. message:new ─────────────────→│
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>     │                              │    {full Message object}         │
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>     │                              │                                  │
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>     │                              │11. ← message:delivered ─────────│
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>     │                              │    {messageId, userId}           │
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>     │12. ← message:delivered ─────│                                  │
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>     │                              │                                  │
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>     │                              │13. ← message:read ──────────────│
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>     │                              │    {channelId, userId,           │
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>     │                              │     lastReadMessageId}           │
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>     │14. ← message:read ──────────│                                  │
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>     │                              │15. Read Receipt Aggregator       │
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>     │                              │    (buffer 3s → batch UPSERT)    │
+</code></pre></div>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>Server is the source of truth for message IDs (UUID v7, time-ordered).</li>
+<li><code>clientMsgId</code> provides idempotency: if the same message is retried due to network issues, the server deduplicates via Redis (<code>dedup:{clientMsgId}</code>).</li>
+<li>Messages are stored as plaintext in PostgreSQL (server-readable). For normal mode, server-side search and bot participation are possible.</li>
+<li>Read receipts are aggregated in a 3-second buffer, then batch-upserted to PostgreSQL to avoid write amplification (see <a href="../../research/backend-im-state-machine/#35-read-receipt-batch-aggregation-strategy">IM Backend Research §3.5</a>).</li>
+<li>Bot engine receives a copy of every message event via Redis Streams. Bots may respond asynchronously.</li>
+</ul>
+<h3 id="52-e2e-mode-message-flow">5.2 E2E Mode Message Flow<a class="headerlink" href="#52-e2e-mode-message-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Sender Client                  Gateway/Server                   Recipient Client(s)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>     │                              │                                  │
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>     │ 1. Encrypt locally:          │                                  │
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>     │    - Resolve PreKey bundle   │                                  │
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>     │      for each recipient      │                                  │
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>     │    - Advance Double Ratchet  │                                  │
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>     │    - Encrypt content →       │                                  │
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>     │      ciphertext blob         │                                  │
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>     │                              │                                  │
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>     │ 2. message:e2e:send ────────→│                                  │
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>     │    {channelId, clientMsgId,  │                                  │
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>     │     ciphertext,              │                                  │
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>     │     senderDeviceId}          │                                  │
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>     │                              │ 3. Auth + Rate Limit Check       │
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>     │                              │ 4. Idempotency Check (Redis)     │
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>     │                              │ 5. Store ciphertext as-is        │
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>     │                              │    INSERT INTO messages          │
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>     │                              │    (content = encrypted blob)    │
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>     │ 6. message:ack ─────────────│                                  │
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>     │    {messageId, status:      │                                  │
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>     │     &quot;sent&quot;}                  │                                  │
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>     │                              │ 7. message:e2e:new ─────────────→│
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>     │                              │    {ciphertext blob,             │
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>     │                              │     senderDeviceId}              │
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>     │                              │                                  │
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>     │                              │    ⚠ Server NEVER decrypts      │
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>     │                              │    ⚠ No bot dispatch possible    │
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>     │                              │    ⚠ No server-side search       │
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>     │                              │                                  │
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>     │                              │ 8. Client decrypts locally:      │
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>     │                              │    - Lookup session by           │
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>     │                              │      senderDeviceId              │
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>     │                              │    - Decrypt with Double Ratchet │
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>     │                              │    - Render plaintext            │
+</code></pre></div>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>All encryption/decryption happens on the client using the shared <code>packages/signal</code> library.</li>
+<li>The server is a <strong>blind relay</strong>: it stores and forwards opaque ciphertext blobs. The server cannot read message content, nor can it perform full-text search on E2E channels.</li>
+<li>Bots <strong>cannot</strong> participate in E2E channels — this is an architectural trade-off. The E2E protocol has no mechanism to include a third-party key in the ratchet without defeating the end-to-end guarantee.</li>
+<li>Key material (PreKey bundles, signed pre-keys) is stored server-side in a dedicated <code>signal_key_bundles</code> table, but private keys never leave the client.</li>
+<li>For details on key distribution, group messaging (Sender Key), and device multi-session management, see <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>.</li>
+</ul>
+<h3 id="53-bot-command-flow">5.3 Bot Command Flow<a class="headerlink" href="#53-bot-command-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>User Client                Gateway/Server                   Bot Engine                 Bot (3rd-party)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>     │                         │                                │                            │
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>     │ 1. Type /poll          │                                │                            │
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>     │    &quot;Best language?&quot;    │                                │                            │
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>     │ 2. message:send ───────→│                                │                            │
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>     │    {content: {type:     │                                │                            │
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>     │     &quot;slash_command&quot;,    │                                │                            │
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>     │     command: &quot;/poll&quot;,   │                                │                            │
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>     │     args: &quot;Best lang?&quot;}}│                                │                            │
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>     │                         │ 3. Store message + detect      │                            │
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>     │                         │    slash command prefix        │                            │
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>     │                         │ 4. Publish to Redis Streams    │                            │
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>     │                         │    XADD events:bot-commands    │                            │
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>     │ 5. message:ack ────────│                                │                            │
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>     │                         │                                │ 6. Consumer Group reads    │
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>     │                         │                                │    event                   │
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>     │                         │                                │ 7. Route to installed bot  │
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>     │                         │                                │    (botId from channel)    │
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>     │                         │                                │ 8. Forward via Bot WS ────→│
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>     │                         │                                │                            │
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>     │                         │                                │                            │ 9. Bot processes
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>     │                         │                                │                            │    command
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>     │                         │                                │                            │10. Bot responds
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>     │                         │                                │ ← Bot WS response ────────│
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>     │                         │                                │11. Validate response       │
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>     │                         │                                │12. Send to channel ───────→│
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>     │                         │                                │    io.to(channel).emit()   │
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>     │                         │                                │                            │
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>     │ ← Bot response ────────│                                │                            │
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>     │   (message:new)        │                                │                            │
+</code></pre></div>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>Bot command detection happens server-side (prefix <code>/</code>). The message is stored as a regular message with <code>content.type = "slash_command"</code>.</li>
+<li>Bot commands are delivered to the bot engine via Redis Streams, decoupling the request-response lifecycle from the main message pipeline.</li>
+<li>Each installed bot maintains a persistent WebSocket connection to the Bot Engine. Commands and responses flow through this dedicated channel.</li>
+<li>Bot responses are injected back into the channel as regular messages (with a <code>botId</code> attribution), visible to all channel members.</li>
+<li>For bot SDK design, event subscription patterns, and security constraints, see <a href="../../research/bot-engine-microservices/">Bot Engine Research</a>.</li>
+</ul>
+<h3 id="54-ai-streaming-message-flow">5.4 AI Streaming Message Flow<a class="headerlink" href="#54-ai-streaming-message-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>User Client                Gateway/Server               AI Agent Engine            LLM Provider
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>     │                         │                              │                          │
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>     │ 1. /ai summarize        │                              │                          │
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>     │    yesterday            │                              │                          │
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>     │ 2. message:send ───────→│                              │                          │
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>     │                         │ 3. Auth + detect /ai         │                          │
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>     │                         │    command prefix            │                          │
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>     │                         │ 4. Publish to AI Streams ───→│                          │
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>     │ 5. message:ack ────────│                              │                          │
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>     │                         │                              │ 6. Command Parser        │
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>     │                         │                              │    identifies &quot;summarize&quot; │
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>     │                         │                              │    agent, extracts intent │
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>     │                         │                              │ 7. Agent Router selects   │
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>     │                         │                              │    SummarizeAgent + model │
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>     │                         │                              │ 8. Memory Manager builds  │
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>     │                         │                              │    context (recent msgs,  │
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>     │                         │                              │    pgvector RAG)          │
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>     │                         │                              │                           │
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>     │                         │ ← 9. message.stream_start ──│                           │
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>     │                         │    {placeholderMessageId}    │                           │
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>     │ ← message.stream_start──│                              │                           │
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>     │    (placeholder in UI)  │                              │                           │
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>     │                         │                              │10. Prompt sent ──────────→│
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>     │                         │                              │                           │
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>     │                         │                              │ ← stream_chunk (token) ──│
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>     │                         │ ← 11. message.stream_chunk ─│                           │
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>     │                         │    {chunkIndex, content}     │    (every ~100ms)         │
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>     │ ← stream_chunk ────────│                              │                           │
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>     │    (progressive render) │                              │                           │
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>     │                         │                              │ ← repeat until done ─────│
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>     │                         │                              │                           │
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>     │12. User clicks [Cancel] │                              │                           │
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>     │13. stream_cancel ──────→│ ────────────────────────────→│                           │
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>     │                         │                              │14. Abort LLM request ────→│
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>     │                         │ ← 15. message.stream_end ───│                           │
+<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>     │                         │    {status: &quot;cancelled&quot;}     │                           │
+<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a>     │ ← stream_end ──────────│                              │                           │
+<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a>     │                         │                              │                           │
+<a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a>     │    OR (if completed):   │                              │                           │
+<a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a>     │                         │ ← 15. message.stream_end ───│                           │
+<a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a>     │                         │    {status: &quot;completed&quot;,     │                           │
+<a id="__codelineno-6-42" name="__codelineno-6-42" href="#__codelineno-6-42"></a>     │                         │     usage: {tokens...}}      │                           │
+<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a>     │ ← stream_end ──────────│                              │                           │
+<a id="__codelineno-6-44" name="__codelineno-6-44" href="#__codelineno-6-44"></a>     │    (final markdown      │                              │                           │
+<a id="__codelineno-6-45" name="__codelineno-6-45" href="#__codelineno-6-45"></a>     │     with token stats)   │                              │                           │
+</code></pre></div>
+<p><strong>Key characteristics:</strong></p>
+<ul>
+<li>The <code>/ai</code> command prefix is detected server-side. The message is routed to the AI Agent Engine instead of the generic bot engine.</li>
+<li>A <code>stream_start</code> event pre-allocates a placeholder message in the channel, appearing in the correct chronological position.</li>
+<li>The Stream Manager's Chunk Batcher buffers tokens and emits <code>stream_chunk</code> events every ~100ms to the channel via WebSocket.</li>
+<li>Clients render progressive markdown with a cursor animation. The user can cancel generation at any time via the same WebSocket connection.</li>
+<li>Upon completion, <code>stream_end</code> delivers final token usage statistics (<code>promptTokens</code>, <code>completionTokens</code>, <code>totalTokens</code>).</li>
+<li>Tool calls (web fetch, code sandbox, SDK API) are interlaced within the stream as special chunk types.</li>
+</ul>
+<hr />
+<h2 id="6-deployment-architecture">6. Deployment Architecture<a class="headerlink" href="#6-deployment-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="61-phase-1-monolith-with-clear-boundaries">6.1 Phase 1: Monolith with Clear Boundaries<a class="headerlink" href="#61-phase-1-monolith-with-clear-boundaries" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>                              ┌──────────────────┐
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>                              │  Load Balancer    │
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>                              │  (Nginx / AWS ALB)│
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>                              │  sticky sessions  │
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>                              └────────┬─────────┘
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>                                       │
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>                         ┌─────────────┼─────────────┐
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>                         ↓             ↓             ↓
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>                   ┌──────────┐ ┌──────────┐ ┌──────────┐
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>                   │ App Node │ │ App Node │ │ App Node │
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>                   │ (Hono +  │ │ (Hono +  │ │ (Hono +  │
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>                   │ Socket.IO│ │ Socket.IO│ │ Socket.IO│
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>                   │ + Bot    │ │ + Bot    │ │ + Bot    │
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>                   │ Engine)  │ │ Engine)  │ │ Engine)  │
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>                   └────┬─────┘ └────┬─────┘ └────┬─────┘
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>                        │            │            │
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>                        └────────────┼────────────┘
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>                                     │
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>                        ┌────────────┴────────────┐
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>                        │         Redis            │
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>                        │  ├── Socket.IO Adapter   │
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>                        │  ├── Session / Cache     │
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>                        │  ├── Rate Limiting        │
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>                        │  └── Redis Streams        │
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>                        │     (Bot Event Bus)       │
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>                        └──────────────────────────┘
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>                                     │
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>                        ┌────────────┴────────────┐
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>                        │      PostgreSQL          │
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>                        │      (Primary)           │
+<a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>                        └──────────────────────────┘
+</code></pre></div>
+<ul>
+<li>All services (HTTP, WebSocket, Bot Engine) run in a <strong>single Node.js process</strong> deployed across multiple instances for availability.</li>
+<li><strong>Redis</strong> provides:</li>
+<li>Socket.IO Adapter for cross-instance WebSocket message routing</li>
+<li>Session store and multi-layer data caching</li>
+<li>Sliding-window rate limiting (distributed)</li>
+<li>Redis Streams as the event bus for bot engine message consumption</li>
+<li><strong>Sticky sessions</strong> (cookie-based or IP hash) required at the load balancer for Socket.IO's Engine.IO handshake. After upgrade to pure WebSocket (<code>transports: ["websocket"]</code>), sticky sessions still recommended for connection affinity.</li>
+<li>PostgreSQL runs as a single primary with optional read replicas for scaling query load (read receipts, search queries).</li>
+</ul>
+<h3 id="62-future-phase-2-service-split-boundaries">6.2 Future Phase 2+: Service Split Boundaries<a class="headerlink" href="#62-future-phase-2-service-split-boundaries" title="Permanent link">&para;</a></h3>
+<p>As the system scales, the monolith splits along domain boundaries already established in the Phase 1 code organization:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>│  Gateway     │  │  Message     │  │  Bot Engine  │  │  File        │
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>│  Service     │  │  Service     │  │  Service     │  │  Service     │
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>│  (Hono REST) │  │  (WS +       │  │  (NATS       │  │  (Upload +   │
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│              │  │   Storage)   │  │   consumer)  │  │   CDN)       │
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>└──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>       │                 │                 │                 │
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>       └─────────────────┼─────────────────┼─────────────────┘
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>                         │                 │
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>                    ┌────┴────┐       ┌────┴────┐
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>                    │  NATS   │       │  Redis  │
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>                    │JetStream│       │(Cache + │
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>                    │(Event   │       │ Session)│
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>                    │ Bus)    │       │         │
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>                    └─────────┘       └─────────┘
+</code></pre></div>
+<ul>
+<li><strong>Gateway Service</strong>: Handles REST API authentication, routing, rate limiting. Stateless; horizontally scalable behind a load balancer without sticky sessions.</li>
+<li><strong>Message Service</strong>: Owns WebSocket connections, message persistence, read receipts. Stateful with Redis Adapter for inter-instance communication.</li>
+<li><strong>Bot Engine Service</strong>: Independent consumer of NATS JetStream events. Manages bot WebSocket connections and SDK lifecycle.</li>
+<li><strong>File Service</strong>: Handles upload presigned URLs, virus scanning, thumbnail generation, CDN invalidation.</li>
+<li>All services share <strong>shared type definitions</strong> (<code>packages/shared</code>) for API contract and event schema consistency.</li>
+</ul>
+<p>For detailed microservices decoupling strategy, inter-service communication patterns, and database-per-service migration planning, see <a href="../../research/bot-engine-microservices/#3-microservices-decoupling-strategy">Bot Engine Research §3</a>.</p>
+<hr />
+<h2 id="7-phase-roadmap">7. Phase Roadmap<a class="headerlink" href="#7-phase-roadmap" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Full detailed roadmap</strong>: <a href="../06_Phase_Roadmap/">06 — Phase Roadmap &amp; Milestone Plan</a></p>
+</blockquote>
+<h3 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h3>
+<h3 id="phase-1-mvp-foundation">Phase 1: MVP Foundation<a class="headerlink" href="#phase-1-mvp-foundation" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Usable Slack-like IM with hybrid encryption.</p>
+<table>
+<thead>
+<tr>
+<th>Feature Area</th>
+<th>Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Auth</strong></td>
+<td>Email/password registration + login, JWT (access 15min + refresh 7d), session management</td>
+</tr>
+<tr>
+<td><strong>Workspace</strong></td>
+<td>Create/join workspace, workspace settings, member invite</td>
+</tr>
+<tr>
+<td><strong>Channels</strong></td>
+<td>Public/private channels, DM conversations, channel creation, archive, member management</td>
+</tr>
+<tr>
+<td><strong>Messages</strong></td>
+<td>Text messages, message state machine (Draft → Sending → Sent → Delivered → Read), cursor-based pagination, edit/delete, emoji reactions</td>
+</tr>
+<tr>
+<td><strong>Rich Content</strong></td>
+<td>Markdown rendering in messages</td>
+</tr>
+<tr>
+<td><strong>DM E2E</strong></td>
+<td>Signal Protocol encryption for 1:1 DMs, opaque server relay, client-side key management</td>
+</tr>
+<tr>
+<td><strong>Bot (basic)</strong></td>
+<td>Bot registration, <code>/slash</code> command parse + routing, bot WebSocket connection, Redis Streams event bus</td>
+</tr>
+<tr>
+<td><strong>UI</strong></td>
+<td>Single-window layout (sidebar + chat view), channel list, message list with virtual scrolling, dark/light theme, message input</td>
+</tr>
+<tr>
+<td><strong>Desktop Shell</strong></td>
+<td>Electron window, system tray, native notifications, auto-update</td>
+</tr>
+<tr>
+<td><strong>Infrastructure</strong></td>
+<td>Monolith deployment (Hono + Socket.IO + Bot Engine in one process), PostgreSQL, Redis, Pino logging</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2-rich-features-production-hardening">Phase 2: Rich Features &amp; Production Hardening<a class="headerlink" href="#phase-2-rich-features-production-hardening" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Feature-complete IM platform ready for production launch.</p>
+<table>
+<thead>
+<tr>
+<th>Feature Area</th>
+<th>Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>File &amp; Image</strong></td>
+<td>File upload (S3/R2), inline image previews, attachment thumbnails, file search</td>
+</tr>
+<tr>
+<td><strong>Search</strong></td>
+<td>Full-text message search (PostgreSQL <code>tsvector</code>), channel/user search, search filters</td>
+</tr>
+<tr>
+<td><strong>Threads</strong></td>
+<td>Threaded replies, thread sidebar panel, thread notifications</td>
+</tr>
+<tr>
+<td><strong>Reactions</strong></td>
+<td>Reaction picker, reaction counts, reaction notifications</td>
+</tr>
+<tr>
+<td><strong>Online Presence</strong></td>
+<td>Real-time online/offline status, typing indicators, last seen</td>
+</tr>
+<tr>
+<td><strong>Channel E2E</strong></td>
+<td>Group E2E via Sender Key, key distribution for multi-member channels</td>
+</tr>
+<tr>
+<td><strong>Bot (advanced)</strong></td>
+<td>Bot SDK package (<code>packages/bot-sdk</code>), interactive components (buttons, modals), bot marketplace, bot permissions</td>
+</tr>
+<tr>
+<td><strong>Electron Package</strong></td>
+<td>Cross-platform packaging (macOS, Windows, Linux), code signing, auto-update via GitHub Releases</td>
+</tr>
+<tr>
+<td><strong>Offline Support</strong></td>
+<td>Offline message queue, automated retry on reconnect, IndexedDB message cache, offline indicator</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Web Vitals monitoring, React Profiler in CI, memory window control (200 messages in-memory), render optimization</td>
+</tr>
+<tr>
+<td><strong>AI Assistant</strong></td>
+<td>Thread summarization, <code>/ai ask</code>, <code>/ai translate</code>, <code>/ai draft</code>, <code>/ai search</code> with RAG, streaming message protocol (stream_start → stream_chunk → stream_end)</td>
+</tr>
+<tr>
+<td><strong>Base Bots</strong></td>
+<td>Todo Bot, GitHub/GitLab Bot, CI/CD Bot, Standup Bot, Celebration Bot, Feedback Bot</td>
+</tr>
+<tr>
+<td><strong>Infrastructure</strong></td>
+<td>Multi-instance deployment, Redis Sentinel/Cluster, database read replicas</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3-advanced-enterprise">Phase 3: Advanced &amp; Enterprise<a class="headerlink" href="#phase-3-advanced-enterprise" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Enterprise-grade platform with advanced capabilities.</p>
+<table>
+<thead>
+<tr>
+<th>Feature Area</th>
+<th>Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Voice &amp; Video</strong></td>
+<td>1:1 and group voice/video calls (WebRTC), screen sharing, call history</td>
+</tr>
+<tr>
+<td><strong>SSO</strong></td>
+<td>SAML/OIDC integration, Google/Microsoft/GitHub OAuth login, directory sync</td>
+</tr>
+<tr>
+<td><strong>Advanced E2E</strong></td>
+<td>Verified safety numbers, device management, disappearing messages, E2E audit log</td>
+</tr>
+<tr>
+<td><strong>Enterprise</strong></td>
+<td>Admin dashboard, audit logs, data retention policies, compliance exports, custom data residency</td>
+</tr>
+<tr>
+<td><strong>Bot Ecosystem</strong></td>
+<td>Public bot marketplace, bot analytics, bot rate limiting and abuse prevention, Bot Marketplace launch</td>
+</tr>
+<tr>
+<td><strong>AI Orchestration</strong></td>
+<td>Multi-agent AI orchestration (supervisor-worker, debate patterns), voice/video integration with Meeting Notes Bot</td>
+</tr>
+<tr>
+<td><strong>Microservices Split</strong></td>
+<td>Gateway / Message / Bot Engine / File services separated, NATS JetStream event bus, database-per-service</td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>Distributed tracing (OpenTelemetry), centralized metrics (Prometheus + Grafana), alerting</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-related-design-documents">8. Related Design Documents<a class="headerlink" href="#8-related-design-documents" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell &amp; UI Rendering</a></td>
+<td>Electron + React + Zustand architecture</td>
+</tr>
+<tr>
+<td><a href="../02_Long_Connection_and_Core_Gateway_Layer/">02 - Long Connection &amp; Core Gateway</a></td>
+<td>WebSocket protocol, REST API, authentication</td>
+</tr>
+<tr>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic &amp; Persistence</a></td>
+<td>Data model, state machines, caching</td>
+</tr>
+<tr>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Async Bot Engine &amp; Event Dispatch</a></td>
+<td>Bot framework, event pipeline, tasks</td>
+</tr>
+<tr>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent Orchestration &amp; Streaming</a></td>
+<td>AI Assistant Bot, streaming protocol, LLM abstraction</td>
+</tr>
+<tr>
+<td><a href="../06_Phase_Roadmap/">06 - Phase Roadmap &amp; Milestone Plan</a></td>
+<td>Consolidated Phase 1/2/3 goals, week-by-week breakdown, bot/AI rollout</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="appendix-key-architecture-decisions-log">Appendix: Key Architecture Decisions Log<a class="headerlink" href="#appendix-key-architecture-decisions-log" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Rationale</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hono over Fastify/NestJS</strong></td>
+<td>Cold start &lt;50ms, cross-runtime, built-in middleware, simple testing. Fastify is the fallback if serverless is ruled out.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>Socket.IO over raw WS/uWS</strong></td>
+<td>Room management, reconnect, heartbeat, Redis Adapter for horizontal scaling — all built-in. Operational simplicity over raw throughput for Phase 1.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>Redis Streams over Kafka/NATS (Phase 1)</strong></td>
+<td>Zero additional infrastructure cost (Redis already deployed). Consumer Groups sufficient for early bot engine needs. Upgrade path to NATS JetStream defined for Phase 2.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>Zustand over Redux/Jotai</strong></td>
+<td>Lightweight, selector precision, Map-based normalized storage, middleware ecosystem. Suitable for IM's high-frequency state updates.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>react-virtuoso over tanstack/react-virtual</strong></td>
+<td>Built-in bidirectional infinite scroll, auto-follow-output, sticky headers — all essential for chat message lists. 17KB bundle cost acceptable.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>UUID v7 over UUID v4</strong></td>
+<td>Time-ordered IDs enable single-field cursor pagination (<code>WHERE id &lt; cursor ORDER BY id DESC</code>), eliminating the need for <code>(created_at, id)</code> compound cursors.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>JSONB for message content</strong></td>
+<td>Polymorphic content (text, image, file, system) maps naturally to JSONB. PostgreSQL JSONB supports indexing (<code>@&gt;</code> containment) for attachment-type queries.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>Per-channel encryption mode</strong></td>
+<td>A workspace can mix normal and E2E channels. This avoids an all-or-nothing trade-off and lets users choose the appropriate security model per conversation.</td>
+<td>2026-06-24</td>
+</tr>
+<tr>
+<td><strong>Monolith-first deployment</strong></td>
+<td>All services co-located in Phase 1 with clear domain boundaries in code. Service split deferred until scale demands it, avoiding premature distribution complexity.</td>
+<td>2026-06-24</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3048 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only)">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/design/06_Phase_Roadmap/">
+      
+      
+        <link rel="prev" href="../05_AI_Agent_Orchestration_and_Streaming/">
+      
+      
+        <link rel="next" href="../../research/frontend-architecture/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>阶段路线图 - Nexus Chat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#06" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              阶段路线图
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="选择当前语言">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    设计文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    设计文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00_System_High_Level_Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统总体架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    客户端外壳与 UI 渲染层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    长连接与核心网关层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    业务逻辑与持久化后端
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    异步 Bot 引擎与事件分发层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent 编排与流式引擎
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    阶段路线图
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    阶段路线图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 概述和时间表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-1-mvp-0-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 第 1 阶段 — MVP 基础（0-3 个月）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 第 1 阶段 — MVP 基础（0-3 个月）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 核心目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 功能交付成果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 基础机器人 (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 要构建的包
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 每周细分
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-2-3-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 核心目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 功能交付成果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-ai-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 AI 代理里程碑（第 2 阶段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 每周细分
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-3-612" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 第 3 阶段 — 高级和企业（+6–12 个月）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 第 3 阶段 — 高级和企业（+6–12 个月）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 核心目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 功能交付成果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-ai-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 AI 代理里程碑（第 3 阶段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 基础设施的演变
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 基础设施的演变">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键基础设施里程碑
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 机器人目录推出
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 机器人目录推出">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mvp-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第 1 阶段机器人（MVP — 7 个机器人）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第 2 阶段机器人（参与 — 7 个机器人）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第 3 阶段机器人（高级 - 5 个机器人）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人实施策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-ai-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. AI Agent 实现顺序
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. AI Agent 实现顺序">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI 阶段的技术堆栈
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 包裹递送矩阵
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技术调研
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    技术调研
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    前端架构与性能优化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js 核心 IM 与状态机设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    组件化 UI 与插件生态协议
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    异步 Bot 引擎与微服务解耦
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    低成本防御方案与未来 E2EE 路线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础 Bot 目录
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent 编排与流式交互设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI 会话上下文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 概述和时间表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-1-mvp-0-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 第 1 阶段 — MVP 基础（0-3 个月）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 第 1 阶段 — MVP 基础（0-3 个月）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 核心目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 功能交付成果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 基础机器人 (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 要构建的包
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 每周细分
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-2-3-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 核心目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 功能交付成果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-ai-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 AI 代理里程碑（第 2 阶段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 每周细分
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-3-612" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 第 3 阶段 — 高级和企业（+6–12 个月）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 第 3 阶段 — 高级和企业（+6–12 个月）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 核心目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 功能交付成果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-ai-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 AI 代理里程碑（第 3 阶段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 基础设施的演变
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 基础设施的演变">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键基础设施里程碑
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 机器人目录推出
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 机器人目录推出">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mvp-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第 1 阶段机器人（MVP — 7 个机器人）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第 2 阶段机器人（参与 — 7 个机器人）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第 3 阶段机器人（高级 - 5 个机器人）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人实施策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-ai-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. AI Agent 实现顺序
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. AI Agent 实现顺序">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI 阶段的技术堆栈
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 包裹递送矩阵
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="06">06 — 阶段路线图和里程碑计划<a class="headerlink" href="#06" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>nexus-chat · 类似 Slack 的 IM 应用<br />
+设计日期：2026 年 6 月 · 状态：草案 v1.0<br />
+目标：SaaS多租户云部署</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-overview--timeline">Overview &amp; Timeline</a></li>
+<li><a href="#2-phase-1--mvp-foundation-03-months">Phase 1 — MVP Foundation (0–3 months)</a></li>
+<li><a href="#3-phase-2--rich-features--production-hardening-36-months">Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)</a></li>
+<li><a href="#4-phase-3--advanced--enterprise-612-months">Phase 3 — Advanced &amp; Enterprise (+6–12 months)</a>
+5.<a href="#5-infrastructure-evolution">Infrastructure Evolution</a>
+6.<a href="#6-bot-catalog-rollout">Bot Catalog Rollout</a>
+7.<a href="#7-ai-agent-implementation-sequence">AI Agent Implementation Sequence</a></li>
+<li><a href="#8-package-delivery-matrix">Package Delivery Matrix</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 概述和时间表<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Phase 1 (MVP)           Phase 2 (Production)        Phase 3 (Enterprise)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├───────────────────────┼───────────────────────────┼───────────────────────→
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Month 0            Month 3                    Month 6                Month 12
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>相</th>
+<th>持续时间</th>
+<th>目标</th>
+<th>发射准备</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>第一阶段</strong></td>
+<td>0-3 个月</td>
+<td>具有混合加密功能的类似 Slack 的可用 IM</td>
+<td>内部 alpha、内测</td>
+</tr>
+<tr>
+<td><strong>第二阶段</strong></td>
+<td>第 3-6 个月</td>
+<td>功能齐全的 IM 平台已准备好公开发布</td>
+<td>公开 GA 发布</td>
+</tr>
+<tr>
+<td><strong>第三阶段</strong></td>
+<td>6-12 个月</td>
+<td>具有先进人工智能和生态系统的企业级平台</td>
+<td>企业计划</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-1-mvp-0-3">2. 第 1 阶段 — MVP 基础（0-3 个月）<a class="headerlink" href="#2-1-mvp-0-3" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 核心目标<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>提供类似 Slack 的工作 IM，展示关键区别：<strong>每通道混合加密</strong>（正常 = IM + Bot，E2E = 仅 IM）。</p>
+<h3 id="22">2.2 功能交付成果<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>特色专区</th>
+<th>可交付成果</th>
+<th>参考设计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>项目脚手架</strong></td>
+<td>pnpm monorepo + Turborepo、TypeScript 严格模式、ESLint + Prettier、Vitest、CI/CD 管道</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>授权</strong></td>
+<td>电子邮件/密码注册 + 登录、JWT（访问 15 分钟 + 刷新 7 天）、Argon2id 密码哈希、令牌轮换、会话管理</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>工作区</strong></td>
+<td>创建/加入工作区、工作区设置、成员邀请、角​​色管理（所有者/管理员/成员）</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>频道</strong></td>
+<td>公共/私人频道、DM 对话、频道创建、存档、会员管理、每频道模式切换（正常/e2e）</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>消息</strong></td>
+<td>短信、消息状态机（草稿 → 发送 → 已发送 → 已发送 → 已读）、基于光标的分页 (UUID v7)、编辑/删除（软）、表情符号反应</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>内容丰富</strong></td>
+<td>Markdown 渲染（markdown-it + Shiki 代码）、表情符号选择器 (emoji-mart)、@mention 自动完成</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>DM E2E</strong></td>
+<td>用于 1:1 DM 的信号协议、X3DH 密钥协商、双棘轮、客户端加密/解密、服务器不透明中继、PreKeyBundle 服务器</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>机器人（基本）</strong></td>
+<td>Bot 注册 + 令牌发行 (<code>nxbot_v1_xxx</code>)、<code>/slash</code> 命令解析 + 路由、Bot WebSocket 连接生命周期、Redis Streams 事件总线</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>网关</strong></td>
+<td>Hono HTTP 服务器 + Socket.IO WebSocket、JWT 身份验证中间件、速率限制（滑动窗口）、CORS/Helmet.js/CSP、Zod 验证、心跳（30s）</td>
+<td><a href="../02_Long_Connection_and_Core_Gateway_Layer/">02 - Gateway</a></td>
+</tr>
+<tr>
+<td><strong>用户界面外壳</strong></td>
+<td>单窗口 Electron 布局（侧边栏 + 聊天视图 + 详细信息面板）、Zustand 商店（auth/workspace/channel/message/presence/signal/ui）、react-virtuoso 消息列表、深色/浅色主题、Tailwind CSS v4</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>桌面外壳</strong></td>
+<td>Electron 窗口管理、系统托盘、本机通知、自动更新（电子更新程序）、contextBridge IPC</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>基础设施</strong></td>
+<td>整体部署（Hono + Socket.IO + Bot Engine 在一个进程中）、PostgreSQL 16、Redis 7、Pino 结构化日志记录、dotenv 配置</td>
+<td><a href="../00_System_High_Level_Architecture/">00 - System Architecture</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-mvp">2.3 基础机器人 (MVP)<a class="headerlink" href="#23-mvp" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>＃</th>
+<th>机器人</th>
+<th>类别</th>
+<th>关键交付成果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>欢迎机器人</strong></td>
+<td>系统/入门</td>
+<td>Auto-DM新会员、<code>#welcome</code>频道公告、入职指南</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>帮助机器人</strong></td>
+<td>系统</td>
+<td><code>/help</code> 命令列表、静态常见问题解答、文档查找</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>通知机器人</strong></td>
+<td>系统</td>
+<td><code>/announce</code> 进行频道和工作区范围的广播</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>提醒机器人</strong></td>
+<td>生产力</td>
+<td><code>/remind me &lt;when&gt; &lt;what&gt;</code>、<code>/reminders list</code>、<code>/reminders cancel</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>投票机器人</strong></td>
+<td>生产力</td>
+<td><code>/poll "Question" "Opt1" "Opt2"...</code>，实时反应投票</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Webhook 机器人</strong></td>
+<td>开发商</td>
+<td>通道 webhook URL 生成，JSON → 消息模板</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>荣誉机器人</strong></td>
+<td>文化</td>
+<td><code>/kudos @user &lt;reason&gt;</code>，工作区排行榜</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24">2.4 要构建的包<a class="headerlink" href="#24" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>套餐</th>
+<th>路径</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared</code></td>
+<td><code>packages/shared/</code></td>
+<td>共享类型、Zod 模式、常量</td>
+</tr>
+<tr>
+<td><code>signal</code></td>
+<td><code>packages/signal/</code></td>
+<td>信号协议包装器 (@signalapp/libsignal)</td>
+</tr>
+<tr>
+<td><code>bot-sdk</code></td>
+<td><code>packages/bot-sdk/</code></td>
+<td>公共机器人 SDK (TypeScript/Node.js)</td>
+</tr>
+<tr>
+<td><code>ui</code></td>
+<td><code>packages/ui/</code></td>
+<td>共享 React UI 组件</td>
+</tr>
+<tr>
+<td><code>server</code></td>
+<td><code>apps/server/</code></td>
+<td>整体后端</td>
+</tr>
+<tr>
+<td><code>web</code></td>
+<td><code>apps/web/</code></td>
+<td>React SPA 前端</td>
+</tr>
+<tr>
+<td><code>desktop</code></td>
+<td><code>apps/desktop/</code></td>
+<td>电子壳</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25">2.5 每周细分<a class="headerlink" href="#25" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>周</th>
+<th>焦点</th>
+<th>关键输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1-2</td>
+<td>1-2项目脚手架+数据模型</td>
+<td>pnpm 工作区、Turbo 配置、ESLint/Prettier、Drizzle ORM 架构、数据库迁移</td>
+</tr>
+<tr>
+<td>3-4</td>
+<td>3-4身份验证+网关骨架</td>
+<td>注册/登录、JWT、Hono 路由、Socket.IO 设置、中间件链</td>
+</tr>
+<tr>
+<td>5-6</td>
+<td>5-6工作区 + 通道 CRUD</td>
+<td>工作区管理、频道创建/加入/存档、DM 创建流程</td>
+</tr>
+<tr>
+<td>7–8</td>
+<td>消息管道</td>
+<td>通过 WS 发送/接收、消息状态机、光标分页、编辑/删除</td>
+</tr>
+<tr>
+<td>9–10</td>
+<td>信号协议集成</td>
+<td>PreKeyBundle 服务器，X3DH + 双棘轮，E2E DM 流程</td>
+</tr>
+<tr>
+<td>11-12</td>
+<td>11-12机器人引擎 + 基础机器人 (3)</td>
+<td>机器人注册、斜线命令路由、Redis 流、欢迎/帮助/通知机器人</td>
+</tr>
+<tr>
+<td>13</td>
+<td>剩余基础机器人 (4)</td>
+<td>提醒、投票、Webhook、Kudos 机器人</td>
+</tr>
+<tr>
+<td>14</td>
+<td>14电子壳+抛光</td>
+<td>窗口管理、托盘、通知、深色/浅色主题、错误状态</td>
+</tr>
+<tr>
+<td>15-16</td>
+<td>15-16测试+错误修复+内测</td>
+<td>集成测试、性能审计、内测部署</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-2-3-6">3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）<a class="headerlink" href="#3-2-3-6" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 核心目标<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<p>功能齐全的 IM 平台，具有文件共享、搜索、线程、AI 助手和完整的机器人生态系统 - 准备好公开 GA 发布。</p>
+<h3 id="32">3.2 功能交付成果<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>特色专区</th>
+<th>可交付成果</th>
+<th>参考设计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>文件和图像</strong></td>
+<td>文件上传（S3/R2 预签名 URL）、内嵌图像预览、附件缩略图、文件类型验证、病毒扫描</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>全文搜索</strong></td>
+<td>PostgreSQL <code>tsvector</code> + GIN索引、消息搜索、频道搜索、用户搜索、日期范围+用户过滤器</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>话题</strong></td>
+<td>主题回复、主题侧边栏面板、主题通知、主提要中的主题父级预览</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>在线状态</strong></td>
+<td>实时在线/离线状态、打字指示器、上次查看时间戳、离开/空闲检测</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>阅读收据</strong></td>
+<td>每通道已读光标、未读徽章计数、“新消息”分隔符</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>消息增强</strong></td>
+<td>固定/取消固定消息、消息永久链接/复制链接、转发消息、保存以供以后使用</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>渠道端到端</strong></td>
+<td>通过发送方密钥进行 E2E 组、多成员频道的密钥分配、成员更改密钥轮换、待加入</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>机器人高级</strong></td>
+<td>Bot SDK 交互组件（按钮、模态、Block Kit）、机器人权限范围、机器人分析仪表板</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>Webhook 交付</strong></td>
+<td>用于低频机器人的 HTTP Webhook、HMAC-SHA256 签名、重试策略（3 次尝试）、交付跟踪器</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>人工智能助手</strong></td>
+<td><code>/ai ask</code>、<code>/ai summarize</code>、<code>/ai translate</code>、<code>/ai draft</code>、<code>/ai search</code>、<code>@ai</code>提及、流消息协议（stream_start→stream_chunk→stream_end）、pgvector RAG</td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>基础机器人（第 2 阶段）</strong></td>
+<td>Todo 机器人、GitHub/GitLab 机器人、CI/CD 机器人、站立机器人、庆祝机器人、反馈机器人</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>电子封装</strong></td>
+<td>跨平台打包（macOS .dmg、Windows .exe/.msi、Linux .AppImage/.deb）、代码签名、通过 GitHub 自动更新<a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>离线支持</strong></td>
+<td>具有指数重试功能的离线消息队列、IndexedDB 消息缓存、离线指示器、重新连接 UI</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>Web Vitals 监控、CI 中的 React Profiler、内存窗口控制（内存中 200 条消息）、图像延迟加载、代码分割</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>基础设施</strong></td>
+<td>多实例部署、Redis Sentinel/集群、数据库只读副本、负载测试</td>
+<td><a href="../00_System_High_Level_Architecture/">00 - System Architecture</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-ai-2">3.3 AI 代理里程碑（第 2 阶段）<a class="headerlink" href="#33-ai-2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>里程碑</th>
+<th>周</th>
+<th>可交付成果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>M1：提供商层</strong></td>
+<td>1-2</td>
+<td>1-2 <code>LLMProvider</code> 接口、<code>OpenAIProvider</code>、<code>AnthropicProvider</code>、<code>ProviderRegistry</code>、<code>CostTracker</code></td>
+</tr>
+<tr>
+<td><strong>M2：流媒体协议</strong></td>
+<td>3-4</td>
+<td>3-4 <code>message.stream_start/chunk/end/cancel</code> 事件、<code>ChunkBatcher</code>（100 毫秒）、<code>StreamManager</code>、<code>StreamingMarkdownRenderer</code></td>
+</tr>
+<tr>
+<td><strong>M3：基本命令</strong></td>
+<td>5-6</td>
+<td>5-6 <code>/ai ask</code>、<code>/ai summarize</code>、<code>/ai translate</code>、<code>/ai draft</code> — 带系统提示的单个代理</td>
+</tr>
+<tr>
+<td><strong>M4：工具集成</strong></td>
+<td>7–8</td>
+<td><code>ToolRegistry</code>、SDK API工具（searchChannelHistory、getChannelInfo、listChannelMembers、sendMessage、fetchWebPage）、安全分类（绿色/黄色/红色）、确认UI</td>
+</tr>
+<tr>
+<td><strong>M5：内存管理</strong></td>
+<td>9–10</td>
+<td><code>ConversationWindow</code>（滑动，50 条消息/24K 令牌）、<code>ConversationSummarizer</code>、<code>ContextCache</code> (Redis)</td>
+</tr>
+<tr>
+<td><strong>M6：RAG（pg向量）</strong></td>
+<td>11-12</td>
+<td>11-12 pgvector 扩展、消息嵌入管道、<code>BatchEmbeddingGenerator</code>、语义搜索、混合搜索</td>
+</tr>
+<tr>
+<td><strong>M7：UI 润色+隐私</strong></td>
+<td>13–14</td>
+<td>打字机动画、渐进式降价、取消按钮、工具调用指示器、工作区 AI 设置、GDPR 合规性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34">3.4 每周细分<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>周</th>
+<th>重点领域</th>
+<th>关键成果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1-2</td>
+<td>1-2文件上传基础设施</td>
+<td>S3 预签名 URL、上传服务、图像处理管道</td>
+</tr>
+<tr>
+<td>3-4</td>
+<td>3-4全文检索</td>
+<td>PostgreSQL tsvector、搜索 UI、过滤器</td>
+</tr>
+<tr>
+<td>5-6</td>
+<td>5-6主题</td>
+<td>线程模型、线程 UI（侧边栏面板）、线程通知</td>
+</tr>
+<tr>
+<td>7–8</td>
+<td>在线状态+阅读收据</td>
+<td>状态系统、打字指示器、已读光标、未读徽章</td>
+</tr>
+<tr>
+<td>9–12</td>
+<td>AI 代理引擎 (M1–M4)</td>
+<td>Provider层、流协议、基本命令、工具集成</td>
+</tr>
+<tr>
+<td>13–14</td>
+<td>渠道E2E+AI记忆</td>
+<td>发送者密钥、pgvector RAG、内存管理</td>
+</tr>
+<tr>
+<td>15-16</td>
+<td>15-16人工智能用户界面（M6-M7）</td>
+<td>渐进式渲染、工作区设置、隐私合规性</td>
+</tr>
+<tr>
+<td>17-18</td>
+<td>17-18机器人高级功能</td>
+<td>交互式组件、webhook 交付、第 2 阶段基础机器人</td>
+</tr>
+<tr>
+<td>19-20</td>
+<td>19-20电子封装</td>
+<td>跨平台构建、代码签名、自动更新</td>
+</tr>
+<tr>
+<td>21-22</td>
+<td>21-22离线+性能</td>
+<td>离线队列、IndexedDB 缓存、Web Vitals、分析器</td>
+</tr>
+<tr>
+<td>23-24</td>
+<td>23-24测试+质量保证</td>
+<td>端到端测试、负载测试、安全审计、文档</td>
+</tr>
+<tr>
+<td>25-26</td>
+<td>25-26公开 GA 发布</td>
+<td>生产部署、监控、发布公告</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-3-612">4. 第 3 阶段 — 高级和企业（+6–12 个月）<a class="headerlink" href="#4-3-612" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 核心目标<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>具有语音/视频、多代理 AI、SSO 和公共机器人市场的企业级平台。</p>
+<h3 id="42">4.2 功能交付成果<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>特色专区</th>
+<th>可交付成果</th>
+<th>参考设计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>语音和视频</strong></td>
+<td>1:1 和群组语音/视频通话 (WebRTC)、屏幕共享、通话记录、举手、一键通</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>SSO 和 OAuth</strong></td>
+<td>SAML/OIDC 集成、Google/Microsoft/GitHub OAuth 登录、目录同步 (SCIM)、企业身份提供商</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>先进的端到端</strong></td>
+<td>验证安全号码（二维码比较）、设备管理（列表/撤销）、消失消息、密封发件人、E2E 审核日志</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>多设备同步</strong></td>
+<td>每设备 PreKeyBundle 管理、多设备会话中继、设备注册/撤销</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
+<td><strong>企业管理员</strong></td>
+<td>管理仪表板、工作区分析、审核日志、数据保留策略、合规性导出 (GDPR/CCPA)、自定义数据驻留区域</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>企业机器人</strong></td>
+<td>AutoMod（内容过滤、垃圾邮件检测、速率限制）、Status Bot（服务运行状况监控）、Scheduler Bot（会议安排）、会议笔记 Bot</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>多智能体人工智能</strong></td>
+<td>LangGraph Supervisor-Worker + 辩论模式、任务分解、代理切换、<code>/ai research</code>、<code>/ai code</code></td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>人工智能自托管</strong></td>
+<td>Ollama + vLLM集成，企业本地LLM部署指南</td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>机器人市场</strong></td>
+<td>公共市场列表、OAuth2 安装流程、机器人版本控制、评论/评级系统、带计费功能的付费机器人、沙箱测试环境</td>
+<td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
+</tr>
+<tr>
+<td><strong>定制代理</strong></td>
+<td>适用于工作区管理员的代理构建器 UI、社区贡献的代理市场、用户定义的提示和工具</td>
+<td><a href="../05_AI_Agent_Orchestration_and_Streaming/">05 - AI Agent</a></td>
+</tr>
+<tr>
+<td><strong>微服务分裂</strong></td>
+<td>网关/消息/机器人引擎/文件服务分离、NATS JetStream 事件总线、用于同步调用的 gRPC、每个服务数据库</td>
+<td><a href="../00_System_High_Level_Architecture/">00 - System Architecture</a></td>
+</tr>
+<tr>
+<td><strong>可观察性</strong></td>
+<td>分布式跟踪（OpenTelemetry + Jaeger）、集中式指标（Prometheus + Grafana）、警报、SLO 仪表板</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-ai-3">4.3 AI 代理里程碑（第 3 阶段）<a class="headerlink" href="#43-ai-3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>里程碑</th>
+<th>可交付成果</th>
+<th>技术</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>M8：多代理编排</strong></td>
+<td>LangGraph Supervisor-Worker、辩论模式、任务分解、代理切换</td>
+<td>LangGraph（通过 TypeScript API 的 Python 微服务）</td>
+</tr>
+<tr>
+<td><strong>M9：高级工具</strong></td>
+<td>代码沙箱 (E2B/gVisor)、带域白名单的 Web 获取、用于工具暴露的 MCP 服务器</td>
+<td>E2B、MCP协议</td>
+</tr>
+<tr>
+<td><strong>M10：自托管法学硕士</strong></td>
+<td>Ollama 提供商、vLLM 集成、企业内部部署指南</td>
+<td>奥拉玛，法学硕士</td>
+</tr>
+<tr>
+<td><strong>M11：人工智能分析</strong></td>
+<td>使用仪表板、每个工作区/用户的成本分配、提示有效性指标、A/B 测试</td>
+<td>普罗米修斯 + Grafana</td>
+</tr>
+<tr>
+<td><strong>M12：遇见人工智能</strong></td>
+<td>语音/视频会议转录（Whisper）、会议总结、行动项提取</td>
+<td>Whisper API + 法学硕士</td>
+</tr>
+<tr>
+<td><strong>M13：定制代理</strong></td>
+<td>代理构建器 UI、社区代理市场、用户定义的工具和提示</td>
+<td>插件协议</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. 基础设施的演变<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 3: Microservices
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>┌────────────────────┐              ┌────────────────────┐              ┌────────────────────┐
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│  Single Process:    │              │  App Node × N:      │              │  Gateway Service   │
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│  Hono + Socket.IO   │              │  ├─ Hono REST       │              │  (stateless, N×)   │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  + Bot Engine       │              │  ├─ Socket.IO       │              ├────────────────────┤
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│  + AI Agent Engine  │              │  ├─ Bot Engine      │              │  Message Service   │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>└────────┬───────────┘              │  └─ AI Engine       │              │  (stateful, N×)    │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>         │                           └────────┬───────────┘              ├────────────────────┤
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    ┌────┴────┐                           ┌───┴────┐                    │  Bot Engine        │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   PG    │                           │  Redis │                    │  (NATS consumer)   │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │  Redis  │                           │Cluster │                    ├────────────────────┤
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    └─────────┘                           └───┬────┘                    │  AI Agent Engine   │
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    Event bus:                               │                         │  (NATS consumer)   │
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    Redis Streams                     ┌──────┴──────┐                   ├────────────────────┤
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                                      │    PG       │                   │  File Service      │
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                                      │  Primary +  │                   │  (stateless, N×)   │
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>                                      │  Read Repl. │                   └────────┬───────────┘
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                                      └─────────────┘                            │
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                                      Event bus:                            ┌────┴──────┐
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                                      Redis Streams → NATS                  │   NATS    │
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                                                                            │ JetStream │
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                                                                            └────┬──────┘
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>                                                                                 │
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                                                                          ┌──────┴──────┐
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                                                                          │  PG per svc │
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                                                                          │  Redis Cluster│
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                                                                          └─────────────┘
+</code></pre></div>
+<h3 id="_2">关键基础设施里程碑<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>第一阶段</th>
+<th>第二阶段</th>
+<th>第三阶段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HTTP 服务器</strong></td>
+<td>单Hono实例</td>
+<td>LB 背后的多个 Hono 实例</td>
+<td>专用网关服务（无状态，N×）</td>
+</tr>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td>单Socket.IO节点</td>
+<td>Socket.IO + Redis 适配器（多节点）</td>
+<td>专属留言服务</td>
+</tr>
+<tr>
+<td><strong>数据库</strong></td>
+<td>单一 PostgreSQL</td>
+<td>主 + 只读副本</td>
+<td>每个服务的数据库</td>
+</tr>
+<tr>
+<td><strong>缓存</strong></td>
+<td>单个Redis</td>
+<td>Redis哨兵/集群</td>
+<td>每个服务域的 Redis 集群</td>
+</tr>
+<tr>
+<td><strong>活动巴士</strong></td>
+<td>Redis 流</td>
+<td>Redis Streams → NATS 迁移开始</td>
+<td>NATS JetStream</td>
+</tr>
+<tr>
+<td><strong>服务网格</strong></td>
+<td>不适用</td>
+<td>不适用</td>
+<td>gRPC 用于同步，NATS 用于异步</td>
+</tr>
+<tr>
+<td><strong>可观察性</strong></td>
+<td>皮诺原木</td>
+<td>Pino + Prometheus 指标</td>
+<td>OpenTelemetry + Jaeger + Grafana</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>GitHub 操作</td>
+<td>GitHub 操作 + Docker</td>
+<td>K8s + ArgoCD / Flux</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6">6. 机器人目录推出<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="1-mvp-7">第 1 阶段机器人（MVP — 7 个机器人）<a class="headerlink" href="#1-mvp-7" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>＃</th>
+<th>机器人</th>
+<th><code>@handle</code></th>
+<th>存储层</th>
+<th>i18n 优先</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>欢迎机器人</td>
+<td><code>@WelcomeBot</code></td>
+<td>DB（模板、通道映射）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>2</td>
+<td>帮助机器人</td>
+<td><code>@HelpBot</code></td>
+<td>DB（常见问题解答、文档索引）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>3</td>
+<td>通知机器人</td>
+<td><code>@NotifyBot</code></td>
+<td>DB（公告历史）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>4</td>
+<td>提醒机器人</td>
+<td><code>@RemindBot</code></td>
+<td>DB（主动提醒）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>5</td>
+<td>投票机器人</td>
+<td><code>@PollBot</code></td>
+<td>DB（民意调查、投票）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Webhook 机器人</td>
+<td><code>@WebhookBot</code></td>
+<td>DB（URL、模板、日志）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>7</td>
+<td>荣誉机器人</td>
+<td><code>@KudosBot</code></td>
+<td>DB（记录、排行榜）</td>
+<td>中等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-7">第 2 阶段机器人（参与 — 7 个机器人）<a class="headerlink" href="#2-7" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>＃</th>
+<th>机器人</th>
+<th><code>@handle</code></th>
+<th>存储层</th>
+<th>i18n 优先</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>都都机器人</td>
+<td><code>@TodoBot</code></td>
+<td>DB（任务、截止日期）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>9</td>
+<td>GitHub 机器人</td>
+<td><code>@GitBot</code></td>
+<td>DB（回购订阅）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>10</td>
+<td>10亚搏体育appGitLab机器人</td>
+<td><code>@GitLabBot</code></td>
+<td>DB（回购订阅）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>11</td>
+<td>11 CI/CD 机器人</td>
+<td><code>@CIBot</code></td>
+<td>DB（部署历史记录）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>12</td>
+<td>12站立机器人</td>
+<td><code>@StandupBot</code></td>
+<td>DB（模板、响应）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>13</td>
+<td>庆祝机器人</td>
+<td><code>@CelebrateBot</code></td>
+<td>DB（生日、周年纪念日）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>14</td>
+<td>14反馈机器人</td>
+<td><code>@FeedbackBot</code></td>
+<td>DB（调查、答复）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>—</td>
+<td><strong>人工智能助理机器人</strong></td>
+<td><code>@AI</code></td>
+<td>按请求无状态</td>
+<td>N/A（通过法学硕士与语言无关）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-5">第 3 阶段机器人（高级 - 5 个机器人）<a class="headerlink" href="#3-5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>＃</th>
+<th>机器人</th>
+<th><code>@handle</code></th>
+<th>存储层</th>
+<th>i18n 优先</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>15状态机器人</td>
+<td><code>@StatusBot</code></td>
+<td>DB（服务订阅）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>16</td>
+<td>16调度机器人</td>
+<td><code>@SchedulerBot</code></td>
+<td>DB（会议提案、可用性）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>17</td>
+<td>17会议笔记机器人</td>
+<td><code>@MeetingBot</code></td>
+<td>DB（成绩单、摘要）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>18</td>
+<td>18 AutoMod 机器人</td>
+<td><code>@AutoMod</code></td>
+<td>DB（规则、违规日志）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>—</td>
+<td>机器人市场</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">机器人实施策略<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>计数</th>
+<th>业主</th>
+<th>发展模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>第一方</strong>（捆绑）</td>
+<td>11</td>
+<td>11 Nexus Chat 核心团队</td>
+<td>在 monorepo <code>packages/bots/</code> 中开发，随平台一起提供</td>
+</tr>
+<tr>
+<td><strong>官方种子</strong>（第三方）</td>
+<td>6</td>
+<td>Nexus Chat 团队使用公共 SDK</td>
+<td>单独的存储库、演示 SDK 功能、社区模板</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-ai-agent">7. AI Agent 实现顺序<a class="headerlink" href="#7-ai-agent" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Phase 2 AI (12 weeks)                         Phase 3 AI (on-going)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Week 1-2:   M1 Provider Layer                 M8: Multi-Agent (LangGraph)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  └─ packages/ai-bot/ with Vercel AI SDK        └─ Supervisor-worker pattern
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  └─ OpenAIProvider + AnthropicProvider          └─ Debate/collaboration pattern
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  └─ ProviderRegistry + CostTracker              └─ Task decomposition
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>Week 3-4:   M2 Streaming Protocol              M9: Advanced Tools
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  └─ StreamingEvents in packages/shared/         └─ Code sandbox (E2B/gVisor)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  └─ ChunkBatcher (100ms flush)                  └─ Web fetch domain allowlisting
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  └─ StreamManager + Socket.IO bridge            └─ MCP server for tool exposure
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>  └─ Client StreamingMarkdownRenderer
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>Week 5-6:   M3 Basic Commands                 M10: Self-Hosted LLM
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>  └─ AgentDefinition for ask/summarize/...       └─ Ollama provider
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>  └─ AiCommandRouter (slash + @ai mention)       └─ vLLM integration
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>  └─ System prompt template substitution         └─ Enterprise on-prem guide
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  └─ Simple generation loop (no tools)
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>Week 7-8:   M4 Tool Integration               M11: AI Analytics
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  └─ ToolRegistry + NEXUS_CHAT_TOOLS             └─ Usage dashboards per workspace
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>  └─ Bot SDK API client for tools                └─ Cost allocation
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>  └─ Safety classification (GREEN/YELLOW/RED)   └─ Prompt effectiveness metrics
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>  └─ Interactive confirmation (Block Kit)
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>Week 9-10:  M5 Memory Management              M12: Meeting AI
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>  └─ ConversationWindow (sliding 50 msg)         └─ Whisper transcription
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>  └─ ConversationSummarizer (cascading)          └─ Meeting summarization
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>  └─ ContextCache (Redis TTLs)                   └─ Action item extraction
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>Week 11-12: M6 RAG + M7 Polish                M13: Custom Agents
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>  └─ pgvector extension + embedding pipeline     └─ Agent builder UI
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>  └─ BatchEmbeddingGenerator                     └─ Community agent marketplace
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>  └─ Semantic search + hybrid                    └─ User-defined prompts/tools
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>  └─ Typewriter animation, scroll lock
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>  └─ Workspace AI settings, GDPR compliance
+</code></pre></div>
+<h3 id="ai">AI 阶段的技术堆栈<a class="headerlink" href="#ai" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>第二阶段</th>
+<th>第三阶段（考虑）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>代理框架</strong></td>
+<td>Vercel AI SDK（流优先、TypeScript）</td>
+<td>LangGraph（多代理）</td>
+</tr>
+<tr>
+<td><strong>工具标准</strong></td>
+<td>OpenAI函数调用格式</td>
+<td>MCP（模型上下文协议）</td>
+</tr>
+<tr>
+<td><strong>矢量商店</strong></td>
+<td>pgvector（在 PostgreSQL 中）</td>
+<td>Pinecone / Qdrant（&gt;10M 载体）</td>
+</tr>
+<tr>
+<td><strong>主要型号</strong></td>
+<td>GPT-4o，克劳德 4 十四行诗</td>
+<td>自托管 Ollama/vLLM</td>
+</tr>
+<tr>
+<td><strong>模型网关</strong></td>
+<td>直接提供API</td>
+<td>OpenRouter（统一+后备）</td>
+</tr>
+<tr>
+<td><strong>嵌入模型</strong></td>
+<td>OpenAI 文本嵌入-3-小</td>
+<td>自托管BGE-M3</td>
+</tr>
+<tr>
+<td><strong>流传输</strong></td>
+<td>WebSocket（Socket.IO）</td>
+<td>WebSocket + 持久会话</td>
+</tr>
+<tr>
+<td><strong>可观察性</strong></td>
+<td>皮诺+普罗米修斯</td>
+<td>OpenTelemetry（LangSmith/Signoz）</td>
+</tr>
+<tr>
+<td><strong>代码沙箱</strong></td>
+<td>不适用</td>
+<td>E2B（gVisor 隔离）</td>
+</tr>
+<tr>
+<td><strong>内存</strong></td>
+<td>滑动窗口+Redis总结</td>
+<td>LangGraph 长期记忆存储</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8">8. 包裹递送矩阵<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>套餐</th>
+<th>第一阶段</th>
+<th>第二阶段</th>
+<th>第三阶段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/shared</code></td>
+<td>类型、Zod 模式、常量</td>
+<td>+ 流媒体事件、AI 类型、MCP 模式</td>
+<td>+ 企业类型</td>
+</tr>
+<tr>
+<td><code>packages/signal</code></td>
+<td>X3DH + 双棘轮</td>
+<td>+ 发件人密钥，组 E2E</td>
+<td>+ 密封发送器、设备管理</td>
+</tr>
+<tr>
+<td><code>packages/bot-sdk</code></td>
+<td>核心SDK（WS+事件+消息）</td>
+<td>+ 交互组件、webhook、KV 存储、数据库访问、本地化</td>
+<td>+ 人工智能工具访问、市场挂钩</td>
+</tr>
+<tr>
+<td><code>packages/ui</code></td>
+<td>按钮、输入、模态、头像、布局</td>
+<td>+ StreamRenderer、ToolCallCard、ConfirmationDialog</td>
+<td>+ AgentBuilder、管理仪表板</td>
+</tr>
+<tr>
+<td><code>packages/ai-bot</code></td>
+<td>—</td>
+<td>ProviderLayer、StreamManager、AgentRouter、工具、内存</td>
+<td>+ MultiAgent、CodeSandbox、SelfHosted</td>
+</tr>
+<tr>
+<td><code>apps/server</code></td>
+<td>身份验证、工作区、通道、消息、信号、机器人、状态</td>
+<td>+ 文件、搜索、线程、ReadReceipt、Webhook</td>
+<td>+ SSO、企业、分析</td>
+</tr>
+<tr>
+<td><code>apps/web</code></td>
+<td>AuthPage、ChatPage、SettingsPage</td>
+<td>+ 文件预​​览、搜索页面、ThreadPanel、PresenceIndicator、StreamRenderer</td>
+<td>+ 语音通话、管理控制台</td>
+</tr>
+<tr>
+<td><code>apps/desktop</code></td>
+<td>窗口、托盘、通知、更新程序</td>
+<td>+ 离线缓存、协议链接</td>
+<td>+ 屏幕共享、本机通话控制</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>相关文件</strong>：
+- <a href="../00_System_High_Level_Architecture/">00 — System High-Level Architecture</a>
+- <a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 — Client Shell &amp; UI Rendering</a>
+- <a href="../02_Long_Connection_and_Core_Gateway_Layer/">02 — Long Connection &amp; Core Gateway</a>
+- <a href="../03_Business_Logic_and_Persistence_Backend/">03 — Business Logic &amp; Persistence</a>
+- <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 — Async Bot Engine &amp; Event Dispatch</a>
+- <a href="../05_AI_Agent_Orchestration_and_Streaming/">05 — AI Agent Orchestration &amp; Streaming</a>
+- <a href="../../research/base-bot-catalog/">Base Bot Catalog Research</a>
+- <a href="../../research/ai-agent-orchestration/">AI Agent Orchestration Research</a></p>
+</blockquote>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
