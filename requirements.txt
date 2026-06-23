@@ -1,0 +1,2 @@
+mkdocs-material>=9.0
+deep-translator>=1.11

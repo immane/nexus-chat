@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MkDocs generated (bilingual build artifacts)
+/site/
+/docs-zh/
+/mkdocs-en.yml
+/mkdocs-zh.yml
+
+# Electron
+out/
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
+
+# Turborepo
+.turbo/
+
+# Obsidian personal vault (development notes)
+.obsidian/
