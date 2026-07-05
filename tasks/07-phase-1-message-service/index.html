@@ -2072,6 +2072,7 @@
 <li>Soft delete message.</li>
 <li>Emoji reactions.</li>
 <li>Read receipt aggregation.</li>
+<li>E2E disappearing-message lifecycle metadata (<code>read_once</code>, <code>ttl</code>, tombstone/expired state).</li>
 <li>Forward message as core IM action.</li>
 <li>Save/bookmark message as core IM action.</li>
 </ul>
@@ -2113,6 +2114,11 @@
 <td>Fundamental IM</td>
 </tr>
 <tr>
+<td>E2E read-once expiration</td>
+<td>Core</td>
+<td>Message lifecycle and privacy primitive</td>
+</tr>
+<tr>
 <td>Forward</td>
 <td>Core</td>
 <td>Message routing primitive</td>
@@ -2141,6 +2147,8 @@
 <li>Pagination returns stable results with cursor.</li>
 <li>Edit/delete emits events to channel members.</li>
 <li>Read receipts are buffered and flushed in batches.</li>
+<li>E2E read-once messages expire after the first successful recipient read acknowledgment and are returned as tombstones afterward.</li>
+<li>E2E TTL messages expire through server-side metadata cleanup without decrypting content.</li>
 <li>Forward preserves original attribution metadata.</li>
 <li>Saved messages are user-private.</li>
 </ul>
@@ -2152,6 +2160,8 @@
 <li>Edit/delete authorization tests.</li>
 <li>Reaction add/remove tests.</li>
 <li>Read receipt batch flush test.</li>
+<li>E2E read-once tombstone test.</li>
+<li>E2E TTL expiration cleanup test.</li>
 </ul>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <ul>

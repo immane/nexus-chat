@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="zh" class="no-js">
+<html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
@@ -10,13 +10,9 @@
       
       
       
-        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/16-phase-1-local-dev-ci-release/">
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/tasks/17-phase-1-tui-cli/">
       
       
-        <link rel="prev" href="../15-phase-1-observability-security-hardening/">
-      
-      
-        <link rel="next" href="../../research/frontend-architecture/">
       
       
         
@@ -31,7 +27,7 @@
     
     
       
-        <title>Phase 1 — 本地开发、CI 与发布 - Nexus Chat</title>
+        <title>17 — Phase 1 — TUI Command-Line Client - Nexus Chat</title>
       
     
     
@@ -82,8 +78,8 @@
     <div data-md-component="skip">
       
         
-        <a href="#16-1-ci" class="md-skip">
-          跳转至
+        <a href="#17-phase-1-tui-command-line-client" class="md-skip">
+          Skip to content
         </a>
       
     </div>
@@ -97,7 +93,7 @@
   
 
 <header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="页眉">
+  <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
   
@@ -118,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Phase 1 — 本地开发、CI 与发布
+              17 — Phase 1 — TUI Command-Line Client
             
           </span>
         </div>
@@ -158,7 +154,7 @@
       <div class="md-header__option">
   <div class="md-select">
     
-    <button class="md-header__button md-icon" aria-label="选择当前语言">
+    <button class="md-header__button md-icon" aria-label="Select language">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
     </button>
     <div class="md-select__inner">
@@ -192,16 +188,16 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="查找">
+      <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -214,7 +210,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            正在初始化搜索引擎
+            Initializing search
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -226,7 +222,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -260,7 +256,7 @@
 
 
 
-<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
@@ -272,7 +268,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -299,7 +295,7 @@
   <span class="md-ellipsis">
     
   
-    首页
+    Home
   
 
     
@@ -360,7 +356,7 @@
   <span class="md-ellipsis">
     
   
-    设计文档
+    Design Documents
   
 
     
@@ -376,7 +372,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    设计文档
+    Design Documents
   
 
           </label>
@@ -396,7 +392,7 @@
   <span class="md-ellipsis">
     
   
-    系统总体架构
+    System High-Level Architecture
   
 
     
@@ -424,7 +420,7 @@
   <span class="md-ellipsis">
     
   
-    客户端外壳与 UI 渲染层
+    Client Shell & UI Rendering
   
 
     
@@ -452,7 +448,7 @@
   <span class="md-ellipsis">
     
   
-    长连接与核心网关层
+    Long Connection & Core Gateway
   
 
     
@@ -480,7 +476,7 @@
   <span class="md-ellipsis">
     
   
-    业务逻辑与持久化后端
+    Business Logic & Persistence
   
 
     
@@ -508,7 +504,7 @@
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与事件分发层
+    Async Bot Engine & Event Dispatch
   
 
     
@@ -536,7 +532,7 @@
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式引擎
+    AI Agent Orchestration & Streaming
   
 
     
@@ -564,7 +560,7 @@
   <span class="md-ellipsis">
     
   
-    阶段路线图
+    Phase Roadmap
   
 
     
@@ -589,10 +585,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -637,11 +631,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -651,7 +647,7 @@
   <span class="md-ellipsis">
     
   
-    实施任务
+    Implementation Tasks
   
 
     
@@ -662,12 +658,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
   
-    实施任务
+    Implementation Tasks
   
 
           </label>
@@ -687,7 +683,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 项目脚手架
+    Phase 1 — Project Scaffold
   
 
     
@@ -722,7 +718,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 共享契约
+    Phase 1 — Shared Contracts
   
 
     
@@ -757,7 +753,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 数据库模型
+    Phase 1 — Database Schema
   
 
     
@@ -792,7 +788,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 认证与安全
+    Phase 1 — Auth & Security
   
 
     
@@ -827,7 +823,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 核心网关
+    Phase 1 — Core Gateway
   
 
     
@@ -862,7 +858,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 工作区与频道
+    Phase 1 — Workspace & Channel
   
 
     
@@ -897,7 +893,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 消息服务
+    Phase 1 — Message Service
   
 
     
@@ -932,7 +928,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 附件基础设施
+    Phase 1 — Attachment Foundation
   
 
     
@@ -967,7 +963,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — Signal DM 端到端加密
+    Phase 1 — Signal DM E2EE
   
 
     
@@ -1002,7 +998,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — Bot 引擎核心
+    Phase 1 — Bot Engine Core
   
 
     
@@ -1072,7 +1068,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 最小基础 Bot
+    Phase 1 — Minimal Base Bots
   
 
     
@@ -1107,7 +1103,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — Web 客户端外壳
+    Phase 1 — Web Client Shell
   
 
     
@@ -1142,7 +1138,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — Electron 外壳
+    Phase 1 — Electron Shell
   
 
     
@@ -1177,7 +1173,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 可观测性与加固
+    Phase 1 — Observability & Hardening
   
 
     
@@ -1202,51 +1198,17 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Phase 1 — 本地开发、CI 与发布
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--draft"></span>
-  
-
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../16-phase-1-local-dev-ci-release/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 本地开发、CI 与发布
+    Phase 1 — Local Dev, CI & Release
   
 
     
@@ -1262,114 +1224,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        范围
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        非目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        本地开发命令
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ci" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CI 工作
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        封闭测试清单
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        验收标准
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        依赖关系
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1430,7 +1284,7 @@
   <span class="md-ellipsis">
     
   
-    技术调研
+    Research
   
 
     
@@ -1446,7 +1300,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    技术调研
+    Research
   
 
           </label>
@@ -1466,7 +1320,7 @@
   <span class="md-ellipsis">
     
   
-    前端架构与性能优化
+    Frontend Architecture
   
 
     
@@ -1494,7 +1348,7 @@
   <span class="md-ellipsis">
     
   
-    Node.js 核心 IM 与状态机设计
+    Backend IM & State Machine
   
 
     
@@ -1522,7 +1376,7 @@
   <span class="md-ellipsis">
     
   
-    组件化 UI 与插件生态协议
+    UI Components & Plugin Protocol
   
 
     
@@ -1550,7 +1404,7 @@
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与微服务解耦
+    Bot Engine & Microservices
   
 
     
@@ -1578,7 +1432,7 @@
   <span class="md-ellipsis">
     
   
-    低成本防御方案与未来 E2EE 路线
+    Security Defense & E2EE
   
 
     
@@ -1606,7 +1460,7 @@
   <span class="md-ellipsis">
     
   
-    基础 Bot 目录
+    Base Bot Catalog
   
 
     
@@ -1634,7 +1488,7 @@
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式交互设计
+    AI Agent Orchestration
   
 
     
@@ -1912,7 +1766,7 @@
   <span class="md-ellipsis">
     
   
-    AI 会话上下文
+    AI Context
   
 
     
@@ -1938,7 +1792,7 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="目录">
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
   
@@ -1947,15 +1801,15 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      目录
+      Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#goal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        目标
+        Goal
       
     </span>
   </a>
@@ -1963,10 +1817,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        范围
+        Scope
       
     </span>
   </a>
@@ -1974,10 +1828,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#non-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        非目标
+        Non-Goals
       
     </span>
   </a>
@@ -1985,10 +1839,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#proposed-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        本地开发命令
+        Proposed Commands
       
     </span>
   </a>
@@ -1996,10 +1850,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ci" class="md-nav__link">
+  <a href="#acceptance-criteria" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CI 工作
+        Acceptance Criteria
       
     </span>
   </a>
@@ -2007,10 +1861,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
+  <a href="#test-plan" class="md-nav__link">
     <span class="md-ellipsis">
       
-        封闭测试清单
+        Test Plan
       
     </span>
   </a>
@@ -2018,21 +1872,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
+  <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        依赖关系
+        Dependencies
       
     </span>
   </a>
@@ -2059,96 +1902,64 @@
   
 
 
-<h1 id="16-1-ci">16 — 第 1 阶段 — 本地开发、CI、预览部署和封闭测试版本<a class="headerlink" href="#16-1-ci" title="Permanent link">&para;</a></h1>
-<h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>使项目可运行并可供贡献者验证，并准备内测部署路径。</p>
-<h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h1 id="17-phase-1-tui-command-line-client">17 — Phase 1 — TUI Command-Line Client<a class="headerlink" href="#17-phase-1-tui-command-line-client" title="Permanent link">&para;</a></h1>
+<h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
+<p>Provide a keyboard-first terminal client that exercises the same public API and WebSocket contracts as the desktop client, enabling fast developer workflows, operational smoke tests, and basic usage from non-GUI environments.</p>
+<h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
 <ul>
-<li>用于 PostgreSQL 和 Redis 的 Docker Compose。</li>
-<li>本地种子命令。</li>
-<li>本地开发脚本。</li>
-<li>用于本地和 CI 验证的 TUI 烟雾命令。</li>
-<li>lint/typecheck/test/build 的 GitHub Actions。</li>
-<li>文档构建验证。</li>
-<li>预览部署配方。</li>
-<li>封闭测试清单。</li>
+<li>Create <code>apps/tui</code> as a Node.js package using Ink for terminal rendering and Commander for command parsing.</li>
+<li>Implement login/logout, token persistence through the OS keychain when available, and <code>.env</code> fallback for local development only.</li>
+<li>List workspaces, channels, and 1:1 DMs available to the authenticated user.</li>
+<li>Open a channel or DM and render a scrollback window with message state, sender, timestamp, and E2E mode badge.</li>
+<li>Send normal-mode text messages over the same WebSocket <code>message.send</code> contract as the web/desktop client.</li>
+<li>Send and receive Phase 1 E2E DM messages through <code>packages/signal</code>, including read-once/disappearing message smoke tests.</li>
+<li>Invoke slash commands and render bot replies in normal channels.</li>
+<li>Provide non-interactive commands for CI smoke tests: <code>login</code>, <code>send</code>, <code>read</code>, <code>e2e-smoke</code>, and <code>bot-smoke</code>.</li>
 </ul>
-<h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="non-goals">Non-Goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
 <ul>
-<li>没有完整的 Kubernetes 生产部署。</li>
-<li>没有多区域。</li>
-<li>无付费 CI 优化。</li>
+<li>No full visual parity with the Electron client.</li>
+<li>No file upload/download UI.</li>
+<li>No plugin UI surfaces or bot interactive components.</li>
+<li>No multi-device E2E support beyond the Phase 1 single-device key model.</li>
+<li>No terminal notifications beyond stdout/stderr and exit codes.</li>
 </ul>
-<h2 id="_4">本地开发命令<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pnpm<span class="w"> </span>install
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pnpm<span class="w"> </span>dev
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pnpm<span class="w"> </span>db:migrate
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pnpm<span class="w"> </span>db:seed
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pnpm<span class="w"> </span><span class="nb">test</span>
+<h2 id="proposed-commands">Proposed Commands<a class="headerlink" href="#proposed-commands" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/tui<span class="w"> </span>dev
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nexus<span class="w"> </span>login<span class="w"> </span>--server<span class="w"> </span>http://localhost:3000<span class="w"> </span>--email<span class="w"> </span>user@example.com
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nexus<span class="w"> </span>workspaces
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>nexus<span class="w"> </span>channels<span class="w"> </span>--workspace<span class="w"> </span>&lt;workspace-id&gt;
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>nexus<span class="w"> </span>chat<span class="w"> </span>&lt;channel-or-dm-id&gt;
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>nexus<span class="w"> </span>send<span class="w"> </span>&lt;channel-or-dm-id&gt;<span class="w"> </span><span class="s2">&quot;hello&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>nexus<span class="w"> </span>e2e-smoke<span class="w"> </span>--to<span class="w"> </span>&lt;user-id&gt;<span class="w"> </span>--read-once<span class="w"> </span><span class="s2">&quot;secret&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>nexus<span class="w"> </span>bot-smoke<span class="w"> </span>--channel<span class="w"> </span>&lt;channel-id&gt;<span class="w"> </span><span class="s2">&quot;/help&quot;</span>
 </code></pre></div>
-<h2 id="ci">CI 工作<a class="headerlink" href="#ci" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>工作</th>
-<th>目的</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>lint</code></td>
-<td>ESLint</td>
-</tr>
-<tr>
-<td><code>typecheck</code></td>
-<td>TypeScript 项目参考</td>
-</tr>
-<tr>
-<td><code>test</code></td>
-<td>单元/集成测试</td>
-</tr>
-<tr>
-<td><code>build</code></td>
-<td>构建应用程序/包</td>
-</tr>
-<tr>
-<td><code>docs</code></td>
-<td>文档构建</td>
-</tr>
-<tr>
-<td><code>security</code></td>
-<td>依赖性审计</td>
-</tr>
-<tr>
-<td><code>smoke:tui</code></td>
-<td>针对本地堆栈的 TUI 登录/消息/E2E/机器人冒烟测试</td>
-</tr>
-</tbody>
-</table>
-<h2 id="_5">封闭测试清单<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="acceptance-criteria">Acceptance Criteria<a class="headerlink" href="#acceptance-criteria" title="Permanent link">&para;</a></h2>
 <ul>
-<li>验证流程有效。</li>
-<li>正常渠道工作。</li>
-<li>DM 有效。</li>
-<li>如果包含在 Beta 范围内，则 E2E DM 可以工作。</li>
-<li>如果包含在 Beta 范围内，则 E2E 一次读取/消失 DM 策略有效。</li>
-<li>机器人命令参考机器人工作原理。</li>
-<li>TUI 客户端可以登录、发送普通消息、运行 E2E 烟雾并调用参考机器人。</li>
-<li>日志和审计事件可用。</li>
-<li>记录备份/恢复过程。</li>
-<li>记录已知限制。</li>
+<li>TUI login succeeds against the local Phase 1 server.</li>
+<li>A user can list workspaces/channels and open a channel or DM.</li>
+<li>A user can send and receive a normal text message.</li>
+<li>A user can establish an E2E DM session and exchange encrypted messages.</li>
+<li><code>nexus e2e-smoke --read-once</code> verifies that the recipient can read once and subsequent fetches return only a tombstone/expired state.</li>
+<li>Slash command smoke test can invoke the reference bot in a normal channel.</li>
+<li>Commands return deterministic exit codes for CI usage.</li>
 </ul>
-<h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h2 id="test-plan">Test Plan<a class="headerlink" href="#test-plan" title="Permanent link">&para;</a></h2>
 <ul>
-<li>新开发人员可以从自述文件中运行本地堆栈。</li>
-<li>CI 根据拉取请求运行。</li>
-<li>文档构建成功。</li>
-<li>TUI 烟雾命令在本地和 CI 中运行。</li>
-<li>可以通过记录的步骤部署封闭测试环境。</li>
+<li>Unit tests for command parsing and config resolution.</li>
+<li>Integration test for auth and workspace/channel listing against the local server.</li>
+<li>WebSocket smoke test for normal message send/receive.</li>
+<li>E2E smoke test for encrypted DM and read-once expiration.</li>
+<li>Bot command smoke test with the reference Help bot.</li>
 </ul>
-<h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <ul>
-<li>所有第一阶段的特色任务。</li>
+<li><a href="../01-phase-1-project-scaffold/">01 — Project Scaffold</a></li>
+<li><a href="../02-phase-1-shared-contracts/">02 — Shared Contracts</a></li>
+<li><a href="../05-phase-1-core-gateway/">05 — Core Gateway</a></li>
+<li><a href="../07-phase-1-message-service/">07 — Message Service</a></li>
+<li><a href="../09-phase-1-signal-dm-e2ee/">09 — Signal Protocol 1:1 DM E2EE</a></li>
+<li><a href="../10-phase-1-bot-engine-core/">10 — Bot Engine Core</a></li>
 </ul>
 
 
@@ -2176,7 +1987,7 @@
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  回到页面顶部
+  Back to top
 </button>
         
       </main>
@@ -2208,7 +2019,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>

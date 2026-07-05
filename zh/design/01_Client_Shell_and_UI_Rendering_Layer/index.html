@@ -1048,6 +1048,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#8-1-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 第 1 阶段 TUI 命令行客户端
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 第 1 阶段 TUI 命令行客户端">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 范围
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_7" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3010,6 +3049,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#8-1-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 第 1 阶段 TUI 命令行客户端
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 第 1 阶段 TUI 命令行客户端">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 范围
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_7" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3042,7 +3120,7 @@
 
 <h1 id="01-ui">01 - 客户端外壳和 UI 渲染层<a class="headerlink" href="#01-ui" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>Nexus Chat 桌面应用程序 shell (Electron) 和基于 React 的 UI 渲染层的设计文档。<br />
+<p>Nexus Chat 桌面应用程序 shell (Electron)、第一阶段终端 UI 客户端和基于 React 的 UI 渲染层的设计文档。
 涵盖流程架构、组件树、状态管理、交互流程和性能策略。<br />
 源自<a href="../../research/frontend-architecture/">Frontend Architecture Research</a>。</p>
 </blockquote>
@@ -3064,15 +3142,16 @@
 <li><a href="#3-zustand-state-management-architecture">Zustand State Management Architecture</a></li>
 <li>3.1 <a href="#31-store-breakdown">Store Breakdown</a></li>
 <li>3.2 <a href="#32-selective-re-render-via-selector-hooks">Selective Re-render via Selector Hooks</a></li>
-<li>3.3 <a href="#33-websocket-middleware-pattern">WebSocket Middleware Pattern</a>
-4.<a href="#4-component-tree">Component Tree</a></li>
+<li>3.3 <a href="#33-websocket-middleware-pattern">WebSocket Middleware Pattern</a></li>
+<li><a href="#4-component-tree">Component Tree</a></li>
 <li><a href="#5-key-interaction-flows">Key Interaction Flows</a></li>
 <li>5.1 <a href="#51-sending-a-message">Sending a Message</a></li>
 <li>5.2 <a href="#52-receiving-a-message">Receiving a Message</a></li>
 <li>5.3 <a href="#53-e2e-key-exchange-on-first-dm">E2E Key Exchange on First DM</a></li>
 <li>5.4 <a href="#54-bot-slash-command">Bot Slash Command</a></li>
 <li><a href="#6-performance-strategy">Performance Strategy</a>
-7.<a href="#7-asset--theme-system">Asset &amp; Theme System</a></li>
+7.<a href="#7-asset--theme-system">Asset &amp; Theme System</a>
+8.<a href="#8-phase-1-tui-command-line-client">Phase 1 TUI Command-Line Client</a></li>
 </ol>
 <hr />
 <h2 id="1">1.电子壳架构<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
@@ -4286,6 +4365,51 @@
 <a id="__codelineno-32-19" name="__codelineno-32-19" href="#__codelineno-32-19"></a><span class="p">)</span>
 </code></pre></div>
 <hr />
+<h2 id="8-1-tui">8. 第 1 阶段 TUI 命令行客户端<a class="headerlink" href="#8-1-tui" title="Permanent link">&para;</a></h2>
+<p>第一阶段终端客户端位于 <code>apps/tui</code> 中，并使用与 Electron/Web 客户端相同的共享合约。它故意比 GUI 小：它的主要价值是快速键盘优先使用、本地开发以及 CI 的确定性冒烟测试。</p>
+<h3 id="81">8.1 范围<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>第一阶段要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>授权</td>
+<td><code>nexus login/logout/whoami</code> 针对与 Web 客户端相同的 REST API</td>
+</tr>
+<tr>
+<td>导航</td>
+<td>列出/选择工作区、频道和 1:1 DM</td>
+</tr>
+<tr>
+<td>消息</td>
+<td>打开通道/DM、呈现最近的消息、通过 WebSocket 发送文本</td>
+</tr>
+<tr>
+<td>端到端</td>
+<td>通过<code>packages/signal</code>建立1:1 DM会话；发送/读取加密和一次读取的消息</td>
+</tr>
+<tr>
+<td>机器人</td>
+<td>在正常渠道中调用斜杠命令并呈现机器人回复</td>
+</tr>
+<tr>
+<td>CI烟</td>
+<td>具有确定性退出代码的非交互式 <code>send</code>、<code>read</code>、<code>e2e-smoke</code> 和 <code>bot-smoke</code> 命令</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82">8.2 边界<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<ul>
+<li>TUI 必须从 <code>packages/shared</code> 导入模式和事件名称；没有重复的 API 类型。</li>
+<li>TUI必须使用<code>packages/signal</code>进行加密和解密；没有单独的加密实现。</li>
+<li>本地令牌存储应优先选择操作系统钥匙串（如果可用）。 <code>.env</code> 或明文回退仅允许用于本地开发和 CI。</li>
+<li>TUI 不是特定于功能的管理工具。除非明确提升到后续阶段，否则管理和事件响应命令将被推迟。</li>
+</ul>
+<hr />
 <h2 id="_7">附录：技术版本参考<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -4370,6 +4494,11 @@
 <td>验证</td>
 <td>佐德</td>
 <td>^3.24.0</td>
+</tr>
+<tr>
+<td>终端用户界面</td>
+<td>墨水，指挥官</td>
+<td>最新</td>
 </tr>
 <tr>
 <td>日期</td>

@@ -2072,6 +2072,7 @@
 <li>X3DH 会话建立。</li>
 <li>双棘轮消息加密/解密。</li>
 <li>以 1:1 DM 方式发送/接收 E2E 消息。</li>
+<li>针对 1:1 E2E DM 的一次性读取和基于计时器的消失消息策略。</li>
 <li>本地会话存储策略。</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
@@ -2079,7 +2080,7 @@
 <li>第一阶段没有 E2E 小组。</li>
 <li>没有多设备E2E。</li>
 <li>没有安全号码用户界面。</li>
-<li>没有消失的消息。</li>
+<li>没有群组消失消息或高级保留策略 UI。</li>
 <li>没有密封的发件人。</li>
 </ul>
 <h2 id="_4">服务器职责<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
@@ -2089,6 +2090,7 @@
 <li>存储和转发密文消息。</li>
 <li>切勿存储私钥。</li>
 <li>切勿解密消息内容。</li>
+<li>仅使用元数据、读取确认和逻辑删除状态强制消失消息过期。</li>
 </ul>
 <h2 id="_5">客户的责任<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2096,6 +2098,7 @@
 <li>建立会议。</li>
 <li>发送前加密。</li>
 <li>接收后解密。</li>
+<li>满足策略条件后立即删除只读或过期消息的本地明文。</li>
 <li>处理棘轮状态。</li>
 </ul>
 <h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
@@ -2105,6 +2108,8 @@
 <li>收件人可以在本地解密消息。</li>
 <li>不会为 E2E DM 发出机器人事件。</li>
 <li>E2E DM 禁用服务器端搜索。</li>
+<li>一次读取的 E2E 消息可以由接收者解密一次，然后只有过期/逻辑删除状态可用。</li>
+<li>基于计时器的 E2E 消息在没有服务器端明文访问的情况下过期。</li>
 </ul>
 <h2 id="_7">测试计划<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2113,6 +2118,8 @@
 <li>发送/解密E2E消息测试。</li>
 <li>验证明文未出现在数据库/日志中。</li>
 <li>一次性预密钥消耗测试。</li>
+<li>一次读取E2E消息测试。</li>
+<li>基于计时器的消失消息过期测试。</li>
 </ul>
 <h2 id="_8">依赖关系<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>

@@ -881,6 +881,17 @@
   <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
+        端到端消息消失策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
         机器人命令调用
       
     </span>
@@ -894,7 +905,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
+  <a href="#_10" class="md-nav__link">
     <span class="md-ellipsis">
       
         解耦要求
@@ -905,7 +916,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_10" class="md-nav__link">
+  <a href="#_11" class="md-nav__link">
     <span class="md-ellipsis">
       
         验收标准
@@ -916,7 +927,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_11" class="md-nav__link">
+  <a href="#_12" class="md-nav__link">
     <span class="md-ellipsis">
       
         测试计划
@@ -927,7 +938,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_12" class="md-nav__link">
+  <a href="#_13" class="md-nav__link">
     <span class="md-ellipsis">
       
         依赖关系
@@ -938,7 +949,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_13" class="md-nav__link">
+  <a href="#_14" class="md-nav__link">
     <span class="md-ellipsis">
       
         后续任务
@@ -2116,6 +2127,17 @@
   <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
+        端到端消息消失策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
         机器人命令调用
       
     </span>
@@ -2129,7 +2151,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
+  <a href="#_10" class="md-nav__link">
     <span class="md-ellipsis">
       
         解耦要求
@@ -2140,7 +2162,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_10" class="md-nav__link">
+  <a href="#_11" class="md-nav__link">
     <span class="md-ellipsis">
       
         验收标准
@@ -2151,7 +2173,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_11" class="md-nav__link">
+  <a href="#_12" class="md-nav__link">
     <span class="md-ellipsis">
       
         测试计划
@@ -2162,7 +2184,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_12" class="md-nav__link">
+  <a href="#_13" class="md-nav__link">
     <span class="md-ellipsis">
       
         依赖关系
@@ -2173,7 +2195,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_13" class="md-nav__link">
+  <a href="#_14" class="md-nav__link">
     <span class="md-ellipsis">
       
         后续任务
@@ -2215,9 +2237,10 @@
 <li>添加 WebSocket 事件架构。</li>
 <li>添加消息内容架构。</li>
 <li>添加命令调用模式。</li>
-<li>添加机器人事件模式。</li>
+<li>添加机器人事件架构。</li>
 <li>添加附件参考架构。</li>
 <li>添加信号/E2E 元数据模式。</li>
+<li>添加E2E消失消息策略模式。</li>
 <li>导出从 Zod 派生的 TypeScript 类型。</li>
 </ul>
 <h2 id="_4">非目标<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
@@ -2295,25 +2318,33 @@
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="nx">mentions</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="kt">string</span><span class="p">().</span><span class="nx">uuid</span><span class="p">()).</span><span class="nx">max</span><span class="p">(</span><span class="mf">50</span><span class="p">).</span><span class="nx">optional</span><span class="p">(),</span>
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">});</span>
 </code></pre></div>
-<h3 id="_8">机器人命令调用<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">BotCommandInvokeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s1">&#39;bot.command.invoke&#39;</span><span class="p">),</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nx">workspaceId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">uuid</span><span class="p">(),</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nx">channelId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">uuid</span><span class="p">(),</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nx">botName</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="nx">max</span><span class="p">(</span><span class="mf">50</span><span class="p">),</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nx">command</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">0</span><span class="p">).</span><span class="nx">max</span><span class="p">(</span><span class="mf">50</span><span class="p">),</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="kt">string</span><span class="p">()).</span><span class="nx">max</span><span class="p">(</span><span class="mf">100</span><span class="p">),</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nx">triggerId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">optional</span><span class="p">(),</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">});</span>
+<h3 id="_8">端到端消息消失策略<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">E2eDisappearingPolicySchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nx">mode</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s1">&#39;none&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;read_once&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ttl&#39;</span><span class="p">]),</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nx">ttlSeconds</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">().</span><span class="kr">int</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">30</span><span class="p">).</span><span class="nx">max</span><span class="p">(</span><span class="mf">604</span><span class="nx">_800</span><span class="p">).</span><span class="nx">optional</span><span class="p">(),</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nx">expiresAt</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">datetime</span><span class="p">().</span><span class="nx">optional</span><span class="p">(),</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">});</span>
 </code></pre></div>
-<h2 id="_9">解耦要求<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<p>该策略只是元数据。对于端到端消息，服务器存储密文加策略/墓碑字段；它绝不能检查明文以强制过期。</p>
+<h3 id="_9">机器人命令调用<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">BotCommandInvokeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s1">&#39;bot.command.invoke&#39;</span><span class="p">),</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nx">workspaceId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">uuid</span><span class="p">(),</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nx">channelId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">uuid</span><span class="p">(),</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nx">botName</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="nx">max</span><span class="p">(</span><span class="mf">50</span><span class="p">),</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nx">command</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">0</span><span class="p">).</span><span class="nx">max</span><span class="p">(</span><span class="mf">50</span><span class="p">),</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="kt">string</span><span class="p">()).</span><span class="nx">max</span><span class="p">(</span><span class="mf">100</span><span class="p">),</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="nx">triggerId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">optional</span><span class="p">(),</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">});</span>
+</code></pre></div>
+<h2 id="_10">解耦要求<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
 <ul>
 <li>核心共享合约中没有特定于功能的机器人模式。</li>
 <li>投票/提醒/点赞/待办事项有效负载属于机器人所有，并且必须存在于机器人包中。</li>
 <li>共享合约仅定义通用机器人命令/事件信封。</li>
 <li>附件是核心参考，而不是 FileBot 拥有的有效负载。</li>
 </ul>
-<h2 id="_10">验收标准<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h2 id="_11">验收标准<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>packages/shared</code> 构建为 ESM 和类型声明。</li>
 <li>服务器可以导入模式而无需循环依赖。</li>
@@ -2321,19 +2352,20 @@
 <li>Bot SDK可以导入命令/事件类型。</li>
 <li>所有模式都有有效/无效有效负载的单元测试。</li>
 </ul>
-<h2 id="_11">测试计划<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<h2 id="_12">测试计划<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>pnpm --filter @nexus-chat/shared test</code></li>
 <li>验证示例 REST 信封。</li>
-<li>验证示例 <code>message.send</code> 事件。</li>
-<li>验证示例<code>bot.command.invoke</code>事件。</li>
+<li>验证示例<code>message.send</code>事件。</li>
+<li>验证示例 <code>bot.command.invoke</code> 事件。</li>
 <li>验证不带 URL 字段的示例附件引用。</li>
+<li>验证示例 E2E 一次性读取和 TTL 消失策略。</li>
 </ul>
-<h2 id="_12">依赖关系<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h2 id="_13">依赖关系<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../01-phase-1-project-scaffold/">01 — Project Scaffold</a></li>
 </ul>
-<h2 id="_13">后续任务<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<h2 id="_14">后续任务<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../03-phase-1-database-schema/">03 — Database Schema</a></li>
 <li><a href="../05-phase-1-core-gateway/">05 — Core Gateway</a></li>

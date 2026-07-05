@@ -2067,6 +2067,7 @@
 <li>Docker Compose for PostgreSQL and Redis.</li>
 <li>Local seed command.</li>
 <li>Local dev scripts.</li>
+<li>TUI smoke commands for local and CI verification.</li>
 <li>GitHub Actions for lint/typecheck/test/build.</li>
 <li>Documentation build verification.</li>
 <li>Preview deployment recipe.</li>
@@ -2112,11 +2113,15 @@
 </tr>
 <tr>
 <td><code>docs</code></td>
-<td>MkDocs bilingual build</td>
+<td>Documentation build</td>
 </tr>
 <tr>
 <td><code>security</code></td>
 <td>Dependency audit</td>
+</tr>
+<tr>
+<td><code>smoke:tui</code></td>
+<td>TUI login/message/E2E/bot smoke tests against the local stack</td>
 </tr>
 </tbody>
 </table>
@@ -2126,7 +2131,9 @@
 <li>Normal channels work.</li>
 <li>DM works.</li>
 <li>E2E DM works if included in beta scope.</li>
+<li>E2E read-once/disappearing DM policy works if included in beta scope.</li>
 <li>Bot command reference bot works.</li>
+<li>TUI client can log in, send a normal message, run E2E smoke, and invoke the reference bot.</li>
 <li>Logs and audit events are available.</li>
 <li>Backup/restore procedure documented.</li>
 <li>Known limitations documented.</li>
@@ -2136,6 +2143,7 @@
 <li>New developer can run local stack from README.</li>
 <li>CI runs on pull request.</li>
 <li>Docs build succeeds.</li>
+<li>TUI smoke commands run locally and in CI.</li>
 <li>Closed beta environment can be deployed from documented steps.</li>
 </ul>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>

@@ -10,13 +10,9 @@
       
       
       
-        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/16-phase-1-local-dev-ci-release/">
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/17-phase-1-tui-cli/">
       
       
-        <link rel="prev" href="../15-phase-1-observability-security-hardening/">
-      
-      
-        <link rel="next" href="../../research/frontend-architecture/">
       
       
         
@@ -31,7 +27,7 @@
     
     
       
-        <title>Phase 1 — 本地开发、CI 与发布 - Nexus Chat</title>
+        <title>17 — 第 1 阶段 — TUI 命令行客户端 - Nexus Chat</title>
       
     
     
@@ -82,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#16-1-ci" class="md-skip">
+        <a href="#17-1-tui" class="md-skip">
           跳转至
         </a>
       
@@ -118,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Phase 1 — 本地开发、CI 与发布
+              17 — 第 1 阶段 — TUI 命令行客户端
             
           </span>
         </div>
@@ -589,10 +585,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -637,11 +631,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -662,7 +658,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1202,44 +1198,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Phase 1 — 本地开发、CI 与发布
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--draft"></span>
-  
-
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../16-phase-1-local-dev-ci-release/" class="md-nav__link">
         
   
   
@@ -1262,114 +1224,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        范围
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        非目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        本地开发命令
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ci" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CI 工作
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        封闭测试清单
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        验收标准
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        依赖关系
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1988,18 +1842,7 @@
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        本地开发命令
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ci" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CI 工作
+        建议的命令
       
     </span>
   </a>
@@ -2010,7 +1853,7 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        封闭测试清单
+        验收标准
       
     </span>
   </a>
@@ -2021,7 +1864,7 @@
   <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        测试计划
       
     </span>
   </a>
@@ -2059,96 +1902,64 @@
   
 
 
-<h1 id="16-1-ci">16 — 第 1 阶段 — 本地开发、CI、预览部署和封闭测试版本<a class="headerlink" href="#16-1-ci" title="Permanent link">&para;</a></h1>
+<h1 id="17-1-tui">17 — 第 1 阶段 — TUI 命令行客户端<a class="headerlink" href="#17-1-tui" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>使项目可运行并可供贡献者验证，并准备内测部署路径。</p>
+<p>提供键盘优先的终端客户端，该客户端执行与桌面客户端相同的公共 API 和 WebSocket 合约，从而实现快速的开发人员工作流程、可操作的冒烟测试以及非 GUI 环境的基本使用。</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
-<li>用于 PostgreSQL 和 Redis 的 Docker Compose。</li>
-<li>本地种子命令。</li>
-<li>本地开发脚本。</li>
-<li>用于本地和 CI 验证的 TUI 烟雾命令。</li>
-<li>lint/typecheck/test/build 的 GitHub Actions。</li>
-<li>文档构建验证。</li>
-<li>预览部署配方。</li>
-<li>封闭测试清单。</li>
+<li>创建 <code>apps/tui</code> 作为 Node.js 包，使用 Ink 进行终端渲染，使用 Commander 进行命令解析。</li>
+<li>通过操作系统钥匙串（如果可用）实现登录/注销、令牌持久性，以及仅用于本地开发的 <code>.env</code> 后备。</li>
+<li>列出经过身份验证的用户可用的工作区、频道和 1:1 DM。</li>
+<li>打开通道或 DM 并呈现带有消息状态、发件人、时间戳和 E2E 模式徽章的回滚窗口。</li>
+<li>通过与 Web/桌面客户端相同的 WebSocket <code>message.send</code> 合约发送正常模式文本消息。</li>
+<li>通过<code>packages/signal</code>发送和接收阶段1 E2E DM消息，包括一次读取/消失消息冒烟测试。</li>
+<li>调用斜杠命令并在正常通道中呈现机器人回复。</li>
+<li>为 CI 冒烟测试提供非交互式命令：<code>login</code>、<code>send</code>、<code>read</code>、<code>e2e-smoke</code> 和 <code>bot-smoke</code>。</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
-<li>没有完整的 Kubernetes 生产部署。</li>
-<li>没有多区域。</li>
-<li>无付费 CI 优化。</li>
+<li>与 Electron 客户端没有完全的视觉效果。</li>
+<li>没有文件上传/下载用户界面。</li>
+<li>没有插件 UI 界面或机器人交互组件。</li>
+<li>除了第一阶段单设备密钥模型之外，没有多设备 E2E 支持。</li>
+<li>除了 stdout/stderr 和退出代码之外，没有终端通知。</li>
 </ul>
-<h2 id="_4">本地开发命令<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pnpm<span class="w"> </span>install
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pnpm<span class="w"> </span>dev
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pnpm<span class="w"> </span>db:migrate
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pnpm<span class="w"> </span>db:seed
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pnpm<span class="w"> </span><span class="nb">test</span>
+<h2 id="_4">建议的命令<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/tui<span class="w"> </span>dev
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nexus<span class="w"> </span>login<span class="w"> </span>--server<span class="w"> </span>http://localhost:3000<span class="w"> </span>--email<span class="w"> </span>user@example.com
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nexus<span class="w"> </span>workspaces
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>nexus<span class="w"> </span>channels<span class="w"> </span>--workspace<span class="w"> </span>&lt;workspace-id&gt;
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>nexus<span class="w"> </span>chat<span class="w"> </span>&lt;channel-or-dm-id&gt;
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>nexus<span class="w"> </span>send<span class="w"> </span>&lt;channel-or-dm-id&gt;<span class="w"> </span><span class="s2">&quot;hello&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>nexus<span class="w"> </span>e2e-smoke<span class="w"> </span>--to<span class="w"> </span>&lt;user-id&gt;<span class="w"> </span>--read-once<span class="w"> </span><span class="s2">&quot;secret&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>nexus<span class="w"> </span>bot-smoke<span class="w"> </span>--channel<span class="w"> </span>&lt;channel-id&gt;<span class="w"> </span><span class="s2">&quot;/help&quot;</span>
 </code></pre></div>
-<h2 id="ci">CI 工作<a class="headerlink" href="#ci" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>工作</th>
-<th>目的</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>lint</code></td>
-<td>ESLint</td>
-</tr>
-<tr>
-<td><code>typecheck</code></td>
-<td>TypeScript 项目参考</td>
-</tr>
-<tr>
-<td><code>test</code></td>
-<td>单元/集成测试</td>
-</tr>
-<tr>
-<td><code>build</code></td>
-<td>构建应用程序/包</td>
-</tr>
-<tr>
-<td><code>docs</code></td>
-<td>文档构建</td>
-</tr>
-<tr>
-<td><code>security</code></td>
-<td>依赖性审计</td>
-</tr>
-<tr>
-<td><code>smoke:tui</code></td>
-<td>针对本地堆栈的 TUI 登录/消息/E2E/机器人冒烟测试</td>
-</tr>
-</tbody>
-</table>
-<h2 id="_5">封闭测试清单<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="_5">验收标准<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
-<li>验证流程有效。</li>
-<li>正常渠道工作。</li>
-<li>DM 有效。</li>
-<li>如果包含在 Beta 范围内，则 E2E DM 可以工作。</li>
-<li>如果包含在 Beta 范围内，则 E2E 一次读取/消失 DM 策略有效。</li>
-<li>机器人命令参考机器人工作原理。</li>
-<li>TUI 客户端可以登录、发送普通消息、运行 E2E 烟雾并调用参考机器人。</li>
-<li>日志和审计事件可用。</li>
-<li>记录备份/恢复过程。</li>
-<li>记录已知限制。</li>
+<li>TUI 登录本地第一阶段服务器成功。</li>
+<li>用户可以列出工作区/频道并打开频道或 DM。</li>
+<li>用户可以发送和接收普通短信。</li>
+<li>用户可以建立E2E DM会话并交换加密消息。</li>
+<li><code>nexus e2e-smoke --read-once</code> 验证接收者是否可以读取一次，并且后续的提取仅返回逻辑删除/过期状态。</li>
+<li>Slash命令冒烟测试可以在正常通道中调用参考机器人。</li>
+<li>命令返回 CI 使用的确定性退出代码。</li>
 </ul>
-<h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h2 id="_6">测试计划<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>新开发人员可以从自述文件中运行本地堆栈。</li>
-<li>CI 根据拉取请求运行。</li>
-<li>文档构建成功。</li>
-<li>TUI 烟雾命令在本地和 CI 中运行。</li>
-<li>可以通过记录的步骤部署封闭测试环境。</li>
+<li>命令解析和配置解析的单元测试。</li>
+<li>针对本地服务器的身份验证和工作区/频道列表的集成测试。</li>
+<li>用于正常消息发送/接收的 WebSocket 冒烟测试。</li>
+<li>针对加密 DM 和一次读取过期的 E2E 冒烟测试。</li>
+<li>使用参考帮助机器人进行机器人命令冒烟测试。</li>
 </ul>
 <h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
-<li>所有第一阶段的特色任务。</li>
+<li><a href="../01-phase-1-project-scaffold/">01 — Project Scaffold</a></li>
+<li><a href="../02-phase-1-shared-contracts/">02 — Shared Contracts</a></li>
+<li><a href="../05-phase-1-core-gateway/">05 — Core Gateway</a></li>
+<li><a href="../07-phase-1-message-service/">07 — Message Service</a></li>
+<li><a href="../09-phase-1-signal-dm-e2ee/">09 — Signal Protocol 1:1 DM E2EE</a></li>
+<li><a href="../10-phase-1-bot-engine-core/">10 — Bot Engine Core</a></li>
 </ul>
 
 

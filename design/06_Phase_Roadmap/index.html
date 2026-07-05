@@ -2643,8 +2643,8 @@ Target: SaaS multi-tenant cloud deployment</p>
 <tbody>
 <tr>
 <td><strong>Phase 1 Core</strong></td>
-<td>Auth, workspace, channels, normal-mode text messages, basic desktop shell, WebSocket gateway</td>
-<td>DM E2E, all 7 base bots, auto-update polish</td>
+<td>Auth, workspace, channels, normal-mode text messages, basic desktop shell, TUI smoke client, WebSocket gateway</td>
+<td>Full Electron polish, all 7 base bots, auto-update polish</td>
 </tr>
 <tr>
 <td><strong>Phase 1 Bot Infra</strong></td>
@@ -2719,6 +2719,11 @@ Target: SaaS multi-tenant cloud deployment</p>
 <td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
 </tr>
 <tr>
+<td><strong>E2E Disappearing Messages</strong></td>
+<td>Read-once and timer-based expiration policy for 1:1 E2E DMs; server stores only policy metadata, ciphertext, tombstone state, and expiry timestamps</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
 <td><strong>Bot (basic)</strong></td>
 <td>Bot registration + token issuance (<code>nxbot_v1_xxx</code>), <code>/slash</code> command parse + routing, bot WebSocket connection lifecycle, Redis Streams event bus</td>
 <td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
@@ -2736,6 +2741,11 @@ Target: SaaS multi-tenant cloud deployment</p>
 <tr>
 <td><strong>Desktop Shell</strong></td>
 <td>Electron window management, system tray, native notifications, auto-update (electron-updater), contextBridge IPC</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>TUI Client</strong></td>
+<td>Ink + Commander terminal client for login, workspace/channel navigation, normal messaging, E2E DM smoke tests, and bot command smoke tests</td>
 <td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
 </tr>
 <tr>
@@ -2845,6 +2855,11 @@ Target: SaaS multi-tenant cloud deployment</p>
 <td><code>apps/desktop/</code></td>
 <td>Electron shell</td>
 </tr>
+<tr>
+<td><code>tui</code></td>
+<td><code>apps/tui/</code></td>
+<td>Terminal UI / CLI client</td>
+</tr>
 </tbody>
 </table>
 <h3 id="25-week-by-week-breakdown">2.5 Week-by-Week Breakdown<a class="headerlink" href="#25-week-by-week-breakdown" title="Permanent link">&para;</a></h3>
@@ -2880,7 +2895,7 @@ Target: SaaS multi-tenant cloud deployment</p>
 <tr>
 <td>9–10</td>
 <td>Signal Protocol integration</td>
-<td>PreKeyBundle server, X3DH + Double Ratchet, E2E DM flow</td>
+<td>PreKeyBundle server, X3DH + Double Ratchet, E2E DM flow, read-once/disappearing policy</td>
 </tr>
 <tr>
 <td>11–12</td>
@@ -2894,13 +2909,13 @@ Target: SaaS multi-tenant cloud deployment</p>
 </tr>
 <tr>
 <td>14</td>
-<td>Electron shell + Polish</td>
-<td>Window management, tray, notifications, dark/light theme, error states</td>
+<td>Electron shell + TUI client</td>
+<td>Window management, tray, notifications, dark/light theme, terminal login/chat flows</td>
 </tr>
 <tr>
 <td>15–16</td>
 <td>Testing + Bug fixing + Closed beta</td>
-<td>Integration tests, performance audit, closed beta deployment</td>
+<td>Integration tests, TUI smoke tests, performance audit, closed beta deployment</td>
 </tr>
 </tbody>
 </table>
@@ -3130,7 +3145,7 @@ Target: SaaS multi-tenant cloud deployment</p>
 </tr>
 <tr>
 <td><strong>Advanced E2E</strong></td>
-<td>Verified safety numbers (QR code compare), device management (list/revoke), disappearing messages, sealed sender, E2E audit log</td>
+<td>Verified safety numbers (QR code compare), device management (list/revoke), sealed sender, transparency/audit UX, advanced retention policy controls</td>
 <td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
 </tr>
 <tr>
@@ -3490,7 +3505,7 @@ Target: SaaS multi-tenant cloud deployment</p>
 <td>Medium</td>
 </tr>
 <tr>
-<td>18</td>
+<td>20</td>
 <td>AutoMod Bot</td>
 <td><code>@AutoMod</code></td>
 <td>DB (rules, violation log)</td>
@@ -3690,6 +3705,12 @@ Target: SaaS multi-tenant cloud deployment</p>
 <td>Window, Tray, Notifications, Updater</td>
 <td>+ Offline cache, protocol links</td>
 <td>+ Screen share, native call controls</td>
+</tr>
+<tr>
+<td><code>apps/tui</code></td>
+<td>Login, workspace/channel navigation, chat, E2E/bot smoke commands</td>
+<td>+ File/search/thread smoke commands</td>
+<td>+ Admin and incident-response commands</td>
 </tr>
 </tbody>
 </table>

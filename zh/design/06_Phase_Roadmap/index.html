@@ -728,15 +728,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-2-3-6" class="md-nav__link">
+  <a href="#3-2-36" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）
+        3. 第 2 阶段 — 丰富的功能和产品强化（+3–6 个月）
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）">
+    <nav class="md-nav" aria-label="3. 第 2 阶段 — 丰富的功能和产品强化（+3–6 个月）">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2318,15 +2318,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-2-3-6" class="md-nav__link">
+  <a href="#3-2-36" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）
+        3. 第 2 阶段 — 丰富的功能和产品强化（+3–6 个月）
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）">
+    <nav class="md-nav" aria-label="3. 第 2 阶段 — 丰富的功能和产品强化（+3–6 个月）">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2584,14 +2584,16 @@
 </blockquote>
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>1.<a href="#1-overview--timeline">Overview &amp; Timeline</a>
-2. <a href="#2-phase-1--mvp-foundation-03-months">Phase 1 — MVP Foundation (0–3 months)</a>
-3.<a href="#3-phase-2--rich-features--production-hardening-36-months">Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)</a>
-4. <a href="#4-phase-3--advanced--enterprise-612-months">Phase 3 — Advanced &amp; Enterprise (+6–12 months)</a>
-5.<a href="#5-infrastructure-evolution">Infrastructure Evolution</a>
-6. <a href="#6-bot-catalog-rollout">Bot Catalog Rollout</a>
+<ol>
+<li><a href="#1-overview--timeline">Overview &amp; Timeline</a></li>
+<li><a href="#2-phase-1--mvp-foundation-03-months">Phase 1 — MVP Foundation (0–3 months)</a></li>
+<li><a href="#3-phase-2--rich-features--production-hardening-36-months">Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)</a>
+4.<a href="#4-phase-3--advanced--enterprise-612-months">Phase 3 — Advanced &amp; Enterprise (+6–12 months)</a>
+5.<a href="#5-infrastructure-evolution">Infrastructure Evolution</a></li>
+<li><a href="#6-bot-catalog-rollout">Bot Catalog Rollout</a>
 7.<a href="#7-ai-agent-implementation-sequence">AI Agent Implementation Sequence</a>
-8. <a href="#8-package-delivery-matrix">Package Delivery Matrix</a></p>
+8.<a href="#8-package-delivery-matrix">Package Delivery Matrix</a></li>
+</ol>
 <hr />
 <h2 id="1">1. 概述和时间表<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Phase 1 (MVP)           Phase 2 (Production)        Phase 3 (Enterprise)
@@ -2641,8 +2643,8 @@
 <tbody>
 <tr>
 <td><strong>第一阶段核心</strong></td>
-<td>身份验证、工作区、频道、正常模式短信、基本桌面 shell、WebSocket 网关</td>
-<td>DM E2E，所有 7 个基础机器人，自动更新抛光</td>
+<td>身份验证、工作区、通道、正常模式短信、基本桌面 shell、TUI 烟雾客户端、WebSocket 网关</td>
+<td>完整的 Electron 抛光，所有 7 个基础机器人，自动更新抛光</td>
 </tr>
 <tr>
 <td><strong>第一阶段机器人基础设施</strong></td>
@@ -2717,6 +2719,11 @@
 <td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
 </tr>
 <tr>
+<td><strong>端到端消失的消息</strong></td>
+<td>1:1 E2E DM 的一次读取和基于计时器的过期策略；服务器仅存储策略元数据、密文、逻辑删除状态和到期时间戳</td>
+<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+</tr>
+<tr>
 <td><strong>机器人（基本）</strong></td>
 <td>Bot 注册 + 令牌发行 (<code>nxbot_v1_xxx</code>)、<code>/slash</code> 命令解析 + 路由、Bot WebSocket 连接生命周期、Redis Streams 事件总线</td>
 <td><a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 - Bot Engine</a></td>
@@ -2734,6 +2741,11 @@
 <tr>
 <td><strong>桌面外壳</strong></td>
 <td>Electron 窗口管理、系统托盘、本机通知、自动更新（电子更新程序）、contextBridge IPC</td>
+<td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
+</tr>
+<tr>
+<td><strong>途易客户端</strong></td>
+<td>Ink + Commander 终端客户端用于登录、工作区/频道导航、正常消息传递、E2E DM 冒烟测试和机器人命令冒烟测试</td>
 <td><a href="../01_Client_Shell_and_UI_Rendering_Layer/">01 - Client Shell</a></td>
 </tr>
 <tr>
@@ -2843,6 +2855,11 @@
 <td><code>apps/desktop/</code></td>
 <td>电子壳</td>
 </tr>
+<tr>
+<td><code>tui</code></td>
+<td><code>apps/tui/</code></td>
+<td>终端 UI / CLI 客户端</td>
+</tr>
 </tbody>
 </table>
 <h3 id="25">2.5 每周细分<a class="headerlink" href="#25" title="Permanent link">&para;</a></h3>
@@ -2878,7 +2895,7 @@
 <tr>
 <td>9–10</td>
 <td>信号协议集成</td>
-<td>PreKeyBundle 服务器，X3DH + 双棘轮，E2E DM 流程</td>
+<td>PreKeyBundle 服务器，X3DH + 双棘轮，E2E DM 流程，一次读取/消失策略</td>
 </tr>
 <tr>
 <td>11-12</td>
@@ -2892,18 +2909,18 @@
 </tr>
 <tr>
 <td>14</td>
-<td>14电子壳+抛光</td>
-<td>窗口管理、托盘、通知、深色/浅色主题、错误状态</td>
+<td>14 Electron shell + TUI 客户端</td>
+<td>窗口管理、托盘、通知、深色/浅色主题、终端登录/聊天流程</td>
 </tr>
 <tr>
 <td>15-16</td>
 <td>15-16测试+错误修复+内测</td>
-<td>集成测试、性能审计、内测部署</td>
+<td>集成测试、TUI 冒烟测试、性能审计、内测部署</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="3-2-3-6">3. 第 2 阶段 — 丰富的功能和产品强化（+3-6 个月）<a class="headerlink" href="#3-2-3-6" title="Permanent link">&para;</a></h2>
+<h2 id="3-2-36">3. 第 2 阶段 — 丰富的功能和产品强化（+3–6 个月）<a class="headerlink" href="#3-2-36" title="Permanent link">&para;</a></h2>
 <h3 id="31">3.1 核心目标<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
 <p>功能齐全的 IM 平台，具有文件共享、搜索、线程、AI 助手和完整的机器人生态系统 - 准备好公开 GA 发布。</p>
 <h3 id="32">3.2 功能交付成果<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
@@ -3128,7 +3145,7 @@
 </tr>
 <tr>
 <td><strong>先进的端到端</strong></td>
-<td>验证安全号码（二维码比较）、设备管理（列表/撤销）、消失消息、密封发件人、E2E 审核日志</td>
+<td>验证安全号码（二维码比较）、设备管理（列表/撤销）、密封发件人、透明度/审核用户体验、高级保留策略控制</td>
 <td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
 </tr>
 <tr>
@@ -3488,8 +3505,8 @@
 <td>中等</td>
 </tr>
 <tr>
-<td>18</td>
-<td>18 AutoMod 机器人</td>
+<td>20</td>
+<td>AutoMod 机器人</td>
 <td><code>@AutoMod</code></td>
 <td>DB（规则、违规日志）</td>
 <td>高</td>
@@ -3688,6 +3705,12 @@
 <td>窗口、托盘、通知、更新程序</td>
 <td>+ 离线缓存、协议链接</td>
 <td>+ 屏幕共享、本机通话控制</td>
+</tr>
+<tr>
+<td><code>apps/tui</code></td>
+<td>登录、工作区/频道导航、聊天、E2E/机器人烟雾命令</td>
+<td>+ 文件/搜索/线程烟雾命令</td>
+<td>+ 管理和事件响应命令</td>
 </tr>
 </tbody>
 </table>

@@ -2526,7 +2526,7 @@
 <hr />
 <h2 id="1-system-overview">1. System Overview<a class="headerlink" href="#1-system-overview" title="Permanent link">&para;</a></h2>
 <h3 id="11-project-vision">1.1 Project Vision<a class="headerlink" href="#11-project-vision" title="Permanent link">&para;</a></h3>
-<p>Nexus Chat is a <strong>Slack-like instant messaging (IM) platform</strong> built as an Electron desktop application with a Node.js backend. It supports workspaces, channels, direct messages (DMs), threaded conversations, file sharing, and an extensible bot framework — all delivered as a <strong>SaaS multi-tenant cloud deployment</strong>.</p>
+<p>Nexus Chat is a <strong>Slack-like instant messaging (IM) platform</strong> built as an Electron desktop application, a Phase 1 terminal UI client, and a Node.js backend. It supports workspaces, channels, direct messages (DMs), threaded conversations, file sharing, and an extensible bot framework — all delivered as a <strong>SaaS multi-tenant cloud deployment</strong>.</p>
 <h3 id="12-core-differentiator-hybrid-encryption-modes">1.2 Core Differentiator: Hybrid Encryption Modes<a class="headerlink" href="#12-core-differentiator-hybrid-encryption-modes" title="Permanent link">&para;</a></h3>
 <p>Every channel and DM in Nexus Chat operates in one of two encryption modes, selectable at creation time:</p>
 <table>
@@ -2548,7 +2548,7 @@
 <tr>
 <td><strong>End-to-End Encrypted</strong></td>
 <td><code>e2e</code></td>
-<td>IM only (text, attachments); server is opaque relay</td>
+<td>IM only (text, attachments), read-once/disappearing messages; server is opaque relay</td>
 <td>No bot participation; no server-side search; no message previews</td>
 </tr>
 </tbody>
@@ -2556,7 +2556,7 @@
 <p>Key design implications of the hybrid model:</p>
 <ul>
 <li><strong>Normal channels</strong> allow bots to participate in conversations, execute slash commands, and react to message events. The server processes and stores message content in plaintext (encrypted at rest via PostgreSQL TDE or filesystem encryption).</li>
-<li><strong>E2E channels</strong> use the <a href="https://github.com/signalapp/libsignal">Signal Protocol</a> (<code>@signalapp/libsignal</code>). The server sees only ciphertext blobs and encrypted metadata. Key exchange, ratchet advancement, and message decryption happen exclusively on clients. The server's role is reduced to store-and-forward relay.</li>
+<li><strong>E2E channels</strong> use the <a href="https://github.com/signalapp/libsignal">Signal Protocol</a> (<code>@signalapp/libsignal</code>). The server sees only ciphertext blobs, encrypted metadata, and lifecycle policy metadata for read-once/disappearing messages. Key exchange, ratchet advancement, and message decryption happen exclusively on clients. The server's role is reduced to store-and-forward relay plus tombstone/expiry enforcement without plaintext access.</li>
 <li>A single workspace can contain both normal and E2E channels side-by-side. The mode badge is visible in the channel sidebar.</li>
 </ul>
 <p>For detailed E2EE threat modeling and Signal Protocol integration design, see <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>.</p>
@@ -2731,60 +2731,69 @@
 <a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   │   │   └── styles/         # Tailwind CSS theme + global styles
 <a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   │   └── package.json
 <a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│   │
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│   └── desktop/                # Electron main process + preload
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│       ├── src/
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│       │   ├── main.ts         # Electron entry, window creation, tray
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│       │   ├── preload.ts      # contextBridge API exposure
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│       │   ├── ipc-handlers.ts # IPC handler registration
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│       │   ├── window-manager.ts
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│       │   ├── tray.ts         # System tray icon
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│       │   ├── notifications.ts
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│       │   ├── updater.ts      # Auto-update logic
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│       │   ├── offline-cache.ts # protocol.handle offline cache
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│       │   └── network-monitor.ts
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│       └── package.json
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>│
-<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>├── packages/
-<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>│   ├── shared/                 # Shared types, constants, validation schemas
-<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>│   │   ├── src/
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>│   │   │   ├── types/          # Message, Channel, User, Workspace types
-<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>│   │   │   ├── schemas/        # Zod validation schemas (shared between client &amp; server)
-<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>│   │   │   ├── constants/      # Event names, error codes, status enums
-<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>│   │   │   └── utils/          # Shared utility functions
-<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>│   │   └── package.json
-<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>│   │
-<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>│   ├── signal/                 # @signalapp/libsignal abstraction layer
-<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>│   │   ├── src/
-<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>│   │   │   ├── protocol.ts     # Key generation, PreKey bundle management
-<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>│   │   │   ├── session.ts      # Session cipher (encrypt/decrypt per session)
-<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>│   │   │   ├── store.ts        # Signal Protocol Store implementation
-<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>│   │   │   └── group.ts        # Group messaging (Sender Key distribution)
-<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>│   │   └── package.json
-<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>│   │
-<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>│   ├── bot-sdk/                # Bot development SDK for third-party developers
-<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>│   │   ├── src/
-<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>│   │   │   ├── client.ts       # Bot WebSocket client
-<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>│   │   │   ├── handler.ts      # Event handler registration
-<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>│   │   │   ├── commands.ts     # Slash command builder
-<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>│   │   │   └── types.ts        # Bot-specific type definitions
-<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>│   │   └── package.json
-<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>│   │
-<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>│   └── ui/                     # Shared UI component library (shadcn/ui based)
-<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>│       ├── src/
-<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>│       │   ├── components/     # Button, Input, Dialog, Avatar, etc.
-<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>│       │   ├── hooks/          # Shared UI hooks
-<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>│       │   └── lib/            # cn() utility, CVA variants
-<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>│       └── package.json
-<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>│
-<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>├── docs/
-<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>│   ├── research/               # Technology research reports
-<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>│   ├── design/                 # Architecture &amp; design documents
-<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>│   └── ai/                     # AI-assisted development context
-<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>│
-<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>├── turbo.json                  # Turborepo pipeline configuration
-<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>├── pnpm-workspace.yaml         # pnpm workspace definition
-<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>├── package.json                # Root package.json (scripts + devDependencies)
-<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>└── tsconfig.base.json          # Shared TypeScript configuration
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│   ├── desktop/                # Electron main process + preload
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│   │   ├── src/
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│   │   │   ├── main.ts         # Electron entry, window creation, tray
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│   │   │   ├── preload.ts      # contextBridge API exposure
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│   │   │   ├── ipc-handlers.ts # IPC handler registration
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│   │   │   ├── window-manager.ts
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│   │   │   ├── tray.ts         # System tray icon
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│   │   │   ├── notifications.ts
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│   │   │   ├── updater.ts      # Auto-update logic
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│   │   │   ├── offline-cache.ts # protocol.handle offline cache
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│   │   │   └── network-monitor.ts
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│   │   └── package.json
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>│   │
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>│   └── tui/                    # Ink + Commander terminal client
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>│       ├── src/
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>│       │   ├── cli.ts          # Command entry point
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>│       │   ├── app.tsx         # Interactive TUI root
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>│       │   ├── api-client.ts   # REST + WebSocket client
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>│       │   ├── signal.ts       # E2E helper using packages/signal
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>│       │   └── commands/       # login, send, read, e2e-smoke, bot-smoke
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>│       └── package.json
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>│
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>├── packages/
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>│   ├── shared/                 # Shared types, constants, validation schemas
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>│   │   ├── src/
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>│   │   │   ├── types/          # Message, Channel, User, Workspace types
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>│   │   │   ├── schemas/        # Zod validation schemas (shared between client &amp; server)
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>│   │   │   ├── constants/      # Event names, error codes, status enums
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>│   │   │   └── utils/          # Shared utility functions
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>│   │   └── package.json
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>│   │
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>│   ├── signal/                 # @signalapp/libsignal abstraction layer
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>│   │   ├── src/
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>│   │   │   ├── protocol.ts     # Key generation, PreKey bundle management
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>│   │   │   ├── session.ts      # Session cipher (encrypt/decrypt per session)
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>│   │   │   ├── store.ts        # Signal Protocol Store implementation
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>│   │   │   └── group.ts        # Group messaging (Sender Key distribution)
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>│   │   └── package.json
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>│   │
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>│   ├── bot-sdk/                # Bot development SDK for third-party developers
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>│   │   ├── src/
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>│   │   │   ├── client.ts       # Bot WebSocket client
+<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>│   │   │   ├── handler.ts      # Event handler registration
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>│   │   │   ├── commands.ts     # Slash command builder
+<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>│   │   │   └── types.ts        # Bot-specific type definitions
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>│   │   └── package.json
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>│   │
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>│   └── ui/                     # Shared UI component library (shadcn/ui based)
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>│       ├── src/
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>│       │   ├── components/     # Button, Input, Dialog, Avatar, etc.
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>│       │   ├── hooks/          # Shared UI hooks
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>│       │   └── lib/            # cn() utility, CVA variants
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>│       └── package.json
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>│
+<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>├── docs/
+<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a>│   ├── research/               # Technology research reports
+<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>│   ├── design/                 # Architecture &amp; design documents
+<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>│   └── ai/                     # AI-assisted development context
+<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a>│
+<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>├── turbo.json                  # Turborepo pipeline configuration
+<a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a>├── pnpm-workspace.yaml         # pnpm workspace definition
+<a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a>├── package.json                # Root package.json (scripts + devDependencies)
+<a id="__codelineno-1-90" name="__codelineno-1-90" href="#__codelineno-1-90"></a>└── tsconfig.base.json          # Shared TypeScript configuration
 </code></pre></div>
 <h3 id="cross-package-dependency-graph">Cross-Package Dependency Graph<a class="headerlink" href="#cross-package-dependency-graph" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>apps/desktop ──→ apps/web ──→ packages/ui
@@ -2793,8 +2802,11 @@
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    │                ├──→ packages/signal
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    │                └──→ packages/bot-sdk
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    │
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    └──→ apps/server ──→ packages/shared
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>                         └──→ packages/signal
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>     └──→ apps/server ──→ packages/shared
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>                          └──→ packages/signal
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>apps/tui ───────→ packages/shared
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    └───────────→ packages/signal
 </code></pre></div>
 <hr />
 <h2 id="4-tech-stack-summary">4. Tech Stack Summary<a class="headerlink" href="#4-tech-stack-summary" title="Permanent link">&para;</a></h2>
@@ -2849,6 +2861,12 @@
 <td>shadcn/ui (cherry-picked)</td>
 <td>latest</td>
 <td>Accessible Radix UI primitives, copy-paste ownership, Tailwind v4 compatible</td>
+</tr>
+<tr>
+<td><strong>Terminal UI</strong></td>
+<td>Ink + Commander</td>
+<td>latest</td>
+<td>React-style terminal rendering plus deterministic non-interactive commands for smoke tests</td>
 </tr>
 <tr>
 <td><strong>HTTP Server</strong></td>
@@ -3030,6 +3048,7 @@
 <ul>
 <li>All encryption/decryption happens on the client using the shared <code>packages/signal</code> library.</li>
 <li>The server is a <strong>blind relay</strong>: it stores and forwards opaque ciphertext blobs. The server cannot read message content, nor can it perform full-text search on E2E channels.</li>
+<li>Read-once/disappearing messages are enforced through metadata only: read acknowledgments, expiry timestamps, and tombstone state. Clients must delete local plaintext when the policy expires.</li>
 <li>Bots <strong>cannot</strong> participate in E2E channels — this is an architectural trade-off. The E2E protocol has no mechanism to include a third-party key in the ratchet without defeating the end-to-end guarantee.</li>
 <li>Key material (PreKey bundles, signed pre-keys) is stored server-side in a dedicated <code>signal_key_bundles</code> table, but private keys never leave the client.</li>
 <li>For details on key distribution, group messaging (Sender Key), and device multi-session management, see <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>.</li>
@@ -3237,7 +3256,7 @@
 </tr>
 <tr>
 <td><strong>DM E2E</strong></td>
-<td>Signal Protocol encryption for 1:1 DMs, opaque server relay, client-side key management</td>
+<td>Signal Protocol encryption for 1:1 DMs, opaque server relay, client-side key management, read-once/disappearing message policy</td>
 </tr>
 <tr>
 <td><strong>Bot (basic)</strong></td>
@@ -3250,6 +3269,10 @@
 <tr>
 <td><strong>Desktop Shell</strong></td>
 <td>Electron window, system tray, native notifications, auto-update</td>
+</tr>
+<tr>
+<td><strong>TUI Client</strong></td>
+<td>Terminal login, workspace/channel navigation, normal messaging, E2E/bot smoke commands</td>
 </tr>
 <tr>
 <td><strong>Infrastructure</strong></td>
@@ -3337,7 +3360,7 @@
 </tr>
 <tr>
 <td><strong>Advanced E2E</strong></td>
-<td>Verified safety numbers, device management, disappearing messages, E2E audit log</td>
+<td>Verified safety numbers, device management, sealed sender, transparency/audit UX, advanced retention policy controls</td>
 </tr>
 <tr>
 <td><strong>Enterprise</strong></td>

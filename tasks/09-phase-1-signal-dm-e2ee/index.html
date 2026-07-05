@@ -2072,6 +2072,7 @@
 <li>X3DH session establishment.</li>
 <li>Double Ratchet message encryption/decryption.</li>
 <li>E2E message send/receive in 1:1 DM.</li>
+<li>Read-once and timer-based disappearing message policy for 1:1 E2E DMs.</li>
 <li>Local session storage strategy.</li>
 </ul>
 <h2 id="non-goals">Non-Goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
@@ -2079,7 +2080,7 @@
 <li>No group E2E in Phase 1.</li>
 <li>No multi-device E2E.</li>
 <li>No safety numbers UI.</li>
-<li>No disappearing messages.</li>
+<li>No group disappearing messages or advanced retention policy UI.</li>
 <li>No sealed sender.</li>
 </ul>
 <h2 id="server-responsibilities">Server Responsibilities<a class="headerlink" href="#server-responsibilities" title="Permanent link">&para;</a></h2>
@@ -2089,6 +2090,7 @@
 <li>Store and relay ciphertext messages.</li>
 <li>Never store private keys.</li>
 <li>Never decrypt message content.</li>
+<li>Enforce disappearing-message expiry using only metadata, read acknowledgments, and tombstone state.</li>
 </ul>
 <h2 id="client-responsibilities">Client Responsibilities<a class="headerlink" href="#client-responsibilities" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2096,6 +2098,7 @@
 <li>Establish sessions.</li>
 <li>Encrypt before send.</li>
 <li>Decrypt after receive.</li>
+<li>Delete local plaintext for read-once or expired messages immediately after policy conditions are met.</li>
 <li>Handle ratchet state.</li>
 </ul>
 <h2 id="acceptance-criteria">Acceptance Criteria<a class="headerlink" href="#acceptance-criteria" title="Permanent link">&para;</a></h2>
@@ -2105,6 +2108,8 @@
 <li>Recipient can decrypt message locally.</li>
 <li>Bot events are not emitted for E2E DM.</li>
 <li>Server-side search is disabled for E2E DM.</li>
+<li>Read-once E2E messages can be decrypted once by the recipient, then only an expired/tombstone state is available.</li>
+<li>Timer-based E2E messages expire without server-side plaintext access.</li>
 </ul>
 <h2 id="test-plan">Test Plan<a class="headerlink" href="#test-plan" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2113,6 +2118,8 @@
 <li>Send/decrypt E2E message test.</li>
 <li>Verify plaintext does not appear in DB/logs.</li>
 <li>One-time prekey consumption test.</li>
+<li>Read-once E2E message test.</li>
+<li>Timer-based disappearing message expiry test.</li>
 </ul>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <ul>

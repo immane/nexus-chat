@@ -2703,8 +2703,9 @@ Current status: Phase 1 implementation tasks generated under <code>docs/tasks/</
 <li>Channel member management with owner/admin/member RBAC</li>
 <li>Bot framework: event-driven engine, WebSocket SDK, slash commands, basic message reply</li>
 <li>JWT authentication with refresh token rotation</li>
-<li>1:1 DM E2EE via Signal Protocol (X3DH + Double Ratchet)</li>
+<li>1:1 DM E2EE via Signal Protocol (X3DH + Double Ratchet), including read-once/disappearing message policy</li>
 <li>Desktop client (Electron) with virtual scrolling, offline queue, system tray</li>
+<li>TUI command-line client for auth, workspace/channel navigation, messaging, and E2E/bot smoke tests</li>
 <li>Security baseline (Helmet, CSP, CORS, rate limiting, audit logs)</li>
 <li>Shared PostgreSQL with schema isolation</li>
 <li>Caddy/Nginx reverse proxy</li>
@@ -2783,12 +2784,16 @@ Current status: Phase 1 implementation tasks generated under <code>docs/tasks/</
 <td>16</td>
 <td>Local Development, CI, Preview Deploy &amp; Closed Beta Release</td>
 </tr>
+<tr>
+<td>17</td>
+<td>TUI Command-Line Client</td>
+</tr>
 </tbody>
 </table>
 <h3 id="later-phases">Later Phases<a class="headerlink" href="#later-phases" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Phase 2 (Growth, 3-9 months)</strong>: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, <code>@AIBot</code> with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation</li>
-<li><strong>Phase 3 (Scale, 9-18 months)</strong>: pgvector RAG, multi-agent AI, disappearing messages, Sealed Sender, Safety Number verification, Bot marketplace, multi-region deployment</li>
+<li><strong>Phase 3 (Scale, 9-18 months)</strong>: pgvector RAG, multi-agent AI, Sealed Sender, Safety Number verification, advanced E2E retention controls, Bot marketplace, multi-region deployment</li>
 </ul>
 <hr />
 <h2 id="6-project-conventions">6. Project Conventions<a class="headerlink" href="#6-project-conventions" title="Permanent link">&para;</a></h2>

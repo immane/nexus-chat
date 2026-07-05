@@ -2449,7 +2449,7 @@
 </tr>
 <tr>
 <td><strong>E2E</strong></td>
-<td>End-to-end encrypted via the <a href="https://github.com/signalapp/libsignal">Signal Protocol</a>: the server is an opaque relay that cannot read message content, and bots are fully excluded</td>
+<td>End-to-end encrypted via the <a href="https://github.com/signalapp/libsignal">Signal Protocol</a>: the server is an opaque relay that cannot read message content, bots are fully excluded, and read-once/disappearing messages are supported for sensitive DMs</td>
 </tr>
 </tbody>
 </table>
@@ -2457,6 +2457,7 @@
 <h3 id="key-differentiators">Key Differentiators<a class="headerlink" href="#key-differentiators" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Per-channel encryption mode</strong> — not all-or-nothing; mix normal and E2E in one workspace</li>
+<li><strong>Desktop and terminal clients</strong> — Electron GUI plus a Phase 1 TUI command-line interface for developers, operators, and keyboard-first users</li>
 <li><strong>First-class streaming message protocol</strong> — progressive token-by-token AI responses rendered in-channel</li>
 <li><strong>Bot SDK in 6 languages</strong> — TypeScript, Java, Python, PHP, Go, Rust</li>
 <li><strong>Bundled base bots</strong> — Welcome, Help, Notifications, Reminders, Polls, Webhooks, Kudos out of the box</li>
@@ -2503,6 +2504,11 @@
 <td>Markdown</td>
 <td><strong>markdown-it + Shiki</strong></td>
 <td>Rich message content with syntax-highlighted code blocks</td>
+</tr>
+<tr>
+<td>Terminal UI</td>
+<td><strong>Ink + Commander</strong></td>
+<td>Phase 1 TUI/CLI for login, workspace navigation, channel/DM messaging, and E2E DM verification</td>
 </tr>
 </tbody>
 </table>
@@ -2680,34 +2686,35 @@
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── apps/
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── server/                  # Node.js backend (Hono + Socket.IO + Bot Engine + AI Engine)
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── web/                     # React SPA (Vite + Zustand + Tailwind)
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   └── desktop/                 # Electron shell (window, tray, notifications, updater)
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├── packages/
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   ├── shared/                  # Shared types, Zod schemas, constants, event definitions
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── signal/                  # Signal Protocol wrapper (@signalapp/libsignal)
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── bot-sdk/                 # Public Bot SDK (TypeScript/Node.js)
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── ai-bot/                  # AI Agent Engine (Phase 2)
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   └── ui/                      # Shared React UI component library
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── packages/bots/               # First-party bundled bots
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│   ├── welcome-bot/
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   ├── help-bot/
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   ├── notification-bot/
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>│   ├── reminder-bot/
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│   ├── poll-bot/
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   ├── webhook-bot/
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   └── kudos-bot/
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>├── docs/
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>│   ├── README.md                # This document
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│   ├── ai/                      # AI session context
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│   ├── design/                  # Architecture &amp; design documents
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>│   ├── research/                # Technical research &amp; surveys
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   ├── tasks/                   # Phase implementation task breakdowns
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   └── sdk/                     # Multi-language Bot SDK documentation
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>├── package.json                 # Workspace root
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>├── turbo.json
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>├── pnpm-workspace.yaml
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>├── tsconfig.json
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>├── AGENTS.md                    # Project conventions
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>└── LICENSE                      # MIT
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   ├── desktop/                 # Electron shell (window, tray, notifications, updater)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   └── tui/                     # Terminal UI / CLI client (Ink + Commander)
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── packages/
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── shared/                  # Shared types, Zod schemas, constants, event definitions
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── signal/                  # Signal Protocol wrapper (@signalapp/libsignal)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── bot-sdk/                 # Public Bot SDK (TypeScript/Node.js)
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   ├── ai-bot/                  # AI Agent Engine (Phase 2)
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   └── ui/                      # Shared React UI component library
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>├── packages/bots/               # First-party bundled bots
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   ├── welcome-bot/
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   ├── help-bot/
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>│   ├── notification-bot/
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│   ├── reminder-bot/
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   ├── poll-bot/
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   ├── webhook-bot/
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   └── kudos-bot/
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>├── docs/
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│   ├── README.md                # This document
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│   ├── ai/                      # AI session context
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>│   ├── design/                  # Architecture &amp; design documents
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   ├── research/                # Technical research &amp; surveys
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   ├── tasks/                   # Phase implementation task breakdowns
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│   └── sdk/                     # Multi-language Bot SDK documentation
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>├── package.json                 # Workspace root
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>├── turbo.json
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>├── pnpm-workspace.yaml
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>├── tsconfig.json
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>├── AGENTS.md                    # Project conventions
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>└── LICENSE                      # MIT
 </code></pre></div>
 <hr />
 <h2 id="5-phase-roadmap">5. Phase Roadmap<a class="headerlink" href="#5-phase-roadmap" title="Permanent link">&para;</a></h2>
@@ -2722,10 +2729,11 @@
 <li>Workspace creation, channel management (public/private/DM)</li>
 <li>Text messages with state machine (Draft → Sent → Delivered → Read)</li>
 <li>Markdown rendering, emoji reactions</li>
-<li>Signal Protocol E2E for 1:1 DMs</li>
+<li>Signal Protocol E2E for 1:1 DMs, including read-once/disappearing message policy</li>
 <li>Bot registration, slash command routing, Redis Streams event bus</li>
 <li><strong>7 base bots</strong>: Welcome, Help, Notification, Reminder, Poll, Webhook, Kudos</li>
 <li>Electron shell with window management, tray, notifications</li>
+<li>TUI command-line client for auth, workspace/channel navigation, messaging, and E2E DM smoke testing</li>
 <li>Monolith deployment: Hono + Socket.IO + Bot Engine in one process</li>
 </ul>
 <h3 id="phase-2-rich-features-production-hardening-36-months">Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)<a class="headerlink" href="#phase-2-rich-features-production-hardening-36-months" title="Permanent link">&para;</a></h3>
@@ -2749,7 +2757,7 @@
 <ul>
 <li>Voice/video calls (WebRTC), screen sharing</li>
 <li>SSO (SAML/OIDC), Google/Microsoft/GitHub OAuth</li>
-<li>Advanced E2E: safety numbers, device management, disappearing messages, sealed sender</li>
+<li>Advanced E2E: safety numbers, device management, sealed sender, transparency/audit UX</li>
 <li>Multi-device session relay</li>
 <li>Enterprise admin dashboard, audit logs, data retention, compliance exports</li>
 <li><strong>5 advanced bots</strong>: Status, Scheduler, Meeting Notes, AutoMod + Bot Marketplace</li>
@@ -2936,6 +2944,11 @@
 <td>16</td>
 <td><a href="tasks/16-phase-1-local-dev-ci-release/">Local Dev, CI &amp; Release</a></td>
 <td>Docker Compose, CI jobs, docs build, preview deploy, closed beta checklist</td>
+</tr>
+<tr>
+<td>17</td>
+<td><a href="tasks/17-phase-1-tui-cli/">TUI Command-Line Client</a></td>
+<td>Terminal client for auth, workspace/channel navigation, messaging, and E2E smoke tests</td>
 </tr>
 </tbody>
 </table>

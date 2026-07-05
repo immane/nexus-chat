@@ -1048,6 +1048,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#8-phase-1-tui-command-line-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Phase 1 TUI Command-Line Client
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Phase 1 TUI Command-Line Client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#appendix-technology-version-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3010,6 +3049,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#8-phase-1-tui-command-line-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Phase 1 TUI Command-Line Client
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Phase 1 TUI Command-Line Client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#appendix-technology-version-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3042,7 +3120,7 @@
 
 <h1 id="01-client-shell-ui-rendering-layer">01 - Client Shell &amp; UI Rendering Layer<a class="headerlink" href="#01-client-shell-ui-rendering-layer" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>Design document for the Nexus Chat desktop application shell (Electron) and React-based UI rendering layer.<br />
+<p>Design document for the Nexus Chat desktop application shell (Electron), Phase 1 terminal UI client, and React-based UI rendering layer.
 Covers process architecture, component tree, state management, interaction flows, and performance strategy.<br />
 Derived from <a href="../../research/frontend-architecture/">Frontend Architecture Research</a>.</p>
 </blockquote>
@@ -3073,6 +3151,7 @@ Derived from <a href="../../research/frontend-architecture/">Frontend Architectu
 <li>5.4 <a href="#54-bot-slash-command">Bot Slash Command</a></li>
 <li><a href="#6-performance-strategy">Performance Strategy</a></li>
 <li><a href="#7-asset--theme-system">Asset &amp; Theme System</a></li>
+<li><a href="#8-phase-1-tui-command-line-client">Phase 1 TUI Command-Line Client</a></li>
 </ol>
 <hr />
 <h2 id="1-electron-shell-architecture">1. Electron Shell Architecture<a class="headerlink" href="#1-electron-shell-architecture" title="Permanent link">&para;</a></h2>
@@ -4286,6 +4365,51 @@ Derived from <a href="../../research/frontend-architecture/">Frontend Architectu
 <a id="__codelineno-32-19" name="__codelineno-32-19" href="#__codelineno-32-19"></a><span class="p">)</span>
 </code></pre></div>
 <hr />
+<h2 id="8-phase-1-tui-command-line-client">8. Phase 1 TUI Command-Line Client<a class="headerlink" href="#8-phase-1-tui-command-line-client" title="Permanent link">&para;</a></h2>
+<p>The Phase 1 terminal client lives in <code>apps/tui</code> and uses the same shared contracts as the Electron/Web clients. It is intentionally smaller than the GUI: its primary value is fast keyboard-first usage, local development, and deterministic smoke tests for CI.</p>
+<h3 id="81-scope">8.1 Scope<a class="headerlink" href="#81-scope" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Phase 1 Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auth</td>
+<td><code>nexus login/logout/whoami</code> against the same REST API as the web client</td>
+</tr>
+<tr>
+<td>Navigation</td>
+<td>List/select workspaces, channels, and 1:1 DMs</td>
+</tr>
+<tr>
+<td>Messaging</td>
+<td>Open a channel/DM, render recent messages, send text over WebSocket</td>
+</tr>
+<tr>
+<td>E2E</td>
+<td>Establish 1:1 DM sessions through <code>packages/signal</code>; send/read encrypted and read-once messages</td>
+</tr>
+<tr>
+<td>Bots</td>
+<td>Invoke slash commands in normal channels and render bot replies</td>
+</tr>
+<tr>
+<td>CI smoke</td>
+<td>Non-interactive <code>send</code>, <code>read</code>, <code>e2e-smoke</code>, and <code>bot-smoke</code> commands with deterministic exit codes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82-boundaries">8.2 Boundaries<a class="headerlink" href="#82-boundaries" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The TUI must import schemas and event names from <code>packages/shared</code>; no duplicate API types.</li>
+<li>The TUI must use <code>packages/signal</code> for encryption and decryption; no separate crypto implementation.</li>
+<li>Local token storage should prefer the OS keychain when available. <code>.env</code> or plaintext fallback is allowed only for local development and CI.</li>
+<li>The TUI is not a feature-specific admin tool. Admin and incident-response commands are deferred unless explicitly promoted into a later phase.</li>
+</ul>
+<hr />
 <h2 id="appendix-technology-version-reference">Appendix: Technology Version Reference<a class="headerlink" href="#appendix-technology-version-reference" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -4370,6 +4494,11 @@ Derived from <a href="../../research/frontend-architecture/">Frontend Architectu
 <td>Validation</td>
 <td>zod</td>
 <td>^3.24.0</td>
+</tr>
+<tr>
+<td>Terminal UI</td>
+<td>ink, commander</td>
+<td>latest</td>
 </tr>
 <tr>
 <td>Dates</td>

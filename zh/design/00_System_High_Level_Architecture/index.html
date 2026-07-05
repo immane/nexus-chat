@@ -2524,7 +2524,7 @@
 <hr />
 <h2 id="1">1. 系统概述<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <h3 id="11">1.1 项目愿景<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
-<p>Nexus Chat 是一个<strong>类似 Slack 的即时消息 (IM) 平台</strong>，构建为具有 Node.js 后端的 Electron 桌面应用程序。它支持工作区、通道、直接消息 (DM)、线程对话、文件共享和可扩展的机器人框架 - 所有这些都作为 <strong>SaaS 多租户云部署</strong> 提供。</p>
+<p>Nexus Chat 是一个<strong>类似 Slack 的即时消息 (IM) 平台</strong>，构建为 Electron 桌面应用程序、第一阶段终端 UI 客户端和 Node.js 后端。它支持工作区、通道、直接消息 (DM)、线程对话、文件共享和可扩展的机器人框架 - 所有这些都作为 <strong>SaaS 多租户云部署</strong> 提供。</p>
 <h3 id="12">1.2 核心优势：混合加密模式<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
 <p>Nexus Chat 中的每个通道和 DM 都以两种加密模式之一运行，可以在创建时选择：</p>
 <table>
@@ -2546,7 +2546,7 @@
 <tr>
 <td><strong>端到端加密</strong></td>
 <td><code>e2e</code></td>
-<td>仅 IM（文本、附件）；服务器是不透明中继</td>
+<td>仅限 IM（文本、附件）、只读/消失的消息；服务器是不透明中继</td>
 <td>无机器人参与；没有服务器端搜索；没有消息预览</td>
 </tr>
 </tbody>
@@ -2554,7 +2554,7 @@
 <p>混合模型的主要设计含义：</p>
 <ul>
 <li><strong>普通通道</strong>允许机器人参与对话、执行斜杠命令并对消息事件做出反应。服务器以明文形式处理和存储消息内容（通过 PostgreSQL TDE 或文件系统加密进行静态加密）。</li>
-<li><strong>E2E 通道</strong> 使用 <a href="https://github.com/signalapp/libsignal">Signal Protocol</a> (<code>@signalapp/libsignal</code>)。服务器只能看到密文 blob 和加密的元数据。密钥交换、棘轮推进和消息解密仅发生在客户端上。服务器的角色被简化为存储转发中继。</li>
+<li><strong>E2E 通道</strong> 使用 <a href="https://github.com/signalapp/libsignal">Signal Protocol</a> (<code>@signalapp/libsignal</code>)。服务器只能看到密文 blob、加密元数据和只读/消失消息的生命周期策略元数据。密钥交换、棘轮推进和消息解密仅发生在客户端上。服务器的角色被简化为存储转发中继加上逻辑删除/过期强制执行，而无需明文访问。</li>
 <li>单个工作区可以并排包含普通通道和 E2E 通道。模式徽章在频道侧边栏中可见。</li>
 </ul>
 <p>详细的端到端威胁建模和信号协议集成设计请参见<a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>。</p>
@@ -2729,60 +2729,69 @@
 <a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   │   │   └── styles/         # Tailwind CSS theme + global styles
 <a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   │   └── package.json
 <a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│   │
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│   └── desktop/                # Electron main process + preload
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│       ├── src/
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│       │   ├── main.ts         # Electron entry, window creation, tray
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│       │   ├── preload.ts      # contextBridge API exposure
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│       │   ├── ipc-handlers.ts # IPC handler registration
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│       │   ├── window-manager.ts
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│       │   ├── tray.ts         # System tray icon
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│       │   ├── notifications.ts
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│       │   ├── updater.ts      # Auto-update logic
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│       │   ├── offline-cache.ts # protocol.handle offline cache
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│       │   └── network-monitor.ts
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│       └── package.json
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>│
-<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>├── packages/
-<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>│   ├── shared/                 # Shared types, constants, validation schemas
-<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>│   │   ├── src/
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>│   │   │   ├── types/          # Message, Channel, User, Workspace types
-<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>│   │   │   ├── schemas/        # Zod validation schemas (shared between client &amp; server)
-<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>│   │   │   ├── constants/      # Event names, error codes, status enums
-<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>│   │   │   └── utils/          # Shared utility functions
-<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>│   │   └── package.json
-<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>│   │
-<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>│   ├── signal/                 # @signalapp/libsignal abstraction layer
-<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>│   │   ├── src/
-<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>│   │   │   ├── protocol.ts     # Key generation, PreKey bundle management
-<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>│   │   │   ├── session.ts      # Session cipher (encrypt/decrypt per session)
-<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>│   │   │   ├── store.ts        # Signal Protocol Store implementation
-<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>│   │   │   └── group.ts        # Group messaging (Sender Key distribution)
-<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>│   │   └── package.json
-<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>│   │
-<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>│   ├── bot-sdk/                # Bot development SDK for third-party developers
-<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>│   │   ├── src/
-<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>│   │   │   ├── client.ts       # Bot WebSocket client
-<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>│   │   │   ├── handler.ts      # Event handler registration
-<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>│   │   │   ├── commands.ts     # Slash command builder
-<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>│   │   │   └── types.ts        # Bot-specific type definitions
-<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>│   │   └── package.json
-<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>│   │
-<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>│   └── ui/                     # Shared UI component library (shadcn/ui based)
-<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>│       ├── src/
-<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>│       │   ├── components/     # Button, Input, Dialog, Avatar, etc.
-<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>│       │   ├── hooks/          # Shared UI hooks
-<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>│       │   └── lib/            # cn() utility, CVA variants
-<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>│       └── package.json
-<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>│
-<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>├── docs/
-<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>│   ├── research/               # Technology research reports
-<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>│   ├── design/                 # Architecture &amp; design documents
-<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>│   └── ai/                     # AI-assisted development context
-<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>│
-<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>├── turbo.json                  # Turborepo pipeline configuration
-<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>├── pnpm-workspace.yaml         # pnpm workspace definition
-<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>├── package.json                # Root package.json (scripts + devDependencies)
-<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>└── tsconfig.base.json          # Shared TypeScript configuration
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│   ├── desktop/                # Electron main process + preload
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│   │   ├── src/
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│   │   │   ├── main.ts         # Electron entry, window creation, tray
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│   │   │   ├── preload.ts      # contextBridge API exposure
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>│   │   │   ├── ipc-handlers.ts # IPC handler registration
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│   │   │   ├── window-manager.ts
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│   │   │   ├── tray.ts         # System tray icon
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│   │   │   ├── notifications.ts
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│   │   │   ├── updater.ts      # Auto-update logic
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│   │   │   ├── offline-cache.ts # protocol.handle offline cache
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│   │   │   └── network-monitor.ts
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│   │   └── package.json
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>│   │
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>│   └── tui/                    # Ink + Commander terminal client
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>│       ├── src/
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>│       │   ├── cli.ts          # Command entry point
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>│       │   ├── app.tsx         # Interactive TUI root
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>│       │   ├── api-client.ts   # REST + WebSocket client
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>│       │   ├── signal.ts       # E2E helper using packages/signal
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>│       │   └── commands/       # login, send, read, e2e-smoke, bot-smoke
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>│       └── package.json
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>│
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>├── packages/
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>│   ├── shared/                 # Shared types, constants, validation schemas
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>│   │   ├── src/
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>│   │   │   ├── types/          # Message, Channel, User, Workspace types
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>│   │   │   ├── schemas/        # Zod validation schemas (shared between client &amp; server)
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>│   │   │   ├── constants/      # Event names, error codes, status enums
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>│   │   │   └── utils/          # Shared utility functions
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>│   │   └── package.json
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>│   │
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>│   ├── signal/                 # @signalapp/libsignal abstraction layer
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>│   │   ├── src/
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>│   │   │   ├── protocol.ts     # Key generation, PreKey bundle management
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>│   │   │   ├── session.ts      # Session cipher (encrypt/decrypt per session)
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>│   │   │   ├── store.ts        # Signal Protocol Store implementation
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>│   │   │   └── group.ts        # Group messaging (Sender Key distribution)
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>│   │   └── package.json
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>│   │
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>│   ├── bot-sdk/                # Bot development SDK for third-party developers
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>│   │   ├── src/
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>│   │   │   ├── client.ts       # Bot WebSocket client
+<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>│   │   │   ├── handler.ts      # Event handler registration
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>│   │   │   ├── commands.ts     # Slash command builder
+<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>│   │   │   └── types.ts        # Bot-specific type definitions
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>│   │   └── package.json
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>│   │
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>│   └── ui/                     # Shared UI component library (shadcn/ui based)
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>│       ├── src/
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>│       │   ├── components/     # Button, Input, Dialog, Avatar, etc.
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>│       │   ├── hooks/          # Shared UI hooks
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>│       │   └── lib/            # cn() utility, CVA variants
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>│       └── package.json
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>│
+<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>├── docs/
+<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a>│   ├── research/               # Technology research reports
+<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>│   ├── design/                 # Architecture &amp; design documents
+<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>│   └── ai/                     # AI-assisted development context
+<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a>│
+<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>├── turbo.json                  # Turborepo pipeline configuration
+<a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a>├── pnpm-workspace.yaml         # pnpm workspace definition
+<a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a>├── package.json                # Root package.json (scripts + devDependencies)
+<a id="__codelineno-1-90" name="__codelineno-1-90" href="#__codelineno-1-90"></a>└── tsconfig.base.json          # Shared TypeScript configuration
 </code></pre></div>
 <h3 id="_3">跨包依赖图<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>apps/desktop ──→ apps/web ──→ packages/ui
@@ -2791,8 +2800,11 @@
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    │                ├──→ packages/signal
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    │                └──→ packages/bot-sdk
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    │
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    └──→ apps/server ──→ packages/shared
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>                         └──→ packages/signal
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>     └──→ apps/server ──→ packages/shared
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>                          └──→ packages/signal
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>apps/tui ───────→ packages/shared
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    └───────────→ packages/signal
 </code></pre></div>
 <hr />
 <h2 id="4">4. 技术栈总结<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
@@ -2847,6 +2859,12 @@
 <td>shadcn/ui（精选）</td>
 <td>最新</td>
 <td>可访问的 Radix UI 原语、复制粘贴所有权、Tailwind v4 兼容</td>
+</tr>
+<tr>
+<td><strong>终端用户界面</strong></td>
+<td>墨+指挥官</td>
+<td>最新</td>
+<td>React 风格的终端渲染加上用于烟雾测试的确定性非交互式命令</td>
 </tr>
 <tr>
 <td><strong>HTTP 服务器</strong></td>
@@ -3028,6 +3046,7 @@
 <ul>
 <li>所有加密/解密都发生在使用共享 <code>packages/signal</code> 库的客户端上。</li>
 <li>服务器是一个<strong>盲中继</strong>：它存储和转发不透明的密文 blob。服务器无法读取消息内容，也无法进行端到端通道的全文检索。</li>
+<li>仅通过元数据强制读取一次/消失消息：读取确认、到期时间戳和逻辑删除状态。当策略过期时，客户端必须删除本地明文。</li>
 <li>机器人 <strong>不能</strong> 参与 E2E 渠道——这是一种架构权衡。 E2E 协议没有在不破坏端到端保证的情况下在棘轮中包含第三方密钥的机制。</li>
 <li>密钥材料（PreKey 捆绑包、签名预密钥）存储在服务器端专用的 <code>signal_key_bundles</code> 表中，但私钥永远不会离开客户端。</li>
 <li>密钥分发、群发消息（Sender Key）、设备多会话管理等详细信息请参见<a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>。</li>
@@ -3168,7 +3187,7 @@
 <li>会话存储和多层数据缓存</li>
 <li>滑动窗口速率限制（分布式）</li>
 <li>Redis Streams 作为机器人引擎消息消费的事件总线</li>
-<li><strong>粘性会话</strong>（基于 cookie 或 IP 哈希）在负载均衡器上需要用于 Socket.IO 的 Engine.IO 握手。升级到纯 WebSocket (<code>transports: ["websocket"]</code>) 后，仍然建议使用粘性会话来实现连接亲和力。</li>
+<li><strong>粘性会话</strong>（基于 cookie 或 IP 哈希）在负载均衡器上需要用于 Socket.IO 的 Engine.IO 握手。升级到纯 WebSocket (<code>transports: ["websocket"]</code>) 后，仍建议使用粘性会话来实现连接关联。</li>
 <li>PostgreSQL 作为单个主数据库运行，并带有可选的只读副本，用于扩展查询负载（读取回执、搜索查询）。</li>
 </ul>
 <h3 id="62-2">6.2 未来第 2 阶段+：服务分割边界<a class="headerlink" href="#62-2" title="Permanent link">&para;</a></h3>
@@ -3235,7 +3254,7 @@
 </tr>
 <tr>
 <td><strong>DM E2E</strong></td>
-<td>1:1 DM 的信号协议加密、不透明服务器中继、客户端密钥管理</td>
+<td>1:1 DM 的信号协议加密、不透明服务器中继、客户端密钥管理、一次读取/消失消息策略</td>
 </tr>
 <tr>
 <td><strong>机器人（基本）</strong></td>
@@ -3248,6 +3267,10 @@
 <tr>
 <td><strong>桌面外壳</strong></td>
 <td>Electron 窗口、系统托盘、本机通知、自动更新</td>
+</tr>
+<tr>
+<td><strong>途易客户端</strong></td>
+<td>终端登录、工作区/频道导航、正常消息传递、E2E/bot 烟雾命令</td>
 </tr>
 <tr>
 <td><strong>基础设施</strong></td>
@@ -3335,7 +3358,7 @@
 </tr>
 <tr>
 <td><strong>先进的端到端</strong></td>
-<td>验证安全号码、设备管理、消失消息、E2E审核日志</td>
+<td>验证安全号码、设备管理、密封发送器、透明度/审计用户体验、高级保留策略控制</td>
 </tr>
 <tr>
 <td><strong>企业</strong></td>
