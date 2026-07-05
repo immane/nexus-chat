@@ -7,7 +7,7 @@ import {
   createInMemorySignalSessionStore
 } from "@nexus-chat/signal";
 import type { SendMessageInput } from "@nexus-chat/shared";
-import { request, getAccessToken, setAccessToken } from "../lib/api.js";
+import { request, getAccessToken, setAccessToken, apiBase } from "../lib/api.js";
 import { createSocket, sendMessage, sendBotCommand } from "../lib/ws-client.js";
 
 export const login = async (email: string, password: string) => {
@@ -252,7 +252,12 @@ export const runApiSmoke = async () => {
   await ok("GET /auth/me", () => smokeReq<unknown>("/api/v1/auth/me"));
 
   await ok("GET /healthz", () => request("/healthz"));
-  await ok("GET /metrics", () => request("/metrics"));
+  await ok("GET /metrics", async () => {
+    const response = await fetch(`${apiBase}/metrics`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    if (!text.includes("# HELP")) throw new Error("missing Prometheus exposition text");
+  });
 
   // ── Workspaces ──
   const ws = await ok("POST /workspaces", () =>
@@ -288,12 +293,14 @@ export const runApiSmoke = async () => {
 
   // Register second user for multi-user tests
   let secondToken = "";
+  let secondUserId = "";
   try {
     const reg = await request<{ tokens: { accessToken: string }; user: { id: string } }>("/api/v1/auth/register", {
       method: "POST",
       body: JSON.stringify({ email: `smoke-2-${ts}@smoke.local`, password: "TestApiSmoke12!", displayName: "Smoke2" })
     });
     secondToken = reg.tokens.accessToken;
+    secondUserId = reg.user.id;
   } catch { /* may exist */ }
 
   // ── Channels ──
@@ -320,8 +327,9 @@ export const runApiSmoke = async () => {
     const s2req = <T>(path: string, options: RequestInit = {}): Promise<T> =>
       request<T>(path, { ...options, headers: { ...s2h(), ...(options.headers as Record<string, string> ?? {}) } });
 
-    const s2user = await s2req<{ user: { id: string } }>("/api/v1/auth/me");
-    const s2userId = s2user.user.id;
+    const s2user = await s2req<{ id: string }>("/api/v1/auth/me");
+    const s2userId = s2user.id;
+    secondUserId = s2userId;
 
     await ok("POST /workspaces/:id/members (add member)", () =>
       smokeReq<unknown>(`/api/v1/workspaces/${ws.id}/members`, {
@@ -551,12 +559,11 @@ export const runApiSmoke = async () => {
   );
 
   // ── Ownership transfer ──
-  if (secondToken) {
-    const s2user = await smokeReq<{ user: { id: string } }>("/api/v1/auth/me");
+  if (secondToken && secondUserId) {
     await ok("POST /workspaces/:id/transfer-ownership", () =>
       smokeReq<{ role: string }>(`/api/v1/workspaces/${ws.id}/transfer-ownership`, {
         method: "POST",
-        body: JSON.stringify({ newOwnerUserId: s2user.user.id })
+        body: JSON.stringify({ newOwnerUserId: secondUserId })
       })
     );
     // Transfer back

@@ -336,6 +336,7 @@ export const signalPreKeyBundleSchema = z.object({
   signedPreKeyId: z.number().int().nonnegative(),
   signedPreKey: z.string().min(1),
   signedPreKeySignature: z.string().min(1),
+  oneTimePreKeys: z.array(z.object({ keyId: z.number().int().nonnegative(), publicKey: z.string().min(1) })).optional(),
   oneTimePreKeyId: z.number().int().nonnegative().optional(),
   oneTimePreKey: z.string().min(1).optional()
 });

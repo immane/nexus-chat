@@ -129,7 +129,10 @@ export const createHttpApp = () => {
   app.get("/api/v1/attachments/:fileId", authRequired, (c) => c.json(toResponse(attachmentService.getFile(c.get("userId"), requiredParam(c.req.param("fileId"))))));
   app.post("/api/v1/attachments/:fileId/download-url", authRequired, (c) => c.json(toResponse(attachmentService.createDownloadUrl(c.get("userId"), requiredParam(c.req.param("fileId"))))));
 
-  app.post("/api/v1/signal/prekey-bundles", authRequired, zValidator("json", signalPreKeyBundleSchema), (c) => c.json(toResponse(signalService.uploadBundle(c.get("userId"), c.req.valid("json")))));
+  app.post("/api/v1/signal/prekey-bundles", authRequired, zValidator("json", signalPreKeyBundleSchema), (c) => {
+    const { oneTimePreKeys, ...bundle } = c.req.valid("json");
+    return c.json(toResponse(signalService.uploadBundle(c.get("userId"), bundle, oneTimePreKeys)));
+  });
   app.get("/api/v1/signal/prekey-bundles/:userId/:deviceId", authRequired, (c) => c.json(toResponse(signalService.fetchBundle(c.get("userId"), requiredParam(c.req.param("userId")), requiredParam(c.req.param("deviceId"))))));
   app.post("/api/v1/signal/prekey-bundles/:userId/:deviceId/consume", authRequired, (c) => {
     const keyId = Number(c.req.query("keyId"));
