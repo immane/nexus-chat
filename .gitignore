@@ -12,6 +12,8 @@ out/
 .env
 .env.local
 .env.*.local
+.env.tui*
+!.env.example
 
 # IDE
 .vscode/
@@ -31,6 +33,10 @@ Thumbs.db
 
 # Electron
 out/
+release/
+*.dmg
+*.exe
+*.AppImage
 
 # Logs
 *.log
@@ -38,6 +44,16 @@ logs/
 
 # Test coverage
 coverage/
+playwright-report/
+test-results/
+.playwright-mcp/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.webm
 
 # Turborepo
 .turbo/

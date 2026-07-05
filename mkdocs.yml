@@ -1,5 +1,5 @@
 site_name: Nexus Chat
-site_description: A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only)
+site_description: A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 99.8% statement coverage.
 repo_url: https://github.com/immane/nexus-chat
 edit_uri: edit/main/docs/
 site_dir: site
@@ -47,6 +47,8 @@ markdown_extensions:
 
 nav:
   - Home: README.md
+  - 中文首页: README.zh-CN.md
+  - Quick Start: QUICKSTART.md
   - Design Documents:
       - System High-Level Architecture: design/00_System_High_Level_Architecture.md
       - Client Shell & UI Rendering: design/01_Client_Shell_and_UI_Rendering_Layer.md
@@ -72,6 +74,7 @@ nav:
       - Phase 1 — Electron Shell: tasks/14-phase-1-electron-shell.md
       - Phase 1 — Observability & Hardening: tasks/15-phase-1-observability-security-hardening.md
       - Phase 1 — Local Dev, CI & Release: tasks/16-phase-1-local-dev-ci-release.md
+      - Phase 1 — TUI CLI: tasks/17-phase-1-tui-cli.md
   - Research:
       - Frontend Architecture: research/frontend-architecture.md
       - Backend IM & State Machine: research/backend-im-state-machine.md
@@ -87,6 +90,10 @@ nav:
       - PHP: sdk/php.md
       - Go: sdk/go.md
       - Rust: sdk/rust.md
+  - Operations:
+      - Backup & Restore: backup-restore.md
+      - Beta Checklist: beta-checklist.md
+      - Known Limitations: known-limitations.md
   - AI Context: ai/context.md
 
 extra:

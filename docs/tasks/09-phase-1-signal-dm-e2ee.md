@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 09 — Phase 1 — Signal Protocol 1:1 DM E2EE

@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 12 — Phase 1 — Minimal First-Party Base Bots

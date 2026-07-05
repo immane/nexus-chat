@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 01 — Phase 1 — Project Scaffold & Developer Workflow

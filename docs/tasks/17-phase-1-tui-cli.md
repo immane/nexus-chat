@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 17 — Phase 1 — TUI Command-Line Client

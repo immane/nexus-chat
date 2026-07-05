@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 03 — Phase 1 — Database Schema, Migrations & Persistence Boundary

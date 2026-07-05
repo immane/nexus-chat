@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 13 — Phase 1 — React Web Client Shell & Core Chat UI

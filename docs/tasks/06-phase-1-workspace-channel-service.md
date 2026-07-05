@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 06 — Phase 1 — Workspace, Channel, DM & Membership Services

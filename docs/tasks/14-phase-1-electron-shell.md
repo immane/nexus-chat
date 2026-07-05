@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 14 — Phase 1 — Electron Shell, IPC Boundary & Desktop Integration

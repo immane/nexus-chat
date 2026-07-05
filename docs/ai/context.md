@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-06-24
-> Current status: Phase 1 implementation tasks generated under `docs/tasks/`
+> Last updated: 2026-07-05 (post-Phase 1 review, post-bot-fix, coverage-enhanced)
+> Current status: Phase 1 complete (17/17 tasks done), bot `/help` and demo fallback fixed, coverage raised to 99.83% statements / 92.02% branches, 6 functional git commits
 
 ## 1. Project Overview
 
@@ -192,25 +192,25 @@ Componentized UI architecture with Atomic Design methodology across three packag
 
 Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 
-| # | Task |
-|---|------|
-| 01 | Project Scaffold & Developer Workflow |
-| 02 | Shared Contracts, Event Schemas & Runtime Validation |
-| 03 | Database Schema, Migrations & Persistence Boundary |
-| 04 | Authentication, Sessions & Security Baseline |
-| 05 | Core Gateway: REST, WebSocket, Rate Limits & Protocol |
-| 06 | Workspace, Channel, DM & Membership Services |
-| 07 | Message Service, State Machine & Core IM Actions |
-| 08 | Attachment Service Foundation & E2E-Safe File Boundary |
-| 09 | Signal Protocol 1:1 DM E2EE |
-| 10 | Bot Engine Core, Event Dispatch & Command Invocation |
-| 11 | Node.js Bot SDK Reference Implementation |
-| 12 | Minimal First-Party Base Bots |
-| 13 | React Web Client Shell & Core Chat UI |
-| 14 | Electron Shell, IPC Boundary & Desktop Integration |
-| 15 | Observability, Audit Logs & Security Hardening |
-| 16 | Local Development, CI, Preview Deploy & Closed Beta Release |
-| 17 | TUI Command-Line Client |
+| # | Task | Status |
+|---|------|--------|
+| 01 | Project Scaffold & Developer Workflow | Done |
+| 02 | Shared Contracts, Event Schemas & Runtime Validation | Done |
+| 03 | Database Schema, Migrations & Persistence Boundary | Done |
+| 04 | Authentication, Sessions & Security Baseline | Done |
+| 05 | Core Gateway: REST, WebSocket, Rate Limits & Protocol | Done |
+| 06 | Workspace, Channel, DM & Membership Services | Done |
+| 07 | Message Service, State Machine & Core IM Actions | Done |
+| 08 | Attachment Service Foundation & E2E-Safe File Boundary | Done |
+| 09 | Signal Protocol 1:1 DM E2EE | Done |
+| 10 | Bot Engine Core, Event Dispatch & Command Invocation | Done |
+| 11 | Node.js Bot SDK Reference Implementation | Done |
+| 12 | Minimal First-Party Base Bots | Done |
+| 13 | React Web Client Shell & Core Chat UI | Done |
+| 14 | Electron Shell, IPC Boundary & Desktop Integration | Done |
+| 15 | Observability, Audit Logs & Security Hardening | Done |
+| 16 | Local Development, CI, Preview Deploy & Closed Beta Release | Done |
+| 17 | TUI Command-Line Client | Done |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -228,7 +228,90 @@ From `AGENTS.md`:
 
 ---
 
-## 7. Open Questions / Next Steps
+## 6.5 Current Implementation Stats (as of 2026-07-05, revised post-fix session)
+
+- **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
+- **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing
+- **Coverage**: 99.83% statements/lines, 92.02% branches, 99.23% functions across core domain + shared packages (up from ~97.6% / ~85.6%)
+- **Tests**: 72 tests across 17 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, and TUI CLI (up from 63 tests)
+- **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
+- **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)
+- **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage including missing-key and revoke edge cases
+- **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface; inline `/help` command handler in `botService.invokeCommand` generates bot response message and broadcasts via WS — **fixed in 2026-07-05 session** to correctly read `payload.messageId` from the bot.response return shape and to match help bot via declared `/help` commands rather than requiring exact name `"help"`
+- **Bot command dispatch**: `invokeCommand` no longer double-dispatches events — `publishEvent` already calls `dispatchToBots`, the removed duplicate call prevented events from being enqueued twice; verified by `"dispatches bot command events once"` test
+- **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce) — all using `NexusBotClient`; notification and welcome bots now have branch-level tests for non-triggering payloads
+- **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage
+- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list with timestamps and send status (sending/sent/failed), slash command auto-detect — messages starting with `/` automatically route via `bot.command.invoke` WS event; **demo fallback** added for `/help` when no real WS connection exists; bot input action slot, E2E policy/tombstone UI, right sidebar for channel group members with add/remove, workspace member list with search and hover actions (DM/ban), channel/DM creation inline, functional settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), message deduplication via clientMsgId
+- **Desktop shell**: Electron main/preload boundary with secure BrowserWindow options, dev/prod renderer loading, tray menu, native notification IPC, clipboard/window IPC, and auto-update placeholder channel
+- **Observability**: Pino structured logging with redaction, request IDs on all HTTP/WS, Prometheus metrics (HTTP requests, WS connections, message sends, auth failures, bot queue depth, Redis errors), audit log service with in-memory events, centralized error codes, dependency audit in CI, bot command logging in WS gateway
+- **Dev/CI**: Docker Compose (PostgreSQL 16 + Redis 7), GitHub Actions (lint/typecheck/test/coverage/build/security/smoke), `pnpm` scripts for all operations, seed command, TUI smoke scripts
+- **TUI**: Commander CLI with 12 commands, WebSocket real-time messaging, Ink 6 interactive chat UI (compatible with React 19), token persistence to `.env.tui`, real E2E smoke, real bot smoke, slash command detection; **bot smoke install URL fixed** — now correctly passes `workspaceId` as a query parameter
+- **Bot engine**: Inline `/help` handler generates response directly without requiring bot client connection and matches bots by `/help` command declaration rather than exact manifest name; bot install via REST API; `GET /workspaces/:id/members` and `GET /channels/:id/members` REST endpoints for member lists
+- **Docs**: GitHub README and README.zh-CN (detailed bilingual), QUICKSTART.md and QUICKSTART.zh-CN.md (step-by-step setup), beta checklist, known limitations, backup/restore procedure, AI session context document
+- **Git history**: Phase 1 codebase committed in 6 functional groups: monorepo tooling, shared contracts + signal, server backend, bot SDK + first-party bots, web/desktop/TUI clients, documentation
+- **.gitignore**: Extended to ignore local tui tokens (`.env.tui*`), Playwright/MCP artifacts, screenshots/videos, and Electron packaging outputs
+
+---
+
+## 7. Recent Fixes (2026-07-05 Post-Phase-1 Review Session)
+
+### 7.1 Bot `/help` Broadcast Fix
+
+The WebSocket gateway at `apps/server/src/ws/gateway.ts:65-68` was reading `messageId` from the top-level result object, but `botService.invokeCommand` returns `{ type: "bot.response", payload: { messageId, ... } }`. The gateway now reads `result.payload.messageId` instead. This was the primary reason `/help` appeared to produce no response — the bot response message was created in the in-memory store but never broadcast to the channel.
+
+### 7.2 Help Bot Name Matching
+
+`botService.invokeCommand` at `apps/server/src/domain/bots/service.ts:67` previously required the installed bot's `manifest.name` to equal `"help"` exactly. Changed to match any bot whose `manifest.commands` includes a `/help` entry, so `HelpBot`, `Help`, and future variants all trigger the inline response.
+
+### 7.3 Double Event Dispatch
+
+`invokeCommand` called `this.publishEvent(...)` (which internally calls `dispatchToBots`) and then redundantly called `this.dispatchToBots(event)` again. Removed the duplicate so each bot command event is enqueued exactly once.
+
+### 7.4 TUI Bot Smoke Install URL
+
+`apps/tui/src/commands/smoke.ts:169-172` passed `workspaceId` via a custom `x-query-workspace-id` header, but the server's `POST /api/v1/bots/install` reads `workspaceId` from the URL query string. Fixed to use `?workspaceId=...` in the request URL.
+
+### 7.5 Web Demo `/help` Fallback
+
+The web client demo mode uses a fake token (`demo-access-token`) that cannot establish a real WebSocket connection. Added a local-only fallback in `apps/web/src/components/App.tsx` that synthesizes a help bot response directly in the message store when `/help` is typed in demo mode, so the "Try /help" prompt in the welcome message actually works.
+
+### 7.6 Coverage Enhancement
+
+Coverage improved from ~97.6%/85.6% to 99.83%/92.02% by adding tests for:
+- `InMemoryRefreshSessionStore` and `RedisRefreshSessionStore` lifecycle and edge cases
+- Auth conflict, missing user, missing current user branches
+- `listMembers`, `listChannelMembers`, `canManageChannel` workspace service boundaries
+- Self-ack read receipt, missing read receipt flush, private channel FORBIDDEN paths
+- Blocked attachment file validation, empty message attachment association
+- Bot SDK reconnect lifecycle (connect/disconnect handlers with fake timers)
+- Bot SDK generic `on()` event alias, 429 retry header fallback
+- Bot SDK `getChannelInfo` missing match, shared `apiSuccessSchema` builder
+- WelcomeBot empty payload/displayName, NotificationBot non-announce/no-channel branches
+
+### 7.7 `.gitignore` Updates
+
+Added rules for: `.env.tui*` (with `!.env.example` exception), `.playwright-mcp/`, `playwright-report/`, `test-results/`, common image/video globs (`*.png`, `*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.mp4`, `*.webm`), and Electron packaging outputs (`release/`, `*.dmg`, `*.exe`, `*.AppImage`).
+
+### 7.8 Documentation
+
+Created `README.md` (English, full GitHub-ready), `README.zh-CN.md` (Chinese translation), `QUICKSTART.md` (English step-by-step setup guide), and `QUICKSTART.zh-CN.md` (Chinese translation). All mention Phase 1 limitations explicitly.
+
+### 7.9 Commit Split
+
+Phase 1 codebase committed in 6 functional groups on branch `dev`:
+
+```
+4b7d9e2 docs: document phase 1 quickstart and status
+1be00cf feat(clients): add web desktop and tui clients
+ce1f74b feat(bots): add bot sdk and first-party bots
+c9158fe feat(server): implement phase 1 backend
+1852dee feat: add shared contracts and signal facade
+9f9afc0 chore: scaffold monorepo tooling
+```
+
+---
+
+## 8. Open Questions / Next Steps
 
 1. **Framework finalization**: Hono vs Fastify — decision pending on whether serverless/edge deployment is a near-term requirement. Hono is the research recommendation; Fastify is the fallback if JSON throughput becomes a bottleneck and edge deployment is ruled out.
 
@@ -248,4 +331,4 @@ From `AGENTS.md`:
 
 9. **CI/CD pipeline**: Complete pipeline design including dependency security scanning (Snyk, Socket.dev), E2E testing with Playwright, Electron packaging/signing/notarization, and auto-update publishing flow.
 
-10. **Type sharing strategy**: The `@nexus-chat/shared` package needs to define authoritative type definitions for message events, Socket.IO event contracts, Bot SDK types, and E2EE protocol messages — enabling end-to-end type safety across the monorepo.
+10. **Type sharing strategy**: Partially resolved. The `@nexus-chat/shared` package already defines 40+ canonical Zod schemas for message events, Socket.IO event contracts, Bot SDK types, and E2EE protocol messages. The remaining gap is end-to-end type propagation from schemas through service interfaces into client-side state management — the schemas exist but are not yet enforced at every compile-time boundary.
