@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 04 — Phase 1 — Authentication, Sessions & Security Baseline

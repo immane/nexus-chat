@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 07 — Phase 1 — Message Service, State Machine & Core IM Actions

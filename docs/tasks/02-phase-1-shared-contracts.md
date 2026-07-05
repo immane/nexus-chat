@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 02 — Phase 1 — Shared Contracts, Event Schemas & Runtime Validation

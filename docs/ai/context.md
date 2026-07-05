@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-06-24
-> Current status: Phase 1 implementation tasks generated under `docs/tasks/`
+> Last updated: 2026-07-05 (post-Phase 1 review)
+> Current status: Phase 1 complete (17/17 tasks done)
 
 ## 1. Project Overview
 
@@ -192,25 +192,25 @@ Componentized UI architecture with Atomic Design methodology across three packag
 
 Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 
-| # | Task |
-|---|------|
-| 01 | Project Scaffold & Developer Workflow |
-| 02 | Shared Contracts, Event Schemas & Runtime Validation |
-| 03 | Database Schema, Migrations & Persistence Boundary |
-| 04 | Authentication, Sessions & Security Baseline |
-| 05 | Core Gateway: REST, WebSocket, Rate Limits & Protocol |
-| 06 | Workspace, Channel, DM & Membership Services |
-| 07 | Message Service, State Machine & Core IM Actions |
-| 08 | Attachment Service Foundation & E2E-Safe File Boundary |
-| 09 | Signal Protocol 1:1 DM E2EE |
-| 10 | Bot Engine Core, Event Dispatch & Command Invocation |
-| 11 | Node.js Bot SDK Reference Implementation |
-| 12 | Minimal First-Party Base Bots |
-| 13 | React Web Client Shell & Core Chat UI |
-| 14 | Electron Shell, IPC Boundary & Desktop Integration |
-| 15 | Observability, Audit Logs & Security Hardening |
-| 16 | Local Development, CI, Preview Deploy & Closed Beta Release |
-| 17 | TUI Command-Line Client |
+| # | Task | Status |
+|---|------|--------|
+| 01 | Project Scaffold & Developer Workflow | Done |
+| 02 | Shared Contracts, Event Schemas & Runtime Validation | Done |
+| 03 | Database Schema, Migrations & Persistence Boundary | Done |
+| 04 | Authentication, Sessions & Security Baseline | Done |
+| 05 | Core Gateway: REST, WebSocket, Rate Limits & Protocol | Done |
+| 06 | Workspace, Channel, DM & Membership Services | Done |
+| 07 | Message Service, State Machine & Core IM Actions | Done |
+| 08 | Attachment Service Foundation & E2E-Safe File Boundary | Done |
+| 09 | Signal Protocol 1:1 DM E2EE | Done |
+| 10 | Bot Engine Core, Event Dispatch & Command Invocation | Done |
+| 11 | Node.js Bot SDK Reference Implementation | Done |
+| 12 | Minimal First-Party Base Bots | Done |
+| 13 | React Web Client Shell & Core Chat UI | Done |
+| 14 | Electron Shell, IPC Boundary & Desktop Integration | Done |
+| 15 | Observability, Audit Logs & Security Hardening | Done |
+| 16 | Local Development, CI, Preview Deploy & Closed Beta Release | Done |
+| 17 | TUI Command-Line Client | Done |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -228,7 +228,28 @@ From `AGENTS.md`:
 
 ---
 
-## 7. Open Questions / Next Steps
+## 6.5 Current Implementation Stats (as of 2026-07-05)
+
+- **Monorepo layout**: 5 apps + 6 packages across pnpm workspaces with Turborepo
+- **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing
+- **Coverage**: ~97.6% statements/lines, ~85.6% branches across core domain + shared packages
+- **Tests**: 63 tests across server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, and TUI CLI
+- **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events)
+- **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired; runtime uses in-memory adapters)
+- **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API; inline `/help` command handler in `botService.invokeCommand` generates bot response message and broadcasts via WS without requiring connected bot client
+- **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce) — all using `NexusBotClient`
+- **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage
+- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list with timestamps and send status (sending/sent/failed), slash command auto-detect — messages starting with `/` automatically route via `bot.command.invoke` WS event, bot input action slot, E2E policy/tombstone UI, right sidebar for channel group members with add/remove, workspace member list with search and hover actions (DM/ban), channel/DM creation inline, functional settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), message deduplication via clientMsgId
+- **Desktop shell**: Electron main/preload boundary with secure BrowserWindow options, dev/prod renderer loading, tray menu, native notification IPC, clipboard/window IPC, and auto-update placeholder channel
+- **Observability**: Pino structured logging with redaction, request IDs on all HTTP/WS, Prometheus metrics (HTTP requests, WS connections, message sends, auth failures, bot queue depth, Redis errors), audit log service with in-memory events, centralized error codes, dependency audit in CI, bot command logging in WS gateway
+- **Dev/CI**: Docker Compose (PostgreSQL 16 + Redis 7), GitHub Actions (lint/typecheck/test/coverage/build/security/smoke), `pnpm` scripts for all operations, seed command, TUI smoke scripts
+- **TUI**: Commander CLI with 12 commands, WebSocket real-time messaging, Ink 6 interactive chat UI (compatible with React 19), token persistence to `.env.tui`, real E2E smoke, real bot smoke, slash command detection — `send` command with `/` prefix automatically routes via `bot.command.invoke` WS event
+- **Bot engine**: Inline `/help` handler generates response directly without requiring bot client connection; bot install via REST API; `GET /workspaces/:id/members` and `GET /channels/:id/members` REST endpoints for member lists
+- **Docs**: README, beta checklist, known limitations, backup/restore procedure
+
+---
+
+## 8. Open Questions / Next Steps
 
 1. **Framework finalization**: Hono vs Fastify — decision pending on whether serverless/edge deployment is a near-term requirement. Hono is the research recommendation; Fastify is the fallback if JSON throughput becomes a bottleneck and edge deployment is ruled out.
 

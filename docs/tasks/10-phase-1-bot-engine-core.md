@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 10 — Phase 1 — Bot Engine Core, Event Dispatch & Command Invocation

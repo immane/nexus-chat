@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 08 — Phase 1 — Attachment Service Foundation & E2E-Safe File Boundary

@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 11 — Phase 1 — Node.js Bot SDK Reference Implementation

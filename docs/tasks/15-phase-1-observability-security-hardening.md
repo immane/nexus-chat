@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 15 — Phase 1 — Observability, Audit Logs & Security Hardening

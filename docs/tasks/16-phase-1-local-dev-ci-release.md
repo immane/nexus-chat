@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 16 — Phase 1 — Local Development, CI, Preview Deploy & Closed Beta Release

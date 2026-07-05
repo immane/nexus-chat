@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: draft
+status: done
 ---
 
 # 05 — Phase 1 — Core Gateway: REST, WebSocket, Rate Limits & Protocol
