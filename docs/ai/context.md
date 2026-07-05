@@ -181,8 +181,9 @@ Componentized UI architecture with Atomic Design methodology across three packag
 - Channel member management with owner/admin/member RBAC
 - Bot framework: event-driven engine, WebSocket SDK, slash commands, basic message reply
 - JWT authentication with refresh token rotation
-- 1:1 DM E2EE via Signal Protocol (X3DH + Double Ratchet)
+- 1:1 DM E2EE via Signal Protocol (X3DH + Double Ratchet), including read-once/disappearing message policy
 - Desktop client (Electron) with virtual scrolling, offline queue, system tray
+- TUI command-line client for auth, workspace/channel navigation, messaging, and E2E/bot smoke tests
 - Security baseline (Helmet, CSP, CORS, rate limiting, audit logs)
 - Shared PostgreSQL with schema isolation
 - Caddy/Nginx reverse proxy
@@ -209,10 +210,11 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 14 | Electron Shell, IPC Boundary & Desktop Integration |
 | 15 | Observability, Audit Logs & Security Hardening |
 | 16 | Local Development, CI, Preview Deploy & Closed Beta Release |
+| 17 | TUI Command-Line Client |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
-- **Phase 3 (Scale, 9-18 months)**: pgvector RAG, multi-agent AI, disappearing messages, Sealed Sender, Safety Number verification, Bot marketplace, multi-region deployment
+- **Phase 3 (Scale, 9-18 months)**: pgvector RAG, multi-agent AI, Sealed Sender, Safety Number verification, advanced E2E retention controls, Bot marketplace, multi-region deployment
 
 ---
 

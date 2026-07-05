@@ -24,6 +24,7 @@ Define authoritative shared contracts for REST APIs, WebSocket events, message c
 - Add bot event schemas.
 - Add attachment reference schemas.
 - Add Signal/E2E metadata schemas.
+- Add E2E disappearing-message policy schemas.
 - Export TypeScript types derived from Zod.
 
 ## Non-Goals
@@ -111,6 +112,18 @@ export const MessageContentSchema = z.object({
 });
 ```
 
+### E2E Disappearing Message Policy
+
+```ts
+export const E2eDisappearingPolicySchema = z.object({
+  mode: z.enum(['none', 'read_once', 'ttl']),
+  ttlSeconds: z.number().int().min(30).max(604_800).optional(),
+  expiresAt: z.string().datetime().optional(),
+});
+```
+
+The policy is metadata only. For E2E messages, the server stores ciphertext plus policy/tombstone fields; it must never inspect plaintext to enforce expiration.
+
 ### Bot Command Invocation
 
 ```ts
@@ -147,6 +160,7 @@ export const BotCommandInvokeSchema = z.object({
 - Validate sample `message.send` event.
 - Validate sample `bot.command.invoke` event.
 - Validate sample attachment references with no URL field.
+- Validate sample E2E read-once and TTL disappearing policies.
 
 ## Dependencies
 

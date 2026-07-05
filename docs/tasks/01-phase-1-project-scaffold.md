@@ -43,7 +43,8 @@ nexus-chat/
 ├── apps/
 │   ├── server/
 │   ├── web/
-│   └── desktop/
+│   ├── desktop/
+│   └── tui/
 ├── packages/
 │   ├── shared/
 │   ├── ui/

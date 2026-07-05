@@ -22,6 +22,7 @@ Build the React renderer used by both web development and Electron desktop. The 
 - Slash command autocomplete from installed bot manifests.
 - Generic `InputActionBar` extension slot.
 - E2E mode badge/banner.
+- E2E read-once/disappearing message controls and expired-message tombstone rendering.
 - Optimistic send state for messages.
 
 ## Non-Goals
@@ -52,6 +53,7 @@ Build the React renderer used by both web development and Electron desktop. The 
 - Slash command suggestions are generated from bot manifests.
 - Input action bar accepts bot-registered actions.
 - E2E channels show clear no-bot warning.
+- E2E read-once and TTL messages show clear policy labels before send and tombstones after expiry.
 
 ## Test Plan
 
@@ -59,6 +61,7 @@ Build the React renderer used by both web development and Electron desktop. The 
 - Store tests for message normalization.
 - Command autocomplete test from mock bot manifest.
 - Virtual list scroll test.
+- Disappearing-message policy and tombstone rendering tests.
 
 ## Dependencies
 

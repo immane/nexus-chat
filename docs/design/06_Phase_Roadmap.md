@@ -43,7 +43,7 @@ The roadmap is intentionally ambitious, but implementation should remain milesto
 
 | Track | Must Ship Before Beta | Stretch / Can Slip |
 |-------|-----------------------|--------------------|
-| **Phase 1 Core** | Auth, workspace, channels, normal-mode text messages, basic desktop shell, WebSocket gateway | DM E2E, all 7 base bots, auto-update polish |
+| **Phase 1 Core** | Auth, workspace, channels, normal-mode text messages, basic desktop shell, TUI smoke client, WebSocket gateway | Full Electron polish, all 7 base bots, auto-update polish |
 | **Phase 1 Bot Infra** | Bot registration, token validation, command invocation, one reference bot | Full first-party bot catalog |
 | **Phase 2 Core** | Attachment Service, full-text search, threads, presence/read receipts, packaging | Group E2E if Signal Sender Key complexity delays launch |
 | **Phase 2 AI** | Streaming protocol, `/ai ask/summarize/translate/draft`, full-text search tool | pgvector RAG, autonomous recap, advanced tools |
@@ -70,10 +70,12 @@ Deliver a working Slack-like IM that demonstrates the key differentiator: **per-
 | **Messages** | Text messages, message state machine (Draft → Sending → Sent → Delivered → Read), cursor-based pagination (UUID v7), edit/delete (soft), emoji reactions | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Rich Content** | Markdown rendering (markdown-it + Shiki for code), emoji picker (emoji-mart), @mention autocomplete | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **DM E2E** | Signal Protocol for 1:1 DMs, X3DH key negotiation, Double Ratchet, client-side encrypt/decrypt, server opaque relay, PreKeyBundle server | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
+| **E2E Disappearing Messages** | Read-once and timer-based expiration policy for 1:1 E2E DMs; server stores only policy metadata, ciphertext, tombstone state, and expiry timestamps | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Bot (basic)** | Bot registration + token issuance (`nxbot_v1_xxx`), `/slash` command parse + routing, bot WebSocket connection lifecycle, Redis Streams event bus | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
 | **Gateway** | Hono HTTP server + Socket.IO WebSocket, JWT auth middleware, rate limiting (sliding window), CORS/Helmet.js/CSP, Zod validation, heartbeat (30s) | [02 - Gateway](02_Long_Connection_and_Core_Gateway_Layer.md) |
 | **UI Shell** | Single-window Electron layout (sidebar + chat view + detail panel), Zustand stores (auth/workspace/channel/message/presence/signal/ui), react-virtuoso message list, dark/light theme, Tailwind CSS v4 | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **Desktop Shell** | Electron window management, system tray, native notifications, auto-update (electron-updater), contextBridge IPC | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
+| **TUI Client** | Ink + Commander terminal client for login, workspace/channel navigation, normal messaging, E2E DM smoke tests, and bot command smoke tests | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
 | **Infrastructure** | Monolith deployment (Hono + Socket.IO + Bot Engine in one process), PostgreSQL 16, Redis 7, Pino structured logging, dotenv config | [00 - System Architecture](00_System_High_Level_Architecture.md) |
 
 ### 2.3 Base Bots (MVP)
@@ -99,6 +101,7 @@ Deliver a working Slack-like IM that demonstrates the key differentiator: **per-
 | `server` | `apps/server/` | Monolith backend |
 | `web` | `apps/web/` | React SPA frontend |
 | `desktop` | `apps/desktop/` | Electron shell |
+| `tui` | `apps/tui/` | Terminal UI / CLI client |
 
 ### 2.5 Week-by-Week Breakdown
 
@@ -108,11 +111,11 @@ Deliver a working Slack-like IM that demonstrates the key differentiator: **per-
 | 3–4 | Auth + Gateway skeleton | Registration/login, JWT, Hono routes, Socket.IO setup, middleware chain |
 | 5–6 | Workspace + Channel CRUD | Workspace management, channel create/join/archive, DM creation flow |
 | 7–8 | Message pipeline | Send/receive via WS, message state machine, cursor pagination, edit/delete |
-| 9–10 | Signal Protocol integration | PreKeyBundle server, X3DH + Double Ratchet, E2E DM flow |
+| 9–10 | Signal Protocol integration | PreKeyBundle server, X3DH + Double Ratchet, E2E DM flow, read-once/disappearing policy |
 | 11–12 | Bot engine + Base bots (3) | Bot registration, slash command routing, Redis Streams, Welcome/Help/Notification bots |
 | 13 | Remaining base bots (4) | Reminder, Poll, Webhook, Kudos bots |
-| 14 | Electron shell + Polish | Window management, tray, notifications, dark/light theme, error states |
-| 15–16 | Testing + Bug fixing + Closed beta | Integration tests, performance audit, closed beta deployment |
+| 14 | Electron shell + TUI client | Window management, tray, notifications, dark/light theme, terminal login/chat flows |
+| 15–16 | Testing + Bug fixing + Closed beta | Integration tests, TUI smoke tests, performance audit, closed beta deployment |
 
 ---
 
@@ -183,7 +186,7 @@ Enterprise-grade platform with voice/video, multi-agent AI, SSO, and a public bo
 |-------------|-------------|------------------|
 | **Voice & Video** | 1:1 and group voice/video calls (WebRTC), screen sharing, call history, raise hand, push-to-talk | — |
 | **SSO & OAuth** | SAML/OIDC integration, Google/Microsoft/GitHub OAuth login, directory sync (SCIM), enterprise identity provider | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
-| **Advanced E2E** | Verified safety numbers (QR code compare), device management (list/revoke), disappearing messages, sealed sender, E2E audit log | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
+| **Advanced E2E** | Verified safety numbers (QR code compare), device management (list/revoke), sealed sender, transparency/audit UX, advanced retention policy controls | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Multi-Device Sync** | Per-device PreKeyBundle management, multi-device session relay, device enrollment/revocation | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Enterprise Admin** | Admin dashboard, workspace analytics, audit logs, data retention policies, compliance exports (GDPR/CCPA), custom data residency regions | — |
 | **Enterprise Bots** | AutoMod (content filtering, spam detection, rate limiting), Status Bot (service health monitoring), Scheduler Bot (meeting scheduling), Meeting Notes Bot | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
@@ -290,7 +293,7 @@ Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 
 | 17 | Status Bot | `@StatusBot` | DB (service subscriptions) | Low |
 | 18 | Scheduler Bot | `@SchedulerBot` | DB (meeting proposals, availability) | Medium |
 | 19 | Meeting Notes Bot | `@MeetingBot` | DB (transcripts, summaries) | Medium |
-| 18 | AutoMod Bot | `@AutoMod` | DB (rules, violation log) | High |
+| 20 | AutoMod Bot | `@AutoMod` | DB (rules, violation log) | High |
 | — | Bot Marketplace | — | — | — |
 
 ### Bot Implementation Strategy
@@ -372,6 +375,7 @@ Week 11-12: M6 Search Tool + M7 Polish        M13: Custom Agents
 | `apps/server` | Auth, Workspace, Channel, Message, Signal, Bot, Presence | + File, Search, Thread, ReadReceipt, Webhook | + SSO, Enterprise, Analytics |
 | `apps/web` | AuthPage, ChatPage, SettingsPage | + FilePreview, SearchPage, ThreadPanel, PresenceIndicator, StreamRenderer | + VoiceCall, AdminConsole |
 | `apps/desktop` | Window, Tray, Notifications, Updater | + Offline cache, protocol links | + Screen share, native call controls |
+| `apps/tui` | Login, workspace/channel navigation, chat, E2E/bot smoke commands | + File/search/thread smoke commands | + Admin and incident-response commands |
 
 ---
 
