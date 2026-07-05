@@ -13,7 +13,7 @@ import { logger } from "../observability/logger.js";
 import { writeAuditEvent } from "../observability/audit.js";
 
 export type WsGatewayResponse = { ok: true; data: unknown } | { ok: false; error: { code: string; message: string } };
-export type WsBroadcaster = { toChannel(channelId: string, event: unknown): void; toUser(userId: string, event: unknown): void };
+export type WsBroadcaster = { toChannel(channelId: string, event: unknown): void; toUser(userId: string, event: unknown): void; relayP2pToUser(userId: string, envelope: unknown): void };
 
 type RateBucket = { count: number; resetAt: number };
 
@@ -92,6 +92,18 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     if ("ok" in result) return result;
     for (const batch of messageService.flushReadReceipts()) broadcaster.toChannel(batch.channelId, { type: "message.read", payload: batch, timestamp: new Date().toISOString() });
     return { ok: true, data: result };
+  }
+
+  if (envelope.data.type === "p2p.offer" || envelope.data.type === "p2p.answer" || envelope.data.type === "p2p.ice-candidate" || envelope.data.type === "p2p.hangup") {
+    const targetUserId = (envelope.data.payload as Record<string, unknown>)?.targetUserId;
+    if (typeof targetUserId !== "string" || targetUserId.length < 1) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Missing targetUserId" } };
+    broadcaster.relayP2pToUser(targetUserId, { ...envelope.data, _senderUserId: userId });
+    return { ok: true, data: { relayed: true } };
+  }
+
+  if (envelope.data.type === "p2p.status") {
+    logger.info({ userId, peerUserId: (envelope.data.payload as Record<string, unknown>)?.targetUserId, status: (envelope.data.payload as Record<string, unknown>)?.status }, "p2p.status");
+    return { ok: true, data: { acknowledged: true } };
   }
 
   return { ok: false, error: { code: "VALIDATION_FAILED", message: "Unsupported client event" } };

@@ -8,6 +8,11 @@ import {
   E2eDisappearingPolicySchema,
   WsBotCommandInvokeEnvelopeSchema,
   WsMessageSendEnvelopeSchema,
+  WsP2pOfferEnvelopeSchema,
+  WsP2pAnswerEnvelopeSchema,
+  WsP2pIceCandidateEnvelopeSchema,
+  WsP2pHangupEnvelopeSchema,
+  WsP2pStatusEnvelopeSchema,
   apiFail,
   apiOk,
   apiSuccessSchema,
@@ -20,6 +25,12 @@ import {
   loginRequestSchema,
   messageSchema,
   normalMessageContentSchema,
+  p2pAnswerSchema,
+  p2pHangupSchema,
+  p2pIceCandidateSchema,
+  p2pOfferSchema,
+  p2pStatusSchema,
+  p2pTargetSchema,
   registerRequestSchema,
   sendMessageSchema,
   signalPreKeyBundleSchema,
@@ -96,5 +107,44 @@ describe("shared contracts", () => {
 
   it("builds typed success envelopes", () => {
     expect(apiSuccessSchema(z.object({ id: idSchema })).parse({ ok: true, data: { id: "resource-1" } })).toEqual({ ok: true, data: { id: "resource-1" } });
+  });
+
+  it("validates p2p signaling schemas", () => {
+    const target = p2pTargetSchema.parse({ targetUserId: "alice-user-1234" });
+    expect(target.targetUserId).toBe("alice-user-1234");
+    expect(target.targetDeviceId).toBeUndefined();
+    const targetWithDevice = p2pTargetSchema.parse({ targetUserId: "alice-user-1234", targetDeviceId: "device-01" });
+    expect(targetWithDevice.targetDeviceId).toBe("device-01");
+    expect(() => p2pTargetSchema.parse({ targetUserId: "short" })).toThrow();
+
+    const offer = p2pOfferSchema.parse({ targetUserId: "bob-user-5678", sdp: "v=0\r\no=- ..." });
+    expect(offer.sdp).toBe("v=0\r\no=- ...");
+    expect(() => p2pOfferSchema.parse({ targetUserId: "bob-user-5678", sdp: "" })).toThrow();
+
+    const answer = p2pAnswerSchema.parse({ targetUserId: "alice-user-1234", sdp: "v=0\r\no=- ..." });
+    expect(answer.sdp).toBe("v=0\r\no=- ...");
+
+    const ice = p2pIceCandidateSchema.parse({
+      targetUserId: "bob-user-5678",
+      candidate: { candidate: "candidate:1 1 UDP 2130706431 10.0.0.1 54321 typ host", sdpMid: "0", sdpMLineIndex: 0 }
+    });
+    expect(ice.candidate.candidate).toContain("UDP");
+    expect(ice.candidate.sdpMLineIndex).toBe(0);
+
+    const hangup = p2pHangupSchema.parse({ targetUserId: "bob-user-5678" });
+    expect(hangup.targetUserId).toBe("bob-user-5678");
+
+    const statusConnected = p2pStatusSchema.parse({ targetUserId: "bob-user-5678", status: "connected" });
+    expect(statusConnected.status).toBe("connected");
+    const statusFailed = p2pStatusSchema.parse({ targetUserId: "bob-user-5678", status: "failed", reason: "NAT blocked" });
+    expect(statusFailed.reason).toBe("NAT blocked");
+    expect(() => p2pStatusSchema.parse({ targetUserId: "bob-user-5678", status: "unknown" as never })).toThrow();
+
+    const ts = new Date().toISOString();
+    expect(WsP2pOfferEnvelopeSchema.parse({ type: "p2p.offer", payload: { targetUserId: "bob-user-5678", sdp: "v=0\r\no=-" }, timestamp: ts }).type).toBe("p2p.offer");
+    expect(WsP2pAnswerEnvelopeSchema.parse({ type: "p2p.answer", payload: { targetUserId: "alice-user-1234", sdp: "v=0\r\no=-" }, timestamp: ts }).type).toBe("p2p.answer");
+    expect(WsP2pIceCandidateEnvelopeSchema.parse({ type: "p2p.ice-candidate", payload: { targetUserId: "bob-user-5678", candidate: { candidate: "candidate:1 1 UDP 2130706431 10.0.0.1 54321 typ host", sdpMid: "0", sdpMLineIndex: 0 } }, timestamp: ts }).type).toBe("p2p.ice-candidate");
+    expect(WsP2pHangupEnvelopeSchema.parse({ type: "p2p.hangup", payload: { targetUserId: "bob-user-5678" }, timestamp: ts }).type).toBe("p2p.hangup");
+    expect(WsP2pStatusEnvelopeSchema.parse({ type: "p2p.status", payload: { targetUserId: "bob-user-5678", status: "connected" }, timestamp: ts }).type).toBe("p2p.status");
   });
 });

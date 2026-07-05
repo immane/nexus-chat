@@ -23,6 +23,7 @@ describe("nexus CLI program", () => {
     expect(names).toContain("read");
     expect(names).toContain("send");
     expect(names).toContain("api-smoke");
+    expect(names).toContain("p2p-smoke");
     expect(names).toContain("e2e-smoke");
     expect(names).toContain("bot-smoke");
   });

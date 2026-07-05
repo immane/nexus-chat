@@ -603,3 +603,62 @@ export const runApiSmoke = async () => {
 
   console.log("api smoke ok — all endpoints passed");
 };
+
+export const runP2pSmoke = async () => {
+  const token = getAccessToken();
+  if (!token) throw new Error("Not authenticated. Run 'nexus login' first.");
+
+  console.log("P2P smoke test");
+
+  // Verify P2P schemas are importable
+  const schemas = await import("@nexus-chat/shared");
+  const p2pSchemaKeys = ["p2pOfferSchema", "p2pAnswerSchema", "p2pIceCandidateSchema", "p2pHangupSchema", "p2pStatusSchema"];
+  for (const key of p2pSchemaKeys) {
+    if (!(key in schemas)) throw new Error(`${key}: schema not found in @nexus-chat/shared`);
+    console.log(`  ✓ ${key}`);
+  }
+
+  // Connect WS and send P2P signaling events
+  const socket = createSocket();
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error("WebSocket connect timeout")), 5000);
+    socket.on("connect", () => { clearTimeout(timeout); resolve(); });
+    socket.connect();
+  });
+
+  await okSocket("p2p.status", () =>
+    new Promise<{ ok: boolean }>((resolve) => {
+      socket.emit("event", {
+        type: "p2p.status",
+        payload: { targetUserId: "dummy-user-12345678", status: "connected" },
+        timestamp: new Date().toISOString(),
+        encrypted: false
+      }, (response: { ok: boolean }) => resolve(response));
+    }).then((r) => { if (!r.ok) throw new Error("p2p.status rejected"); })
+  );
+
+  await okSocket("p2p.offer", () =>
+    new Promise<{ ok: boolean; data?: { relayed?: boolean } }>((resolve) => {
+      socket.emit("event", {
+        type: "p2p.offer",
+        payload: { targetUserId: "dummy-user-12345678", sdp: "v=0\r\no=- 1 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0" },
+        timestamp: new Date().toISOString(),
+        encrypted: false
+      }, (response: { ok: boolean; data?: { relayed?: boolean } }) => resolve(response));
+    }).then((r) => { if (!r.ok) throw new Error("p2p.offer rejected"); })
+  );
+
+  socket.disconnect();
+
+  console.log("p2p smoke ok — schemas and signaling verified");
+};
+
+const okSocket = async (label: string, fn: () => Promise<unknown>): Promise<unknown> => {
+  try {
+    const result = await fn();
+    console.log(`  ✓ ${label}`);
+    return result;
+  } catch (err) {
+    throw new Error(`${label} FAILED: ${String(err)}`);
+  }
+};

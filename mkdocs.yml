@@ -57,6 +57,7 @@ nav:
       - Async Bot Engine & Event Dispatch: design/04_Async_Bot_Engine_and_Event_Dispatch_Layer.md
       - AI Agent Orchestration & Streaming: design/05_AI_Agent_Orchestration_and_Streaming.md
       - Phase Roadmap: design/06_Phase_Roadmap.md
+      - P2P DM Direct Connection: design/07_P2P_DM_Direct_Connection.md
   - Implementation Tasks:
       - Phase 1 — Project Scaffold: tasks/01-phase-1-project-scaffold.md
       - Phase 1 — Shared Contracts: tasks/02-phase-1-shared-contracts.md
@@ -75,6 +76,7 @@ nav:
       - Phase 1 — Observability & Hardening: tasks/15-phase-1-observability-security-hardening.md
       - Phase 1 — Local Dev, CI & Release: tasks/16-phase-1-local-dev-ci-release.md
       - Phase 1 — TUI CLI: tasks/17-phase-1-tui-cli.md
+      - Phase 1 — P2P DM Direct Connection: tasks/18-phase-1-p2p-dm-direct.md
   - Research:
       - Frontend Architecture: research/frontend-architecture.md
       - Backend IM & State Machine: research/backend-im-state-machine.md
