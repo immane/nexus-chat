@@ -1,0 +1,70 @@
+node_modules/
+.pnpm-store/
+dist/
+.turbo/
+coverage/
+.git/
+.gitignore
+.obsidian/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env (use compose vars)
+.env
+.env.*
+!.env.example
+
+# Apps not needed for server image
+apps/desktop/
+apps/web/
+apps/tui/
+
+# Packages not needed for server image
+packages/ui/
+packages/bot-sdk/
+packages/bots/
+packages/signal/
+
+# Docs
+docs/
+docs-zh/
+site/
+mkdocs-en.yml
+mkdocs-zh.yml
+AGENTS.md
+*.md
+
+# Test & misc
+test-results/
+playwright-report/
+.playwright-mcp/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.webm
+
+# CI
+.github/
+scripts/
+
+# Logs
+*.log
+logs/
+
+# Electron
+out/
+release/
+*.dmg
+*.exe
+*.AppImage
