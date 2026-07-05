@@ -17,6 +17,7 @@ export class HybridTransport {
     private wsSend: WsSend,
     private onMessage: MessageHandler
   ) {
+    this.pool.onDataChannelMessage = this.handleIncomingP2pMessage;
     this.unsubscribe = subscribeSignaling(socket, this.handleSignaling);
   }
 
@@ -30,7 +31,10 @@ export class HybridTransport {
     const dc = this.pool.getChannel(input.targetUserId);
 
     if (dc && dc.readyState === "open") {
-      return this.sendViaP2p(dc, input);
+      const result = this.sendViaP2p(dc, input);
+      if (result.ok) return result;
+      this.pool.markFailed(input.targetUserId);
+      return this.sendViaRelay(input);
     }
 
     if (!this.pool.isInCooldown(input.targetUserId)) {
@@ -42,7 +46,9 @@ export class HybridTransport {
         await this.waitForConnection(input.targetUserId, P2P_CONNECTION_TIMEOUT_MS);
         const newDc = this.pool.getChannel(input.targetUserId);
         if (newDc && newDc.readyState === "open") {
-          return this.sendViaP2p(newDc, input);
+          const result = this.sendViaP2p(newDc, input);
+          if (result.ok) return result;
+          this.pool.markFailed(input.targetUserId);
         }
       } catch {
         this.pool.markFailed(input.targetUserId);
@@ -170,6 +176,7 @@ export class HybridTransport {
 
   destroy(): void {
     this.unsubscribe?.();
+    if (this.pool.onDataChannelMessage === this.handleIncomingP2pMessage) delete this.pool.onDataChannelMessage;
     this.pool.closeAll();
     this.recentlyProcessed.clear();
   }
