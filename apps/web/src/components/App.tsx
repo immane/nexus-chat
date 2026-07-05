@@ -324,10 +324,19 @@ const ChatRoute = () => {
         setActiveWorkspace(wJson.data[0]!.id);
 
         // Seed bot manifests (no server endpoint for manifests yet)
-        setManifests([
-          { id: "bot-help", name: "help", description: "Lists available commands.", commands: [{ name: "/help", description: "Show command help." }], scopes: ["commands:handle", "messages:write"] },
-          { id: "bot-notification", name: "notification", description: "Sends announcements.", commands: [{ name: "/announce", description: "Send an announcement." }], scopes: ["commands:handle", "messages:write"] }
-        ]);
+        const botManifests = [
+          { id: "bot-help", name: "help", description: "Lists available commands.", commands: [{ name: "/help", description: "Show command help." }], scopes: ["commands:handle", "messages:write"] as const },
+          { id: "bot-notification", name: "notification", description: "Sends announcements.", commands: [{ name: "/announce", description: "Send an announcement." }], scopes: ["commands:handle", "messages:write"] as const }
+        ] as unknown as BotManifest[];
+        setManifests(botManifests);
+
+        // Install bots on server
+        const wsId = wJson.data[0]!.id;
+        for (const manifest of botManifests) {
+          await fetch(`${API_BASE}/api/v1/bots/install?workspaceId=${encodeURIComponent(wsId)}`, {
+            method: "POST", headers, body: JSON.stringify(manifest)
+          }).catch(() => {});
+        }
 
         const ch = await fetch(`${API_BASE}/api/v1/workspaces/${wJson.data[0]!.id}/channels`, { headers });
         const chJson = (await ch.json()) as { ok: boolean; data: Channel[] };
@@ -340,6 +349,17 @@ const ChatRoute = () => {
             const msgsJson = (await msgs.json()) as { ok: boolean; data: Message[] };
             if (msgsJson.ok && Array.isArray(msgsJson.data)) {
               msgsJson.data.forEach((m: Message) => upsertMessage(m, "sent"));
+            }
+          }
+
+          // Add bots to normal channels
+          for (const manifest of botManifests) {
+            for (const channel of chJson.data) {
+              if (channel.mode === "normal") {
+                await fetch(`${API_BASE}/api/v1/bots/${manifest.id}/channels/${channel.id}`, {
+                  method: "POST", headers
+                }).catch(() => {});
+              }
             }
           }
         }
