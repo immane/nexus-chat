@@ -1,6 +1,11 @@
 import {
   BotCommandInvokeSchema,
   messageAckPayloadSchema,
+  p2pAnswerSchema,
+  p2pHangupSchema,
+  p2pIceCandidateSchema,
+  p2pOfferSchema,
+  p2pStatusSchema,
   presenceUpdatePayloadSchema,
   sendMessageSchema,
   typingPayloadSchema,
@@ -13,7 +18,7 @@ import { logger } from "../observability/logger.js";
 import { writeAuditEvent } from "../observability/audit.js";
 
 export type WsGatewayResponse = { ok: true; data: unknown } | { ok: false; error: { code: string; message: string } };
-export type WsBroadcaster = { toChannel(channelId: string, event: unknown): void; toUser(userId: string, event: unknown): void };
+export type WsBroadcaster = { toChannel(channelId: string, event: unknown): void; toUser(userId: string, event: unknown): void; relayP2pToUser(userId: string, envelope: unknown): void };
 
 type RateBucket = { count: number; resetAt: number };
 
@@ -92,6 +97,26 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     if ("ok" in result) return result;
     for (const batch of messageService.flushReadReceipts()) broadcaster.toChannel(batch.channelId, { type: "message.read", payload: batch, timestamp: new Date().toISOString() });
     return { ok: true, data: result };
+  }
+
+  if (envelope.data.type === "p2p.offer" || envelope.data.type === "p2p.answer" || envelope.data.type === "p2p.ice-candidate" || envelope.data.type === "p2p.hangup") {
+    const schema = envelope.data.type === "p2p.offer" ? p2pOfferSchema
+      : envelope.data.type === "p2p.answer" ? p2pAnswerSchema
+        : envelope.data.type === "p2p.ice-candidate" ? p2pIceCandidateSchema
+          : p2pHangupSchema;
+    const payload = schema.safeParse(envelope.data.payload);
+    if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid P2P signaling payload" } };
+    const targetUserId = payload.data.targetUserId;
+    if (typeof targetUserId !== "string" || targetUserId.length < 1) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Missing targetUserId" } };
+    broadcaster.relayP2pToUser(targetUserId, { ...envelope.data, payload: payload.data, _senderUserId: userId });
+    return { ok: true, data: { relayed: true } };
+  }
+
+  if (envelope.data.type === "p2p.status") {
+    const payload = p2pStatusSchema.safeParse(envelope.data.payload);
+    if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid P2P status payload" } };
+    logger.info({ userId, peerUserId: payload.data.targetUserId, status: payload.data.status }, "p2p.status");
+    return { ok: true, data: { acknowledged: true } };
   }
 
   return { ok: false, error: { code: "VALIDATION_FAILED", message: "Unsupported client event" } };

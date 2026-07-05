@@ -244,7 +244,12 @@ export const wsServerEventSchema = z.enum([
   "presence.updated",
   "typing.updated",
   "bot.response",
-  "error"
+  "error",
+  "p2p.offer",
+  "p2p.answer",
+  "p2p.ice-candidate",
+  "p2p.hangup",
+  "p2p.status"
 ]);
 
 export const wsEnvelopeSchema = z.object({
@@ -366,6 +371,61 @@ export const WsMessageAckEnvelopeSchema = wsEnvelopeSchema.extend({
   payload: messageAckPayloadSchema
 });
 
+// ── P2P Signaling Schemas ──
+
+export const p2pTargetSchema = z.object({
+  targetUserId: idSchema,
+  targetDeviceId: idSchema.optional()
+});
+
+export const p2pOfferSchema = p2pTargetSchema.extend({
+  sdp: z.string().min(1)
+});
+
+export const p2pAnswerSchema = p2pTargetSchema.extend({
+  sdp: z.string().min(1)
+});
+
+export const p2pIceCandidateSchema = p2pTargetSchema.extend({
+  candidate: z.object({
+    candidate: z.string().min(1),
+    sdpMid: z.string().nullable(),
+    sdpMLineIndex: z.number().int().nonnegative().nullable()
+  })
+});
+
+export const p2pHangupSchema = p2pTargetSchema;
+
+export const p2pStatusSchema = p2pTargetSchema.extend({
+  status: z.enum(["connected", "disconnected", "failed"]),
+  reason: z.string().optional()
+});
+
+export const WsP2pOfferEnvelopeSchema = wsEnvelopeSchema.extend({
+  type: z.literal("p2p.offer"),
+  payload: p2pOfferSchema
+});
+
+export const WsP2pAnswerEnvelopeSchema = wsEnvelopeSchema.extend({
+  type: z.literal("p2p.answer"),
+  payload: p2pAnswerSchema
+});
+
+export const WsP2pIceCandidateEnvelopeSchema = wsEnvelopeSchema.extend({
+  type: z.literal("p2p.ice-candidate"),
+  payload: p2pIceCandidateSchema
+});
+
+export const WsP2pHangupEnvelopeSchema = wsEnvelopeSchema.extend({
+  type: z.literal("p2p.hangup"),
+  payload: p2pHangupSchema
+});
+
+export const WsP2pStatusEnvelopeSchema = wsEnvelopeSchema.extend({
+  type: z.literal("p2p.status"),
+  payload: p2pStatusSchema
+});
+
 export type ApiError = z.infer<typeof apiErrorSchema>;
 export type ApiSuccessEnvelope = z.infer<typeof ApiSuccessSchema>;
 export type ApiErrorEnvelope = z.infer<typeof ApiErrorSchema>;
@@ -388,6 +448,11 @@ export type BotCommandInvoke = z.infer<typeof botCommandInvokeSchema>;
 export type BotCommandInvokeEnvelope = z.infer<typeof BotCommandInvokeSchema>;
 export type FileRecord = z.infer<typeof fileSchema>;
 export type SignalPreKeyBundle = z.infer<typeof signalPreKeyBundleSchema>;
+export type P2pOffer = z.infer<typeof p2pOfferSchema>;
+export type P2pAnswer = z.infer<typeof p2pAnswerSchema>;
+export type P2pIceCandidate = z.infer<typeof p2pIceCandidateSchema>;
+export type P2pHangup = z.infer<typeof p2pHangupSchema>;
+export type P2pStatus = z.infer<typeof p2pStatusSchema>;
 
 export const nowIso = () => new Date().toISOString();
 

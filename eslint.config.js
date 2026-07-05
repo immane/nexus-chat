@@ -26,7 +26,15 @@ export default [
         window: "readonly",
         crypto: "readonly",
         btoa: "readonly",
-        atob: "readonly"
+        atob: "readonly",
+        RTCPeerConnection: "readonly",
+        RTCSessionDescription: "readonly",
+        RTCIceCandidate: "readonly",
+        RTCDataChannel: "readonly",
+        RTCConfiguration: "readonly",
+        RTCIceServer: "readonly",
+        RTCSessionDescriptionInit: "readonly",
+        RTCIceCandidateInit: "readonly"
       }
     }
   },

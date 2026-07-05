@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { request, clearAccessToken } from "./lib/api.js";
 import { createSocket, sendMessage, sendBotCommand } from "./lib/ws-client.js";
-import { runE2eSmoke, runBotSmoke, runApiSmoke, login as smokeLogin } from "./commands/smoke.js";
+import { runE2eSmoke, runBotSmoke, runApiSmoke, runP2pSmoke, login as smokeLogin } from "./commands/smoke.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -211,6 +211,18 @@ export function createProgram(): Command {
       } catch (err) {
         process.exitCode = 1;
         console.error("api smoke failed:", String(err));
+      }
+    });
+
+  program
+    .command("p2p-smoke")
+    .description("P2P smoke test: verify schemas and server signaling relay")
+    .action(async () => {
+      try {
+        await runP2pSmoke();
+      } catch (err) {
+        process.exitCode = 1;
+        console.error("p2p smoke failed:", String(err));
       }
     });
 

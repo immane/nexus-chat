@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-99.8%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-72%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-82%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 A Slack-like workspace chat system with **hybrid encryption**: normal channels that support bots, message history, and server-side workflows, alongside end-to-end encrypted DMs where the server sees only ciphertext. Built from the ground up in TypeScript with React, Electron, Hono, and Socket.IO.
 
-Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, and Signal-style E2EE service boundaries. The test suite covers 17 files, 72 tests, and consistently exceeds 99% statement coverage.
+Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, Signal-style E2EE service boundaries, and opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs. The test suite covers 18 files, 82 tests, and consistently exceeds 99% statement coverage.
 
 ---
 
@@ -25,6 +25,7 @@ Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, 
 - [Message Lifecycle](#message-lifecycle)
 - [Bot Framework](#bot-framework)
 - [E2EE Design](#e2ee-design)
+- [P2P Direct Connection](#p2p-direct-connection)
 - [Security](#security)
 - [API Reference](#api-reference)
 - [WebSocket Protocol](#websocket-protocol)
@@ -197,7 +198,8 @@ nexus-chat/
 | **Desktop** | Electron | BrowserWindow, preload IPC, tray, notifications |
 | **CLI** | Commander, Ink (React 19) | TUI chat, smoke tests |
 | **Observability** | Pino, `prom-client` | Structured logs, request IDs, metrics |
-| **Testing** | Vitest + V8 coverage | 17 test files, 72 tests |
+| **Testing** | Vitest + V8 coverage | 18 test files, 82 tests |
+| **P2P** | WebRTC (browser-native, no npm deps) | 1:1 E2EE DM direct connection + server signaling relay |
 
 ---
 
@@ -308,6 +310,33 @@ The `signalService` in `apps/server/src/domain/signal/service.ts` provides the s
 - Bots are rejected at gateway, service, and channel membership levels.
 - Attachments must carry `scanStatus: "skipped"` — no server-side virus scanning.
 - Server-side message events (`message.created`) are suppressed for E2EE channels.
+
+### P2P Direct Connection
+
+1:1 E2EE DMs opportunistically bypass the server using WebRTC Data Channels. The server relays only SDP/ICE signaling — never message data.
+
+```
+Alice ═══ WebRTC Data Channel ═══► Bob     (preferred, DTLS + Signal encrypted)
+  │                                  │
+  └── WebSocket signaling ──► Server ◄── signaling reply ──┘
+```
+
+**Connection strategy:**
+
+1. When sending an E2EE DM, the client checks for an active WebRTC connection to the peer.
+2. If none exists, it initiates a WebRTC handshake: SDP offer/answer + ICE candidates are exchanged via server WebSocket signaling (`p2p.offer`, `p2p.answer`, `p2p.ice-candidate`).
+3. If the connection succeeds within 5 seconds → messages flow over the data channel.
+4. If WebRTC fails (NAT/firewall) → transparent fallback to the existing server-relayed WebSocket path.
+5. After a failed attempt, the peer enters a 30-second cooldown period before retrying.
+
+**Key properties:**
+
+- No npm dependencies — WebRTC is browser-native (`RTCPeerConnection`, `RTCDataChannel`).
+- Double encryption: DTLS (transport) + Signal Protocol (application).
+- Server never sees P2P message content, timestamps, or counts — only signaling metadata.
+- TUI/CLI clients stay relay-only (Node.js lacks native WebRTC).
+
+**Implementation:** `apps/web/src/lib/p2p/` — `P2pConnectionPool`, `HybridTransport`, signaling handler.
 
 ---
 
@@ -436,6 +465,11 @@ Clients connect to the main namespace with JWT auth and automatically join rooms
 | `typing.start` | `{ workspaceId, channelId }` | Broadcasts `typing.updated` |
 | `typing.stop` | `{ workspaceId, channelId }` | Broadcasts `typing.updated` |
 | `presence.update` | `{ status }` | Sends `presence.updated` to self |
+| `p2p.offer` | `{ targetUserId, sdp }` | Relayed to peer for WebRTC handshake |
+| `p2p.answer` | `{ targetUserId, sdp }` | Relayed to peer for WebRTC handshake |
+| `p2p.ice-candidate` | `{ targetUserId, candidate }` | Relayed to peer for NAT traversal |
+| `p2p.hangup` | `{ targetUserId }` | Relayed to peer to close P2P connection |
+| `p2p.status` | `{ targetUserId, status }` | Logged server-side only |
 
 ### Server → Client events
 
@@ -466,19 +500,19 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | Functions | 99.23% |
 | Lines | 99.83% |
 
-**Test breakdown (17 files, 72 tests):**
+**Test breakdown (18 files, 82 tests):**
 
 | Package | Test file | Tests |
 | --- | --- | --- |
 | `@nexus-chat/server` | `domain/services.test.ts` | 14 |
-| `@nexus-chat/server` | `ws/gateway.test.ts` | 5 |
+| `@nexus-chat/server` | `ws/gateway.test.ts` | 9 |
 | `@nexus-chat/server` | `http/routes.test.ts` | 3 |
 | `@nexus-chat/server` | `observability/audit.test.ts` | 4 |
 | `@nexus-chat/server` | `domain/auth/session-store.test.ts` | 2 |
 | `@nexus-chat/server` | `observability/logger.test.ts` | 1 |
 | `@nexus-chat/server` | `db/schema.test.ts` | 2 |
 | `@nexus-chat/bot-sdk` | `index.test.ts` | 11 |
-| `@nexus-chat/shared` | `index.test.ts` | 5 |
+| `@nexus-chat/shared` | `index.test.ts` | 6 |
 | `@nexus-chat/web` | `stores/domain.test.ts` | 4 |
 | `@nexus-chat/web` | `components/App.test.tsx` | 3 |
 | `@nexus-chat/help-bot` | `index.test.ts` | 2 |
@@ -513,6 +547,12 @@ Copy `.env.example` to `.env`. All variables:
 | `VITE_API_BASE` | `http://localhost:4000` | Web client API URL |
 | `OBJECT_STORAGE_ENDPOINT` | `http://localhost:9000` | S3-compatible endpoint |
 | `OBJECT_STORAGE_BUCKET` | `nexus-chat-local` | Storage bucket name |
+| `NEXUS_STUN_SERVERS` | `stun:stun.l.google.com:19302` | WebRTC STUN servers (comma-separated) |
+| `NEXUS_TURN_SERVERS` | *(empty)* | WebRTC TURN servers (comma-separated) |
+| `NEXUS_TURN_USERNAME` | *(empty)* | TURN authentication username |
+| `NEXUS_TURN_CREDENTIAL` | *(empty)* | TURN authentication credential |
+| `NEXUS_P2P_CONNECTION_TIMEOUT_MS` | `5000` | WebRTC connection timeout in ms |
+| `NEXUS_P2P_RELAY_COOLDOWN_MS` | `30000` | Cooldown after failed P2P attempt in ms |
 
 ---
 
@@ -522,9 +562,9 @@ Copy `.env.example` to `.env`. All variables:
 | --- | --- |
 | [QUICKSTART.md](QUICKSTART.md) | Step-by-step local setup with troubleshooting |
 | [docs/ai/context.md](docs/ai/context.md) | Full session context for AI agents |
-| [docs/design/](docs/design/) | Architecture documents (6 docs, 5 layers + roadmap) |
+| [docs/design/](docs/design/) | Architecture documents (7 docs, 5 layers + P2P + roadmap) |
 | [docs/research/](docs/research/) | Technical surveys: backend, frontend, E2EE, bots, UI, AI |
-| [docs/tasks/](docs/tasks/) | 17 implementation task breakdowns |
+| [docs/tasks/](docs/tasks/) | 18 implementation task breakdowns |
 | [docs/sdk/](docs/sdk/) | Bot SDK guides (Node.js, Java, Python, PHP, Go, Rust) |
 | [docs/beta-checklist.md](docs/beta-checklist.md) | Closed beta readiness checklist |
 | [docs/backup-restore.md](docs/backup-restore.md) | Backup and recovery procedures |
@@ -542,6 +582,7 @@ Phase 1 is a local-development and closed-beta milestone. Key limitations:
 - **No WebSocket horizontal scaling:** Socket.IO runs single-process without Redis Adapter in dev.
 - **Electron packaging:** No production code signing, notarization, or auto-update publishing.
 - **Attachment UX:** Server-side attachment primitives exist; web/desktop upload UI is not built.
+- **P2P client support:** WebRTC-based P2P direct connection is available in web (browser) and Electron clients. TUI/CLI remains server-relay-only (Node.js lacks native `RTCPeerConnection`).
 
 See [docs/known-limitations.md](docs/known-limitations.md) for the complete list.
 
