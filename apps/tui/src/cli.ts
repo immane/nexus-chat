@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { request, clearAccessToken } from "./lib/api.js";
 import { createSocket, sendMessage, sendBotCommand } from "./lib/ws-client.js";
-import { runE2eSmoke, runBotSmoke, login as smokeLogin } from "./commands/smoke.js";
+import { runE2eSmoke, runBotSmoke, runApiSmoke, login as smokeLogin } from "./commands/smoke.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -199,6 +199,18 @@ export function createProgram(): Command {
       } catch (err) {
         process.exitCode = 1;
         console.error("bot smoke failed:", String(err));
+      }
+    });
+
+  program
+    .command("api-smoke")
+    .description("API smoke test: exercise all core REST endpoints")
+    .action(async () => {
+      try {
+        await runApiSmoke();
+      } catch (err) {
+        process.exitCode = 1;
+        console.error("api smoke failed:", String(err));
       }
     });
 
