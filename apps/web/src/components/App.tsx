@@ -508,12 +508,20 @@ const ChatRoute = () => {
 
   const createDm = async () => {
     if (!newDmEmail.trim() || !accessToken || !workspaces[0]) return;
+    const headers = { "content-type": "application/json", authorization: `Bearer ${accessToken}` };
     try {
-      // First find user by email via login (we need the userId)
+      // Resolve email → userId
+      let peerUserId = newDmEmail.trim();
+      if (peerUserId.includes("@")) {
+        const lookupResp = await fetch(`${API_BASE}/api/v1/users/by-email?email=${encodeURIComponent(peerUserId)}`, { headers });
+        const lookupJson = (await lookupResp.json()) as { ok: boolean; data: { id: string } };
+        if (lookupJson.ok && lookupJson.data?.id) peerUserId = lookupJson.data.id;
+      }
+
       const resp = await fetch(`${API_BASE}/api/v1/dms?workspaceId=${workspaces[0].id}`, {
         method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ peerUserId: newDmEmail.trim(), mode: "normal" })
+        headers,
+        body: JSON.stringify({ peerUserId, mode: "normal" })
       });
       const json = (await resp.json()) as { ok: boolean; data: Channel };
       if (json.ok) {

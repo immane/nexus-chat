@@ -94,5 +94,10 @@ export const authService = {
   me(userId: string): User | undefined {
     const user = store.users.get(userId);
     return user ? publicUser(user) : undefined;
+  },
+  lookupByEmail(email: string): User | undefined {
+    const userId = store.usersByEmail.get(email);
+    const user = userId ? store.users.get(userId) : undefined;
+    return user ? publicUser(user) : undefined;
   }
 };
