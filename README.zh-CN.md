@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-99.8%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-72%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-77%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 一个类 Slack 的工作区聊天系统，采用**混合加密**模式：普通频道支持 Bot、消息历史和服务端工作流；端到端加密 DM 中服务端只能看到密文。使用 TypeScript、React、Electron、Hono 和 Socket.IO 从零构建。
 
-Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot 和 Signal 风格 E2EE 服务边界。测试套件覆盖 17 个文件、72 个测试，statement coverage 持续超过 99%。
+Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、Signal 风格 E2EE 服务边界，以及 1:1 E2EE DM 的 WebRTC P2P 直连功能。测试套件覆盖 17 个文件、77 个测试，statement coverage 持续超过 99%。
 
 ---
 
@@ -25,6 +25,7 @@ Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌�
 - [消息生命周期](#消息生命周期)
 - [Bot 框架](#bot-框架)
 - [E2EE 设计](#e2ee-设计)
+- [P2P 直连](#p2p-直连)
 - [安全](#安全)
 - [API 参考](#api-参考)
 - [WebSocket 协议](#websocket-协议)
@@ -197,7 +198,8 @@ nexus-chat/
 | **桌面** | Electron | BrowserWindow, preload IPC, tray, 通知 |
 | **CLI** | Commander, Ink (React 19) | TUI 聊天, smoke tests |
 | **可观测性** | Pino, `prom-client` | 结构化日志, request IDs, metrics |
-| **测试** | Vitest + V8 coverage | 17 个测试文件, 72 个测试 |
+| **测试** | Vitest + V8 coverage | 17 个测试文件, 77 个测试 |
+| **P2P** | WebRTC（浏览器原生，无 npm 依赖） | 1:1 E2EE DM 直连 + 服务端信令中继 |
 
 ---
 
@@ -308,6 +310,33 @@ bot.connect();
 - Bot 在网关、服务和频道成员层面均被拒绝。
 - 附件必须携带 `scanStatus: "skipped"` — 无服务端病毒扫描。
 - 服务端消息事件（`message.created`）在 E2EE 频道中不生成。
+
+### P2P 直连
+
+1:1 E2EE DM 使用 WebRTC Data Channel 机会性地绕过服务端。服务端仅中继 SDP/ICE 信令 — 消息数据永不经过服务端。
+
+```
+Alice ═══ WebRTC Data Channel ═══► Bob     (首选，DTLS + Signal 双重加密)
+  │                                  │
+  └── WebSocket 信令 ──► 服务端 ◄── 信令回复 ──┘
+```
+
+**连接策略：**
+
+1. 发送 E2EE DM 时，客户端检查是否已有对端的 WebRTC 连接。
+2. 如果没有，发起 WebRTC 握手：SDP offer/answer + ICE candidates 通过服务端 WebSocket 信令交换（`p2p.offer`, `p2p.answer`, `p2p.ice-candidate`）。
+3. 连接 5 秒内成功 → 消息通过 data channel 直发。
+4. WebRTC 失败（NAT/防火墙）→ 透明 fallback 到服务器中继模式。
+5. 连接失败后，对端进入 30 秒冷却期，不再立即重试。
+
+**关键属性：**
+
+- 无 npm 依赖 — WebRTC 是浏览器原生 API（`RTCPeerConnection`, `RTCDataChannel`）。
+- 双层加密：DTLS（传输层）+ Signal Protocol（应用层）。
+- 服务端永远不知道 P2P 消息内容、时间戳或消息数量 — 只知道信令元数据。
+- TUI/CLI 客户端保持 relay-only（Node.js 无原生 WebRTC）。
+
+**实现：** `apps/web/src/lib/p2p/` — `P2pConnectionPool`, `HybridTransport`, signaling handler。
 
 ---
 
@@ -436,6 +465,11 @@ bot.connect();
 | `typing.start` | `{ workspaceId, channelId }` | 广播 `typing.updated` |
 | `typing.stop` | `{ workspaceId, channelId }` | 广播 `typing.updated` |
 | `presence.update` | `{ status }` | 发送 `presence.updated` 给自己 |
+| `p2p.offer` | `{ targetUserId, sdp }` | 中继到对端以建立 WebRTC 握手 |
+| `p2p.answer` | `{ targetUserId, sdp }` | 中继到对端以建立 WebRTC 握手 |
+| `p2p.ice-candidate` | `{ targetUserId, candidate }` | 中继到对端以进行 NAT 穿透 |
+| `p2p.hangup` | `{ targetUserId }` | 中继到对端以关闭 P2P 连接 |
+| `p2p.status` | `{ targetUserId, status }` | 仅服务端记录日志 |
 
 ### Server → Client events
 
@@ -466,19 +500,19 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | Functions | 99.23% |
 | Lines | 99.83% |
 
-**测试分布（17 files, 72 tests）：**
+**测试分布（17 files, 77 tests）：**
 
 | Package | 测试文件 | 测试数 |
 | --- | --- | --- |
 | `@nexus-chat/server` | `domain/services.test.ts` | 14 |
-| `@nexus-chat/server` | `ws/gateway.test.ts` | 5 |
+| `@nexus-chat/server` | `ws/gateway.test.ts` | 9 |
 | `@nexus-chat/server` | `http/routes.test.ts` | 3 |
 | `@nexus-chat/server` | `observability/audit.test.ts` | 4 |
 | `@nexus-chat/server` | `domain/auth/session-store.test.ts` | 2 |
 | `@nexus-chat/server` | `observability/logger.test.ts` | 1 |
 | `@nexus-chat/server` | `db/schema.test.ts` | 2 |
 | `@nexus-chat/bot-sdk` | `index.test.ts` | 11 |
-| `@nexus-chat/shared` | `index.test.ts` | 5 |
+| `@nexus-chat/shared` | `index.test.ts` | 6 |
 | `@nexus-chat/web` | `stores/domain.test.ts` | 4 |
 | `@nexus-chat/web` | `components/App.test.tsx` | 3 |
 | `@nexus-chat/help-bot` | `index.test.ts` | 2 |
@@ -513,6 +547,12 @@ CI 在每次 push 时运行：lint、typecheck、test、coverage、build、depen
 | `VITE_API_BASE` | `http://localhost:4000` | Web 客户端 API URL |
 | `OBJECT_STORAGE_ENDPOINT` | `http://localhost:9000` | S3 兼容 endpoint |
 | `OBJECT_STORAGE_BUCKET` | `nexus-chat-local` | 存储 bucket 名称 |
+| `NEXUS_STUN_SERVERS` | `stun:stun.l.google.com:19302` | WebRTC STUN 服务器（逗号分隔） |
+| `NEXUS_TURN_SERVERS` | *(空)* | WebRTC TURN 服务器（逗号分隔） |
+| `NEXUS_TURN_USERNAME` | *(空)* | TURN 认证用户名 |
+| `NEXUS_TURN_CREDENTIAL` | *(空)* | TURN 认证密码 |
+| `NEXUS_P2P_CONNECTION_TIMEOUT_MS` | `5000` | WebRTC 连接超时（毫秒） |
+| `NEXUS_P2P_RELAY_COOLDOWN_MS` | `30000` | P2P 失败后冷却时间（毫秒） |
 
 ---
 
@@ -522,9 +562,9 @@ CI 在每次 push 时运行：lint、typecheck、test、coverage、build、depen
 | --- | --- |
 | [QUICKSTART.zh-CN.md](QUICKSTART.zh-CN.md) | 分步本地搭建指南（含故障排查） |
 | [docs/ai/context.md](docs/ai/context.md) | AI agent 完整会话上下文 |
-| [docs/design/](docs/design/) | 架构文档（6 篇，5 层 + roadmap） |
+| [docs/design/](docs/design/) | 架构文档（7 篇，5 层 + P2P + roadmap） |
 | [docs/research/](docs/research/) | 技术调查：后端, 前端, E2EE, bots, UI, AI |
-| [docs/tasks/](docs/tasks/) | 17 个实现任务分解 |
+| [docs/tasks/](docs/tasks/) | 18 个实现任务分解 |
 | [docs/sdk/](docs/sdk/) | Bot SDK 指南（Node.js, Java, Python, PHP, Go, Rust） |
 | [docs/beta-checklist.md](docs/beta-checklist.md) | 封闭测试就绪检查表 |
 | [docs/backup-restore.md](docs/backup-restore.md) | 备份和恢复流程 |
@@ -542,6 +582,7 @@ Phase 1 是本地开发和封闭测试里程碑。主要限制：
 - **无 WebSocket 水平扩展：** Socket.IO 在开发环境中单进程运行，不使用 Redis Adapter。
 - **Electron 打包：** 无生产代码签名、公证或自动更新发布。
 - **附件 UX：** 服务端附件基元已存在；Web/Desktop 上传 UI 尚未构建。
+- **P2P 客户端支持：** 基于 WebRTC 的 P2P 直连在 Web（浏览器）和 Electron 客户端中可用。TUI/CLI 保持 server-relay-only（Node.js 无原生 `RTCPeerConnection`）。
 
 完整列表见 [docs/known-limitations.md](docs/known-limitations.md)。
 

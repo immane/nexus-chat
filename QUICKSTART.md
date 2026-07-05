@@ -123,6 +123,8 @@ pnpm --filter @nexus-chat/tui dev -- workspaces
 Run smoke tests:
 
 ```bash
+pnpm --filter @nexus-chat/tui dev -- api-smoke
+pnpm --filter @nexus-chat/tui dev -- p2p-smoke
 pnpm --filter @nexus-chat/tui dev -- bot-smoke
 pnpm --filter @nexus-chat/tui dev -- e2e-smoke
 ```
