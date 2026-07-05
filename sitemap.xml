@@ -49,6 +49,10 @@
          <lastmod>2026-07-05</lastmod>
     </url>
     <url>
+         <loc>https://immane.github.io/nexus-chat/design/07_P2P_DM_Direct_Connection/</loc>
+         <lastmod>2026-07-05</lastmod>
+    </url>
+    <url>
          <loc>https://immane.github.io/nexus-chat/research/ai-agent-orchestration/</loc>
          <lastmod>2026-07-05</lastmod>
     </url>
@@ -166,6 +170,10 @@
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/tasks/17-phase-1-tui-cli/</loc>
+         <lastmod>2026-07-05</lastmod>
+    </url>
+    <url>
+         <loc>https://immane.github.io/nexus-chat/tasks/18-phase-1-p2p-dm-direct/</loc>
          <lastmod>2026-07-05</lastmod>
     </url>
 </urlset>

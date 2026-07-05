@@ -391,6 +391,8 @@
       
         
       
+        
+      
     
     
     
@@ -1510,6 +1512,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07_P2P_DM_Direct_Connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P DM 直连
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1525,6 +1555,8 @@
   
     
     
+      
+        
       
         
       
@@ -2182,6 +2214,41 @@
     
   
     第一阶段——TUI CLI
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/18-phase-1-p2p-dm-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一阶段——P2P DM直连
   
 
     
@@ -3797,23 +3864,21 @@
 </blockquote>
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<ol>
-<li><a href="#1-bot-engine-overview">Bot Engine Overview</a></li>
-<li><a href="#2-event-pipeline">Event Pipeline</a>
-3.<a href="#3-bot-connection-management">Bot Connection Management</a></li>
-<li><a href="#4-bot-sdk-design-typescript">Bot SDK Design (TypeScript)</a>
-5.<a href="#5-slash-command-framework">Slash Command Framework</a></li>
-<li><a href="#6-webhook-delivery-phase-15">Webhook Delivery (Phase 1.5)</a>
-7.<a href="#7-task-queue-design-bullmq">Task Queue Design (BullMQ)</a></li>
-<li><a href="#8-bot-permissions--security">Bot Permissions &amp; Security</a>
-9.<a href="#9-monitoring--observability">Monitoring &amp; Observability</a></li>
-<li><a href="#10-streaming-message-protocol-extension">Streaming Message Protocol Extension</a></li>
-<li><a href="#11-base-bot-catalog-integration">Base Bot Catalog Integration</a></li>
-</ol>
+<p>1.<a href="#1-bot-engine-overview">Bot Engine Overview</a>
+2. <a href="#2-event-pipeline">Event Pipeline</a>
+3. <a href="#3-bot-connection-management">Bot Connection Management</a>
+4. <a href="#4-bot-sdk-design-typescript">Bot SDK Design (TypeScript)</a>
+5.<a href="#5-slash-command-framework">Slash Command Framework</a>
+6. <a href="#6-webhook-delivery-phase-15">Webhook Delivery (Phase 1.5)</a>
+7.<a href="#7-task-queue-design-bullmq">Task Queue Design (BullMQ)</a>
+8.<a href="#8-bot-permissions--security">Bot Permissions &amp; Security</a>
+9.<a href="#9-monitoring--observability">Monitoring &amp; Observability</a>
+10. <a href="#10-streaming-message-protocol-extension">Streaming Message Protocol Extension</a>
+11. <a href="#11-base-bot-catalog-integration">Base Bot Catalog Integration</a></p>
 <hr />
 <h2 id="1">1. 机器人引擎概述<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <h3 id="11">1.1 目的<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
-<p>机器人引擎负责接收内部平台事件，根据通道订阅将它们路由到已注册的机器人，处理机器人响应（消息、通道操作），并强制实施安全边界。它是 Nexus-chat 中第三方可扩展性的中枢神经系统。</p>
+<p>机器人引擎负责接收内部平台事件，根据通道订阅将它们路由到已注册的机器人，处理机器人响应（消息、通道操作），并强制执行安全边界。它是 Nexus-chat 中第三方可扩展性的中枢神经系统。</p>
 <h3 id="12">1.2 关键约束<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
 <p><strong>机器人无法访问端到端加密通道。</strong> 当通道通过信号协议启用端到端加密时，事件管道会完全跳过机器人调度。这是在路由层强制执行的 - 来自 E2E 通道的事件不会进入机器人调度路径。</p>
 <h3 id="13">1.3 连接方式<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
@@ -4862,7 +4927,7 @@
 </tr>
 <tr>
 <td>无法访问其他工作区</td>
-<td>来自令牌上下文的每个查询的范围为 <code>workspace_id</code></td>
+<td>来自令牌上下文的每个查询的范围都是 <code>workspace_id</code></td>
 </tr>
 <tr>
 <td>不能超出声明的范围</td>

@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://immane.github.io/nexus-chat/tasks/10-phase-1-bot-engine-core/">
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/tasks/18-phase-1-p2p-dm-direct/">
       
       
-        <link rel="prev" href="../09-phase-1-signal-dm-e2ee/">
+        <link rel="prev" href="../17-phase-1-tui-cli/">
       
       
-        <link rel="next" href="../11-phase-1-bot-sdk-node-reference/">
+        <link rel="next" href="../../research/frontend-architecture/">
       
       
         
@@ -31,7 +31,7 @@
     
     
       
-        <title>Phase 1 — Bot Engine Core - Nexus Chat</title>
+        <title>Phase 1 — P2P DM Direct Connection - Nexus Chat</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#10-phase-1-bot-engine-core-event-dispatch-command-invocation" class="md-skip">
+        <a href="#18-phase-1-p2p-direct-connection-for-11-e2ee-dm" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Phase 1 — Bot Engine Core
+              Phase 1 — P2P DM Direct Connection
             
           </span>
         </div>
@@ -1080,44 +1080,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Phase 1 — Bot Engine Core
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--done"></span>
-  
-
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../10-phase-1-bot-engine-core/" class="md-nav__link">
         
   
   
@@ -1140,125 +1106,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Goal
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scope" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#non-goals" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Non-Goals
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#boundary-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Boundary Rules
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#token-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Token Model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#command-invocation-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Command Invocation Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#acceptance-criteria" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Acceptance Criteria
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#test-plan" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test Plan
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1513,10 +1360,44 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../18-phase-1-p2p-dm-direct/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — P2P DM Direct Connection
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1539,6 +1420,230 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subtasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subtasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subtasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#181-shared-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.1 Shared Schemas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#182-server-signaling-relay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.2 Server Signaling Relay
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#183-ice-server-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.3 ICE Server Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#184-p2p-connection-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.4 P2P Connection Pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#185-signaling-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.5 Signaling Handler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#186-hybrid-transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.6 Hybrid Transport
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#187-integration-with-websocket-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.7 Integration with WebSocket Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#188-smoke-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.8 Smoke Test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#189-integration-test-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.9 Integration Test (Browser)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1810-documentation-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.10 Documentation &amp; Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimated-effort" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimated Effort
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2307,35 +2412,129 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#boundary-rules" class="md-nav__link">
+  <a href="#subtasks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Boundary Rules
+        Subtasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subtasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#181-shared-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.1 Shared Schemas
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#token-model" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#182-server-signaling-relay" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Token Model
+        18.2 Server Signaling Relay
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#command-invocation-flow" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#183-ice-server-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Command Invocation Flow
+        18.3 ICE Server Configuration
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#184-p2p-connection-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.4 P2P Connection Pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#185-signaling-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.5 Signaling Handler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#186-hybrid-transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.6 Hybrid Transport
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#187-integration-with-websocket-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.7 Integration with WebSocket Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#188-smoke-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.8 Smoke Test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#189-integration-test-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.9 Integration Test (Browser)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1810-documentation-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.10 Documentation &amp; Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2351,10 +2550,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#test-plan" class="md-nav__link">
+  <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test Plan
+        Dependencies
       
     </span>
   </a>
@@ -2362,10 +2561,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dependencies" class="md-nav__link">
+  <a href="#estimated-effort" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dependencies
+        Estimated Effort
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation Commands
       
     </span>
   </a>
@@ -2392,78 +2602,278 @@
   
 
 
-<h1 id="10-phase-1-bot-engine-core-event-dispatch-command-invocation">10 — Phase 1 — Bot Engine Core, Event Dispatch &amp; Command Invocation<a class="headerlink" href="#10-phase-1-bot-engine-core-event-dispatch-command-invocation" title="Permanent link">&para;</a></h1>
+<h1 id="18-phase-1-p2p-direct-connection-for-11-e2ee-dm">18 — Phase 1 — P2P Direct Connection for 1:1 E2EE DM<a class="headerlink" href="#18-phase-1-p2p-direct-connection-for-11-e2ee-dm" title="Permanent link">&para;</a></h1>
 <h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
-<p>Implement the generic Bot Engine that handles bot identity, installation, command invocation, event dispatch, queueing, and response validation without knowing feature-specific bot logic.</p>
+<p>Add opportunistic WebRTC Data Channel direct connection for 1:1 E2EE DMs. When the P2P path succeeds, messages bypass the server entirely. When it fails (NAT/firewall), the system transparently falls back to the existing server-relayed WebSocket path.</p>
 <h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Bot registration.</li>
-<li>Opaque bot token generation and hash storage.</li>
-<li>Bot token validation for WebSocket connections.</li>
-<li>Bot channel membership.</li>
-<li>Bot event subscriptions.</li>
-<li><code>bot.command.invoke</code> routing.</li>
-<li>Redis Streams event publication.</li>
-<li>BullMQ per-bot queues.</li>
-<li>Bot WebSocket namespace.</li>
-<li>Bot response validation and injection into normal channels.</li>
+<li>WebRTC Data Channel for 1:1 E2EE DM message transport.</li>
+<li>Server-based signaling relay for SDP offer/answer and ICE candidate exchange.</li>
+<li><code>P2pConnectionPool</code> for managing WebRTC peer connections.</li>
+<li><code>HybridTransport</code> send/receive abstraction: try P2P first, fall back to relay.</li>
+<li>P2P message framing (JSON over data channel) with <code>clientMsgId</code> for dedup.</li>
+<li>P2P ack over data channel, with lightweight server ack for multi-device sync.</li>
+<li>Connection teardown + cleanup (hangup signaling, pool removal).</li>
+<li>Cooldown timer (30s) after failed P2P attempt to avoid repeated failures.</li>
+<li>Per-peer connection caching (reuse established connections).</li>
+<li>ICE candidate trickling.</li>
+<li>New shared schemas for all P2P signaling events.</li>
+<li>Server-side P2P event relay in the WebSocket gateway.</li>
+<li>Unit tests, integration tests, and a <code>p2p-smoke</code> TUI command.</li>
+<li>ICE server configuration via env variables (STUN/TURN).</li>
 </ul>
 <h2 id="non-goals">Non-Goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
 <ul>
-<li>No poll/reminder/kudos implementation in the engine.</li>
-<li>No AI model calls.</li>
-<li>No file storage authority.</li>
-<li>No marketplace.</li>
+<li>No group channel P2P (Signal Sender Key / MLS is a separate concern).</li>
+<li>No TURN server provisioning in this task (document config only).</li>
+<li>No P2P for normal-mode (non-E2EE) channels — server relay is appropriate there.</li>
+<li>No TUI or CLI P2P support (Node.js lacks native WebRTC; <code>wrtc</code> package has maintenance issues).</li>
+<li>No UI for P2P status indicators (green/yellow/gray lock icon) — deferred to a UI polish task.</li>
+<li>No multi-device P2P coordination beyond <code>deviceId</code> awareness.</li>
+<li>No file transfer over P2P (attachments still go through server).</li>
 </ul>
-<h2 id="boundary-rules">Boundary Rules<a class="headerlink" href="#boundary-rules" title="Permanent link">&para;</a></h2>
+<h2 id="subtasks">Subtasks<a class="headerlink" href="#subtasks" title="Permanent link">&para;</a></h2>
+<h3 id="181-shared-schemas">18.1 Shared Schemas<a class="headerlink" href="#181-shared-schemas" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>packages/shared/src/index.ts</code></p>
 <ul>
-<li>Bot Engine owns extensibility infrastructure.</li>
-<li>Individual bots own workflow behavior.</li>
-<li>Core services own data integrity and authorization.</li>
-<li>E2E channels never emit bot events.</li>
+<li>[ ] 18.1.1 Add <code>p2pTargetSchema</code> (<code>targetUserId</code>, <code>targetDeviceId?</code>).</li>
+<li>[ ] 18.1.2 Add <code>p2pOfferSchema</code> (<code>targetUserId</code>, <code>targetDeviceId?</code>, <code>sdp</code>).</li>
+<li>[ ] 18.1.3 Add <code>p2pAnswerSchema</code> (same shape as offer).</li>
+<li>[ ] 18.1.4 Add <code>p2pIceCandidateSchema</code> (<code>targetUserId</code>, <code>candidate</code> object with <code>candidate</code>, <code>sdpMid</code>, <code>sdpMLineIndex</code>).</li>
+<li>[ ] 18.1.5 Add <code>p2pHangupSchema</code> (just <code>p2pTargetSchema</code>).</li>
+<li>[ ] 18.1.6 Add <code>p2pStatusSchema</code> (<code>targetUserId</code>, <code>status</code>: "connected"|"disconnected"|"failed", <code>reason?</code>).</li>
+<li>[ ] 18.1.7 Add <code>WsP2pOfferEnvelopeSchema</code> etc. (wsEnvelope + type literal + payload schema).</li>
+<li>[ ] 18.1.8 Add P2P types to <code>WsClientEvent</code> and <code>WsServerEvent</code> discriminated unions.</li>
+<li>[ ] 18.1.9 Add zod unit tests for all new schemas.</li>
+<li>[ ] 18.1.10 Run <code>pnpm --filter @nexus-chat/shared typecheck &amp;&amp; pnpm --filter @nexus-chat/shared test</code>.</li>
 </ul>
-<h2 id="token-model">Token Model<a class="headerlink" href="#token-model" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nxbot_v1_&lt;base64url(random_32_bytes)&gt;
-</code></pre></div>
+<h3 id="182-server-signaling-relay">18.2 Server Signaling Relay<a class="headerlink" href="#182-server-signaling-relay" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/server/src/ws/gateway.ts</code></p>
 <ul>
-<li>Store only <code>SHA256(token)</code>.</li>
-<li>DB lookup resolves bot ID, workspace, scopes, revocation state, and installation policy.</li>
-<li>No self-validating HMAC token in Phase 1.</li>
+<li>[ ] 18.2.1 Define <code>P2P_FORWARD_EVENTS</code> set (<code>p2p.offer</code>, <code>p2p.answer</code>, <code>p2p.ice-candidate</code>, <code>p2p.hangup</code>).</li>
+<li>[ ] 18.2.2 Implement <code>relayP2pEvent(io, socket, envelope)</code>: find target socket by <code>payload.targetUserId</code>, emit forwarded envelope with <code>_senderUserId</code>.</li>
+<li>[ ] 18.2.3 Wire <code>relayP2pEvent</code> into <code>handleClientEnvelope</code> before the rate limiter applies to normal events.</li>
+<li>[ ] 18.2.4 Handle <code>p2p.status</code> events: log for observability, no relay.</li>
+<li>[ ] 18.2.5 Add gateway unit tests: verify <code>p2p.offer</code> is relayed to target socket; verify <code>p2p.hangup</code> is relayed; verify <code>p2p.status</code> is NOT relayed; verify non-existent target is silently dropped.</li>
+<li>[ ] 18.2.6 Run <code>pnpm --filter @nexus-chat/server typecheck &amp;&amp; pnpm --filter @nexus-chat/server test</code>.</li>
 </ul>
-<h2 id="command-invocation-flow">Command Invocation Flow<a class="headerlink" href="#command-invocation-flow" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Client → bot.command.invoke
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  → Gateway auth + channel mode check
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  → Bot Engine command lookup
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  → BullMQ bot queue
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  → Bot WebSocket event
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  → Bot response
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  → Validate scopes + membership
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  → Insert bot message into channel
-</code></pre></div>
+<h3 id="183-ice-server-configuration">18.3 ICE Server Configuration<a class="headerlink" href="#183-ice-server-configuration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 18.3.1 Add <code>NEXUS_STUN_SERVERS</code>, <code>NEXUS_TURN_SERVERS</code>, <code>NEXUS_TURN_USERNAME</code>, <code>NEXUS_TURN_CREDENTIAL</code> to <code>.env.example</code>.</li>
+<li>[ ] 18.3.2 Add <code>NEXUS_P2P_CONNECTION_TIMEOUT_MS</code> (default 5000) and <code>NEXUS_P2P_RELAY_COOLDOWN_MS</code> (default 30000) to <code>.env.example</code>.</li>
+<li>[ ] 18.3.3 Create <code>apps/web/src/lib/p2p/config.ts</code>: parse ICE server config from env or use defaults.</li>
+</ul>
+<h3 id="184-p2p-connection-pool">18.4 P2P Connection Pool<a class="headerlink" href="#184-p2p-connection-pool" title="Permanent link">&para;</a></h3>
+<p><strong>New files</strong>: <code>apps/web/src/lib/p2p/pool.ts</code>, <code>apps/web/src/lib/p2p/types.ts</code></p>
+<ul>
+<li>[ ] 18.4.1 Define <code>P2pConnectionState</code> type and <code>PeerTransportState</code> (mode, p2pFailedAt, cooldownUntil).</li>
+<li>[ ] 18.4.2 Implement <code>P2pConnectionPool</code> class:</li>
+<li><code>Map&lt;userId, RTCPeerConnection&gt;</code> for connection storage.</li>
+<li><code>Map&lt;userId, RTCDataChannel&gt;</code> for data channel references.</li>
+<li><code>Set&lt;userId&gt;</code> for in-progress connections (<code>connecting</code>).</li>
+<li><code>has(userId)</code>, <code>getChannel(userId)</code>.</li>
+<li><code>createOffer(peerUserId): Promise&lt;RTCSessionDescription&gt;</code>.</li>
+<li><code>handleAnswer(peerUserId, sdp)</code>.</li>
+<li><code>handleIceCandidate(peerUserId, candidate)</code>.</li>
+<li><code>close(userId)</code>, <code>closeAll()</code>.</li>
+<li>Cooldown tracking: <code>isInCooldown(userId)</code>, <code>markFailed(userId)</code>.</li>
+<li>ICE candidate trickling: <code>onicecandidate</code> → signaling send.</li>
+<li>[ ] 18.4.3 Implement <code>setupDataChannelHandlers(dc, peerUserId)</code> for onopen, onclose, onmessage, onerror.</li>
+<li>[ ] 18.4.4 Write unit tests: pool lifecycle, offer/answer flow, ICE candidate handling, cooldown logic, closeAll cleanup.</li>
+<li>[ ] 18.4.5 Run <code>pnpm --filter @nexus-chat/web typecheck &amp;&amp; pnpm --filter @nexus-chat/web test</code>.</li>
+</ul>
+<h3 id="185-signaling-handler">18.5 Signaling Handler<a class="headerlink" href="#185-signaling-handler" title="Permanent link">&para;</a></h3>
+<p><strong>New file</strong>: <code>apps/web/src/lib/p2p/signaling.ts</code></p>
+<ul>
+<li>[ ] 18.5.1 Implement <code>P2pSignalingHandler</code>:</li>
+<li>Listens on existing WebSocket for <code>p2p.offer</code>, <code>p2p.answer</code>, <code>p2p.ice-candidate</code>, <code>p2p.hangup</code> events.</li>
+<li>Routes to appropriate <code>P2pConnectionPool</code> methods.</li>
+<li>Validates <code>_senderUserId</code> matches expected peer.</li>
+<li>[ ] 18.5.2 Implement <code>sendSignaling(wsSend, eventType, payload)</code> helper: wraps in <code>wsEnvelope</code> and emits via WebSocket.</li>
+<li>[ ] 18.5.3 Write unit tests: mock WebSocket, verify offer triggers <code>createOffer</code> flow, verify answer triggers <code>handleAnswer</code>, verify ICE candidate routes correctly, verify hangup triggers <code>close</code>.</li>
+<li>[ ] 18.5.4 Run <code>pnpm --filter @nexus-chat/web typecheck &amp;&amp; pnpm --filter @nexus-chat/web test</code>.</li>
+</ul>
+<h3 id="186-hybrid-transport">18.6 Hybrid Transport<a class="headerlink" href="#186-hybrid-transport" title="Permanent link">&para;</a></h3>
+<p><strong>New file</strong>: <code>apps/web/src/lib/p2p/transport.ts</code></p>
+<ul>
+<li>[ ] 18.6.1 Implement <code>HybridTransport</code> class:</li>
+<li><code>constructor(session: SignalSession, pool: P2pConnectionPool, wsSend, signalingSend)</code>.</li>
+<li><code>async sendMessage(input: SendMessageInput): Promise&lt;SendResult&gt;</code>:<ol>
+<li>Call <code>encryptForSession(session, plaintext)</code>.</li>
+<li>Check <code>pool.has(targetUserId)</code> → P2P send via data channel.</li>
+<li>If no connection and not in cooldown → initiate WebRTC with 5s timeout.</li>
+<li>If connection succeeds → P2P send.</li>
+<li>If timeout/failure → server WebSocket relay fallback.</li>
+</ol>
+</li>
+<li><code>onMessage(handler)</code>: listen on both data channel and WebSocket; dedup by <code>clientMsgId</code>; decrypt and deliver.</li>
+<li><code>destroy()</code>: close pool and remove listeners.</li>
+<li>[ ] 18.6.2 Implement <code>sendP2pFrame(dataChannel, frame)</code> and <code>sendP2pAck(dataChannel, clientMsgId)</code>.</li>
+<li>[ ] 18.6.3 Implement client-side <code>clientMsgId</code> dedup (LRU Set of last 1000).</li>
+<li>[ ] 18.6.4 Implement fallback: <code>sendViaRelay(wsSend, input)</code> → existing socket.emit flow.</li>
+<li>[ ] 18.6.5 Write unit tests:</li>
+<li>P2P available: message goes via data channel, returns <code>{ path: "p2p" }</code>.</li>
+<li>P2P unavailable: falls back to relay, returns <code>{ path: "relay" }</code>.</li>
+<li>Cooldown active: skips P2P attempt, goes directly to relay.</li>
+<li>Dedup: same <code>clientMsgId</code> on both paths, only first is processed.</li>
+<li>Multiple messages: all go through same cached data channel.</li>
+<li>Data channel close: next message falls back to relay.</li>
+<li>[ ] 18.6.6 Run <code>pnpm --filter @nexus-chat/web typecheck &amp;&amp; pnpm --filter @nexus-chat/web test</code>.</li>
+</ul>
+<h3 id="187-integration-with-websocket-client">18.7 Integration with WebSocket Client<a class="headerlink" href="#187-integration-with-websocket-client" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/web/src/lib/ws-client.ts</code></p>
+<ul>
+<li>[ ] 18.7.1 Add P2P signaling event listener in <code>createSocket</code> or a separate <code>setupP2pSignaling</code> function.</li>
+<li>[ ] 18.7.2 Ensure the <code>p2p.*</code> event subscription is active for authenticated sessions.</li>
+<li>[ ] 18.7.3 Run existing web tests to ensure no regression.</li>
+</ul>
+<h3 id="188-smoke-test">18.8 Smoke Test<a class="headerlink" href="#188-smoke-test" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/tui/src/commands/smoke.ts</code></p>
+<ul>
+<li>[ ] 18.8.1 Add <code>runP2pSmoke</code> function:</li>
+<li>Verify all P2P shared schemas are importable and parse valid data.</li>
+<li>Connect WebSocket, send <code>p2p.status</code> event to server, verify <code>ok</code> response.</li>
+<li>Verify the server accepts <code>p2p.offer</code> payload (even without a target — server drops silently).</li>
+<li>Verify <code>P2pConnectionPool</code> is importable and instantiates (browser env only).</li>
+<li>[ ] 18.8.2 Register <code>p2p-smoke</code> command in <code>apps/tui/src/cli.ts</code>.</li>
+<li>[ ] 18.8.3 Export <code>runP2pSmoke</code> from <code>apps/tui/src/index.ts</code>.</li>
+<li>[ ] 18.8.4 Update <code>apps/tui/src/index.test.ts</code> to assert <code>p2p-smoke</code> command exists.</li>
+<li>[ ] 18.8.5 Add <code>p2p-smoke</code> to the TUI smoke chain in <code>apps/tui/package.json</code>.</li>
+<li>[ ] 18.8.6 Run <code>pnpm --filter @nexus-chat/tui typecheck &amp;&amp; pnpm --filter @nexus-chat/tui test</code>.</li>
+</ul>
+<h3 id="189-integration-test-browser">18.9 Integration Test (Browser)<a class="headerlink" href="#189-integration-test-browser" title="Permanent link">&para;</a></h3>
+<p><strong>New file</strong>: <code>apps/web/src/lib/p2p/transport.integration.test.ts</code> (or within existing test setup)</p>
+<ul>
+<li>[ ] 18.9.1 Two client instances (Alice and Bob) with mock WebSocket + real RTCPeerConnection.</li>
+<li>[ ] 18.9.2 Full WebRTC handshake: Alice sends offer via mocked signaling, Bob answers, ICE exchange, data channel opens.</li>
+<li>[ ] 18.9.3 Alice sends P2P ciphertext message; Bob receives and decrypts.</li>
+<li>[ ] 18.9.4 Verify <code>clientMsgId</code> dedup when same message arrives via both paths (simulated).</li>
+<li>[ ] 18.9.5 Verify fallback: simulate WebRTC failure (don't call <code>pc.setLocalDescription</code>), message arrives via relay.</li>
+<li>[ ] 18.9.6 Verify cooldown: after a failed attempt, next message skips WebRTC and goes relay.</li>
+</ul>
+<h3 id="1810-documentation-config">18.10 Documentation &amp; Config<a class="headerlink" href="#1810-documentation-config" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 18.10.1 Update <code>README.md</code> Phase 1 feature table: add "P2P Direct Connection for 1:1 E2EE DM".</li>
+<li>[ ] 18.10.2 Update <code>docs/ai/context.md</code> with P2P implementation status.</li>
+<li>[ ] 18.10.3 Update <code>mkdocs.yml</code> nav: add P2P design doc and task doc.</li>
+<li>[ ] 18.10.4 Verify <code>pnpm build</code> succeeds with all new code.</li>
+<li>[ ] 18.10.5 Verify <code>pnpm lint</code> passes.</li>
+<li>[ ] 18.10.6 Verify <code>pnpm typecheck</code> passes.</li>
+<li>[ ] 18.10.7 Verify <code>pnpm coverage</code> maintains 90%+ branch coverage.</li>
+</ul>
 <h2 id="acceptance-criteria">Acceptance Criteria<a class="headerlink" href="#acceptance-criteria" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Bot can register and receive token once.</li>
-<li>Bot can connect to <code>/bots</code> WebSocket namespace.</li>
-<li>Bot can be added to a normal channel.</li>
-<li>Bot cannot be added to an E2E channel.</li>
-<li><code>bot.command.invoke</code> reaches installed bot.</li>
-<li>Bot response appears as bot-authored message.</li>
-<li>Queue isolation prevents one slow bot from blocking others.</li>
-</ul>
-<h2 id="test-plan">Test Plan<a class="headerlink" href="#test-plan" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Token generation/hash lookup test.</li>
-<li>Bot WebSocket auth test.</li>
-<li>Bot channel membership test.</li>
-<li>E2E channel rejection test.</li>
-<li>Command invocation integration test.</li>
-<li>Queue retry/dead letter test.</li>
+<li>[ ] Two web clients can establish a WebRTC Data Channel and send E2EE ciphertext messages directly, with no server data path involvement.</li>
+<li>[ ] SDP offer/answer and ICE candidates are successfully relayed via the server WebSocket signaling path.</li>
+<li>[ ] If WebRTC fails (simulated: blocked STUN), the message is delivered via the existing server WebSocket relay path without user-visible error.</li>
+<li>[ ] <code>clientMsgId</code> deduplication works: a message arriving on both P2P and relay paths is only processed once.</li>
+<li>[ ] All P2P schemas are validated by Zod at both client and server boundaries.</li>
+<li>[ ] Server gateway relays P2P events only to the authenticated target user; unknown targets are silently dropped.</li>
+<li>[ ] Connection pool correctly manages lifecycle: create, reuse, teardown per peer.</li>
+<li>[ ] Cooldown timer prevents repeated failed WebRTC attempts within 30 seconds.</li>
+<li>[ ] <code>p2p-smoke</code> command in TUI verifies schemas and server signaling acceptance.</li>
+<li>[ ] All existing tests (72 tests) continue to pass without modification.</li>
+<li>[ ] No new npm runtime dependencies added (WebRTC is browser-native).</li>
+<li>[ ] ESLint, TypeScript strict mode, Vitest unit tests, and Vitest coverage all pass.</li>
 </ul>
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../03-phase-1-database-schema/">03 — Database Schema</a></li>
-<li><a href="../05-phase-1-core-gateway/">05 — Core Gateway</a></li>
+<li><a href="../09-phase-1-signal-dm-e2ee/">09 — Signal DM E2EE</a> — Signal session establishment and encrypt/decrypt are prerequisites.</li>
+<li><a href="../05-phase-1-core-gateway/">05 — Core Gateway</a> — WebSocket relay infrastructure is reused for signaling.</li>
+<li><a href="../07-phase-1-message-service/">07 — Message Service</a> — Server relay fallback for ciphertext messages.</li>
+<li><a href="../13-phase-1-web-client-shell/">13 — Web Client Shell</a> — P2P code lives in the web client.</li>
+<li><a href="../16-phase-1-local-dev-ci-release/">16 — Local Dev, CI &amp; Release</a> — ICE server env config.</li>
 </ul>
+<h2 id="estimated-effort">Estimated Effort<a class="headerlink" href="#estimated-effort" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Subtask</th>
+<th>Hours</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18.1 Shared Schemas</td>
+<td>2h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>18.2 Server Signaling Relay</td>
+<td>3h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>18.3 ICE Server Config</td>
+<td>0.5h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>18.4 P2P Connection Pool</td>
+<td>6h</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>18.5 Signaling Handler</td>
+<td>3h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>18.6 Hybrid Transport</td>
+<td>6h</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>18.7 WS Client Integration</td>
+<td>2h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>18.8 Smoke Test</td>
+<td>2h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>18.9 Integration Test</td>
+<td>4h</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>18.10 Documentation &amp; Config</td>
+<td>1.5h</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~30h</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Key risk: WebRTC API behavior differences across browsers. Mitigated by using standard APIs and limiting initially to Chrome/Electron (Chromium-based).</p>
+<h2 id="validation-commands">Validation Commands<a class="headerlink" href="#validation-commands" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Unit tests</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/shared<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/server<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/web<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/tui<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># TypeScript</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>pnpm<span class="w"> </span>typecheck
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Lint</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>pnpm<span class="w"> </span>lint
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># Full build</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>pnpm<span class="w"> </span>build
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># Smoke (requires running server)</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>pnpm<span class="w"> </span>smoke:tui:ci
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># Coverage</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>pnpm<span class="w"> </span>coverage
+</code></pre></div>
 
 
 

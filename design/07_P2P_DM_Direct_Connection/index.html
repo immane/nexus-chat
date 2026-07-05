@@ -1,0 +1,4722 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 99.8% statement coverage.">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/design/07_P2P_DM_Direct_Connection/">
+      
+      
+        <link rel="prev" href="../06_Phase_Roadmap/">
+      
+      
+        <link rel="next" href="../../tasks/01-phase-1-project-scaffold/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P2P DM Direct Connection - Nexus Chat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nexus-chat-p2p-direct-connection-for-11-e2ee-dm-design" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P2P DM Direct Connection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../README.zh-CN.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中文首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../QUICKSTART.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00_System_High_Level_Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System High-Level Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Shell & UI Rendering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long Connection & Core Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic & Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async Bot Engine & Event Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration & Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06_Phase_Roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P DM Direct Connection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P DM Direct Connection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-motivation-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Motivation &amp; Rationale
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Motivation &amp; Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-current-state-server-relayed-e2ee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Current State (Server-Relayed E2EE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-why-11-dm-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Why 1:1 DM Only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 Design Principles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Architecture Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-high-level-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 High-Level Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-component-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Component Matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-webrtc-data-channel-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. WebRTC Data Channel Protocol
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. WebRTC Data Channel Protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-stunturn-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 STUN/TURN Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-data-channel-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Data Channel Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-message-framing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Message Framing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-nat-traversal-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 NAT Traversal Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-ice-candidate-trickling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 ICE Candidate Trickling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-signaling-protocol-server-relayed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Signaling Protocol (Server-Relayed)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Signaling Protocol (Server-Relayed)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-new-websocket-event-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 New WebSocket Event Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-signaling-envelope-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Signaling Envelope Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-server-relay-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Server Relay Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-rate-limiting-for-signaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Rate Limiting for Signaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-hybrid-sendreceive-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Hybrid Send/Receive Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Hybrid Send/Receive Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-send-flow-alice-bob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Send Flow (Alice → Bob)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-receive-flow-bob-receives-from-alice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Receive Flow (Bob receives from Alice)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-ack-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Ack Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-deduplication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Deduplication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-connection-lifecycle-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Connection Lifecycle Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Connection Lifecycle Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-connection-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Connection Pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-connection-establishment-alice-initiates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Connection Establishment (Alice initiates)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-connection-teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Connection Teardown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-keepalive-reconnection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Keepalive &amp; Reconnection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-browser-tab-electron-window-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Browser Tab / Electron Window Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-fallback-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Fallback Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Fallback Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-decision-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Decision Matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-relay-preferred-cooldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Relay-Preferred Cooldown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-user-visible-indicators-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 User-Visible Indicators (Optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-schema-event-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Schema &amp; Event Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Schema &amp; Event Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-shared-schemas-packagessharedsrcindexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Shared Schemas (packages/shared/src/index.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-wsclientevent-wsserverevent-union-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 WsClientEvent / WsServerEvent Union Extension
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-ice-server-configuration-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 ICE Server Configuration (env)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-client-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Client Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Client Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-new-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 New Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-transport-manager-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Transport Manager API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-integration-with-existing-e2ee-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Integration with Existing E2EE Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-non-browser-clients-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Non-Browser Clients (TUI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-server-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Server Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Server Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-changes-to-appsserversrcwsgatewayts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Changes to apps/server/src/ws/gateway.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-no-server-storage-of-signaling-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 No Server Storage of Signaling Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-handling-p2pstatus-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Handling p2p.status Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Security Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-threat-model-additions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Threat Model Additions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-double-encryption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Double Encryption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-metadata-leakage-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 Metadata Leakage Comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Testing Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Testing Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 Unit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 Integration Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-smoke-test-addition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 Smoke Test Addition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-dependencies-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Dependencies &amp; Tools
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Dependencies &amp; Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-no-new-runtime-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.1 No New Runtime Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-optional-dev-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.2 Optional / Dev Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#133-browser-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.3 Browser Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Tasks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Implementation Tasks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/01-phase-1-project-scaffold/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Project Scaffold
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/02-phase-1-shared-contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Shared Contracts
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/03-phase-1-database-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Database Schema
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/04-phase-1-auth-session-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Auth & Security
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/05-phase-1-core-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Core Gateway
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/06-phase-1-workspace-channel-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Workspace & Channel
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/07-phase-1-message-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Message Service
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/08-phase-1-attachment-service-foundation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Attachment Foundation
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/09-phase-1-signal-dm-e2ee/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Signal DM E2EE
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/10-phase-1-bot-engine-core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Bot Engine Core
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/11-phase-1-bot-sdk-node-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Node Bot SDK
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/12-phase-1-base-bots-minimal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Minimal Base Bots
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/13-phase-1-web-client-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Web Client Shell
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/14-phase-1-electron-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Electron Shell
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/15-phase-1-observability-security-hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Observability & Hardening
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/16-phase-1-local-dev-ci-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Local Dev, CI & Release
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/17-phase-1-tui-cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — TUI CLI
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/18-phase-1-p2p-dm-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — P2P DM Direct Connection
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend IM & State Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI Components & Plugin Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot Engine & Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Defense & E2EE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base Bot Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup-restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup & Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../beta-checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beta Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known-limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Limitations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-motivation-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Motivation &amp; Rationale
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Motivation &amp; Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-current-state-server-relayed-e2ee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Current State (Server-Relayed E2EE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-why-11-dm-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Why 1:1 DM Only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 Design Principles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Architecture Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-high-level-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 High-Level Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-component-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Component Matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-webrtc-data-channel-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. WebRTC Data Channel Protocol
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. WebRTC Data Channel Protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-stunturn-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 STUN/TURN Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-data-channel-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Data Channel Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-message-framing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Message Framing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-nat-traversal-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 NAT Traversal Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-ice-candidate-trickling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 ICE Candidate Trickling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-signaling-protocol-server-relayed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Signaling Protocol (Server-Relayed)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Signaling Protocol (Server-Relayed)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-new-websocket-event-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 New WebSocket Event Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-signaling-envelope-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Signaling Envelope Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-server-relay-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Server Relay Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-rate-limiting-for-signaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Rate Limiting for Signaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-hybrid-sendreceive-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Hybrid Send/Receive Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Hybrid Send/Receive Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-send-flow-alice-bob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Send Flow (Alice → Bob)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-receive-flow-bob-receives-from-alice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Receive Flow (Bob receives from Alice)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-ack-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Ack Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-deduplication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Deduplication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-connection-lifecycle-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Connection Lifecycle Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Connection Lifecycle Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-connection-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Connection Pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-connection-establishment-alice-initiates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Connection Establishment (Alice initiates)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-connection-teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Connection Teardown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-keepalive-reconnection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Keepalive &amp; Reconnection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-browser-tab-electron-window-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Browser Tab / Electron Window Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-fallback-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Fallback Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Fallback Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-decision-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Decision Matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-relay-preferred-cooldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Relay-Preferred Cooldown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-user-visible-indicators-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 User-Visible Indicators (Optional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-schema-event-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Schema &amp; Event Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Schema &amp; Event Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-shared-schemas-packagessharedsrcindexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Shared Schemas (packages/shared/src/index.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-wsclientevent-wsserverevent-union-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 WsClientEvent / WsServerEvent Union Extension
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-ice-server-configuration-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 ICE Server Configuration (env)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-client-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Client Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Client Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-new-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 New Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-transport-manager-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Transport Manager API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-integration-with-existing-e2ee-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Integration with Existing E2EE Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-non-browser-clients-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Non-Browser Clients (TUI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-server-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Server Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Server Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-changes-to-appsserversrcwsgatewayts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Changes to apps/server/src/ws/gateway.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-no-server-storage-of-signaling-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 No Server Storage of Signaling Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-handling-p2pstatus-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Handling p2p.status Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Security Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-threat-model-additions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Threat Model Additions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-double-encryption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Double Encryption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-metadata-leakage-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 Metadata Leakage Comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Testing Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Testing Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 Unit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 Integration Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-smoke-test-addition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 Smoke Test Addition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-dependencies-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Dependencies &amp; Tools
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Dependencies &amp; Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-no-new-runtime-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.1 No New Runtime Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-optional-dev-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.2 Optional / Dev Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#133-browser-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.3 Browser Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="nexus-chat-p2p-direct-connection-for-11-e2ee-dm-design">Nexus Chat — P2P Direct Connection for 1:1 E2EE DM Design<a class="headerlink" href="#nexus-chat-p2p-direct-connection-for-11-e2ee-dm-design" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Version: v1.0 | Last Updated: 2026-07-06 | Status: Draft
+References: <a href="../../tasks/09-phase-1-signal-dm-e2ee/">Signal DM E2EE Task</a>, <a href="../02_Long_Connection_and_Core_Gateway_Layer/">Core Gateway Layer</a>, <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a></p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-motivation--rationale">Motivation &amp; Rationale</a></li>
+<li><a href="#2-architecture-overview">Architecture Overview</a></li>
+<li><a href="#3-webrtc-data-channel-protocol">WebRTC Data Channel Protocol</a></li>
+<li><a href="#4-signaling-protocol-server-relayed">Signaling Protocol (Server-Relayed)</a></li>
+<li><a href="#5-hybrid-sendreceive-flow">Hybrid Send/Receive Flow</a></li>
+<li><a href="#6-connection-lifecycle-management">Connection Lifecycle Management</a></li>
+<li><a href="#7-fallback-strategy">Fallback Strategy</a></li>
+<li><a href="#8-schema--event-changes">Schema &amp; Event Changes</a></li>
+<li><a href="#9-client-architecture">Client Architecture</a></li>
+<li><a href="#10-server-architecture">Server Architecture</a></li>
+<li><a href="#11-security-considerations">Security Considerations</a></li>
+<li><a href="#12-testing-strategy">Testing Strategy</a></li>
+<li><a href="#13-dependencies--tools">Dependencies &amp; Tools</a></li>
+</ol>
+<hr />
+<h2 id="1-motivation-rationale">1. Motivation &amp; Rationale<a class="headerlink" href="#1-motivation-rationale" title="Permanent link">&para;</a></h2>
+<h3 id="11-current-state-server-relayed-e2ee">1.1 Current State (Server-Relayed E2EE)<a class="headerlink" href="#11-current-state-server-relayed-e2ee" title="Permanent link">&para;</a></h3>
+<p>In Phase 1 milestone 09, E2EE DM messages flow through the server:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Alice ──[encrypt]──► ciphertext ──[WebSocket]──► Server ──[WebSocket]──► Bob ──[decrypt]──► plaintext
+</code></pre></div>
+<p>The server never sees plaintext (encryption is client-side), but the server <strong>observes metadata</strong>: who is talking to whom, when, message size, and ciphertext bytes.</p>
+<h3 id="12-goal">1.2 Goal<a class="headerlink" href="#12-goal" title="Permanent link">&para;</a></h3>
+<p>Add an <strong>opportunistic WebRTC Data Channel</strong> path for 1:1 E2EE DMs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Alice ──[WebRTC Data Channel]──► Bob     (preferred, direct)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>         │                              │
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>         └──[WebSocket signaling]──► Server ◄──[signaling reply]──┘
+</code></pre></div>
+<p>When WebRTC succeeds, the server is removed from the message data path entirely. When it fails (NAT, firewall), the system transparently falls back to the existing server-relayed path.</p>
+<h3 id="13-why-11-dm-only">1.3 Why 1:1 DM Only<a class="headerlink" href="#13-why-11-dm-only" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Connection model is simple</strong>: one WebRTC <code>RTCPeerConnection</code> per DM peer pair.</li>
+<li><strong>Privacy benefit is maximized</strong>: DMs are the most sensitive communication channel.</li>
+<li><strong>Avoids O(N²) complexity</strong> of full-mesh group P2P in this phase.</li>
+<li><strong>Group E2EE</strong> already has a different topology (Signal Sender Key / MLS) and is orthogonal to transport.</li>
+</ul>
+<h3 id="14-design-principles">1.4 Design Principles<a class="headerlink" href="#14-design-principles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Opportunistic</strong></td>
+<td>Try P2P; if it fails within a short timeout, use server relay. Never block the user.</td>
+</tr>
+<tr>
+<td><strong>Transport-agnostic encryption</strong></td>
+<td><code>packages/signal</code> encrypt/decrypt functions are unchanged. The ciphertext is identical whether sent via WebRTC or WebSocket.</td>
+</tr>
+<tr>
+<td><strong>Server as signaling relay only</strong></td>
+<td>The server relays SDP/ICE without parsing or storing them. No cryptographic material touches the server.</td>
+</tr>
+<tr>
+<td><strong>Zero config for users</strong></td>
+<td>P2P is automatic. Users don't opt in or configure anything.</td>
+</tr>
+<tr>
+<td><strong>Per-peer connection cache</strong></td>
+<td>Once a WebRTC connection is established, reuse it for the session lifetime.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-architecture-overview">2. Architecture Overview<a class="headerlink" href="#2-architecture-overview" title="Permanent link">&para;</a></h2>
+<h3 id="21-high-level-data-flow">2.1 High-Level Data Flow<a class="headerlink" href="#21-high-level-data-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>┌─────────────────────────────────┐     ┌─────────────────────────────────┐
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>│         Alice&#39;s Client           │     │          Bob&#39;s Client            │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│                                  │     │                                  │
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│  ┌────────────────────────────┐  │     │  ┌────────────────────────────┐  │
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│  │  packages/signal           │  │     │  │  packages/signal           │  │
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│  │  encryptForSession()       │  │     │  │  decryptFromSession()      │  │
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│  │  (unchanged)               │  │     │  │  (unchanged)               │  │
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│  └──────────┬─────────────────┘  │     │  └──────────▲─────────────────┘  │
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│             │ ciphertext         │     │             │ ciphertext         │
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│  ┌──────────▼─────────────────┐  │     │  ┌──────────┴─────────────────┐  │
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│  │  P2P Transport Manager      │  │     │  │  P2P Transport Manager      │  │
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│  │  ┌───────────────────────┐  │  │     │  │  ┌───────────────────────┐  │  │
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│  │  │ WebRTC Data Channel    │──┼──┼─────┼──│ WebRTC Data Channel    │  │  │
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│  │  │ (preferred path)       │  │  │     │  │ (preferred path)       │  │  │
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│  │  └───────────────────────┘  │  │     │  │  └───────────────────────┘  │  │
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│  │  ┌───────────────────────┐  │  │     │  │  ┌───────────────────────┐  │  │
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│  │  │ WebSocket (fallback)   │──┼──┼──┐  │  │  │ WebSocket (fallback)   │  │  │
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│  │  └───────────────────────┘  │  │  │  │  │  └───────────────────────┘  │  │
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│  │  ┌───────────────────────┐  │  │  │  │  │  ┌───────────────────────┐  │  │
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│  │  │ Signaling (WebSocket)  │──┼──┼──┼──┼──│  │ Signaling (WebSocket)  │  │  │
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│  │  └───────────────────────┘  │  │  │  │  │  └───────────────────────┘  │  │
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│  └────────────────────────────┘  │  │  │  └────────────────────────────┘  │
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>└──────────────────────────────────┘  │  │  └──────────────────────────────────┘
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>                                      │  │
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>                          ┌───────────▼──┴───────────┐
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>                          │        Server              │
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>                          │  ┌──────────────────────┐  │
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>                          │  │ Signaling Relay       │  │
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>                          │  │ (WebSocket events)    │  │
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>                          │  └──────────────────────┘  │
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>                          │  ┌──────────────────────┐  │
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>                          │  │ Message Relay         │  │
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>                          │  │ (fallback only,       │  │
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>                          │  │  unchanged)            │  │
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>                          │  └──────────────────────┘  │
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>                          └───────────────────────────┘
+</code></pre></div>
+<h3 id="22-component-matrix">2.2 Component Matrix<a class="headerlink" href="#22-component-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Location</th>
+<th>Change Level</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>signal</code> package</td>
+<td><code>packages/signal/src/index.ts</code></td>
+<td><strong>None</strong></td>
+<td>encrypt/decrypt unchanged</td>
+</tr>
+<tr>
+<td><code>shared</code> schemas</td>
+<td><code>packages/shared/src/index.ts</code></td>
+<td><strong>Add</strong></td>
+<td>New P2P signaling event schemas</td>
+</tr>
+<tr>
+<td>P2P Transport Manager</td>
+<td><code>apps/web/src/lib/p2p/</code> (new)</td>
+<td><strong>New</strong></td>
+<td>WebRTC connection pool, signaling handler, hybrid send</td>
+</tr>
+<tr>
+<td>Server Signaling Relay</td>
+<td><code>apps/server/src/ws/gateway.ts</code></td>
+<td><strong>Add</strong></td>
+<td>Relay P2P events between peers</td>
+</tr>
+<tr>
+<td>WebSocket Client</td>
+<td><code>apps/web/src/lib/ws-client.ts</code></td>
+<td><strong>Modify</strong></td>
+<td>Subscribe to P2P signaling events</td>
+</tr>
+<tr>
+<td>TUI WS Client</td>
+<td><code>apps/tui/src/lib/ws-client.ts</code></td>
+<td><strong>Modify</strong></td>
+<td>Subscribe to P2P signaling events (TUI stays relay-only)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-webrtc-data-channel-protocol">3. WebRTC Data Channel Protocol<a class="headerlink" href="#3-webrtc-data-channel-protocol" title="Permanent link">&para;</a></h2>
+<h3 id="31-stunturn-configuration">3.1 STUN/TURN Configuration<a class="headerlink" href="#31-stunturn-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ICE servers (configurable via env):
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  STUN: stun:stun.l.google.com:19302  (default, free)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  TURN: turn:turn.nexus-chat.dev:3478 (optional, self-hosted coturn)
+</code></pre></div>
+<p>STUN works for ~85% of consumer NAT configurations. TURN is a relay fallback for the remaining 15% and can be provisioned as a self-hosted coturn instance.</p>
+<h3 id="32-data-channel-configuration">3.2 Data Channel Configuration<a class="headerlink" href="#32-data-channel-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">dataChannel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">peerConnection</span><span class="p">.</span><span class="nx">createDataChannel</span><span class="p">(</span><span class="s2">&quot;nexus-e2ee&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nx">ordered</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w">         </span><span class="c1">// Messages must arrive in order (Signal Double Ratchet requires this)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nx">maxRetransmits</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="p">,</span><span class="w">     </span><span class="c1">// Reliable delivery with bounded retransmits</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nx">negotiated</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span><span class="w">     </span><span class="c1">// One side creates, the other receives via &quot;ondatachannel&quot;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">0</span><span class="w">                  </span><span class="c1">// Fixed channel ID</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">});</span>
+</code></pre></div>
+<h3 id="33-message-framing">3.3 Message Framing<a class="headerlink" href="#33-message-framing" title="Permanent link">&para;</a></h3>
+<p>Each P2P message is a JSON frame:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">P2pMessageFrame</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;e2ee.message&quot;</span><span class="p">;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nx">clientMsgId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nx">channelId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="kt">CiphertextMessageContent</span><span class="p">;</span><span class="w">  </span><span class="c1">// same type as server-relayed</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">P2pAckFrame</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;e2ee.ack&quot;</span><span class="p">;</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="nx">clientMsgId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="nx">messageId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>clientMsgId</code> field allows the recipient to detect duplicates across P2P and fallback paths.</p>
+<h3 id="34-nat-traversal-strategy">3.4 NAT Traversal Strategy<a class="headerlink" href="#34-nat-traversal-strategy" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Attempt 1: Direct STUN (UDP hole-punching)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  ├── Alice gathers ICE candidates (host, srflx via STUN)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  ├── Bob gathers ICE candidates (host, srflx via STUN)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  ├── Candidates exchanged via server signaling
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  └── ICE completes → P2P connection established (~85% success rate)
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>Attempt 2: TURN relay (optional, if configured)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>  ├── Both peers fall back to TURN relay candidates
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>  ├── Server relays media packets via TURN
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>  └── Less ideal (server sees data), but ensures connectivity
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>Timeout: 5 seconds
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>  └── After 5s without ICE connection state &quot;connected&quot; or &quot;completed&quot;,
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>      abandon P2P attempt, use server WebSocket fallback.
+</code></pre></div>
+<h3 id="35-ice-candidate-trickling">3.5 ICE Candidate Trickling<a class="headerlink" href="#35-ice-candidate-trickling" title="Permanent link">&para;</a></h3>
+<p>ICE candidates are sent incrementally ("trickled") rather than waiting for all candidates:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nx">peerConnection</span><span class="p">.</span><span class="nx">onicecandidate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">candidate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nx">signalingSend</span><span class="p">(</span><span class="s2">&quot;p2p.ice-candidate&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="nx">targetUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">peerUserId</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="nx">candidate</span><span class="o">:</span><span class="w"> </span><span class="kt">event.candidate.toJSON</span><span class="p">()</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="p">});</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">};</span>
+</code></pre></div>
+<p>The remote peer calls <code>peerConnection.addIceCandidate()</code> for each received candidate.</p>
+<hr />
+<h2 id="4-signaling-protocol-server-relayed">4. Signaling Protocol (Server-Relayed)<a class="headerlink" href="#4-signaling-protocol-server-relayed" title="Permanent link">&para;</a></h2>
+<h3 id="41-design">4.1 Design<a class="headerlink" href="#41-design" title="Permanent link">&para;</a></h3>
+<p>Signaling uses the <strong>existing WebSocket</strong> connection. The server acts as a <strong>dumb relay</strong>: it receives a signaling event from Alice, looks up Bob's active socket, and forwards the event to Bob. The server does <strong>not parse SDP or ICE content</strong>.</p>
+<h3 id="42-new-websocket-event-types">4.2 New WebSocket Event Types<a class="headerlink" href="#42-new-websocket-event-types" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// Client → Server → Peer</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="s2">&quot;p2p.offer&quot;</span><span class="w">           </span><span class="c1">// Alice → Server → Bob: SDP offer</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="s2">&quot;p2p.answer&quot;</span><span class="w">          </span><span class="c1">// Bob → Server → Alice: SDP answer</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="s2">&quot;p2p.ice-candidate&quot;</span><span class="w">   </span><span class="c1">// Either → Server → Other: ICE candidate</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="s2">&quot;p2p.hangup&quot;</span><span class="w">          </span><span class="c1">// Either → Server → Other: terminate P2P</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1">// Client → Server (informational, not forwarded)</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="s2">&quot;p2p.status&quot;</span><span class="w">          </span><span class="c1">// Client → Server: &quot;P2P connected to &lt;userId&gt;&quot; or &quot;P2P failed, using relay&quot;</span>
+</code></pre></div>
+<h3 id="43-signaling-envelope-schema">4.3 Signaling Envelope Schema<a class="headerlink" href="#43-signaling-envelope-schema" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// Shared schemas (packages/shared/src/index.ts)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">p2pSignalingEnvelopeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nx">targetUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">idSchema</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nx">targetDeviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">idSchema.optional</span><span class="p">()</span><span class="w">  </span><span class="c1">// for future multi-device</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">});</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="kd">const</span><span class="w"> </span><span class="nx">p2pOfferSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pSignalingEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="nx">sdp</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w">               </span><span class="c1">// SDP offer string</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">});</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="kd">const</span><span class="w"> </span><span class="nx">p2pAnswerSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pSignalingEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">  </span><span class="nx">sdp</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w">               </span><span class="c1">// SDP answer string</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="p">});</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="kd">const</span><span class="w"> </span><span class="nx">p2pIceCandidateSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pSignalingEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">  </span><span class="nx">candidate</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">    </span><span class="nx">candidate</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">    </span><span class="nx">sdpMid</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">nullable</span><span class="p">(),</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">    </span><span class="nx">sdpMLineIndex</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">().</span><span class="kr">int</span><span class="p">().</span><span class="nx">nonnegative</span><span class="p">().</span><span class="nx">nullable</span><span class="p">()</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">  </span><span class="p">})</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="p">});</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="kd">const</span><span class="w"> </span><span class="nx">p2pHangupSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pSignalingEnvelopeSchema</span><span class="p">;</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="c1">// Wrapped in WsEnvelope</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="kd">const</span><span class="w"> </span><span class="nx">WsP2pOfferEnvelope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">wsEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s2">&quot;p2p.offer&quot;</span><span class="p">),</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a><span class="w">  </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">p2pOfferSchema</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="p">});</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="c1">// ... similarly for answer, ice-candidate, hangup</span>
+</code></pre></div>
+<h3 id="44-server-relay-logic">4.4 Server Relay Logic<a class="headerlink" href="#44-server-relay-logic" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">// apps/server/src/ws/gateway.ts</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">P2P_EVENTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">([</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="s2">&quot;p2p.offer&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;p2p.answer&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;p2p.ice-candidate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;p2p.hangup&quot;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">]);</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="c1">// In handleClientEnvelope:</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">P2P_EVENTS</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">envelope</span><span class="p">.</span><span class="kr">type</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">targetUserId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">envelope</span><span class="p">.</span><span class="nx">payload</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">targetUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">targetSocket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[...</span><span class="nx">io</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">values</span><span class="p">()]</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">userId</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">targetUserId</span><span class="p">);</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">targetSocket</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nx">targetSocket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s2">&quot;event&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">      </span><span class="p">...</span><span class="nx">envelope</span><span class="p">,</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">      </span><span class="c1">// Optionally add sender metadata</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">      </span><span class="nx">_senderUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">socket.data.userId</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="p">});</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">  </span><span class="c1">// No ack — P2P signaling is fire-and-forget</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ok</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="45-rate-limiting-for-signaling">4.5 Rate Limiting for Signaling<a class="headerlink" href="#45-rate-limiting-for-signaling" title="Permanent link">&para;</a></h3>
+<p>Signaling events are subject to the same rate limiter as other WS events (50 events / 10s window per user). This prevents abuse but is unlikely to impact normal usage (a WebRTC handshake generates ~5-10 signaling events total).</p>
+<hr />
+<h2 id="5-hybrid-sendreceive-flow">5. Hybrid Send/Receive Flow<a class="headerlink" href="#5-hybrid-sendreceive-flow" title="Permanent link">&para;</a></h2>
+<h3 id="51-send-flow-alice-bob">5.1 Send Flow (Alice → Bob)<a class="headerlink" href="#51-send-flow-alice-bob" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>sendE2eMessage(recipientUserId, plaintext):
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  │
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  ├── 1. Encrypt (unchanged)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  │      ciphertext = encryptForSession(session, plaintext)
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>  │
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>  ├── 2. Check P2P availability
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>  │      connection = connectionPool.get(recipientUserId)
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>  │
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>  ├── 3a. P2P available → direct send
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>  │      dataChannel.send(JSON.stringify({
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>  │        type: &quot;e2ee.message&quot;,
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>  │        clientMsgId, channelId, content: ciphertext, timestamp
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>  │      }))
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>  │      return { path: &quot;p2p&quot;, status: &quot;sent&quot; }
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>  │
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>  ├── 3b. No P2P connection → try to establish one
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>  │      offer = await createOffer(recipientUserId)
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>  │      signalingSend(&quot;p2p.offer&quot;, { targetUserId, sdp: offer })
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>  │      await waitForConnection(timeout: 5000ms)
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>  │      │
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>  │      ├── Connected → go to 3a
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>  │      │
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>  │      └── Timeout/NAT failure → fallback (3c)
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>  │
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>  └── 3c. Fallback to server relay (unchanged)
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>         socket.emit(&quot;event&quot;, {
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>           type: &quot;message.send&quot;,
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>           payload: { workspaceId, channelId, clientMsgId, content: ciphertext }
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>         })
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>         return { path: &quot;relay&quot;, status: &quot;sent&quot; }
+</code></pre></div>
+<h3 id="52-receive-flow-bob-receives-from-alice">5.2 Receive Flow (Bob receives from Alice)<a class="headerlink" href="#52-receive-flow-bob-receives-from-alice" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>onMessage(frame):
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  │
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  ├── Check if this is a P2P message or WebSocket message
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>  │   │
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>  │   ├── P2P data channel message:
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>  │   │   ├── 1. Parse frame
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>  │   │   ├── 2. Check clientMsgId dedup (against received set)
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>  │   │   ├── 3. decryptFromSession(session, frame.content.ciphertext)
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>  │   │   ├── 4. Deliver plaintext to UI
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>  │   │   └── 5. Send P2P ack back to sender
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>  │   │         dataChannel.send(JSON.stringify({
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>  │   │           type: &quot;e2ee.ack&quot;, clientMsgId, messageId
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>  │   │         }))
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>  │   │         // Also POST lightweight ack to server for multi-device sync
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>  │   │         serverAPI.ackMessage(messageId)
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>  │   │
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>  │   └── WebSocket message (server relay):
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>  │       ├── Standard flow (unchanged)
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>  │       └── (existing message.created handler)
+</code></pre></div>
+<h3 id="53-ack-flow">5.3 Ack Flow<a class="headerlink" href="#53-ack-flow" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Ack Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2P data channel</td>
+<td>Direct <code>e2ee.ack</code> frame over WebRTC</td>
+</tr>
+<tr>
+<td>Server relay</td>
+<td>Existing <code>message.ack</code> WS event</td>
+</tr>
+<tr>
+<td>Multi-device sync</td>
+<td>Lightweight <code>POST /api/v1/messages/:id/ack</code> to server</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-deduplication">5.4 Deduplication<a class="headerlink" href="#54-deduplication" title="Permanent link">&para;</a></h3>
+<p><code>clientMsgId</code> is checked against a client-side LRU set (last 1000 messages) before processing any incoming ciphertext, regardless of path.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">// client-side dedup</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">recentlyProcessed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// max 1000 entries</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="kd">function</span><span class="w"> </span><span class="nx">isDuplicate</span><span class="p">(</span><span class="nx">clientMsgId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">recentlyProcessed</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">clientMsgId</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="nx">recentlyProcessed</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">clientMsgId</span><span class="p">);</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">recentlyProcessed</span><span class="p">.</span><span class="nx">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">first</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">recentlyProcessed</span><span class="p">.</span><span class="nx">values</span><span class="p">().</span><span class="nx">next</span><span class="p">().</span><span class="nx">value</span><span class="p">;</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">first</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">undefined</span><span class="p">)</span><span class="w"> </span><span class="nx">recentlyProcessed</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">first</span><span class="p">);</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="6-connection-lifecycle-management">6. Connection Lifecycle Management<a class="headerlink" href="#6-connection-lifecycle-management" title="Permanent link">&para;</a></h2>
+<h3 id="61-connection-pool">6.1 Connection Pool<a class="headerlink" href="#61-connection-pool" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">// apps/web/src/lib/p2p/pool.ts</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kd">class</span><span class="w"> </span><span class="nx">P2pConnectionPool</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nx">connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">RTCPeerConnection</span><span class="o">&gt;</span><span class="p">();</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nx">dataChannels</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">RTCDataChannel</span><span class="o">&gt;</span><span class="p">();</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nx">connecting</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">();</span><span class="w">  </span><span class="c1">// in-progress connections</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span><span class="nx">has</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">  </span><span class="nx">getChannel</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">RTCDataChannel</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">undefined</span><span class="p">;</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">  </span><span class="nx">createOffer</span><span class="p">(</span><span class="nx">peerUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">RTCSessionDescription</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">  </span><span class="nx">handleAnswer</span><span class="p">(</span><span class="nx">peerUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">sdp</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">  </span><span class="nx">handleIceCandidate</span><span class="p">(</span><span class="nx">peerUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">candidate</span><span class="o">:</span><span class="w"> </span><span class="kt">RTCIceCandidate</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">  </span><span class="nx">close</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">  </span><span class="nx">closeAll</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="62-connection-establishment-alice-initiates">6.2 Connection Establishment (Alice initiates)<a class="headerlink" href="#62-connection-establishment-alice-initiates" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Alice connects to Bob:
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>  1. Alice creates RTCPeerConnection with STUN/TURN config
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>  2. Alice creates data channel &quot;nexus-e2ee&quot;
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>  3. Alice creates SDP offer via peerConnection.createOffer()
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>  4. Alice sets local description, waits for ICE gathering
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>  5. Alice sends offer to Bob via server signaling (p2p.offer)
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>  ... (signaling relayed by server) ...
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>  6. Bob receives offer
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>  7. Bob creates RTCPeerConnection
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>  8. Bob sets remote description (Alice&#39;s offer)
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>  9. Bob creates SDP answer via peerConnection.createAnswer()
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>  10. Bob sets local description
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>  11. Bob sends answer to Alice via server signaling (p2p.answer)
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>  12. Both sides exchange ICE candidates via p2p.ice-candidate
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>  13. ICE connection state → &quot;connected&quot; or &quot;completed&quot;
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>  14. Data channel opens → P2P ready
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>  15. Both clients emit &quot;p2p.status&quot; to server: &quot;connected&quot;
+</code></pre></div>
+<h3 id="63-connection-teardown">6.3 Connection Teardown<a class="headerlink" href="#63-connection-teardown" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Disconnect:
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  1. Initiating side sends &quot;p2p.hangup&quot; to peer via signaling
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  2. Initiating side calls peerConnection.close()
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  3. Peer receives &quot;p2p.hangup&quot; → peerConnection.close()
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>  4. Both sides remove connection from pool
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  5. Both clients emit &quot;p2p.status&quot;: &quot;disconnected&quot;
+</code></pre></div>
+<h3 id="64-keepalive-reconnection">6.4 Keepalive &amp; Reconnection<a class="headerlink" href="#64-keepalive-reconnection" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>WebRTC keepalive</strong>: ICE consent freshness (built-in, ~15s interval)</li>
+<li><strong>Data channel close detection</strong>: <code>ondatachannel.onclose</code> → remove from pool, emit <code>p2p.status</code></li>
+<li><strong>Reconnection</strong>: if a P2P message fails to send (data channel closed or closing), the send function automatically falls back to server relay for that message. On next send attempt, a new WebRTC connection is established.</li>
+</ul>
+<h3 id="65-browser-tab-electron-window-lifecycle">6.5 Browser Tab / Electron Window Lifecycle<a class="headerlink" href="#65-browser-tab-electron-window-lifecycle" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tab close / window close</td>
+<td><code>connectionPool.closeAll()</code>, emit <code>p2p.status: disconnected</code> for each peer</td>
+</tr>
+<tr>
+<td>Page refresh</td>
+<td>Same as tab close</td>
+</tr>
+<tr>
+<td>Network change (offline → online)</td>
+<td>All WebRTC connections dropped; pool is cleared; new connections on next message</td>
+</tr>
+<tr>
+<td>Sleep/wake</td>
+<td>ICE consent failure → <code>iceConnectionState → "disconnected"</code> → pool entry removed</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-fallback-strategy">7. Fallback Strategy<a class="headerlink" href="#7-fallback-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="71-decision-matrix">7.1 Decision Matrix<a class="headerlink" href="#71-decision-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2P connection exists and <code>readyState === "open"</code></td>
+<td>Send via WebRTC data channel</td>
+</tr>
+<tr>
+<td>P2P connection in progress (<code>connecting</code> state)</td>
+<td>Queue message (up to 2s); if connection succeeds, send via WebRTC; if timeout, fall back</td>
+</tr>
+<tr>
+<td>No P2P connection, first message</td>
+<td>Initiate WebRTC + <code>createOffer</code>; apply 5s timeout for ICE to complete</td>
+</tr>
+<tr>
+<td>WebRTC failed (timeout / NAT / TURN unavailable)</td>
+<td>Send via server WebSocket; mark peer as "relay-preferred" for 30s</td>
+</tr>
+<tr>
+<td>Data channel closed unexpectedly</td>
+<td>Fall back to server relay for current message; mark peer for reconnect on next message</td>
+</tr>
+<tr>
+<td>TUI / non-browser client</td>
+<td>Always use server relay (no WebRTC support)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-relay-preferred-cooldown">7.2 Relay-Preferred Cooldown<a class="headerlink" href="#72-relay-preferred-cooldown" title="Permanent link">&para;</a></h3>
+<p>If a WebRTC connection attempt fails, the peer is marked with a 30-second cooldown. During this period, messages go directly through server relay without attempting P2P. This prevents repeated connection attempts when the network condition hasn't changed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">PeerTransportState</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nx">mode</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;p2p&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;relay&quot;</span><span class="p">;</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nx">p2pFailedAt?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">        </span><span class="c1">// timestamp of last failure</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="nx">cooldownUntil?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">      </span><span class="c1">// timestamp when to retry P2P</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="p">}</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="kd">const</span><span class="w"> </span><span class="nx">RELAY_COOLDOWN_MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">30</span><span class="nx">_000</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="73-user-visible-indicators-optional">7.3 User-Visible Indicators (Optional)<a class="headerlink" href="#73-user-visible-indicators-optional" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>UI Indicator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2P connected</td>
+<td>Lock icon color: green</td>
+</tr>
+<tr>
+<td>P2P in progress</td>
+<td>Lock icon color: yellow (connecting animation)</td>
+</tr>
+<tr>
+<td>Server relay (fallback)</td>
+<td>Lock icon color: gray</td>
+</tr>
+<tr>
+<td>Server relay (cooldown)</td>
+<td>Lock icon color: gray + tooltip: "Direct connection unavailable, using secure relay"</td>
+</tr>
+</tbody>
+</table>
+<p>This is optional for Phase 1; the MVP can be transparent to users.</p>
+<hr />
+<h2 id="8-schema-event-changes">8. Schema &amp; Event Changes<a class="headerlink" href="#8-schema-event-changes" title="Permanent link">&para;</a></h2>
+<h3 id="81-shared-schemas-packagessharedsrcindexts">8.1 Shared Schemas (<code>packages/shared/src/index.ts</code>)<a class="headerlink" href="#81-shared-schemas-packagessharedsrcindexts" title="Permanent link">&para;</a></h3>
+<p>Add following schemas after the existing WebSocket event schemas (~line 360):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">// ── P2P Signaling Schemas ──</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">p2pTargetSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nx">targetUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">idSchema</span><span class="p">,</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="nx">targetDeviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">idSchema.optional</span><span class="p">()</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="p">});</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">p2pOfferSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pTargetSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="nx">sdp</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="p">});</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">p2pAnswerSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pTargetSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="w">  </span><span class="nx">sdp</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="p">});</span>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">p2pIceCandidateSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pTargetSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="w">  </span><span class="nx">candidate</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a><span class="w">    </span><span class="nx">candidate</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">),</span>
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a><span class="w">    </span><span class="nx">sdpMid</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">nullable</span><span class="p">(),</span>
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a><span class="w">    </span><span class="nx">sdpMLineIndex</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">().</span><span class="kr">int</span><span class="p">().</span><span class="nx">nonnegative</span><span class="p">().</span><span class="nx">nullable</span><span class="p">()</span>
+<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a><span class="w">  </span><span class="p">})</span>
+<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a><span class="p">});</span>
+<a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a>
+<a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">p2pHangupSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pTargetSchema</span><span class="p">;</span>
+<a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a>
+<a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">p2pStatusSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p2pTargetSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a><span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s2">&quot;connected&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;disconnected&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span><span class="p">]),</span>
+<a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a><span class="w">  </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">optional</span><span class="p">()</span>
+<a id="__codelineno-18-29" name="__codelineno-18-29" href="#__codelineno-18-29"></a><span class="p">});</span>
+<a id="__codelineno-18-30" name="__codelineno-18-30" href="#__codelineno-18-30"></a>
+<a id="__codelineno-18-31" name="__codelineno-18-31" href="#__codelineno-18-31"></a><span class="c1">// ── WsEnvelope Extensions ──</span>
+<a id="__codelineno-18-32" name="__codelineno-18-32" href="#__codelineno-18-32"></a>
+<a id="__codelineno-18-33" name="__codelineno-18-33" href="#__codelineno-18-33"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">WsP2pOfferEnvelopeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">wsEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-34" name="__codelineno-18-34" href="#__codelineno-18-34"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s2">&quot;p2p.offer&quot;</span><span class="p">),</span>
+<a id="__codelineno-18-35" name="__codelineno-18-35" href="#__codelineno-18-35"></a><span class="w">  </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">p2pOfferSchema</span>
+<a id="__codelineno-18-36" name="__codelineno-18-36" href="#__codelineno-18-36"></a><span class="p">});</span>
+<a id="__codelineno-18-37" name="__codelineno-18-37" href="#__codelineno-18-37"></a>
+<a id="__codelineno-18-38" name="__codelineno-18-38" href="#__codelineno-18-38"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">WsP2pAnswerEnvelopeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">wsEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-39" name="__codelineno-18-39" href="#__codelineno-18-39"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s2">&quot;p2p.answer&quot;</span><span class="p">),</span>
+<a id="__codelineno-18-40" name="__codelineno-18-40" href="#__codelineno-18-40"></a><span class="w">  </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">p2pAnswerSchema</span>
+<a id="__codelineno-18-41" name="__codelineno-18-41" href="#__codelineno-18-41"></a><span class="p">});</span>
+<a id="__codelineno-18-42" name="__codelineno-18-42" href="#__codelineno-18-42"></a>
+<a id="__codelineno-18-43" name="__codelineno-18-43" href="#__codelineno-18-43"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">WsP2pIceCandidateEnvelopeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">wsEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-44" name="__codelineno-18-44" href="#__codelineno-18-44"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s2">&quot;p2p.ice-candidate&quot;</span><span class="p">),</span>
+<a id="__codelineno-18-45" name="__codelineno-18-45" href="#__codelineno-18-45"></a><span class="w">  </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">p2pIceCandidateSchema</span>
+<a id="__codelineno-18-46" name="__codelineno-18-46" href="#__codelineno-18-46"></a><span class="p">});</span>
+<a id="__codelineno-18-47" name="__codelineno-18-47" href="#__codelineno-18-47"></a>
+<a id="__codelineno-18-48" name="__codelineno-18-48" href="#__codelineno-18-48"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">WsP2pHangupEnvelopeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">wsEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-49" name="__codelineno-18-49" href="#__codelineno-18-49"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s2">&quot;p2p.hangup&quot;</span><span class="p">),</span>
+<a id="__codelineno-18-50" name="__codelineno-18-50" href="#__codelineno-18-50"></a><span class="w">  </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">p2pHangupSchema</span>
+<a id="__codelineno-18-51" name="__codelineno-18-51" href="#__codelineno-18-51"></a><span class="p">});</span>
+<a id="__codelineno-18-52" name="__codelineno-18-52" href="#__codelineno-18-52"></a>
+<a id="__codelineno-18-53" name="__codelineno-18-53" href="#__codelineno-18-53"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">WsP2pStatusEnvelopeSchema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">wsEnvelopeSchema</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<a id="__codelineno-18-54" name="__codelineno-18-54" href="#__codelineno-18-54"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s2">&quot;p2p.status&quot;</span><span class="p">),</span>
+<a id="__codelineno-18-55" name="__codelineno-18-55" href="#__codelineno-18-55"></a><span class="w">  </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">p2pStatusSchema</span>
+<a id="__codelineno-18-56" name="__codelineno-18-56" href="#__codelineno-18-56"></a><span class="p">});</span>
+<a id="__codelineno-18-57" name="__codelineno-18-57" href="#__codelineno-18-57"></a>
+<a id="__codelineno-18-58" name="__codelineno-18-58" href="#__codelineno-18-58"></a><span class="c1">// ── Type exports ──</span>
+<a id="__codelineno-18-59" name="__codelineno-18-59" href="#__codelineno-18-59"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">P2pOffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">infer</span><span class="o">&lt;</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">p2pOfferSchema</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-18-60" name="__codelineno-18-60" href="#__codelineno-18-60"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">P2pAnswer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">infer</span><span class="o">&lt;</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">p2pAnswerSchema</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-18-61" name="__codelineno-18-61" href="#__codelineno-18-61"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">P2pIceCandidate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">infer</span><span class="o">&lt;</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">p2pIceCandidateSchema</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-18-62" name="__codelineno-18-62" href="#__codelineno-18-62"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">P2pHangup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">infer</span><span class="o">&lt;</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">p2pHangupSchema</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-18-63" name="__codelineno-18-63" href="#__codelineno-18-63"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">P2pStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">infer</span><span class="o">&lt;</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">p2pStatusSchema</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="82-wsclientevent-wsserverevent-union-extension">8.2 WsClientEvent / WsServerEvent Union Extension<a class="headerlink" href="#82-wsclientevent-wsserverevent-union-extension" title="Permanent link">&para;</a></h3>
+<p>Add to the existing WsClientEvent and WsServerEvent discriminated unions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1">// WsClientEvent additions</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="s2">&quot;p2p.offer&quot;</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="s2">&quot;p2p.answer&quot;</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="s2">&quot;p2p.ice-candidate&quot;</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="s2">&quot;p2p.hangup&quot;</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="s2">&quot;p2p.status&quot;</span>
+</code></pre></div>
+<p>These events flow in both directions (client → server → client), so they are part of both unions.</p>
+<h3 id="83-ice-server-configuration-env">8.3 ICE Server Configuration (env)<a class="headerlink" href="#83-ice-server-configuration-env" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># .env.example additions</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nv">NEXUS_STUN_SERVERS</span><span class="o">=</span><span class="s2">&quot;stun:stun.l.google.com:19302&quot;</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nv">NEXUS_TURN_SERVERS</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="w">  </span><span class="c1"># optional, e.g. &quot;turn:turn.example.com:3478?transport=udp&quot;</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="nv">NEXUS_TURN_USERNAME</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="w">  </span><span class="c1"># optional</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="nv">NEXUS_TURN_CREDENTIAL</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="c1"># optional</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="c1"># Client-side P2P config</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="nv">NEXUS_P2P_CONNECTION_TIMEOUT_MS</span><span class="o">=</span><span class="m">5000</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="nv">NEXUS_P2P_RELAY_COOLDOWN_MS</span><span class="o">=</span><span class="m">30000</span>
+</code></pre></div>
+<hr />
+<h2 id="9-client-architecture">9. Client Architecture<a class="headerlink" href="#9-client-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="91-new-directory-structure">9.1 New Directory Structure<a class="headerlink" href="#91-new-directory-structure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>apps/web/src/lib/p2p/
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>  ├── pool.ts          # P2pConnectionPool class
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  ├── transport.ts     # HybridTransport: send/receive with path selection
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>  ├── signaling.ts     # Signaling handler: listen on WS for p2p.* events
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>  └── types.ts         # P2P-specific types (not shared with server)
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>apps/tui/src/          # TUI: no p2p/ directory (relay-only)
+</code></pre></div>
+<h3 id="92-transport-manager-api">9.2 Transport Manager API<a class="headerlink" href="#92-transport-manager-api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1">// apps/web/src/lib/p2p/transport.ts</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kd">class</span><span class="w"> </span><span class="nx">HybridTransport</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span><span class="kr">constructor</span><span class="p">(</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">,</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="nx">connectionPool</span><span class="o">:</span><span class="w"> </span><span class="kt">P2pConnectionPool</span><span class="p">,</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="nx">wsSend</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">unknown</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">unknown</span><span class="o">&gt;</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">sendMessage</span><span class="p">(</span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">SendMessageInput</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">SendResult</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">  </span><span class="nx">onMessage</span><span class="p">(</span><span class="nx">handler</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="kt">DecryptedMessage</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">  </span><span class="nx">destroy</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="p">}</span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">SendResult</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a><span class="w">  </span><span class="nx">ok</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;p2p&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;relay&quot;</span><span class="p">;</span>
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a><span class="w">  </span><span class="nx">messageId?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a><span class="w">  </span><span class="nx">error?</span><span class="o">:</span><span class="w"> </span><span class="kt">Error</span><span class="p">;</span>
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="93-integration-with-existing-e2ee-flow">9.3 Integration with Existing E2EE Flow<a class="headerlink" href="#93-integration-with-existing-e2ee-flow" title="Permanent link">&para;</a></h3>
+<p>The <code>HybridTransport</code> replaces the direct <code>socket.emit("event", ...)</code> call in the current E2EE send path. The Signal encryption layer (<code>encryptForSession</code>) is called <strong>before</strong> the transport decision — it always runs, regardless of path.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Current (server-relay only):
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>  encryptForSession → socket.emit(&quot;event&quot;, { type: &quot;message.send&quot;, ... })
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>New (hybrid):
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>  encryptForSession → hybridTransport.sendMessage(input)
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    ├── P2P available → dataChannel.send(frame)
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    └── Relay fallback → socket.emit(&quot;event&quot;, { type: &quot;message.send&quot;, ... })
+</code></pre></div>
+<h3 id="94-non-browser-clients-tui">9.4 Non-Browser Clients (TUI)<a class="headerlink" href="#94-non-browser-clients-tui" title="Permanent link">&para;</a></h3>
+<p>The TUI client (<code>apps/tui/</code>) remains <strong>relay-only</strong>. It does not import <code>p2p/</code> code and always uses the existing <code>sendMessage</code> via WebSocket. The TUI's <code>packages/signal</code> integration is unchanged.</p>
+<p>The Electron client can also remain relay-only initially; P2P can be added to Electron later since it has native <code>RTCPeerConnection</code>.</p>
+<hr />
+<h2 id="10-server-architecture">10. Server Architecture<a class="headerlink" href="#10-server-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="101-changes-to-appsserversrcwsgatewayts">10.1 Changes to <code>apps/server/src/ws/gateway.ts</code><a class="headerlink" href="#101-changes-to-appsserversrcwsgatewayts" title="Permanent link">&para;</a></h3>
+<p>Add a signaling relay function:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">P2P_FORWARD_EVENTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">([</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">  </span><span class="s2">&quot;p2p.offer&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;p2p.answer&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;p2p.ice-candidate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;p2p.hangup&quot;</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="p">]);</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="kd">function</span><span class="w"> </span><span class="nx">relayP2pEvent</span><span class="p">(</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">  </span><span class="nx">io</span><span class="o">:</span><span class="w"> </span><span class="kt">Server</span><span class="p">,</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="w">  </span><span class="nx">fromSocket</span><span class="o">:</span><span class="w"> </span><span class="kt">Socket</span><span class="p">,</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="w">  </span><span class="nx">envelope</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">targetUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">P2P_FORWARD_EVENTS</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">envelope</span><span class="p">.</span><span class="kr">type</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">targetUserId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">envelope</span><span class="p">.</span><span class="nx">payload</span><span class="p">.</span><span class="nx">targetUserId</span><span class="p">;</span>
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">targetSocket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">findSocketByUserId</span><span class="p">(</span><span class="nx">io</span><span class="p">,</span><span class="w"> </span><span class="nx">targetUserId</span><span class="p">);</span>
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">targetSocket</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a><span class="w">    </span><span class="nx">targetSocket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s2">&quot;event&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a><span class="w">      </span><span class="p">...</span><span class="nx">envelope</span><span class="p">,</span>
+<a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a><span class="w">      </span><span class="nx">_senderUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">fromSocket.data.userId</span>
+<a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a><span class="w">    </span><span class="p">});</span>
+<a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a><span class="w">  </span><span class="c1">// Silently drop if target is offline (they&#39;ll reconnect and get history)</span>
+<a id="__codelineno-24-22" name="__codelineno-24-22" href="#__codelineno-24-22"></a>
+<a id="__codelineno-24-23" name="__codelineno-24-23" href="#__codelineno-24-23"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<a id="__codelineno-24-24" name="__codelineno-24-24" href="#__codelineno-24-24"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="102-no-server-storage-of-signaling-data">10.2 No Server Storage of Signaling Data<a class="headerlink" href="#102-no-server-storage-of-signaling-data" title="Permanent link">&para;</a></h3>
+<p>The server does not:
+- Store SDP offers/answers
+- Store ICE candidates
+- Cache or retry signaling events
+- Parse or validate SDP/ICE content beyond schema validation</p>
+<h3 id="103-handling-p2pstatus-events">10.3 Handling <code>p2p.status</code> Events<a class="headerlink" href="#103-handling-p2pstatus-events" title="Permanent link">&para;</a></h3>
+<p><code>p2p.status</code> events are informational only. The server may log them for observability but does not act on them.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">envelope</span><span class="p">.</span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;p2p.status&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">  </span><span class="nx">logger</span><span class="p">.</span><span class="nx">info</span><span class="p">({</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">socket.data.userId</span><span class="p">,</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span><span class="nx">peerUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">envelope.payload.targetUserId</span><span class="p">,</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">envelope.payload.status</span><span class="p">,</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="kt">envelope.payload.reason</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s2">&quot;p2p.status&quot;</span><span class="p">);</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ok</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="11-security-considerations">11. Security Considerations<a class="headerlink" href="#11-security-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="111-threat-model-additions">11.1 Threat Model Additions<a class="headerlink" href="#111-threat-model-additions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Malicious signaling (fake offer from impersonator)</td>
+<td>Server enforces: <code>fromSocket.data.userId</code> is the authenticated user. Receiver validates <code>_senderUserId</code> matches expected peer.</td>
+</tr>
+<tr>
+<td>Signaling eavesdropping</td>
+<td>SDP/ICE are sent over the existing JWT-authenticated WebSocket (same as all other traffic). WebSocket is WSS (TLS).</td>
+</tr>
+<tr>
+<td>WebRTC encryption</td>
+<td>WebRTC Data Channels are DTLS-SRTP encrypted by default. All P2P data is double-encrypted: DTLS (transport) + Signal (application).</td>
+</tr>
+<tr>
+<td>TURN server data exposure</td>
+<td>If using TURN, the TURN server relays raw UDP packets. However, the application payload is already Signal-encrypted ciphertext — TURN sees only encrypted bytes.</td>
+</tr>
+<tr>
+<td>Signaling amplification / DoS</td>
+<td>Existing per-user rate limiter applies to signaling events (50 events/10s).</td>
+</tr>
+<tr>
+<td>Connection exhaustion</td>
+<td>Pool limits to one connection per peer. <code>maxRetransmits: 3</code> prevents infinite retry loops.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-double-encryption">11.2 Double Encryption<a class="headerlink" href="#112-double-encryption" title="Permanent link">&para;</a></h3>
+<p>P2P messages benefit from <strong>two layers of encryption</strong>:</p>
+<ol>
+<li><strong>DTLS (WebRTC transport)</strong>: All data channel traffic is encrypted at the transport layer using DTLS-SRTP with per-session keys.</li>
+<li><strong>Signal Protocol (application)</strong>: The ciphertext carried over the data channel is encrypted with Signal Double Ratchet keys.</li>
+</ol>
+<p>This means even if WebRTC encryption were somehow compromised, the application-layer ciphertext remains protected by Signal.</p>
+<h3 id="113-metadata-leakage-comparison">11.3 Metadata Leakage Comparison<a class="headerlink" href="#113-metadata-leakage-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metadata</th>
+<th>Server-Relayed (current)</th>
+<th>P2P (new)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Who sent the message</td>
+<td>Server knows</td>
+<td>Server does NOT know (no server involvement)</td>
+</tr>
+<tr>
+<td>Who received the message</td>
+<td>Server knows</td>
+<td>Server does NOT know</td>
+</tr>
+<tr>
+<td>Message timestamp</td>
+<td>Server knows</td>
+<td>Server does NOT know</td>
+</tr>
+<tr>
+<td>Message size</td>
+<td>Server knows (ciphertext size)</td>
+<td>Server does NOT know</td>
+</tr>
+<tr>
+<td>Ciphertext bytes</td>
+<td>Server stores (for relay)</td>
+<td>Server does NOT see</td>
+</tr>
+<tr>
+<td>P2P connection attempt</td>
+<td>N/A</td>
+<td>Server sees signaling events (offer/answer)</td>
+</tr>
+<tr>
+<td>That two users communicated</td>
+<td>Server knows (every message)</td>
+<td>Server knows only that a P2P connection was attempted</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight</strong>: P2P eliminates the server's ability to observe message content and timing. The server still knows that two users established a P2P connection (via signaling), but not what they said, when, or how many messages were exchanged.</p>
+<hr />
+<h2 id="12-testing-strategy">12. Testing Strategy<a class="headerlink" href="#12-testing-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="121-unit-tests">12.1 Unit Tests<a class="headerlink" href="#121-unit-tests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P2P schema validation</td>
+<td><code>packages/shared/src/index.test.ts</code></td>
+<td>All P2P schemas parse valid data, reject invalid</td>
+</tr>
+<tr>
+<td>Connection pool lifecycle</td>
+<td><code>apps/web/src/lib/p2p/pool.test.ts</code></td>
+<td>Create, get, close connections</td>
+</tr>
+<tr>
+<td>Hybrid transport path selection</td>
+<td><code>apps/web/src/lib/p2p/transport.test.ts</code></td>
+<td>Route selection based on pool state</td>
+</tr>
+<tr>
+<td>Deduplication</td>
+<td><code>apps/web/src/lib/p2p/transport.test.ts</code></td>
+<td>clientMsgId dedup across P2P and relay</td>
+</tr>
+<tr>
+<td>Fallback on failure</td>
+<td><code>apps/web/src/lib/p2p/transport.test.ts</code></td>
+<td>Relay fallback when P2P unavailable</td>
+</tr>
+<tr>
+<td>Cooldown logic</td>
+<td><code>apps/web/src/lib/p2p/pool.test.ts</code></td>
+<td>30s cooldown after failed attempt</td>
+</tr>
+</tbody>
+</table>
+<h3 id="122-integration-tests">12.2 Integration Tests<a class="headerlink" href="#122-integration-tests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signaling relay</td>
+<td>Alice sends <code>p2p.offer</code>; Bob's socket receives it; verify SDP intact</td>
+</tr>
+<tr>
+<td>Full WebRTC handshake (browser)</td>
+<td>Two client instances; establish WebRTC; send ciphertext; decrypt</td>
+</tr>
+<tr>
+<td>Fallback test</td>
+<td>Simulate blocked WebRTC (no STUN reachable); verify message delivered via relay</td>
+</tr>
+<tr>
+<td>Mixed mode</td>
+<td>Alice on P2P, Bob's second device on relay; both receive message</td>
+</tr>
+<tr>
+<td>Connection teardown</td>
+<td>Verify pool cleanup on disconnect</td>
+</tr>
+</tbody>
+</table>
+<h3 id="123-smoke-test-addition">12.3 Smoke Test Addition<a class="headerlink" href="#123-smoke-test-addition" title="Permanent link">&para;</a></h3>
+<p>Add <code>p2p-smoke</code> command to the TUI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="c1">// apps/tui/src/commands/smoke.ts</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">runP2pSmoke</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">  </span><span class="c1">// Verify P2P schemas are loadable</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">  </span><span class="c1">// Verify server accepts p2p.offer and relays to target</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">  </span><span class="c1">// Verify p2p.status is accepted by server</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;p2p smoke ok&quot;</span><span class="p">);</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="p">};</span>
+</code></pre></div>
+<hr />
+<h2 id="13-dependencies-tools">13. Dependencies &amp; Tools<a class="headerlink" href="#13-dependencies-tools" title="Permanent link">&para;</a></h2>
+<h3 id="131-no-new-runtime-dependencies">13.1 No New Runtime Dependencies<a class="headerlink" href="#131-no-new-runtime-dependencies" title="Permanent link">&para;</a></h3>
+<p>WebRTC is a <strong>browser-native API</strong> (<code>RTCPeerConnection</code>, <code>RTCDataChannel</code>). No npm packages are required for the core WebRTC functionality.</p>
+<h3 id="132-optional-dev-dependencies">13.2 Optional / Dev Dependencies<a class="headerlink" href="#132-optional-dev-dependencies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Purpose</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@types/webrtc</code></td>
+<td>TypeScript types for WebRTC APIs</td>
+<td>Dev only</td>
+</tr>
+<tr>
+<td><code>coturn</code> (system)</td>
+<td>Self-hosted TURN server for production</td>
+<td>Optional (STUN-only works for ~85% of users)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="133-browser-compatibility">13.3 Browser Compatibility<a class="headerlink" href="#133-browser-compatibility" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Browser</th>
+<th>RTCPeerConnection</th>
+<th>RTCDataChannel</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chrome 130+</td>
+<td>✓</td>
+<td>✓</td>
+<td>Full support</td>
+</tr>
+<tr>
+<td>Firefox 130+</td>
+<td>✓</td>
+<td>✓</td>
+<td>Full support</td>
+</tr>
+<tr>
+<td>Safari 18+</td>
+<td>✓</td>
+<td>✓</td>
+<td>Requires user gesture for some operations</td>
+</tr>
+<tr>
+<td>Electron 39+</td>
+<td>✓</td>
+<td>✓</td>
+<td>Equivalent to Chrome 130+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>Next</strong>: <a href="../../tasks/18-phase-1-p2p-dm-direct/">Phase 1 — P2P DM Direct Connection Task Breakdown</a></p>
+</blockquote>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
