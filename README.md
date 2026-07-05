@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-99.8%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-77%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-82%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 A Slack-like workspace chat system with **hybrid encryption**: normal channels that support bots, message history, and server-side workflows, alongside end-to-end encrypted DMs where the server sees only ciphertext. Built from the ground up in TypeScript with React, Electron, Hono, and Socket.IO.
 
-Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, Signal-style E2EE service boundaries, and opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs. The test suite covers 17 files, 77 tests, and consistently exceeds 99% statement coverage.
+Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, Signal-style E2EE service boundaries, and opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs. The test suite covers 18 files, 82 tests, and consistently exceeds 99% statement coverage.
 
 ---
 
@@ -198,7 +198,7 @@ nexus-chat/
 | **Desktop** | Electron | BrowserWindow, preload IPC, tray, notifications |
 | **CLI** | Commander, Ink (React 19) | TUI chat, smoke tests |
 | **Observability** | Pino, `prom-client` | Structured logs, request IDs, metrics |
-| **Testing** | Vitest + V8 coverage | 17 test files, 77 tests |
+| **Testing** | Vitest + V8 coverage | 18 test files, 82 tests |
 | **P2P** | WebRTC (browser-native, no npm deps) | 1:1 E2EE DM direct connection + server signaling relay |
 
 ---
@@ -500,7 +500,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | Functions | 99.23% |
 | Lines | 99.83% |
 
-**Test breakdown (17 files, 77 tests):**
+**Test breakdown (18 files, 82 tests):**
 
 | Package | Test file | Tests |
 | --- | --- | --- |

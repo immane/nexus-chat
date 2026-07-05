@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-99.8%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-77%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-82%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 一个类 Slack 的工作区聊天系统，采用**混合加密**模式：普通频道支持 Bot、消息历史和服务端工作流；端到端加密 DM 中服务端只能看到密文。使用 TypeScript、React、Electron、Hono 和 Socket.IO 从零构建。
 
-Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、Signal 风格 E2EE 服务边界，以及 1:1 E2EE DM 的 WebRTC P2P 直连功能。测试套件覆盖 17 个文件、77 个测试，statement coverage 持续超过 99%。
+Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、Signal 风格 E2EE 服务边界，以及 1:1 E2EE DM 的 WebRTC P2P 直连功能。测试套件覆盖 18 个文件、82 个测试，statement coverage 持续超过 99%。
 
 ---
 
@@ -198,7 +198,7 @@ nexus-chat/
 | **桌面** | Electron | BrowserWindow, preload IPC, tray, 通知 |
 | **CLI** | Commander, Ink (React 19) | TUI 聊天, smoke tests |
 | **可观测性** | Pino, `prom-client` | 结构化日志, request IDs, metrics |
-| **测试** | Vitest + V8 coverage | 17 个测试文件, 77 个测试 |
+| **测试** | Vitest + V8 coverage | 18 个测试文件, 82 个测试 |
 | **P2P** | WebRTC（浏览器原生，无 npm 依赖） | 1:1 E2EE DM 直连 + 服务端信令中继 |
 
 ---
@@ -500,7 +500,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | Functions | 99.23% |
 | Lines | 99.83% |
 
-**测试分布（17 files, 77 tests）：**
+**测试分布（18 files, 82 tests）：**
 
 | Package | 测试文件 | 测试数 |
 | --- | --- | --- |
