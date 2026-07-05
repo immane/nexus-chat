@@ -34,7 +34,7 @@ lang: en
 
 ### 1.1 Project Vision
 
-Nexus Chat is a **Slack-like instant messaging (IM) platform** built as an Electron desktop application with a Node.js backend. It supports workspaces, channels, direct messages (DMs), threaded conversations, file sharing, and an extensible bot framework — all delivered as a **SaaS multi-tenant cloud deployment**.
+Nexus Chat is a **Slack-like instant messaging (IM) platform** built as an Electron desktop application, a Phase 1 terminal UI client, and a Node.js backend. It supports workspaces, channels, direct messages (DMs), threaded conversations, file sharing, and an extensible bot framework — all delivered as a **SaaS multi-tenant cloud deployment**.
 
 ### 1.2 Core Differentiator: Hybrid Encryption Modes
 
@@ -43,12 +43,12 @@ Every channel and DM in Nexus Chat operates in one of two encryption modes, sele
 | Mode | Label | Capabilities | Limitations |
 |------|-------|-------------|-------------|
 | **Normal** | `normal` | Full IM features + Bot integration + server-side search/indexing | Messages are readable by the server |
-| **End-to-End Encrypted** | `e2e` | IM only (text, attachments); server is opaque relay | No bot participation; no server-side search; no message previews |
+| **End-to-End Encrypted** | `e2e` | IM only (text, attachments), read-once/disappearing messages; server is opaque relay | No bot participation; no server-side search; no message previews |
 
 Key design implications of the hybrid model:
 
 - **Normal channels** allow bots to participate in conversations, execute slash commands, and react to message events. The server processes and stores message content in plaintext (encrypted at rest via PostgreSQL TDE or filesystem encryption).
-- **E2E channels** use the [Signal Protocol](https://github.com/signalapp/libsignal) (`@signalapp/libsignal`). The server sees only ciphertext blobs and encrypted metadata. Key exchange, ratchet advancement, and message decryption happen exclusively on clients. The server's role is reduced to store-and-forward relay.
+- **E2E channels** use the [Signal Protocol](https://github.com/signalapp/libsignal) (`@signalapp/libsignal`). The server sees only ciphertext blobs, encrypted metadata, and lifecycle policy metadata for read-once/disappearing messages. Key exchange, ratchet advancement, and message decryption happen exclusively on clients. The server's role is reduced to store-and-forward relay plus tombstone/expiry enforcement without plaintext access.
 - A single workspace can contain both normal and E2E channels side-by-side. The mode badge is visible in the channel sidebar.
 
 For detailed E2EE threat modeling and Signal Protocol integration design, see [Security & E2EE Roadmap](../research/security-defense-e2ee-roadmap.md).
@@ -209,17 +209,26 @@ nexus-chat/
 │   │   │   └── styles/         # Tailwind CSS theme + global styles
 │   │   └── package.json
 │   │
-│   └── desktop/                # Electron main process + preload
+│   ├── desktop/                # Electron main process + preload
+│   │   ├── src/
+│   │   │   ├── main.ts         # Electron entry, window creation, tray
+│   │   │   ├── preload.ts      # contextBridge API exposure
+│   │   │   ├── ipc-handlers.ts # IPC handler registration
+│   │   │   ├── window-manager.ts
+│   │   │   ├── tray.ts         # System tray icon
+│   │   │   ├── notifications.ts
+│   │   │   ├── updater.ts      # Auto-update logic
+│   │   │   ├── offline-cache.ts # protocol.handle offline cache
+│   │   │   └── network-monitor.ts
+│   │   └── package.json
+│   │
+│   └── tui/                    # Ink + Commander terminal client
 │       ├── src/
-│       │   ├── main.ts         # Electron entry, window creation, tray
-│       │   ├── preload.ts      # contextBridge API exposure
-│       │   ├── ipc-handlers.ts # IPC handler registration
-│       │   ├── window-manager.ts
-│       │   ├── tray.ts         # System tray icon
-│       │   ├── notifications.ts
-│       │   ├── updater.ts      # Auto-update logic
-│       │   ├── offline-cache.ts # protocol.handle offline cache
-│       │   └── network-monitor.ts
+│       │   ├── cli.ts          # Command entry point
+│       │   ├── app.tsx         # Interactive TUI root
+│       │   ├── api-client.ts   # REST + WebSocket client
+│       │   ├── signal.ts       # E2E helper using packages/signal
+│       │   └── commands/       # login, send, read, e2e-smoke, bot-smoke
 │       └── package.json
 │
 ├── packages/
@@ -274,8 +283,11 @@ apps/desktop ──→ apps/web ──→ packages/ui
     │                ├──→ packages/signal
     │                └──→ packages/bot-sdk
     │
-    └──→ apps/server ──→ packages/shared
-                         └──→ packages/signal
+     └──→ apps/server ──→ packages/shared
+                          └──→ packages/signal
+
+apps/tui ───────→ packages/shared
+    └───────────→ packages/signal
 ```
 
 ---
@@ -291,6 +303,7 @@ apps/desktop ──→ apps/web ──→ packages/ui
 | **Styling** | Tailwind CSS v4 + CVA | ^4.0 / ^0.4 | Utility-first with CSS-variable design tokens, `class-variance-authority` for component variants |
 | **Virtual Scrolling** | react-virtuoso | latest | Built-in bidirectional infinite scroll, auto-follow-output, sticky group headers |
 | **UI Primitives** | shadcn/ui (cherry-picked) | latest | Accessible Radix UI primitives, copy-paste ownership, Tailwind v4 compatible |
+| **Terminal UI** | Ink + Commander | latest | React-style terminal rendering plus deterministic non-interactive commands for smoke tests |
 | **HTTP Server** | Hono | ^4.12 | Cold start <50ms, cross-runtime (Node/Bun/CF Workers), built-in middleware (CORS, JWT, rate-limiter), RPC type sharing |
 | **WebSocket** | Socket.IO v4 + Redis Adapter | ^4.8 / ^8.3 | Room/channel management, reconnect, heartbeat, ACK built-in; Redis Adapter for horizontal scaling |
 | **ORM** | Drizzle ORM | ^0.40 | Type-safe SQL, lightweight, native PostgreSQL JSONB support, cursor pagination |
@@ -398,6 +411,7 @@ Sender Client                  Gateway/Server                   Recipient Client
 
 - All encryption/decryption happens on the client using the shared `packages/signal` library.
 - The server is a **blind relay**: it stores and forwards opaque ciphertext blobs. The server cannot read message content, nor can it perform full-text search on E2E channels.
+- Read-once/disappearing messages are enforced through metadata only: read acknowledgments, expiry timestamps, and tombstone state. Clients must delete local plaintext when the policy expires.
 - Bots **cannot** participate in E2E channels — this is an architectural trade-off. The E2E protocol has no mechanism to include a third-party key in the ratchet without defeating the end-to-end guarantee.
 - Key material (PreKey bundles, signed pre-keys) is stored server-side in a dedicated `signal_key_bundles` table, but private keys never leave the client.
 - For details on key distribution, group messaging (Sender Key), and device multi-session management, see [Security & E2EE Roadmap](../research/security-defense-e2ee-roadmap.md).
@@ -600,10 +614,11 @@ For detailed microservices decoupling strategy, inter-service communication patt
 | **Channels** | Public/private channels, DM conversations, channel creation, archive, member management |
 | **Messages** | Text messages, message state machine (Draft → Sending → Sent → Delivered → Read), cursor-based pagination, edit/delete, emoji reactions |
 | **Rich Content** | Markdown rendering in messages |
-| **DM E2E** | Signal Protocol encryption for 1:1 DMs, opaque server relay, client-side key management |
+| **DM E2E** | Signal Protocol encryption for 1:1 DMs, opaque server relay, client-side key management, read-once/disappearing message policy |
 | **Bot (basic)** | Bot registration, `/slash` command parse + routing, bot WebSocket connection, Redis Streams event bus |
 | **UI** | Single-window layout (sidebar + chat view), channel list, message list with virtual scrolling, dark/light theme, message input |
 | **Desktop Shell** | Electron window, system tray, native notifications, auto-update |
+| **TUI Client** | Terminal login, workspace/channel navigation, normal messaging, E2E/bot smoke commands |
 | **Infrastructure** | Monolith deployment (Hono + Socket.IO + Bot Engine in one process), PostgreSQL, Redis, Pino logging |
 
 ### Phase 2: Rich Features & Production Hardening
@@ -633,7 +648,7 @@ For detailed microservices decoupling strategy, inter-service communication patt
 |-------------|-------------|
 | **Voice & Video** | 1:1 and group voice/video calls (WebRTC), screen sharing, call history |
 | **SSO** | SAML/OIDC integration, Google/Microsoft/GitHub OAuth login, directory sync |
-| **Advanced E2E** | Verified safety numbers, device management, disappearing messages, E2E audit log |
+| **Advanced E2E** | Verified safety numbers, device management, sealed sender, transparency/audit UX, advanced retention policy controls |
 | **Enterprise** | Admin dashboard, audit logs, data retention policies, compliance exports, custom data residency |
 | **Bot Ecosystem** | Public bot marketplace, bot analytics, bot rate limiting and abuse prevention, Bot Marketplace launch |
 | **AI Orchestration** | Multi-agent AI orchestration (supervisor-worker, debate patterns), voice/video integration with Meeting Notes Bot |

@@ -4,7 +4,7 @@ lang: en
 
 # 01 - Client Shell & UI Rendering Layer
 
-> Design document for the Nexus Chat desktop application shell (Electron) and React-based UI rendering layer.  
+> Design document for the Nexus Chat desktop application shell (Electron), Phase 1 terminal UI client, and React-based UI rendering layer.
 > Covers process architecture, component tree, state management, interaction flows, and performance strategy.  
 > Derived from [Frontend Architecture Research](../research/frontend-architecture.md).
 
@@ -36,6 +36,7 @@ lang: en
    - 5.4 [Bot Slash Command](#54-bot-slash-command)
 6. [Performance Strategy](#6-performance-strategy)
 7. [Asset & Theme System](#7-asset--theme-system)
+8. [Phase 1 TUI Command-Line Client](#8-phase-1-tui-command-line-client)
 
 ---
 
@@ -1110,6 +1111,30 @@ const messageBubble = cva(
 
 ---
 
+## 8. Phase 1 TUI Command-Line Client
+
+The Phase 1 terminal client lives in `apps/tui` and uses the same shared contracts as the Electron/Web clients. It is intentionally smaller than the GUI: its primary value is fast keyboard-first usage, local development, and deterministic smoke tests for CI.
+
+### 8.1 Scope
+
+| Capability | Phase 1 Requirement |
+|------------|---------------------|
+| Auth | `nexus login/logout/whoami` against the same REST API as the web client |
+| Navigation | List/select workspaces, channels, and 1:1 DMs |
+| Messaging | Open a channel/DM, render recent messages, send text over WebSocket |
+| E2E | Establish 1:1 DM sessions through `packages/signal`; send/read encrypted and read-once messages |
+| Bots | Invoke slash commands in normal channels and render bot replies |
+| CI smoke | Non-interactive `send`, `read`, `e2e-smoke`, and `bot-smoke` commands with deterministic exit codes |
+
+### 8.2 Boundaries
+
+- The TUI must import schemas and event names from `packages/shared`; no duplicate API types.
+- The TUI must use `packages/signal` for encryption and decryption; no separate crypto implementation.
+- Local token storage should prefer the OS keychain when available. `.env` or plaintext fallback is allowed only for local development and CI.
+- The TUI is not a feature-specific admin tool. Admin and incident-response commands are deferred unless explicitly promoted into a later phase.
+
+---
+
 ## Appendix: Technology Version Reference
 
 | Category | Package | Version |
@@ -1129,6 +1154,7 @@ const messageBubble = cva(
 | | electron-store | ^10.0.0 |
 | Auto-update | electron-updater | ^6.3.0 |
 | Validation | zod | ^3.24.0 |
+| Terminal UI | ink, commander | latest |
 | Dates | date-fns | ^4.1.0 |
 | Testing | vitest | ^3.0.0 |
 | | @playwright/test | ^1.50.0 |

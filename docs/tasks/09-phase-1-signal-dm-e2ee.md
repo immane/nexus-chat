@@ -20,6 +20,7 @@ Implement 1:1 DM end-to-end encryption using Signal Protocol primitives while ke
 - X3DH session establishment.
 - Double Ratchet message encryption/decryption.
 - E2E message send/receive in 1:1 DM.
+- Read-once and timer-based disappearing message policy for 1:1 E2E DMs.
 - Local session storage strategy.
 
 ## Non-Goals
@@ -27,7 +28,7 @@ Implement 1:1 DM end-to-end encryption using Signal Protocol primitives while ke
 - No group E2E in Phase 1.
 - No multi-device E2E.
 - No safety numbers UI.
-- No disappearing messages.
+- No group disappearing messages or advanced retention policy UI.
 - No sealed sender.
 
 ## Server Responsibilities
@@ -37,6 +38,7 @@ Implement 1:1 DM end-to-end encryption using Signal Protocol primitives while ke
 - Store and relay ciphertext messages.
 - Never store private keys.
 - Never decrypt message content.
+- Enforce disappearing-message expiry using only metadata, read acknowledgments, and tombstone state.
 
 ## Client Responsibilities
 
@@ -44,6 +46,7 @@ Implement 1:1 DM end-to-end encryption using Signal Protocol primitives while ke
 - Establish sessions.
 - Encrypt before send.
 - Decrypt after receive.
+- Delete local plaintext for read-once or expired messages immediately after policy conditions are met.
 - Handle ratchet state.
 
 ## Acceptance Criteria
@@ -53,6 +56,8 @@ Implement 1:1 DM end-to-end encryption using Signal Protocol primitives while ke
 - Recipient can decrypt message locally.
 - Bot events are not emitted for E2E DM.
 - Server-side search is disabled for E2E DM.
+- Read-once E2E messages can be decrypted once by the recipient, then only an expired/tombstone state is available.
+- Timer-based E2E messages expire without server-side plaintext access.
 
 ## Test Plan
 
@@ -61,6 +66,8 @@ Implement 1:1 DM end-to-end encryption using Signal Protocol primitives while ke
 - Send/decrypt E2E message test.
 - Verify plaintext does not appear in DB/logs.
 - One-time prekey consumption test.
+- Read-once E2E message test.
+- Timer-based disappearing message expiry test.
 
 ## Dependencies
 

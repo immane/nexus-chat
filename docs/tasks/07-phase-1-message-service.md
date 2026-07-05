@@ -20,6 +20,7 @@ Implement core message persistence, delivery state, pagination, edits/deletes, r
 - Soft delete message.
 - Emoji reactions.
 - Read receipt aggregation.
+- E2E disappearing-message lifecycle metadata (`read_once`, `ttl`, tombstone/expired state).
 - Forward message as core IM action.
 - Save/bookmark message as core IM action.
 
@@ -46,6 +47,7 @@ Server persists only stable states (`sent`, `delivered`, `read`, `deleted`). `dr
 | Send text | Core | Fundamental IM |
 | Edit/delete | Core | Message lifecycle |
 | React | Core | Fundamental IM |
+| E2E read-once expiration | Core | Message lifecycle and privacy primitive |
 | Forward | Core | Message routing primitive |
 | Save/bookmark | Core | Personal IM utility |
 | Poll | Bot | Workflow feature |
@@ -58,6 +60,8 @@ Server persists only stable states (`sent`, `delivered`, `read`, `deleted`). `dr
 - Pagination returns stable results with cursor.
 - Edit/delete emits events to channel members.
 - Read receipts are buffered and flushed in batches.
+- E2E read-once messages expire after the first successful recipient read acknowledgment and are returned as tombstones afterward.
+- E2E TTL messages expire through server-side metadata cleanup without decrypting content.
 - Forward preserves original attribution metadata.
 - Saved messages are user-private.
 
@@ -69,6 +73,8 @@ Server persists only stable states (`sent`, `delivered`, `read`, `deleted`). `dr
 - Edit/delete authorization tests.
 - Reaction add/remove tests.
 - Read receipt batch flush test.
+- E2E read-once tombstone test.
+- E2E TTL expiration cleanup test.
 
 ## Dependencies
 

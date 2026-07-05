@@ -26,13 +26,14 @@ Nexus Chat is a desktop-first team communication platform that combines the fami
 | Mode | Description |
 |------|-------------|
 | **Normal** | Full IM features: real-time messaging, server-side search, bot participation, slash commands |
-| **E2E** | End-to-end encrypted via the [Signal Protocol](https://github.com/signalapp/libsignal): the server is an opaque relay that cannot read message content, and bots are fully excluded |
+| **E2E** | End-to-end encrypted via the [Signal Protocol](https://github.com/signalapp/libsignal): the server is an opaque relay that cannot read message content, bots are fully excluded, and read-once/disappearing messages are supported for sensitive DMs |
 
 A single workspace can contain **both** normal and E2E channels side-by-side, letting teams choose the appropriate security model per conversation.
 
 ### Key Differentiators
 
 - **Per-channel encryption mode** — not all-or-nothing; mix normal and E2E in one workspace
+- **Desktop and terminal clients** — Electron GUI plus a Phase 1 TUI command-line interface for developers, operators, and keyboard-first users
 - **First-class streaming message protocol** — progressive token-by-token AI responses rendered in-channel
 - **Bot SDK in 6 languages** — TypeScript, Java, Python, PHP, Go, Rust
 - **Bundled base bots** — Welcome, Help, Notifications, Reminders, Polls, Webhooks, Kudos out of the box
@@ -52,6 +53,7 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 | Styling | **Tailwind CSS v4 + CVA + shadcn/ui** | Utility-first design tokens, component variants, accessible primitives |
 | Virtual Scroll | **react-virtuoso** | Bidirectional infinite scroll for message lists |
 | Markdown | **markdown-it + Shiki** | Rich message content with syntax-highlighted code blocks |
+| Terminal UI | **Ink + Commander** | Phase 1 TUI/CLI for login, workspace navigation, channel/DM messaging, and E2E DM verification |
 
 ### Backend
 
@@ -146,7 +148,8 @@ nexus-chat/
 ├── apps/
 │   ├── server/                  # Node.js backend (Hono + Socket.IO + Bot Engine + AI Engine)
 │   ├── web/                     # React SPA (Vite + Zustand + Tailwind)
-│   └── desktop/                 # Electron shell (window, tray, notifications, updater)
+│   ├── desktop/                 # Electron shell (window, tray, notifications, updater)
+│   └── tui/                     # Terminal UI / CLI client (Ink + Commander)
 ├── packages/
 │   ├── shared/                  # Shared types, Zod schemas, constants, event definitions
 │   ├── signal/                  # Signal Protocol wrapper (@signalapp/libsignal)
@@ -192,10 +195,11 @@ nexus-chat/
 - Workspace creation, channel management (public/private/DM)
 - Text messages with state machine (Draft → Sent → Delivered → Read)
 - Markdown rendering, emoji reactions
-- Signal Protocol E2E for 1:1 DMs
+- Signal Protocol E2E for 1:1 DMs, including read-once/disappearing message policy
 - Bot registration, slash command routing, Redis Streams event bus
 - **7 base bots**: Welcome, Help, Notification, Reminder, Poll, Webhook, Kudos
 - Electron shell with window management, tray, notifications
+- TUI command-line client for auth, workspace/channel navigation, messaging, and E2E DM smoke testing
 - Monolith deployment: Hono + Socket.IO + Bot Engine in one process
 
 ### Phase 2 — Rich Features & Production Hardening (+3–6 months)
@@ -221,7 +225,7 @@ nexus-chat/
 
 - Voice/video calls (WebRTC), screen sharing
 - SSO (SAML/OIDC), Google/Microsoft/GitHub OAuth
-- Advanced E2E: safety numbers, device management, disappearing messages, sealed sender
+- Advanced E2E: safety numbers, device management, sealed sender, transparency/audit UX
 - Multi-device session relay
 - Enterprise admin dashboard, audit logs, data retention, compliance exports
 - **5 advanced bots**: Status, Scheduler, Meeting Notes, AutoMod + Bot Marketplace
@@ -279,6 +283,7 @@ nexus-chat/
 | 14 | [Electron Shell](tasks/14-phase-1-electron-shell.md) | Secure Electron main/preload, tray, notifications, native integration |
 | 15 | [Observability & Hardening](tasks/15-phase-1-observability-security-hardening.md) | Pino logs, audit events, metrics, rate-limit metrics, security checks |
 | 16 | [Local Dev, CI & Release](tasks/16-phase-1-local-dev-ci-release.md) | Docker Compose, CI jobs, docs build, preview deploy, closed beta checklist |
+| 17 | [TUI Command-Line Client](tasks/17-phase-1-tui-cli.md) | Terminal client for auth, workspace/channel navigation, messaging, and E2E smoke tests |
 
 ### 6.4 Bot SDK Documentation (Multi-Language)
 
