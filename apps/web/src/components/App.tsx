@@ -2,7 +2,19 @@ import { useDeferredValue, useEffect, useRef, useState, type FormEvent } from "r
 import { Virtuoso } from "react-virtuoso";
 import { io, type Socket } from "socket.io-client";
 import { Badge, InputActionBar } from "@nexus-chat/ui";
-import type { BotManifest, Channel, Message, User, Workspace } from "@nexus-chat/shared";
+import type { BotManifest, Channel, Message, SignalPreKeyBundle, User, Workspace } from "@nexus-chat/shared";
+import {
+  createInMemorySignalSessionStore,
+  createLocalSignalIdentity,
+  decryptFromSession,
+  encryptForSession,
+  establishSession,
+  extractOneTimePreKeys,
+  toPreKeyBundle,
+  type LocalSignalIdentity,
+  type SignalSession
+} from "@nexus-chat/signal";
+import { HybridTransport, P2pConnectionPool, sendP2pEvent } from "../lib/p2p/index.js";
 import {
   createOptimisticMessage,
   getCommandSuggestions,
@@ -94,6 +106,24 @@ const demoMessages: Message[] = [
   }
 ];
 
+const WEB_SIGNAL_DEVICE_ID = "web-device-01";
+
+type TransportLabel = "p2p sent" | "relay sent" | "relay received" | "p2p received";
+
+const parseDmPeerUserId = (channel: Channel, currentUserId: string): string | undefined => {
+  if (channel.kind !== "dm") return undefined;
+  const [, first, second] = channel.name.split(":");
+  if (!first || !second) return undefined;
+  return first === currentUserId ? second : first;
+};
+
+const applyDisappearingPolicy = (content: Awaited<ReturnType<typeof encryptForSession>>, policy: DisappearingDraftPolicy) => {
+  const base = { ...content, senderDeviceId: WEB_SIGNAL_DEVICE_ID, readOnce: false, attachments: [] };
+  if (policy.mode === "read_once") return { ...base, readOnce: true };
+  if (policy.mode === "ttl") return { ...base, readOnce: false, expiresAt: new Date(Date.now() + policy.ttlSeconds * 1000).toISOString() };
+  return base;
+};
+
 const seedDemoSession = () => {
   useAuthStore.getState().setSession({
     user: demoUser,
@@ -153,18 +183,20 @@ export const ChannelList = ({
   );
 };
 
-export const MessageRow = ({ message, status }: { message: Message; status: string | undefined }) => {
+export const MessageRow = ({ message, status, decryptedText }: { message: Message; status: string | undefined; decryptedText?: string }) => {
   const settings = useUiStore((state) => state.settings);
   const time = new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const themeCard = settings.theme === "light" ? "bg-white ring-slate-200" : "bg-slate-900/80 ring-slate-800";
   const compactMsg = settings.compactMode ? "mx-2 my-1 p-2 text-xs" : "mx-4 my-2 p-4 text-sm";
+  const [sendStatus, transportLabel] = status?.split(" · ") ?? [];
+  const transportName = transportLabel?.startsWith("p2p") ? "p2p" : transportLabel?.startsWith("relay") ? "relay" : undefined;
   if (message.content.type === "tombstone") {
     const reason = message.content.reason === "read_once_consumed" ? "Read-once message consumed" : "Message expired";
     return <article className="mx-4 my-2 rounded-xl border border-dashed border-slate-700 bg-slate-900/50 p-4 text-sm text-slate-400"><span className="text-xs text-slate-500">{time}</span> {reason}</article>;
   }
 
   const policyLabel = message.content.type === "ciphertext" && message.content.readOnce ? "Read once" : message.content.type === "ciphertext" && message.content.expiresAt ? "Disappearing" : undefined;
-  const body = message.content.type === "text" ? message.content.text : "Encrypted message payload";
+  const body = message.content.type === "text" ? message.content.text : decryptedText ?? "Decrypting encrypted message...";
 
   return (
     <article className={`rounded-2xl ${themeCard} ${compactMsg} shadow-sm`}>
@@ -172,19 +204,33 @@ export const MessageRow = ({ message, status }: { message: Message; status: stri
         <span className="font-medium text-slate-300">{message.senderId.slice(0, 12)}</span>
         <span>{time}</span>
         {policyLabel ? <Badge tone="warning">{policyLabel}</Badge> : null}
-        {status === "sending" ? <span className="italic text-amber-300">sending...</span> : status === "sent" ? <span className="text-emerald-400">✓ sent</span> : status === "failed" ? <span className="text-red-400">✗ failed</span> : null}
+        {sendStatus === "sending" ? <span className="italic text-amber-300">sending...</span> : sendStatus === "sent" && transportLabel?.endsWith("received") ? <span className="text-sky-300">↓ received{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "sent" ? <span className="text-emerald-400">✓ sent{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "failed" ? <span className="text-red-400">✗ failed</span> : null}
       </div>
       <p className="whitespace-pre-wrap text-sm leading-6 text-slate-100">{body}</p>
     </article>
   );
 };
 
-export const MessageList = ({ messages, statuses }: { messages: Message[]; statuses: Record<string, string> }) => (
+export const MessageList = ({
+  messages,
+  statuses = {},
+  decryptedMessages = {},
+  transportLabels = {}
+}: {
+  messages: Message[];
+  statuses?: Record<string, string>;
+  decryptedMessages?: Record<string, string>;
+  transportLabels?: Record<string, TransportLabel>;
+}) => (
   <Virtuoso
     className="flex-1"
     data={messages}
     followOutput="smooth"
-    itemContent={(_, message) => <MessageRow message={message} status={statuses[message.clientMsgId]} />}
+    itemContent={(_, message) => {
+      const decryptedText = decryptedMessages[message.id];
+      const devStatus = import.meta.env.DEV && transportLabels[message.clientMsgId] ? `${statuses[message.clientMsgId] ?? "sent"} · ${transportLabels[message.clientMsgId]}` : statuses[message.clientMsgId];
+      return decryptedText === undefined ? <MessageRow message={message} status={devStatus} /> : <MessageRow message={message} status={devStatus} decryptedText={decryptedText} />;
+    }}
   />
 );
 
@@ -294,7 +340,13 @@ const ChatRoute = () => {
   const setActiveWorkspace = useWorkspaceStore((state) => state.setActive);
   const deferredDraft = useDeferredValue(draft);
   const socketRef = useRef<Socket | undefined>(undefined);
+  const p2pTransportRef = useRef<HybridTransport | undefined>(undefined);
+  const signalIdentityRef = useRef<LocalSignalIdentity | undefined>(undefined);
+  const signalSessionStoreRef = useRef(createInMemorySignalSessionStore());
+  const signalSessionsRef = useRef(new Map<string, SignalSession>());
   const [wsConnected, setWsConnected] = useState(false);
+  const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
+  const [transportLabels, setTransportLabels] = useState<Record<string, TransportLabel>>({});
   const [channelCreateOpen, setChannelCreateOpen] = useState(false);
   const [dmCreateOpen, setDmCreateOpen] = useState(false);
   const [newChannelName, setNewChannelName] = useState("");
@@ -310,6 +362,72 @@ const ChatRoute = () => {
   const channelMessages = selectChannelMessages(messagesMap, order, activeChannelId);
   const isE2e = activeChannel?.mode === "e2e";
   const suggestions = isE2e ? [] : getCommandSuggestions(manifests, deferredDraft);
+
+  const ensureSignalSession = async (peerUserId: string, peerDeviceId = WEB_SIGNAL_DEVICE_ID): Promise<SignalSession> => {
+    if (!user || !accessToken) throw new Error("Missing Signal session context");
+    if (!signalIdentityRef.current) signalIdentityRef.current = createLocalSignalIdentity(user.id, WEB_SIGNAL_DEVICE_ID, 5);
+
+    const key = `${peerUserId}:${peerDeviceId}`;
+    const existing = signalSessionsRef.current.get(key);
+    if (existing) return existing;
+
+    let peerBundle: SignalPreKeyBundle | undefined;
+    try {
+      const resp = await fetch(`${API_BASE}/api/v1/signal/prekey-bundles/${peerUserId}/${peerDeviceId}`, {
+        headers: { authorization: `Bearer ${accessToken}` }
+      });
+      const json = (await resp.json()) as { ok: boolean; data?: SignalPreKeyBundle };
+      if (json.ok) peerBundle = json.data;
+    } catch { /* peer may not have opened a web session yet */ }
+
+    peerBundle ??= {
+      userId: peerUserId,
+      deviceId: peerDeviceId,
+      identityKey: `${peerUserId}:identity`,
+      signedPreKeyId: 1,
+      signedPreKey: `${peerUserId}:signed-prekey`,
+      signedPreKeySignature: `${peerUserId}:signature`
+    };
+
+    const session = establishSession(signalIdentityRef.current, peerBundle, signalSessionStoreRef.current);
+    signalSessionsRef.current.set(key, session);
+    return session;
+  };
+
+  useEffect(() => {
+    if (!user || !accessToken || accessToken === "demo-access-token") return;
+    if (!signalIdentityRef.current) signalIdentityRef.current = createLocalSignalIdentity(user.id, WEB_SIGNAL_DEVICE_ID, 5);
+    const identity = signalIdentityRef.current;
+    const bundle = { ...toPreKeyBundle(identity), oneTimePreKeys: extractOneTimePreKeys(identity) };
+    void fetch(`${API_BASE}/api/v1/signal/prekey-bundles`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(bundle)
+    }).catch(() => {});
+  }, [accessToken, user]);
+
+  useEffect(() => {
+    if (!accessToken || !user) return;
+    const encryptedMessages = channelMessages.filter((message) => message.content.type === "ciphertext" && decryptedMessages[message.id] === undefined);
+    if (!encryptedMessages.length) return;
+
+    let cancelled = false;
+    void (async () => {
+      const updates: Record<string, string> = {};
+      for (const message of encryptedMessages) {
+        if (message.content.type !== "ciphertext") continue;
+        try {
+          const session = await ensureSignalSession(message.senderId, message.content.senderDeviceId);
+          updates[message.id] = await decryptFromSession(session, message.content.ciphertext);
+        } catch {
+          updates[message.id] = "Unable to decrypt message";
+        }
+      }
+      if (!cancelled && Object.keys(updates).length) setDecryptedMessages((current) => ({ ...current, ...updates }));
+    })();
+
+    return () => { cancelled = true; };
+  }, [accessToken, channelMessages, decryptedMessages, user]);
 
   // Connect to server and fetch data when in server mode
   useEffect(() => {
@@ -370,6 +488,24 @@ const ChatRoute = () => {
     if (!accessToken) return;
     const socket = io(API_BASE, { transports: ["websocket"], auth: { token: accessToken } });
     socketRef.current = socket;
+    const pool = new P2pConnectionPool((type, payload) => sendP2pEvent(socket, type, payload));
+    const wsSend = (event: string, payload: unknown): Promise<unknown> => new Promise((resolve) => {
+      socket.emit(event, payload, (response: unknown) => resolve(response));
+    });
+    p2pTransportRef.current = new HybridTransport(pool, socket, wsSend, (p2pMessage) => {
+      const message: Message = {
+        id: `p2p-${p2pMessage.clientMsgId}`,
+        workspaceId: p2pMessage.workspaceId,
+        channelId: p2pMessage.channelId,
+        senderId: p2pMessage.senderId,
+        clientMsgId: p2pMessage.clientMsgId,
+        content: { ...p2pMessage.content, algorithm: "signal-v1", readOnce: p2pMessage.content.readOnce ?? false, attachments: [] },
+        state: "sent",
+        createdAt: p2pMessage.timestamp
+      };
+      upsertMessage(message, "sent");
+      setTransportLabels((current) => ({ ...current, [message.clientMsgId]: "p2p received" }));
+    });
     socket.on("connect", () => setWsConnected(true));
     socket.on("disconnect", () => setWsConnected(false));
     socket.on("event", (event: { type: string; payload: unknown }) => {
@@ -378,6 +514,7 @@ const ChatRoute = () => {
         const state = useMessageStore.getState();
         // Skip if already added
         if (state.messages.has(serverMsg.id)) return;
+        setTransportLabels((current) => ({ ...current, [serverMsg.clientMsgId]: serverMsg.senderId === user?.id ? "relay sent" : "relay received" }));
         // Find and remove optimistic duplicate by clientMsgId
         const dup = [...state.messages.values()].find((m) => m.clientMsgId === serverMsg.clientMsgId);
         if (dup) {
@@ -390,10 +527,14 @@ const ChatRoute = () => {
         }
       }
     });
-    return () => { socket.disconnect(); };
-  }, [accessToken]);
+    return () => {
+      p2pTransportRef.current?.destroy();
+      p2pTransportRef.current = undefined;
+      socket.disconnect();
+    };
+  }, [accessToken, user?.id]);
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!user || !activeChannel || !draft.trim()) return;
 
@@ -435,7 +576,7 @@ const ChatRoute = () => {
     }
 
     if (socketRef.current?.connected) {
-      if (isSlashCommand && cmdName) {
+      if (!isE2e && isSlashCommand && cmdName) {
         const msg = createOptimisticMessage({
           workspaceId: activeChannel.workspaceId,
           channelId: activeChannel.id,
@@ -466,7 +607,42 @@ const ChatRoute = () => {
           }
         );
       } else {
-        // Don't show optimistic — wait for server broadcast
+        const clientMsgId = `web-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const peerUserId = activeChannel.kind === "dm" ? parseDmPeerUserId(activeChannel, user.id) : undefined;
+        const session = isE2e ? await ensureSignalSession(peerUserId ?? user.id) : undefined;
+        const encryptedContent = session ? applyDisappearingPolicy(await encryptForSession(session, text), policy) : undefined;
+
+        if (isE2e && encryptedContent && peerUserId && p2pTransportRef.current) {
+          const result = await p2pTransportRef.current.sendMessage({
+            workspaceId: activeChannel.workspaceId,
+            channelId: activeChannel.id,
+            clientMsgId,
+            content: encryptedContent,
+            targetUserId: peerUserId
+          });
+
+          setTransportLabels((current) => ({ ...current, [clientMsgId]: result.path === "p2p" ? "p2p sent" : "relay sent" }));
+
+          if (result.ok && result.path === "p2p") {
+            const message: Message = {
+              id: `p2p-local-${clientMsgId}`,
+              workspaceId: activeChannel.workspaceId,
+              channelId: activeChannel.id,
+              senderId: user.id,
+              clientMsgId,
+              content: encryptedContent,
+              state: "sent",
+              createdAt: new Date().toISOString()
+            };
+            upsertMessage(message, "sent");
+            setDecryptedMessages((current) => ({ ...current, [message.id]: text }));
+          }
+
+          setDraft("");
+          return;
+        }
+
+        // Don't show optimistic — wait for server broadcast.
         socketRef.current.emit(
           "event",
           {
@@ -476,11 +652,11 @@ const ChatRoute = () => {
             payload: {
               workspaceId: activeChannel.workspaceId,
               channelId: activeChannel.id,
-              clientMsgId: `web-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-              content: { type: "text" as const, text, attachments: [] }
+              clientMsgId,
+              content: encryptedContent ?? { type: "text" as const, text, attachments: [] }
             },
             timestamp: new Date().toISOString(),
-            encrypted: false
+            encrypted: Boolean(encryptedContent)
           }
         );
       }
@@ -521,11 +697,11 @@ const ChatRoute = () => {
       const resp = await fetch(`${API_BASE}/api/v1/dms?workspaceId=${workspaces[0].id}`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ peerUserId, mode: "normal" })
+        body: JSON.stringify({ peerUserId, mode: "e2e" })
       });
       const json = (await resp.json()) as { ok: boolean; data: Channel };
       if (json.ok) {
-        setChannels([...channels, json.data]);
+        if (!channels.some((c) => c.id === json.data.id)) setChannels([...channels, json.data]);
         setActiveChannel(json.data.id);
       }
     } catch { /* */ }
@@ -713,7 +889,7 @@ const ChatRoute = () => {
           </div>
           {isE2e ? <p className="mt-2 text-sm text-amber-200">Bots, slash commands, previews, and server-side search are disabled here.</p> : null}
         </header>
-        <MessageList messages={channelMessages} statuses={statuses} />
+        <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} />
         <form onSubmit={submit}>
           <InputActionBar
             actions={
