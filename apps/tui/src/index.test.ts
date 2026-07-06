@@ -26,6 +26,12 @@ describe("nexus CLI program", () => {
     expect(names).toContain("p2p-smoke");
     expect(names).toContain("e2e-smoke");
     expect(names).toContain("bot-smoke");
+    expect(names).toContain("user-smoke");
+    expect(names).toContain("bot-api-smoke");
+    expect(names).toContain("ws-smoke");
+    expect(names).toContain("member-rm-smoke");
+    expect(names).toContain("badpath-smoke");
+    expect(names).toContain("signal-smoke");
   });
 
   it("login command requires --email and --password", () => {
