@@ -1,10 +1,17 @@
 import type { IceServerConfig } from "./types.js";
 
+const envValue = (key: string): string => {
+  const viteEnv = import.meta.env[key];
+  if (typeof viteEnv === "string") return viteEnv;
+  const nodeProcess = globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } };
+  return nodeProcess.process?.env?.[key] ?? "";
+};
+
 export const getIceServerConfig = (): IceServerConfig => ({
-  stunServers: process.env.NEXUS_STUN_SERVERS ?? "stun:stun.l.google.com:19302",
-  turnServers: process.env.NEXUS_TURN_SERVERS ?? "",
-  turnUsername: process.env.NEXUS_TURN_USERNAME ?? "",
-  turnCredential: process.env.NEXUS_TURN_CREDENTIAL ?? ""
+  stunServers: envValue("VITE_NEXUS_STUN_SERVERS") || envValue("NEXUS_STUN_SERVERS") || "stun:stun.l.google.com:19302",
+  turnServers: envValue("VITE_NEXUS_TURN_SERVERS") || envValue("NEXUS_TURN_SERVERS"),
+  turnUsername: envValue("VITE_NEXUS_TURN_USERNAME") || envValue("NEXUS_TURN_USERNAME"),
+  turnCredential: envValue("VITE_NEXUS_TURN_CREDENTIAL") || envValue("NEXUS_TURN_CREDENTIAL")
 });
 
 export const buildRtcConfiguration = (): RTCConfiguration => {

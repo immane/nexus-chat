@@ -5,7 +5,8 @@ import type { P2pMessageFrame, P2pAckFrame } from "./types.js";
 import { P2P_CONNECTION_TIMEOUT_MS } from "./types.js";
 
 type WsSend = (event: string, payload: unknown) => Promise<unknown>;
-type MessageHandler = (message: { content: { type: "ciphertext"; ciphertext: string; algorithm: string; senderDeviceId: string }; senderId: string; channelId: string; clientMsgId: string; id: string; timestamp: string }) => void;
+type E2eTransportContent = { type: "ciphertext"; ciphertext: string; algorithm: "signal-v1"; senderDeviceId: string; readOnce?: boolean; expiresAt?: string; attachments: Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }> };
+type MessageHandler = (message: { content: E2eTransportContent; senderId: string; workspaceId: string; channelId: string; clientMsgId: string; id: string; timestamp: string }) => void;
 
 export class HybridTransport {
   private unsubscribe: (() => void) | null = null;
@@ -25,7 +26,7 @@ export class HybridTransport {
     workspaceId: string;
     channelId: string;
     clientMsgId: string;
-    content: { type: "ciphertext"; ciphertext: string; algorithm: string; senderDeviceId: string; readOnce?: boolean; attachments: Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }> };
+    content: E2eTransportContent;
     targetUserId: string;
   }): Promise<{ ok: boolean; path: "p2p" | "relay"; data?: unknown; error?: { code: string; message: string } }> {
     const dc = this.pool.getChannel(input.targetUserId);
@@ -62,11 +63,12 @@ export class HybridTransport {
     workspaceId: string;
     channelId: string;
     clientMsgId: string;
-    content: { type: "ciphertext"; ciphertext: string; algorithm: string; senderDeviceId: string; readOnce?: boolean; attachments: Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }> };
+    content: E2eTransportContent;
   }): { ok: boolean; path: "p2p"; data?: unknown } {
     const frame: P2pMessageFrame = {
       type: "e2ee.message",
       clientMsgId: input.clientMsgId,
+      workspaceId: input.workspaceId,
       channelId: input.channelId,
       content: input.content,
       timestamp: new Date().toISOString()
@@ -83,7 +85,7 @@ export class HybridTransport {
     workspaceId: string;
     channelId: string;
     clientMsgId: string;
-    content: { type: "ciphertext"; ciphertext: string; algorithm: string; senderDeviceId: string; readOnce?: boolean; attachments: Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }> };
+    content: E2eTransportContent;
   }): Promise<{ ok: boolean; path: "relay"; data?: unknown }> {
     const response = await this.wsSend("event", {
       type: "message.send",
@@ -157,6 +159,7 @@ export class HybridTransport {
         this.onMessage({
           content: frame.content,
           senderId: peerUserId,
+          workspaceId: frame.workspaceId,
           channelId: frame.channelId,
           clientMsgId: frame.clientMsgId,
           id: frame.clientMsgId,
