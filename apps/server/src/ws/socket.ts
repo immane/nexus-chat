@@ -41,8 +41,9 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     }
     logger.info({ userId, socketId: socket.id }, "WebSocket connected");
 
-    socket.on("event", (raw, callback: (response: unknown) => void) => {
-      return callback(handleClientEnvelope(userId, raw, createBroadcaster(io)));
+    socket.on("event", (raw, callback?: (response: unknown) => void) => {
+      const result = handleClientEnvelope(userId, raw, createBroadcaster(io));
+      if (typeof callback === "function") callback(result);
     });
 
     socket.on("disconnect", () => {

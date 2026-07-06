@@ -88,7 +88,7 @@ const ciphertextInput = {
   channelId: "channel-1",
   clientMsgId: "client-1",
   targetUserId: "peer-user-1",
-  content: { type: "ciphertext" as const, ciphertext: "abc", algorithm: "signal-v1", senderDeviceId: "device-1", attachments: [] }
+  content: { type: "ciphertext" as const, ciphertext: "abc", algorithm: "signal-v1" as const, senderDeviceId: "device-1", readOnce: false, attachments: [] }
 };
 
 describe("HybridTransport", () => {

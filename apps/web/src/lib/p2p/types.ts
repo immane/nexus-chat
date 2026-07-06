@@ -13,13 +13,15 @@ export interface PeerTransportState {
 export interface P2pMessageFrame {
   type: "e2ee.message";
   clientMsgId: string;
+  workspaceId: string;
   channelId: string;
   content: {
     type: "ciphertext";
     ciphertext: string;
-    algorithm: string;
+    algorithm: "signal-v1";
     senderDeviceId: string;
     readOnce?: boolean;
+    expiresAt?: string;
     attachments: Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }>;
   };
   timestamp: string;

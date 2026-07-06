@@ -6,9 +6,9 @@ import {
   decryptFromSession,
   createInMemorySignalSessionStore
 } from "@nexus-chat/signal";
-import type { SendMessageInput } from "@nexus-chat/shared";
+import type { Message, SendMessageInput } from "@nexus-chat/shared";
 import { request, getAccessToken, setAccessToken, apiBase } from "../lib/api.js";
-import { createSocket, sendMessage, sendBotCommand } from "../lib/ws-client.js";
+import { createSocket, listenForMessages, sendMessage, sendBotCommand } from "../lib/ws-client.js";
 
 export const login = async (email: string, password: string) => {
   const session = await request<{ accessToken?: string; tokens?: { accessToken: string } }>("/api/v1/auth/login", {
@@ -177,8 +177,20 @@ export const runBotSmoke = async () => {
     })
   });
 
+  await request(`/api/v1/bots/bot-help-smoke/channels/${ch.id}`, { method: "POST" });
+
   // Connect WS and send bot command
   const socket = createSocket();
+  const botResponse = new Promise<Message>((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error("Timed out waiting for /help bot response")), 5000);
+    listenForMessages(socket, (message) => {
+      if (message.channelId === ch.id && message.senderId === "bot-help-smoke") {
+        clearTimeout(timeout);
+        resolve(message);
+      }
+    });
+  });
+
   await new Promise<void>((resolve, reject) => {
     const timeout = setTimeout(() => reject(new Error("WebSocket connect timeout")), 5000);
     socket.on("connect", () => {
@@ -189,14 +201,23 @@ export const runBotSmoke = async () => {
   });
 
   const result = await sendBotCommand(socket, ws.id, ch.id, "/help", []);
-  socket.disconnect();
 
   if (!result.ok) {
     process.exitCode = 1;
     console.error(`bot smoke failed: ${result.error?.message ?? "unknown error"}`);
+    socket.disconnect();
     return;
   }
 
+  const responseMessage = await botResponse;
+  if (responseMessage.content.type !== "text" || !responseMessage.content.text.includes("/help")) {
+    process.exitCode = 1;
+    console.error("bot smoke failed: /help response was not broadcast to the channel");
+    socket.disconnect();
+    return;
+  }
+
+  socket.disconnect();
   console.log("bot smoke ok");
 };
 

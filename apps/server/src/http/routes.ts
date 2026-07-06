@@ -83,6 +83,13 @@ export const createHttpApp = () => {
     return user ? c.json(apiOk(user)) : c.json(apiFail("AUTH_REQUIRED", "User not found"), 401);
   });
 
+  app.get("/api/v1/users/by-email", authRequired, (c) => {
+    const email = c.req.query("email");
+    if (!email) return c.json(apiFail("VALIDATION_FAILED", "email query parameter is required"), 400);
+    const user = authService.lookupByEmail(email);
+    return user ? c.json(apiOk(user)) : c.json(apiFail("NOT_FOUND", "User not found"), 404);
+  });
+
   app.post("/api/v1/workspaces", authRequired, zValidator("json", createWorkspaceSchema), (c) => c.json(apiOk(workspaceService.createWorkspace(c.get("userId"), c.req.valid("json").name)), 201));
   app.get("/api/v1/workspaces", authRequired, (c) => c.json(apiOk(workspaceService.listWorkspaces(c.get("userId")))));
   app.get("/api/v1/workspaces/:id", authRequired, (c) => {
