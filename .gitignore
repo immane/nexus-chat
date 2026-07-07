@@ -54,6 +54,7 @@ test-results/
 *.gif
 *.mp4
 *.webm
+!docs/images/
 
 # Turborepo
 .turbo/
