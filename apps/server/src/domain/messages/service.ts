@@ -169,5 +169,21 @@ export const messageService = {
       event("message.deleted", updated.channelId, updated);
     }
     return expired;
+  },
+  markRead(actorId: string, channelId: string): { ok: true } | ReturnType<typeof apiFail> {
+    if (!workspaceService.canAccessChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    store.channelLastRead.set(`${channelId}:${actorId}`, nowIso());
+    return { ok: true };
+  },
+  getUnreadCounts(actorId: string, workspaceId: string): Record<string, number> {
+    if (!workspaceService.canAccessWorkspace(actorId, workspaceId)) return {};
+    const channels = [...store.channels.values()].filter((c) => c.workspaceId === workspaceId && !c.deletedAt && workspaceService.canAccessChannel(actorId, c.id));
+    const result: Record<string, number> = {};
+    for (const channel of channels) {
+      const lastRead = store.channelLastRead.get(`${channel.id}:${actorId}`);
+      const unread = [...store.messages.values()].filter((m) => m.channelId === channel.id && m.state === "sent" && (!lastRead || m.createdAt > lastRead) && m.senderId !== actorId).length;
+      if (unread > 0) result[channel.id] = unread;
+    }
+    return result;
   }
 };

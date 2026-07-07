@@ -1,7 +1,18 @@
 import { Command } from "commander";
 import { request, clearAccessToken } from "./lib/api.js";
 import { createSocket, sendMessage, sendBotCommand } from "./lib/ws-client.js";
-import { runE2eSmoke, runBotSmoke, runApiSmoke, runP2pSmoke, login as smokeLogin } from "./commands/smoke.js";
+import {
+  runE2eSmoke,
+  runBotSmoke,
+  runApiSmoke,
+  runP2pSmoke,
+  runUserSmoke,
+  runWsEventSmoke,
+  runMemberRemovalSmoke,
+  runBadPathSmoke,
+  runSignalConsumeSmoke,
+  login as smokeLogin
+} from "./commands/smoke.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -223,6 +234,74 @@ export function createProgram(): Command {
       } catch (err) {
         process.exitCode = 1;
         console.error("p2p smoke failed:", String(err));
+      }
+    });
+
+  program
+    .command("user-smoke")
+    .description("User smoke: email lookup happy + bad path")
+    .action(async () => {
+      try {
+        await runUserSmoke();
+      } catch (err) {
+        process.exitCode = 1;
+        console.error("user smoke failed:", String(err));
+      }
+    });
+
+  program
+    .command("bot-api-smoke")
+    .description("Bot API smoke: subscriptions + REST messages (blocked by API design gap)")
+    .action(async () => {
+      console.log("bot api smoke: skipped — bot subscription/messages routes require dual auth (user JWT + bot token via same Authorization header).");
+      console.log("These endpoints are tested at the service layer in apps/server/src/domain/services.test.ts.");
+    });
+
+  program
+    .command("ws-smoke")
+    .description("WebSocket event smoke: typing, presence, ack, p2p.answer, error cases")
+    .action(async () => {
+      try {
+        await runWsEventSmoke();
+      } catch (err) {
+        process.exitCode = 1;
+        console.error("ws smoke failed:", String(err));
+      }
+    });
+
+  program
+    .command("member-rm-smoke")
+    .description("Member removal smoke: DELETE workspace/channel members")
+    .action(async () => {
+      try {
+        await runMemberRemovalSmoke();
+      } catch (err) {
+        process.exitCode = 1;
+        console.error("member removal smoke failed:", String(err));
+      }
+    });
+
+  program
+    .command("badpath-smoke")
+    .description("Bad-path smoke: 401, 403, 404, 409, 422, rate limiting")
+    .action(async () => {
+      try {
+        await runBadPathSmoke();
+      } catch (err) {
+        process.exitCode = 1;
+        console.error("badpath smoke failed:", String(err));
+      }
+    });
+
+  program
+    .command("signal-smoke")
+    .description("Signal prekey consume smoke: happy + bad path")
+    .action(async () => {
+      try {
+        await runSignalConsumeSmoke();
+      } catch (err) {
+        process.exitCode = 1;
+        console.error("signal consume smoke failed:", String(err));
       }
     });
 

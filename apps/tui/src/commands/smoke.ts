@@ -227,18 +227,6 @@ export const runApiSmoke = async () => {
 
   const ts = Date.now();
 
-  const ok = <T>(label: string, fn: () => Promise<T>) =>
-    fn().then(
-      (value) => { console.log(`  ✓ ${label}`); return value; },
-      (err) => { throw new Error(`${label} FAILED: ${String(err)}`); }
-    );
-
-  const assertOk = <T>(label: string, value: T, pred: (v: T) => boolean) => {
-    if (!pred(value)) throw new Error(`${label} assertion failed`);
-    console.log(`  ✓ ${label}`);
-    return value;
-  };
-
   console.log("API smoke test");
 
   // ── Auth ──
@@ -675,6 +663,573 @@ export const runP2pSmoke = async () => {
 };
 
 const okSocket = async (label: string, fn: () => Promise<unknown>): Promise<unknown> => {
+  try {
+    const result = await fn();
+    console.log(`  ✓ ${label}`);
+    return result;
+  } catch (err) {
+    throw new Error(`${label} FAILED: ${String(err)}`);
+  }
+};
+
+// ── Shared smoke helpers ──
+const ok = <T>(label: string, fn: () => Promise<T>) =>
+  fn().then(
+    (value) => { console.log(`  ✓ ${label}`); return value; },
+    (err) => { throw new Error(`${label} FAILED: ${String(err)}`); }
+  );
+
+const assertOk = <T>(label: string, value: T, pred: (v: T) => boolean) => {
+  if (!pred(value)) throw new Error(`${label} assertion failed`);
+  console.log(`  ✓ ${label}`);
+  return value;
+};
+
+const makeSmokeHeaders = () => {
+  const token = getAccessToken();
+  if (!token) throw new Error("Not authenticated");
+  return (extra: Record<string, string> = {}) => ({
+    ...extra,
+    "content-type": "application/json",
+    authorization: `Bearer ${token}`
+  });
+};
+
+const makeSmokeReq = () => {
+  const headers = makeSmokeHeaders();
+  return <T>(path: string, options: RequestInit = {}): Promise<T> =>
+    request<T>(path, { ...options, headers: { ...headers(), ...(options.headers as Record<string, string> ?? {}) } });
+};
+
+const expectHttpError = async (label: string, expectSubstring: string, fn: () => Promise<unknown>) => {
+  try {
+    await fn();
+    throw new Error(`${label}: expected error containing "${expectSubstring}" but succeeded`);
+  } catch (err) {
+    const msg = String(err);
+    if (!msg.includes(expectSubstring)) throw new Error(`${label}: expected "${expectSubstring}" in error, got: ${msg}`);
+    console.log(`  ✓ ${label} (expected error)`);
+  }
+};
+
+const expectWsError = async (label: string, expectedCode: string, fn: () => Promise<{ ok: boolean; error?: { code: string; message: string } }>) => {
+  const result = await fn();
+  if (result.ok) throw new Error(`${label}: expected error code "${expectedCode}" but succeeded`);
+  if (result.error?.code !== expectedCode) throw new Error(`${label}: expected error code "${expectedCode}", got "${result.error?.code}"`);
+  console.log(`  ✓ ${label} (expected ${expectedCode})`);
+};
+
+// ────────────────────────────────────────────────
+// User email lookup smoke
+// ────────────────────────────────────────────────
+export const runUserSmoke = async () => {
+  const token = getAccessToken();
+  if (!token) throw new Error("Not authenticated. Run 'nexus login' first.");
+  const smokeReq = makeSmokeReq();
+
+  console.log("User smoke test");
+
+  const me = await ok("GET /auth/me", () =>
+    smokeReq<{ email: string }>("/api/v1/auth/me")
+  );
+  const myEmail = me.email;
+
+  await ok("GET /users/by-email", () =>
+    smokeReq<{ id: string }>(`/api/v1/users/by-email?email=${encodeURIComponent(myEmail)}`).then((u) => {
+      if (!u.id) throw new Error("no user id");
+    })
+  );
+
+  await expectHttpError("GET /users/by-email (missing param)", "email query parameter is required", () =>
+    request("/api/v1/users/by-email")
+  );
+
+  await expectHttpError("GET /users/by-email (not found)", "User not found", () =>
+    smokeReq(`/api/v1/users/by-email?email=nonexistent-${Date.now()}@smoke.local`)
+  );
+
+  await expectHttpError("GET /users/by-email (no auth)", "401", () =>
+    fetch(`${apiBase}/api/v1/users/by-email?email=test@test.local`).then((r) => {
+      if (r.ok) throw new Error("expected 401");
+      throw new Error(String(r.status));
+    })
+  );
+
+  console.log("user smoke ok");
+};
+
+// ────────────────────────────────────────────────
+// Bot API smoke (bot token-scoped endpoints)
+// NOTE: bot subscriptions and bot messages REST routes
+// require both a user JWT and a bot token via the same
+// Authorization header — this is a known API design gap.
+// These endpoints are tested at the service layer in
+// apps/server/src/domain/services.test.ts.
+// ────────────────────────────────────────────────
+
+// ────────────────────────────────────────────────
+// WebSocket event smoke (typing, presence, ack, p2p answer)
+// ────────────────────────────────────────────────
+export const runWsEventSmoke = async () => {
+  const token = getAccessToken();
+  if (!token) throw new Error("Not authenticated. Run 'nexus login' first.");
+  const smokeReq = makeSmokeReq();
+
+  console.log("WS event smoke test");
+
+  const ws = await ok("POST /workspaces (for ws smoke)", () =>
+    smokeReq<{ id: string }>("/api/v1/workspaces", {
+      method: "POST",
+      body: JSON.stringify({ name: "WS Event Smoke" })
+    })
+  );
+
+  const ch = await ok("POST /channels (for ws smoke)", () =>
+    smokeReq<{ id: string }>(`/api/v1/workspaces/${ws.id}/channels`, {
+      method: "POST",
+      body: JSON.stringify({ name: "ws-event-ch", mode: "normal" })
+    })
+  );
+
+  // Send a message to have something to ack
+  const msgPayload = {
+    workspaceId: ws.id,
+    channelId: ch.id,
+    clientMsgId: `ws-msg-${Date.now()}`,
+    content: { type: "text" as const, text: "ws smoke message", attachments: [] }
+  };
+  const msg = await ok("POST /messages (for ws smoke)", () =>
+    smokeReq<{ id: string }>("/api/v1/messages", {
+      method: "POST",
+      body: JSON.stringify(msgPayload)
+    })
+  );
+
+  const socket = createSocket();
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error("WebSocket connect timeout")), 5000);
+    socket.on("connect", () => { clearTimeout(timeout); resolve(); });
+    socket.connect();
+  });
+
+  // ── Typing events ──
+  await okWs("typing.start / typing.stop", () =>
+    new Promise<{ ok: boolean }>((resolve, reject) => {
+      let startOk = false;
+      socket.emit("event", {
+        type: "typing.start",
+        payload: { workspaceId: ws.id, channelId: ch.id },
+        timestamp: new Date().toISOString()
+      }, (startRes: { ok: boolean }) => {
+        startOk = startRes.ok;
+        if (!startOk) reject(new Error("typing.start rejected"));
+        socket.emit("event", {
+          type: "typing.stop",
+          payload: { workspaceId: ws.id, channelId: ch.id },
+          timestamp: new Date().toISOString()
+        }, (stopRes: { ok: boolean }) => {
+          if (!stopRes.ok) reject(new Error("typing.stop rejected"));
+          resolve(stopRes);
+        });
+      });
+    })
+  );
+
+  // ── Presence update ──
+  await okWs("presence.update", () =>
+    new Promise<{ ok: boolean }>((resolve) => {
+      socket.emit("event", {
+        type: "presence.update",
+        payload: { status: "online" },
+        timestamp: new Date().toISOString()
+      }, (response: { ok: boolean }) => resolve(response));
+    }).then((r) => { if (!r.ok) throw new Error("presence.update rejected"); })
+  );
+
+  // ── Message ack ──
+  await okWs("message.ack", () =>
+    new Promise<{ ok: boolean }>((resolve) => {
+      socket.emit("event", {
+        type: "message.ack",
+        payload: { messageId: msg.id },
+        timestamp: new Date().toISOString()
+      }, (response: { ok: boolean }) => resolve(response));
+    }).then((r) => { if (!r.ok) throw new Error("message.ack rejected"); })
+  );
+
+  // ── P2P answer (was completely untested) ──
+  await okWs("p2p.answer", () =>
+    new Promise<{ ok: boolean }>((resolve) => {
+      socket.emit("event", {
+        type: "p2p.answer",
+        payload: { targetUserId: "dummy-user-12345678", sdp: "v=0\r\no=- 2 3 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0" },
+        timestamp: new Date().toISOString(),
+        encrypted: false
+      }, (response: { ok: boolean }) => resolve(response));
+    }).then((r) => { if (!r.ok) throw new Error("p2p.answer rejected"); })
+  );
+
+  await okWs("p2p.ice-candidate", () =>
+    new Promise<{ ok: boolean }>((resolve) => {
+      socket.emit("event", {
+        type: "p2p.ice-candidate",
+        payload: { targetUserId: "dummy-user-12345678", candidate: { candidate: "candidate:1 1 UDP 2130706431 10.0.0.1 54321 typ host", sdpMid: "0", sdpMLineIndex: 0 } },
+        timestamp: new Date().toISOString(),
+        encrypted: false
+      }, (response: { ok: boolean }) => resolve(response));
+    }).then((r) => { if (!r.ok) throw new Error("p2p.ice-candidate rejected"); })
+  );
+
+  await okWs("p2p.hangup", () =>
+    new Promise<{ ok: boolean }>((resolve) => {
+      socket.emit("event", {
+        type: "p2p.hangup",
+        payload: { targetUserId: "dummy-user-12345678" },
+        timestamp: new Date().toISOString(),
+        encrypted: false
+      }, (response: { ok: boolean }) => resolve(response));
+    }).then((r) => { if (!r.ok) throw new Error("p2p.hangup rejected"); })
+  );
+
+  // ── WS bad-path: message.ack for nonexistent message ──
+  await expectWsError("message.ack (not found)", "NOT_FOUND", () =>
+    new Promise<{ ok: boolean; error?: { code: string; message: string } }>((resolve) => {
+      socket.emit("event", {
+        type: "message.ack",
+        payload: { messageId: "nonexistent-msg-" + Date.now() },
+        timestamp: new Date().toISOString()
+      }, resolve);
+    })
+  );
+
+  // ── WS bad-path: invalid payload ──
+  await expectWsError("typing.start (invalid payload)", "VALIDATION_FAILED", () =>
+    new Promise<{ ok: boolean; error?: { code: string; message: string } }>((resolve) => {
+      socket.emit("event", {
+        type: "typing.start",
+        payload: {},
+        timestamp: new Date().toISOString()
+      }, resolve);
+    })
+  );
+
+  socket.disconnect();
+  console.log("ws event smoke ok");
+};
+
+// ────────────────────────────────────────────────
+// Member removal smoke (DELETE workspace/channel members)
+// ────────────────────────────────────────────────
+export const runMemberRemovalSmoke = async () => {
+  const token = getAccessToken();
+  if (!token) throw new Error("Not authenticated. Run 'nexus login' first.");
+  const smokeReq = makeSmokeReq();
+
+  console.log("Member removal smoke test");
+
+  const ts = Date.now();
+  let secondToken = "";
+  let secondUserId = "";
+  try {
+    const reg = await request<{ tokens: { accessToken: string }; user: { id: string } }>("/api/v1/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ email: `smoke-member-rm-${ts}@smoke.local`, password: "TestRmSmoke12!", displayName: "MemberRemove" })
+    });
+    secondToken = reg.tokens.accessToken;
+    secondUserId = reg.user.id;
+  } catch { /* may exist */ }
+  if (!secondToken || !secondUserId) throw new Error("Failed to register second user");
+
+  const ws = await ok("POST /workspaces (for member removal)", () =>
+    smokeReq<{ id: string }>("/api/v1/workspaces", {
+      method: "POST",
+      body: JSON.stringify({ name: "Member Removal Smoke" })
+    })
+  );
+
+  await ok("POST /workspaces/:id/members (for member removal)", () =>
+    smokeReq<unknown>(`/api/v1/workspaces/${ws.id}/members`, {
+      method: "POST",
+      body: JSON.stringify({ userId: secondUserId, role: "member" })
+    })
+  );
+
+  const ch = await ok("POST /channels (for member removal)", () =>
+    smokeReq<{ id: string }>(`/api/v1/workspaces/${ws.id}/channels`, {
+      method: "POST",
+      body: JSON.stringify({ name: "member-rm-ch", mode: "normal" })
+    })
+  );
+
+  await ok("POST /channels/:id/members (for member removal)", () =>
+    smokeReq<unknown>(`/api/v1/channels/${ch.id}/members`, {
+      method: "POST",
+      body: JSON.stringify({ userId: secondUserId })
+    })
+  );
+
+  // Remove channel member
+  await ok("DELETE /channels/:id/members/:userId", () =>
+    smokeReq<unknown>(`/api/v1/channels/${ch.id}/members/${secondUserId}`, { method: "DELETE" })
+  );
+
+  // Remove workspace member
+  await ok("DELETE /workspaces/:id/members/:userId", () =>
+    smokeReq<unknown>(`/api/v1/workspaces/${ws.id}/members/${secondUserId}`, { method: "DELETE" })
+  );
+
+  console.log("member removal smoke ok");
+};
+
+// ────────────────────────────────────────────────
+// Bad-path comprehensive smoke (401, 403, 404, 422)
+// ────────────────────────────────────────────────
+export const runBadPathSmoke = async () => {
+  const token = getAccessToken();
+  if (!token) throw new Error("Not authenticated. Run 'nexus login' first.");
+  const smokeReq = makeSmokeReq();
+
+  console.log("Bad-path smoke test");
+
+  const me = await ok("GET /auth/me", () =>
+    smokeReq<{ id: string; email: string }>("/api/v1/auth/me")
+  );
+
+  // ── 401: Missing auth ──
+  await expectHttpError("GET /auth/me (no token)", "401", () =>
+    fetch(`${apiBase}/api/v1/auth/me`).then((r) => {
+      if (r.ok) throw new Error("expected 401");
+      throw new Error(String(r.status));
+    })
+  );
+
+  // ── 404: Nonexistent workspace ──
+  await expectHttpError("GET /workspaces/:id (404)", "not found", () =>
+    smokeReq(`/api/v1/workspaces/nonexistent-ws-${Date.now()}`)
+  );
+
+  // ── 400: Invalid login ──
+  // Register a fresh user to avoid rate-limiting from earlier smoke runs
+  const badLoginEmail = `badpath-invalid-${Date.now()}@smoke.local`;
+  try {
+    await request("/api/v1/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ email: badLoginEmail, password: "baDPatH!12345", displayName: "BadLogin" })
+    });
+  } catch { /* may exist */ }
+
+  try {
+    await request("/api/v1/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: badLoginEmail, password: "wrong-password-12345678" })
+    });
+    throw new Error("expected login failure");
+  } catch (err) {
+    const msg = String(err);
+    if (msg.includes("Invalid email or password")) {
+      console.log("  ✓ POST /auth/login (bad password) (expected error)");
+    } else if (msg.includes("Too many login attempts")) {
+      console.log("  ✓ POST /auth/login (bad password) (expected error - rate limited after prior smoke)");
+    } else {
+      throw new Error(`unexpected login error: ${msg}`);
+    }
+  }
+
+  // ── 400: Invalid register (bad email/password) ──
+  await expectHttpError("POST /auth/register (short password)", "Request failed", () =>
+    request("/api/v1/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ email: "short@pwd.local", password: "short", displayName: "X" })
+    })
+  );
+
+  // ── 400: Invalid message content (text length) ──
+  const ws = await ok("POST /workspaces (for badpath)", () =>
+    smokeReq<{ id: string }>("/api/v1/workspaces", {
+      method: "POST",
+      body: JSON.stringify({ name: "BadPath Smoke" })
+    })
+  );
+
+  await ok("POST /channels (for badpath)", () =>
+    smokeReq<{ id: string }>(`/api/v1/workspaces/${ws.id}/channels`, {
+      method: "POST",
+      body: JSON.stringify({ name: "badpath-ch", mode: "normal" })
+    })
+  );
+
+  // ── 400: e2e channel plaintext rejected ──
+  const e2eCh = await ok("POST /channels (e2e for badpath)", () =>
+    smokeReq<{ id: string }>(`/api/v1/workspaces/${ws.id}/channels`, {
+      method: "POST",
+      body: JSON.stringify({ name: `badpath-e2e-${Date.now()}`, mode: "e2e" })
+    })
+  );
+
+  await expectHttpError("POST /messages (plaintext in e2e)", "E2E channels accept ciphertext", () =>
+    smokeReq("/api/v1/messages", {
+      method: "POST",
+      body: JSON.stringify({
+        workspaceId: ws.id,
+        channelId: e2eCh.id,
+        clientMsgId: `badpath-${Date.now()}`,
+        content: { type: "text", text: "plaintext in e2e", attachments: [] }
+      })
+    })
+  );
+
+  // ── 403: Accessing nonexistent channel ──
+  await expectHttpError("DELETE /channels/:id (non-existent)", "Only channel creators", () =>
+    smokeReq(`/api/v1/channels/nonexistent-ch-${Date.now()}`, { method: "DELETE" })
+  );
+
+  // ── 400: Channel name conflict ──
+  await expectHttpError("POST /channels (duplicate name)", "already exists", () =>
+    smokeReq(`/api/v1/workspaces/${ws.id}/channels`, {
+      method: "POST",
+      body: JSON.stringify({ name: "badpath-ch", mode: "normal" })
+    })
+  );
+
+  // ── 404: nonexistent message ──
+  await expectHttpError("PATCH /messages/:id (non-existent)", "Cannot edit", () =>
+    smokeReq(`/api/v1/messages/nonexistent-msg-${Date.now()}`, {
+      method: "PATCH",
+      body: JSON.stringify({ text: "nope" })
+    })
+  );
+
+  // ── 400: Signal prekey bundle for wrong user ──
+  await expectHttpError("POST /signal/prekey-bundles (wrong user)", "Cannot upload Signal keys", () =>
+    smokeReq("/api/v1/signal/prekey-bundles", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: "different-user-" + Date.now(),
+        deviceId: "badpath-device",
+        identityKey: Buffer.from("id").toString("base64"),
+        signedPreKeyId: 1,
+        signedPreKey: Buffer.from("spk").toString("base64"),
+        signedPreKeySignature: Buffer.from("sig").toString("base64")
+      })
+    })
+  );
+
+  // ── 400: Bot command in e2e channel ──
+  await expectHttpError("POST /bots/commands (e2e channel)", "E2E", () =>
+    smokeReq("/api/v1/bots/commands", {
+      method: "POST",
+      body: JSON.stringify({
+        command: "/help",
+        workspaceId: ws.id,
+        channelId: e2eCh.id,
+        userId: me.id
+      })
+    })
+  );
+
+  // ── 400: DM with non-member ──
+  await expectHttpError("POST /dms (non-member peer)", "Both users must be workspace members", () =>
+    smokeReq(`/api/v1/dms?workspaceId=${encodeURIComponent(ws.id)}`, {
+      method: "POST",
+      body: JSON.stringify({ peerUserId: "nonexistent-user-" + Date.now(), mode: "normal" })
+    })
+  );
+
+  // ── 400: No workspaceId for DM ──
+  await expectHttpError("POST /dms (missing workspaceId)", "workspaceId query parameter is required", () =>
+    smokeReq("/api/v1/dms", {
+      method: "POST",
+      body: JSON.stringify({ peerUserId: me.id, mode: "normal" })
+    })
+  );
+
+  // ── Rate limiting: multiple failed logins ──
+  const fakeEmail = `badpath-rate-${Date.now()}@smoke.local`;
+  for (let i = 0; i < 6; i++) {
+    try {
+      await request("/api/v1/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email: fakeEmail, password: `wrong-${i}` })
+      });
+    } catch { /* expected */ }
+  }
+  await expectHttpError("POST /auth/login (rate limited)", "Too many login attempts", () =>
+    request("/api/v1/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: fakeEmail, password: "wrong-again" })
+    })
+  );
+
+  console.log("badpath smoke ok");
+};
+
+// ────────────────────────────────────────────────
+// Signal prekey consume smoke
+// ────────────────────────────────────────────────
+export const runSignalConsumeSmoke = async () => {
+  const token = getAccessToken();
+  if (!token) throw new Error("Not authenticated. Run 'nexus login' first.");
+  const smokeReq = makeSmokeReq();
+
+  console.log("Signal consume smoke test");
+
+  const me = await ok("GET /auth/me", () =>
+    smokeReq<{ id: string }>("/api/v1/auth/me")
+  );
+
+  const deviceId = `consume-smoke-${Date.now()}`;
+
+  // Upload bundle with OPKs
+  await ok("POST /signal/prekey-bundles (with OPKs for consume)", () =>
+    smokeReq<unknown>("/api/v1/signal/prekey-bundles", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: me.id,
+        deviceId,
+        identityKey: Buffer.from("consume-ik").toString("base64"),
+        signedPreKeyId: 1,
+        signedPreKey: Buffer.from("consume-spk").toString("base64"),
+        signedPreKeySignature: Buffer.from("consume-sig").toString("base64"),
+        oneTimePreKeys: [
+          { keyId: 1, publicKey: Buffer.from("consume-opk1").toString("base64") },
+          { keyId: 2, publicKey: Buffer.from("consume-opk2").toString("base64") }
+        ]
+      })
+    })
+  );
+
+  // Consume an OPK
+  await ok("POST /signal/prekey-bundles/:userId/:deviceId/consume", () =>
+    smokeReq<unknown>(`/api/v1/signal/prekey-bundles/${me.id}/${deviceId}/consume?keyId=1`, {
+      method: "POST"
+    })
+  );
+
+  // Check remaining count
+  await ok("GET /signal/prekey-bundles/.../count (after consume)", () =>
+    smokeReq<{ remaining: number }>(`/api/v1/signal/prekey-bundles/${me.id}/${deviceId}/count`).then((r) => {
+      if (r.remaining !== 1) throw new Error(`expected 1 OPK after consume, got ${r.remaining}`);
+    })
+  );
+
+  // Bad-path: consume already-consumed OPK
+  await expectHttpError("POST /signal/.../consume (already consumed)", "already consumed", () =>
+    smokeReq(`/api/v1/signal/prekey-bundles/${me.id}/${deviceId}/consume?keyId=1`, {
+      method: "POST"
+    })
+  );
+
+  // Bad-path: consume nonexistent OPK
+  await expectHttpError("POST /signal/.../consume (nonexistent)", "not found", () =>
+    smokeReq(`/api/v1/signal/prekey-bundles/${me.id}/${deviceId}/consume?keyId=999`, {
+      method: "POST"
+    })
+  );
+
+  console.log("signal consume smoke ok");
+};
+
+const okWs = async (label: string, fn: () => Promise<unknown>): Promise<unknown> => {
   try {
     const result = await fn();
     console.log(`  ✓ ${label}`);

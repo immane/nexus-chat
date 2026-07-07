@@ -36,7 +36,7 @@ The defaults are suitable for local development:
 
 ```env
 PORT=4000
-WEB_ORIGIN=http://localhost:5173
+WEB_ORIGIN=http://localhost
 DATABASE_URL=postgres://nexus:nexus@localhost:5432/nexus_chat
 REDIS_URL=redis://localhost:6379
 SESSION_STORE=memory
@@ -45,47 +45,59 @@ VITE_API_BASE=http://localhost:4000
 
 Use `SESSION_STORE=redis` if you want refresh sessions stored in Redis during local testing.
 
-## 4. Start PostgreSQL And Redis
+## 4. Start The Local Server Container
 
 ```bash
+docker compose build server
 docker compose up -d
 ```
 
-Confirm containers are running:
+Confirm the server is running:
 
 ```bash
 docker compose ps
+curl http://localhost:4000/healthz
 ```
 
-## 5. Apply Migrations And Seed Data
+Phase 1 runtime services use in-memory domain stores. PostgreSQL and Redis are intentionally commented out in `docker-compose.yml` until persistence is wired.
+
+## 5. Seed In-Memory Dev Data
 
 ```bash
-pnpm db:migrate
-pnpm db:seed
+bash scripts/dev-bootstrap.sh
 ```
 
-Seed credentials:
+Dev credentials:
 
 | Email | Password |
 | --- | --- |
-| `ada@example.com` | `Password12345!` |
-| `grace@example.com` | `Password12345!` |
+| `alice@dev.local` | `test1234abcd` |
+| `bob@dev.local` | `test1234abcd` |
 
-Note: Phase 1 runtime services default to in-memory domain stores. The PostgreSQL schema, migration, and seed path are still useful for local infrastructure validation and future persistence integration.
+The bootstrap creates `Dev Workspace`, a default `#general` channel, and workspace/channel membership for Bob. Re-run it after restarting or rebuilding the server container because the store is in memory.
 
 ## 6. Start Development Servers
 
+For the Docker server plus web UI flow, keep the server container running and start Vite separately:
+
 ```bash
+pnpm --filter @nexus-chat/web dev
+```
+
+For the native all-app development flow, stop Docker first if it owns port `4000`, then run:
+
+```bash
+docker compose down
 pnpm dev
 ```
 
 Open:
 
-- Web client: `http://localhost:5173`
+- Web client: the Vite URL printed by the web dev server, usually `http://localhost:5173` or `http://localhost:5174`
 - API health check: `http://localhost:4000/healthz`
 - Metrics: `http://localhost:4000/metrics`
 
-The web app supports demo mode and real-server mode. If you use real-server mode and no in-memory users exist yet, register a user from the UI or through the API.
+The web app supports demo mode and real-server mode. In real-server mode, use the dev credentials above or register another user through the API/UI.
 
 ## 7. Run A Fast Validation Pass
 
@@ -105,29 +117,38 @@ Expected result: all commands pass. Current coverage is above 99% statement cove
 Show help:
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- --help
+pnpm --filter @nexus-chat/tui dev --help
 ```
 
 Login against the local server:
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- login -e ada@example.com -p 'Password12345!'
+pnpm --filter @nexus-chat/tui dev login -e alice@dev.local -p test1234abcd
 ```
 
 List workspaces:
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- workspaces
+pnpm --filter @nexus-chat/tui dev workspaces
 ```
 
 Run smoke tests:
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- api-smoke
-pnpm --filter @nexus-chat/tui dev -- p2p-smoke
-pnpm --filter @nexus-chat/tui dev -- bot-smoke
-pnpm --filter @nexus-chat/tui dev -- e2e-smoke
+pnpm --filter @nexus-chat/tui dev api-smoke
+pnpm --filter @nexus-chat/tui dev p2p-smoke
+pnpm --filter @nexus-chat/tui dev bot-smoke
+pnpm --filter @nexus-chat/tui dev e2e-smoke
 ```
+
+Run the full native CI smoke flow:
+
+```bash
+docker compose down
+pnpm smoke:tui:ci
+```
+
+`smoke:tui:ci` starts its own native server on port `4000`, so Docker must not already be bound to that port.
 
 The CLI stores its local token in `.env.tui`, which is ignored by Git.
 
@@ -154,7 +175,7 @@ pnpm --filter @nexus-chat/desktop dev
 TUI/CLI:
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- --help
+pnpm --filter @nexus-chat/tui dev --help
 ```
 
 ## 10. Useful Reset Commands
@@ -165,30 +186,30 @@ Stop infrastructure:
 docker compose down
 ```
 
-Delete PostgreSQL data and recreate it:
+Recreate the in-memory Docker server and seed data:
 
 ```bash
-docker compose down -v
+docker compose down
+docker compose build server
 docker compose up -d
-pnpm db:migrate
-pnpm db:seed
+bash scripts/dev-bootstrap.sh
 ```
 
 Clear TUI auth token:
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- logout
+pnpm --filter @nexus-chat/tui dev logout
 ```
 
 ## Troubleshooting
 
-If `pnpm dev` cannot bind to a port, check for existing processes using ports `4000` or `5173`.
+If `pnpm dev` or `smoke:tui:ci` cannot bind to a port, check for existing processes using ports `4000`, `5173`, or `5174`. Stop Docker with `docker compose down` before running native CI smoke.
 
-If login fails in the TUI, confirm the server is running and the runtime has the expected user. Because Phase 1 runtime services use in-memory stores by default, seeded PostgreSQL users are not automatically loaded into the in-memory auth store.
+If login fails in the TUI, confirm the server is running and the runtime has the expected user. Because Phase 1 runtime services use in-memory stores by default, you need to run `scripts/dev-bootstrap.sh` after each fresh server start or register users manually.
 
-If `pnpm db:migrate` fails, confirm Docker is running and `DATABASE_URL` points to the local PostgreSQL container.
+If `pnpm db:migrate` fails, remember that the default Docker flow does not start PostgreSQL. Uncomment PostgreSQL in `docker-compose.yml` first if you are validating migrations.
 
-If WebSocket commands fail, confirm the web origin matches `WEB_ORIGIN` and the server is reachable at `VITE_API_BASE`.
+If WebSocket commands fail, confirm the server is reachable at `VITE_API_BASE`. The default `WEB_ORIGIN=http://localhost` allows any localhost port for browser clients.
 
 ## Next Steps
 

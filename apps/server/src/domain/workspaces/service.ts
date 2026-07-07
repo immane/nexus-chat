@@ -58,8 +58,13 @@ export const workspaceService = {
     }
     return store.workspaceMembers.delete(memberKey(workspaceId, userId));
   },
-  listMembers(_actorId: string, workspaceId: string): WorkspaceMember[] {
-    return [...store.workspaceMembers.values()].filter((m) => m.workspaceId === workspaceId);
+  listMembers(_actorId: string, workspaceId: string): Array<{ workspaceId: string; userId: string; role: string; email: string; displayName: string }> {
+    return [...store.workspaceMembers.values()]
+      .filter((m) => m.workspaceId === workspaceId)
+      .map((m) => {
+        const user = store.users.get(m.userId);
+        return { ...m, email: user?.email ?? "", displayName: user?.displayName ?? "" };
+      });
   },
   transferOwnership(actorId: string, workspaceId: string, newOwnerUserId: string): WorkspaceMember | ReturnType<typeof apiFail> {
     if (this.getRole(actorId, workspaceId) !== "owner") return apiFail("FORBIDDEN", "Only owners can transfer ownership");

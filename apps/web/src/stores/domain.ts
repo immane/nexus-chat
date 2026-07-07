@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type { AuthSession, BotManifest, Channel, Message, MessageContent, User, Workspace } from "@nexus-chat/shared";
 
 export type MessageSendStatus = "sending" | "sent" | "failed";
@@ -72,13 +73,21 @@ export const selectChannelMessages = (messages: Map<string, Message>, order: str
     .filter((message): message is Message => message !== undefined)
     .filter((message) => message.channelId === channelId);
 
-export const useAuthStore = create<{ user: User | undefined; accessToken: string | undefined; refreshToken: string | undefined; setSession: (session: AuthSession) => void; clear: () => void }>((set) => ({
-  user: undefined,
-  accessToken: undefined,
-  refreshToken: undefined,
-  setSession: (session) => set({ user: session.user, accessToken: session.tokens.accessToken, refreshToken: session.tokens.refreshToken }),
-  clear: () => set({ user: undefined, accessToken: undefined, refreshToken: undefined })
-}));
+export const useAuthStore = create(
+  persist<{ user: User | undefined; accessToken: string | undefined; refreshToken: string | undefined; setSession: (session: AuthSession) => void; clear: () => void }>(
+    (set) => ({
+      user: undefined,
+      accessToken: undefined,
+      refreshToken: undefined,
+      setSession: (session) => set({ user: session.user, accessToken: session.tokens.accessToken, refreshToken: session.tokens.refreshToken }),
+      clear: () => set({ user: undefined, accessToken: undefined, refreshToken: undefined })
+    }),
+    {
+      name: "nexus-auth",
+      storage: createJSONStorage(() => localStorage)
+    }
+  )
+);
 
 export const useWorkspaceStore = create<{ workspaces: Workspace[]; activeWorkspaceId?: string; setWorkspaces: (workspaces: Workspace[]) => void; setActive: (id: string) => void }>((set) => ({
   workspaces: [],

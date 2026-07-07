@@ -34,6 +34,7 @@ export class InMemoryStore {
   signalBundles = new Map<string, SignalPreKeyBundle>();
   oneTimePreKeys = new Map<string, OneTimePreKey>();
   signalSessions = new Map<string, SignalSessionRecord>();
+  channelLastRead = new Map<string, string>();
   auditLogs: Array<{ id: string; actorUserId?: string | undefined; workspaceId?: string | undefined; action: string; metadata: unknown; createdAt: string }> = [];
 }
 

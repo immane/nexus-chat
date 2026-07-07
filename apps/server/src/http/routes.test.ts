@@ -57,6 +57,16 @@ describe("auth HTTP routes", () => {
     expect(limited.headers.get("retry-after")).toBeTruthy();
   });
 
+  it("allows localhost origins on any port without allowing lookalike hosts", async () => {
+    const app = createHttpApp();
+
+    const localPortResponse = await app.request(new Request("http://localhost/healthz", { headers: { origin: "http://localhost:9999" } }));
+    expect(localPortResponse.headers.get("access-control-allow-origin")).toBe("http://localhost:9999");
+
+    const lookalikeResponse = await app.request(new Request("http://localhost/healthz", { headers: { origin: "http://localhost.evil.com" } }));
+    expect(lookalikeResponse.headers.get("access-control-allow-origin")).toBe("http://localhost");
+  });
+
   it("supports workspace channel and DM CRUD flow", async () => {
     const app = createHttpApp();
     const ownerResponse = await app.request(jsonRequest("/api/v1/auth/register", { email: "owner@example.com", password: "Password12345!", displayName: "Owner" }));
