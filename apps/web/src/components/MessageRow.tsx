@@ -2,7 +2,7 @@ import type { Message } from "@nexus-chat/shared";
 import { Badge } from "@nexus-chat/ui";
 import { useUiStore } from "../stores/domain.js";
 
-export const MessageRow = ({ message, status, decryptedText }: { message: Message; status: string | undefined; decryptedText?: string }) => {
+export const MessageRow = ({ message, status, decryptedText, readCount }: { message: Message; status: string | undefined; decryptedText?: string; readCount?: number }) => {
   const settings = useUiStore((state) => state.settings);
   const isLight = settings.theme === "light";
   const time = new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -32,6 +32,7 @@ export const MessageRow = ({ message, status, decryptedText }: { message: Messag
         <span>{time}</span>
         {policyLabel ? <Badge tone="warning">{policyLabel}</Badge> : null}
         {sendStatus === "sending" ? <span className="italic text-amber-300">sending...</span> : sendStatus === "sent" && transportLabel?.endsWith("received") ? <span className="text-sky-300">↓ received{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "sent" ? <span className="text-emerald-400">✓ sent{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "failed" ? <span className="text-red-400">✗ failed</span> : null}
+        {readCount !== undefined && readCount > 0 ? <span className={isLight ? "text-slate-400" : "text-slate-500"}>· read by {readCount}</span> : null}
       </div>
       <p className={`whitespace-pre-wrap text-sm leading-6 ${bodyStyle}`}>{body}</p>
     </article>

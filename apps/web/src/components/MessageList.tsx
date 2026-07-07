@@ -8,14 +8,20 @@ export const MessageList = ({
   messages,
   statuses = {},
   decryptedMessages = {},
-  transportLabels = {}
+  transportLabels = {},
+  readReceipts = {},
+  onMessagesVisible
 }: {
   messages: Message[];
   statuses?: Record<string, string>;
   decryptedMessages?: Record<string, string>;
   transportLabels?: Record<string, TransportLabel>;
+  readReceipts?: Record<string, number>;
+  onMessagesVisible?: (messageIds: string[]) => void;
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const pendingRef = useRef<string[]>([]);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -23,16 +29,34 @@ export const MessageList = ({
     }
   }, [messages.length]);
 
+  const flushAcks = () => {
+    if (pendingRef.current.length > 0 && onMessagesVisible) {
+      onMessagesVisible(pendingRef.current);
+      pendingRef.current = [];
+    }
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = undefined; }
+  };
+
   return (
     <Virtuoso
       ref={virtuosoRef}
       className="flex-1"
       data={messages}
       followOutput="smooth"
+      rangeChanged={(range) => {
+        const visible = messages.slice(range.startIndex, range.endIndex + 1).map((m) => m.id);
+        pendingRef.current = [...new Set([...pendingRef.current, ...visible])];
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(flushAcks, 500);
+      }}
       itemContent={(_, message) => {
         const decryptedText = decryptedMessages[message.id];
         const devStatus = import.meta.env.DEV && transportLabels[message.clientMsgId] ? `${statuses[message.clientMsgId] ?? "sent"} · ${transportLabels[message.clientMsgId]}` : statuses[message.clientMsgId];
-        return decryptedText === undefined ? <MessageRow message={message} status={devStatus} /> : <MessageRow message={message} status={devStatus} decryptedText={decryptedText} />;
+        const rc = readReceipts[message.id];
+        const rowProps = { message, status: devStatus } as { message: typeof message; status: string | undefined; readCount?: number; decryptedText?: string };
+        if (rc !== undefined) rowProps.readCount = rc;
+        if (decryptedText !== undefined) rowProps.decryptedText = decryptedText as string;
+        return <MessageRow {...rowProps} />;
       }}
     />
   );

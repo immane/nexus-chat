@@ -38,6 +38,7 @@ const ChatRoute = () => {
   const activeChannelId = useChannelStore((state) => state.activeChannelId);
   const unreadCounts = useChannelStore((state) => state.unreadCounts);
   const setActiveChannel = useChannelStore((state) => state.setActive);
+  const setUnread = useChannelStore((state) => state.setUnread);
   const setChannels = useChannelStore((state) => state.setChannels);
   const messagesMap = useMessageStore((state) => state.messages);
   const order = useMessageStore((state) => state.order);
@@ -62,13 +63,29 @@ const ChatRoute = () => {
   const signalSessionStoreRef = useRef(createInMemorySignalSessionStore());
   const signalSessionsRef = useRef(new Map<string, SignalSession>());
   const [wsConnected, setWsConnected] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isTypingRef = useRef(false);
+  const ackedMessagesRef = useRef(new Set<string>());
+  const [readReceipts, setReadReceipts] = useState<Record<string, number>>({});
   const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
+
+  const handleMessagesVisible = (messageIds: string[]) => {
+    if (!socketRef.current?.connected) return;
+    for (const id of messageIds) {
+      if (ackedMessagesRef.current.has(id)) continue;
+      ackedMessagesRef.current.add(id);
+      socketRef.current.emit("event", {
+        type: "message.ack",
+        payload: { messageId: id },
+        timestamp: new Date().toISOString()
+      });
+    }
+  };
   const [transportLabels, setTransportLabels] = useState<Record<string, TransportLabel>>({});
-  const [channelCreateOpen, setChannelCreateOpen] = useState(false);
-  const [dmCreateOpen, setDmCreateOpen] = useState(false);
+  const [addPopupOpen, setAddPopupOpen] = useState(false);
+  const [addPopupSearch, setAddPopupSearch] = useState("");
   const [newChannelName, setNewChannelName] = useState("");
-  const [newDmEmail, setNewDmEmail] = useState("");
-  const [dmError, setDmError] = useState("");
   const [members, setMembers] = useState<Array<{ userId: string; role: string; displayName?: string; email?: string }>>([]);
   const [leftTab, setLeftTab] = useState<"chat" | "member" | "settings">("chat");
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
@@ -80,6 +97,50 @@ const ChatRoute = () => {
   const channelMessages = selectChannelMessages(messagesMap, order, activeChannelId);
   const isE2e = activeChannel?.mode === "e2e";
   const suggestions = isE2e ? [] : getCommandSuggestions(manifests, deferredDraft);
+
+  const selectChannel = (id: string) => {
+    stopTyping();
+    setActiveChannel(id);
+    setUnread(id, 0);
+    if (accessToken) {
+      void fetch(`${API_BASE}/api/v1/channels/${id}/mark-read`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${accessToken}` }
+      }).catch(() => {});
+    }
+  };
+
+  const emitTyping = (typing: boolean) => {
+    if (!socketRef.current?.connected || !activeChannel || !user) return;
+    socketRef.current.emit("event", {
+      type: typing ? "typing.start" : "typing.stop",
+      workspaceId: activeChannel.workspaceId,
+      channelId: activeChannel.id,
+      payload: { workspaceId: activeChannel.workspaceId, channelId: activeChannel.id },
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const handleTypingChange = (value: string) => {
+    setDraft(value);
+    if (!isTypingRef.current && value.length > 0) {
+      isTypingRef.current = true;
+      emitTyping(true);
+    }
+    if (value.length === 0) {
+      stopTyping();
+    }
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(stopTyping, 3000);
+  };
+
+  const stopTyping = () => {
+    if (typingTimeoutRef.current) { clearTimeout(typingTimeoutRef.current); typingTimeoutRef.current = undefined; }
+    if (isTypingRef.current) {
+      isTypingRef.current = false;
+      emitTyping(false);
+    }
+  };
 
   const ensureSignalSession = async (peerUserId: string, peerDeviceId = WEB_SIGNAL_DEVICE_ID): Promise<SignalSession> =>
     doEnsureSignalSession({
@@ -174,6 +235,15 @@ const ChatRoute = () => {
         if (chJson.ok && chJson.data?.length) {
           setChannels(chJson.data);
           setActiveChannel(chJson.data[0]!.id);
+          setUnread(chJson.data[0]!.id, 0);
+
+          const unreadResp = await fetch(`${API_BASE}/api/v1/workspaces/${wJson.data[0]!.id}/unread-counts`, { headers });
+          const unreadJson = (await unreadResp.json()) as { ok: boolean; data: Record<string, number> };
+          if (unreadJson.ok && unreadJson.data) {
+            for (const [chId, count] of Object.entries(unreadJson.data)) {
+              useChannelStore.getState().setUnread(chId, count);
+            }
+          }
 
           for (const channel of chJson.data) {
             const msgs = await fetch(`${API_BASE}/api/v1/channels/${channel.id}/messages?limit=50`, { headers });
@@ -225,10 +295,8 @@ const ChatRoute = () => {
       if (event.type === "message.created" && event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
         const serverMsg = event.payload as Message;
         const state = useMessageStore.getState();
-        // Skip if already added
         if (state.messages.has(serverMsg.id)) return;
         setTransportLabels((current) => ({ ...current, [serverMsg.clientMsgId]: serverMsg.senderId === user?.id ? "relay sent" : "relay received" }));
-        // Find and remove optimistic duplicate by clientMsgId
         const dup = [...state.messages.values()].find((m) => m.clientMsgId === serverMsg.clientMsgId);
         if (dup) {
           const newMsgs = new Map(state.messages);
@@ -237,6 +305,29 @@ const ChatRoute = () => {
           useMessageStore.setState({ messages: newMsgs, order: state.order.map((id) => (id === dup.id ? serverMsg.id : id)) });
         } else {
           upsertMessage(serverMsg, "sent");
+        }
+        // Increment unread for non-active channels (skip own messages)
+        const currentActive = useChannelStore.getState().activeChannelId;
+        if (serverMsg.channelId !== currentActive && serverMsg.senderId !== user?.id) {
+          const counts = useChannelStore.getState().unreadCounts;
+          useChannelStore.getState().setUnread(serverMsg.channelId, (counts[serverMsg.channelId] ?? 0) + 1);
+        }
+      }
+      if (event.type === "typing.updated") {
+        const payload = event.payload as { userId: string; channelId: string; typing: boolean };
+        if (payload.channelId && payload.userId !== user?.id) {
+          setTypingUsers((prev) => {
+            const next = { ...prev };
+            if (payload.typing) next[payload.userId] = payload.channelId;
+            else delete next[payload.userId];
+            return next;
+          });
+        }
+      }
+      if (event.type === "message.read") {
+        const payload = event.payload as { messageId: string; readCount: number };
+        if (payload.messageId && typeof payload.readCount === "number") {
+          setReadReceipts((prev) => ({ ...prev, [payload.messageId]: payload.readCount }));
         }
       }
     });
@@ -284,6 +375,7 @@ const ChatRoute = () => {
         }
       }
 
+      stopTyping();
       setDraft("");
       return;
     }
@@ -351,6 +443,7 @@ const ChatRoute = () => {
             setDecryptedMessages((current) => ({ ...current, [message.id]: text }));
           }
 
+          stopTyping();
           setDraft("");
           return;
         }
@@ -374,25 +467,26 @@ const ChatRoute = () => {
         );
       }
     }
+    stopTyping();
     setDraft("");
   };
 
-  const createChannel = async () => {
-    if (!newChannelName.trim() || !accessToken || !workspaces[0]) return;
+  const createChannel = async (name?: string) => {
+    const channelName = (name ?? newChannelName).trim();
+    if (!channelName || !accessToken || !workspaces[0]) return;
     try {
       const resp = await fetch(`${API_BASE}/api/v1/workspaces/${workspaces[0].id}/channels`, {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ name: newChannelName.trim(), mode: "normal" })
+        body: JSON.stringify({ name: channelName, mode: "normal" })
       });
       const json = (await resp.json()) as { ok: boolean; data: Channel };
       if (json.ok) {
         setChannels([...channels, json.data]);
-        setActiveChannel(json.data.id);
+        selectChannel(json.data.id);
       }
     } catch { /* */ }
     setNewChannelName("");
-    setChannelCreateOpen(false);
   };
 
   const startDmWithUser = async (peerUserId: string) => {
@@ -407,34 +501,10 @@ const ChatRoute = () => {
       const json = (await resp.json()) as { ok: boolean; data: Channel; error?: { message: string } };
       if (json.ok) {
         if (!channels.some((c) => c.id === json.data.id)) setChannels([...channels, json.data]);
-        setActiveChannel(json.data.id);
+        selectChannel(json.data.id);
         setLeftTab("chat");
       }
     } catch { /* ignore */ }
-  };
-
-  const createDm = async () => {
-    if (!newDmEmail.trim() || !accessToken || !workspaces[0]) return;
-    const headers = { "content-type": "application/json", authorization: `Bearer ${accessToken}` };
-    setDmError("");
-    try {
-      let peerUserId = newDmEmail.trim();
-      if (peerUserId.includes("@")) {
-        const lookupResp = await fetch(`${API_BASE}/api/v1/users/by-email?email=${encodeURIComponent(peerUserId)}`, { headers });
-        const lookupJson = (await lookupResp.json()) as { ok: boolean; data?: { id: string }; error?: { message: string } };
-        if (!lookupJson.ok) {
-          setDmError(lookupJson.error?.message ?? "User not found");
-          return;
-        }
-        if (lookupJson.data?.id) peerUserId = lookupJson.data.id;
-      }
-
-      await startDmWithUser(peerUserId);
-      setNewDmEmail("");
-      setDmCreateOpen(false);
-    } catch {
-      setDmError("Network error — is the server running?");
-    }
   };
 
   // Fetch members when in server mode
@@ -524,26 +594,61 @@ const ChatRoute = () => {
               <div className="mb-2 flex items-center justify-between">
                 <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Channels & DMs</h2>
                 <div className="flex gap-1">
-                  <button className={`rounded-lg ${themeBtn} px-2 py-0.5 text-xs`} type="button" onClick={() => { setChannelCreateOpen(!channelCreateOpen); setDmCreateOpen(false); }} title="Create Channel">+CH</button>
-                  <button className={`rounded-lg ${themeBtn} px-2 py-0.5 text-xs`} type="button" onClick={() => { setDmCreateOpen(!dmCreateOpen); setChannelCreateOpen(false); setDmError(""); }} title="Create DM">+DM</button>
+                  <button className={`rounded-lg ${themeBtn} px-2 py-0.5 text-xs font-bold`} type="button" onClick={() => { setAddPopupOpen(!addPopupOpen); setAddPopupSearch(""); }} title="Add">+</button>
                 </div>
               </div>
-              {channelCreateOpen ? (
-                <div className="mb-2 flex gap-1">
-                  <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="channel name" value={newChannelName} onChange={(e) => setNewChannelName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createChannel()} />
-                  <button className="rounded-lg bg-sky-500/20 px-2 py-1 text-xs text-sky-200" type="button" onClick={createChannel}>Create</button>
-                </div>
-              ) : null}
-              {dmCreateOpen ? (
-                <div className="mb-2">
-                  <div className="flex gap-1">
-                    <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="user ID or email" value={newDmEmail} onChange={(e) => setNewDmEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createDm()} />
-                    <button className="rounded-lg bg-purple-500/20 px-2 py-1 text-xs text-purple-200" type="button" onClick={createDm}>DM</button>
+              {addPopupOpen ? (
+                <div className={`mb-2 rounded-xl border ${themeBorder} ${isLight ? "bg-white" : "bg-slate-900"} p-2 shadow-lg`}>
+                  <input className={`mb-2 w-full rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="Search members or type channel name..." value={addPopupSearch} onChange={(e) => setAddPopupSearch(e.target.value)} autoFocus />
+                  <div className="max-h-40 overflow-y-auto space-y-0.5">
+                    {addPopupSearch.trim() ? (
+                      <>
+                        <button
+                          className={`w-full rounded-lg px-2 py-1 text-left text-xs ${isLight ? "hover:bg-sky-100 text-sky-700" : "hover:bg-sky-500/10 text-sky-200"}`}
+                          type="button"
+                          onClick={() => {
+                            createChannel(addPopupSearch.trim());
+                            setAddPopupSearch("");
+                            setAddPopupOpen(false);
+                          }}
+                        ># Create channel &quot;{addPopupSearch.trim()}&quot;</button>
+                        {members
+                          .filter((m) => m.userId !== user!.id && (m.displayName?.toLowerCase().includes(addPopupSearch.toLowerCase()) ?? m.userId.includes(addPopupSearch)))
+                          .slice(0, 6)
+                          .map((m) => (
+                            <button
+                              key={m.userId}
+                              className={`w-full rounded-lg px-2 py-1 text-left text-xs ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800"}`}
+                              type="button"
+                              onClick={() => {
+                                startDmWithUser(m.userId);
+                                setAddPopupSearch("");
+                                setAddPopupOpen(false);
+                              }}
+                            >@ {m.displayName ?? m.userId.slice(0, 10)}</button>
+                          ))}
+                        {channels
+                          .filter((c) => c.name.toLowerCase().includes(addPopupSearch.toLowerCase()))
+                          .map((c) => (
+                            <button
+                              key={c.id}
+                              className={`w-full rounded-lg px-2 py-1 text-left text-xs ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800"}`}
+                              type="button"
+                              onClick={() => {
+                                selectChannel(c.id);
+                                setAddPopupSearch("");
+                                setAddPopupOpen(false);
+                              }}
+                            >{c.kind === "dm" ? "@" : "#"} {c.name}</button>
+                          ))}
+                      </>
+                    ) : (
+                      <p className={`px-2 py-1 text-xs ${themeMuted}`}>Type to search or create a channel</p>
+                    )}
                   </div>
-                  {dmError ? <p className="mt-1 text-xs text-red-400">{dmError}</p> : null}
                 </div>
               ) : null}
-              <ChannelList channels={channels} activeChannelId={activeChannelId} unreadCounts={unreadCounts} onSelect={setActiveChannel} />
+              <ChannelList channels={channels} activeChannelId={activeChannelId} unreadCounts={unreadCounts} onSelect={selectChannel} currentUserId={user!.id} userNames={Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.userId.slice(0, 10)]))} />
             </section>
           </>
         ) : leftTab === "member" ? (
@@ -635,8 +740,17 @@ const ChatRoute = () => {
             </div>
           </div>
           {isE2e ? <p className="mt-2 text-sm text-amber-200">Bots, slash commands, previews, and server-side search are disabled here.</p> : null}
+          {activeChannelId ? Object.entries(typingUsers).filter(([, chId]) => chId === activeChannelId).length > 0 ? (
+            <p className="mt-1 text-xs italic text-slate-400">
+              {Object.entries(typingUsers)
+                .filter(([, chId]) => chId === activeChannelId)
+                .map(([uid]) => uid.slice(0, 10))
+                .join(", ")}{" "}
+              typing...
+            </p>
+          ) : null : null}
         </header>
-        <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} />
+        <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} readReceipts={readReceipts} onMessagesVisible={handleMessagesVisible} />
         <form onSubmit={submit}>
           <InputActionBar
             actions={
@@ -667,7 +781,8 @@ const ChatRoute = () => {
                 className={`w-full rounded-xl ${themeChatInput} px-4 py-3 outline-none transition placeholder:text-slate-400 focus:ring-2`}
                 placeholder={isE2e ? "Encrypted message" : "Message or /command"}
                 value={draft}
-                onChange={(event) => setDraft(event.target.value)}
+                onChange={(event) => handleTypingChange(event.target.value)}
+                onBlur={stopTyping}
               />
             </div>
             <button className="rounded-xl bg-sky-400 px-5 py-3 font-semibold text-slate-950 hover:bg-sky-300" type="submit">
