@@ -264,6 +264,18 @@ const ChatRoute = () => {
               msgsJson.data.forEach((m: Message) => upsertMessage(m, "sent"));
             }
 
+            // Load reactions for this channel
+            const reactResp = await fetch(`${API_BASE}/api/v1/channels/${channel.id}/reactions`, { headers });
+            const reactJson = (await reactResp.json()) as { ok: boolean; data: Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> };
+            if (reactJson.ok && reactJson.data) {
+              const state = useMessageStore.getState();
+              for (const [msgId, emojiList] of Object.entries(reactJson.data)) {
+                for (const item of emojiList) {
+                  state.setReaction(msgId, item.emoji, item.count, item.reacted);
+                }
+              }
+            }
+
             if (channel.mode === "normal") {
               for (const manifest of botManifests) {
                 await fetch(`${API_BASE}/api/v1/bots/${manifest.id}/channels/${channel.id}`, {

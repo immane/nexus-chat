@@ -9,6 +9,7 @@ import { workspaceService } from "../domain/workspaces/service.js";
 import { logger } from "../observability/logger.js";
 import { wsConnections } from "../observability/metrics.js";
 import { handleClientEnvelope } from "./gateway.js";
+import { setIO } from "./broadcast.js";
 
 const isAllowedOrigin = (origin: string | undefined) => {
   if (!origin) return false;
@@ -34,6 +35,7 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     pingInterval: 30000,
     pingTimeout: 10000
   });
+  setIO(io);
 
   io.use((socket, next) => {
     if (socket.nsp?.name === "/bots") return next();

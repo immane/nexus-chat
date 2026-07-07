@@ -30,6 +30,8 @@ import { attachmentService } from "../domain/attachments/service.js";
 import { authService } from "../domain/auth/service.js";
 import { botService } from "../domain/bots/service.js";
 import { messageService } from "../domain/messages/service.js";
+import { store } from "../domain/store.js";
+import { broadcastToChannel } from "../ws/broadcast.js";
 import { signalService } from "../domain/signal/service.js";
 import { workspaceService } from "../domain/workspaces/service.js";
 import { registry } from "../observability/metrics.js";
@@ -136,8 +138,21 @@ export const createHttpApp = () => {
   });
   app.patch("/api/v1/messages/:id", authRequired, zValidator("json", editMessageSchema), (c) => c.json(toResponse(messageService.edit(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").text))));
   app.delete("/api/v1/messages/:id", authRequired, (c) => c.json(toResponse(messageService.softDelete(c.get("userId"), requiredParam(c.req.param("id"))))));
-  app.post("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => c.json(toResponse(messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji))));
-  app.delete("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => c.json(toResponse(messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji, "remove"))));
+  app.post("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => {
+    const result = messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji);
+    if ("error" in result && !result.ok) return c.json(toResponse(result));
+    const msg = store.messages.get(requiredParam(c.req.param("id")));
+    if (msg) broadcastToChannel(msg.channelId, { type: "message.reaction", payload: result, timestamp: new Date().toISOString() });
+    return c.json(apiOk(result));
+  });
+  app.delete("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => {
+    const result = messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji, "remove");
+    if ("error" in result && !result.ok) return c.json(toResponse(result));
+    const msg = store.messages.get(requiredParam(c.req.param("id")));
+    if (msg) broadcastToChannel(msg.channelId, { type: "message.reaction", payload: result, timestamp: new Date().toISOString() });
+    return c.json(apiOk(result));
+  });
+  app.get("/api/v1/channels/:id/reactions", authRequired, (c) => c.json(apiOk(messageService.getReactions(c.get("userId"), requiredParam(c.req.param("id"))))));
   app.post("/api/v1/messages/:id/forward", authRequired, zValidator("json", forwardMessageSchema), (c) => {
     const input = c.req.valid("json");
     return c.json(toResponse(messageService.forward(c.get("userId"), requiredParam(c.req.param("id")), input.targetChannelId, input.clientMsgId)));

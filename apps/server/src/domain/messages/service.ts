@@ -191,5 +191,28 @@ export const messageService = {
       if (unread > 0) result[channel.id] = unread;
     }
     return result;
+  },
+  getReactions(actorId: string, channelId: string): Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> {
+    if (!workspaceService.canAccessChannel(actorId, channelId)) return {};
+    const reactions = [...store.messageReactions.values()].filter((r) => {
+      const msg = store.messages.get(r.messageId);
+      return msg && msg.channelId === channelId;
+    });
+    const grouped: Record<string, Record<string, { count: number; userIds: Set<string> }>> = {};
+    for (const r of reactions) {
+      if (!grouped[r.messageId]) grouped[r.messageId] = {};
+      if (!grouped[r.messageId]![r.emoji]) grouped[r.messageId]![r.emoji] = { count: 0, userIds: new Set() };
+      grouped[r.messageId]![r.emoji]!.count += 1;
+      grouped[r.messageId]![r.emoji]!.userIds.add(r.userId);
+    }
+    const result: Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> = {};
+    for (const [msgId, emojis] of Object.entries(grouped)) {
+      result[msgId] = Object.entries(emojis).map(([emoji, info]) => ({
+        emoji,
+        count: info.count,
+        reacted: info.userIds.has(actorId)
+      }));
+    }
+    return result;
   }
 };

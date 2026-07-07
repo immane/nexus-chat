@@ -40,6 +40,9 @@ export const MessageRow = ({
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState("");
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
+  const REACTION_EMOJIS = ["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉", "😡", "🤔", "💯", "✅", "🚀", "👀", "🎯", "💪", "🙏", "👋", "💀", "🐱"];
 
   const compactMsg = settings.compactMode ? "mx-2 my-1 px-2 py-1 text-xs" : "mx-4 my-1 px-4 py-1 text-sm";
   const [sendStatus, transportLabel] = status?.split(" · ") ?? [];
@@ -90,7 +93,7 @@ export const MessageRow = ({
     { label: "Forward", icon: "↗", onClick: onForward },
     { label: "Edit", icon: "✏", disabled: !canEdit, onClick: startEdit },
     { label: "Delete", icon: "🗑", danger: true, onClick: onDelete },
-    { label: "React", icon: "😀", onClick: () => { onReact("👍"); closeMenu(); } }
+    { label: "React", icon: "😀", onClick: () => { setEmojiPickerOpen(!emojiPickerOpen); closeMenu(); } }
   ];
 
   const reactionEmojis = reactions ? Object.entries(reactions) : [];
@@ -144,6 +147,19 @@ export const MessageRow = ({
               >
                 {emoji} {info.count > 1 ? info.count : null}
               </button>
+            ))}
+          </div>
+        ) : null}
+        {emojiPickerOpen ? (
+          <div className={`mt-1 inline-flex flex-wrap gap-1 rounded-xl border p-2 shadow-lg ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}>
+            {REACTION_EMOJIS.map((emoji) => (
+              <button
+                key={emoji}
+                className="rounded-lg px-2 py-1 text-lg transition hover:bg-slate-700"
+                type="button"
+                onClick={() => { onReact(emoji); setEmojiPickerOpen(false); }}
+                title={emoji}
+              >{emoji}</button>
             ))}
           </div>
         ) : null}
