@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useRef, useState, type FormEvent, type ClipboardEvent as ReactClipboardEvent } from "react";
+import { useDeferredValue, useEffect, useRef, useState, type FormEvent } from "react";
 import { io, type Socket } from "socket.io-client";
 import type { BotManifest, Channel, Message, Workspace } from "@nexus-chat/shared";
 import {
@@ -25,6 +25,8 @@ import {
   usePresenceStore
 } from "../stores/domain.js";
 import { API_BASE } from "../lib/api.js";
+import { useAttachments } from "../hooks/useAttachments.js";
+import { useChannelMembers } from "../hooks/useChannelMembers.js";
 import { WEB_SIGNAL_DEVICE_ID, parseDmPeerUserId, applyDisappearingPolicy, ensureSignalSession as doEnsureSignalSession, type TransportLabel } from "./signal-helpers.js";
 import { ChannelList } from "./ChannelList.js";
 import { ChatComposer } from "./ChatComposer.js";
@@ -95,11 +97,8 @@ const ChatRoute = () => {
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [addPopupSearch, setAddPopupSearch] = useState("");
   const [newChannelName, setNewChannelName] = useState("");
-  const [members, setMembers] = useState<Array<{ userId: string; role: string; displayName?: string; email?: string }>>([]);
   const [leftTab, setLeftTab] = useState<"chat" | "member" | "settings">("chat");
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
-  const [channelMembers, setChannelMembers] = useState<Array<{ channelId: string; userId: string; role?: string }>>([]);
-  const [addMemberInput, setAddMemberInput] = useState("");
   const [friendSearchInput, setFriendSearchInput] = useState("");
   const [replyMessage, setReplyMessage] = useState<Message | null>(null);
   const [forwardSource, setForwardSource] = useState<Message | null>(null);
@@ -109,16 +108,16 @@ const ChatRoute = () => {
   const [toasts, setToasts] = useState<Array<{ id: string; text: string; channelId: string }>>([]);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const dataLoadedRef = useRef(false);
-  const [uploading, setUploading] = useState<Array<{ name: string; progress: number; cancel: () => void }>>([]);
-  const [pendingAttachments, setPendingAttachments] = useState<Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }>>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const clearAuth = useAuthStore((state) => state.clear);
   const reactions = useMessageStore((state) => state.reactions);
   const setReaction = useMessageStore((state) => state.setReaction);
   const activeChannel = channels.find((channel) => channel.id === activeChannelId);
+  const activeWorkspaceId = workspaces[0]?.id;
   const channelMessages = selectChannelMessages(messagesMap, order, activeChannelId);
   const isE2e = activeChannel?.mode === "e2e";
   const suggestions = isE2e ? [] : getCommandSuggestions(manifests, deferredDraft);
+  const { addChannelMember, addMemberInput, channelMembers, members, removeChannelMember, senderNames, setAddMemberInput } = useChannelMembers({ accessToken, activeChannelId, workspaceId: activeWorkspaceId });
+  const { clearPendingAttachments, fileInputRef, handleFileUpload, handlePaste, pendingAttachments, uploading } = useAttachments({ accessToken, setDraft, workspaceId: activeWorkspaceId });
 
   const selectChannel = (id: string) => {
     stopTyping();
@@ -469,51 +468,6 @@ const ChatRoute = () => {
     } catch { /* ignore */ }
   };
 
-  // Fetch members when in server mode
-  useEffect(() => {
-    if (!accessToken || !workspaces[0] || members.length > 0) return;
-    (async () => {
-      try {
-        const resp = await fetch(`${API_BASE}/api/v1/workspaces/${workspaces[0]!.id}/members`, {
-          headers: { authorization: `Bearer ${accessToken}` }
-        });
-        const json = (await resp.json()) as { ok: boolean; data: Array<{ userId: string; role: string; email: string; displayName: string }> };
-        if (json.ok) setMembers(json.data.map((m) => ({ ...m, displayName: m.displayName || (m.email?.split("@")[0] ?? m.userId.slice(0, 10)) })));
-      } catch { /* */ }
-    })();
-  }, [accessToken, workspaces]);
-
-  // Fetch channel members
-  useEffect(() => {
-    if (!accessToken || !activeChannelId) { setChannelMembers([]); return; }
-    (async () => {
-      try {
-        const resp = await fetch(`${API_BASE}/api/v1/channels/${activeChannelId}/members`, { headers: { authorization: `Bearer ${accessToken}` } });
-        const json = (await resp.json()) as { ok: boolean; data: Array<{ channelId: string; userId: string }> };
-        if (json.ok) setChannelMembers(json.data);
-      } catch { setChannelMembers([]); }
-    })();
-  }, [accessToken, activeChannelId]);
-
-  const addChannelMember = async () => {
-    if (!addMemberInput.trim() || !accessToken || !activeChannelId) return;
-    try {
-      await fetch(`${API_BASE}/api/v1/channels/${activeChannelId}/members`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` }, body: JSON.stringify({ userId: addMemberInput.trim() }) });
-      setAddMemberInput("");
-      const resp = await fetch(`${API_BASE}/api/v1/channels/${activeChannelId}/members`, { headers: { authorization: `Bearer ${accessToken}` } });
-      const json = (await resp.json()) as { ok: boolean; data: Array<{ channelId: string; userId: string }> };
-      if (json.ok) setChannelMembers(json.data);
-    } catch { /* */ }
-  };
-
-  const removeChannelMember = async (userId: string) => {
-    if (!accessToken || !activeChannelId) return;
-    try {
-      await fetch(`${API_BASE}/api/v1/channels/${activeChannelId}/members/${userId}`, { method: "DELETE", headers: { authorization: `Bearer ${accessToken}` } });
-      setChannelMembers((prev) => prev.filter((m) => m.userId !== userId));
-    } catch { /* */ }
-  };
-
   const handleCopy = (message: Message) => {
     const text = message.content.type === "text" ? message.content.text : decryptedMessages[message.id] ?? "";
     void window.navigator.clipboard.writeText(text);
@@ -521,48 +475,6 @@ const ChatRoute = () => {
 
   const insertEmoji = (emoji: string) => {
     setDraft(draft + emoji);
-  };
-
-  const handleFileUpload = async (file: File) => {
-    if (!accessToken || !workspaces[0]) return;
-    const controller = new AbortController();
-    const entry = { name: file.name, progress: 0, cancel: () => controller.abort() };
-    setUploading((prev) => [...prev, entry]);
-    try {
-      const createResp = await fetch(`${API_BASE}/api/v1/attachments/upload-sessions`, {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ workspaceId: workspaces[0].id, fileName: file.name, contentType: file.type, sizeBytes: file.size })
-      });
-      const createJson = (await createResp.json()) as { ok: boolean; data?: { file: { id: string; objectKey: string; scanStatus: string }; uploadSession: { id: string; uploadUrl: string } } };
-      if (!createJson.ok || !createJson.data) return;
-      const { uploadSession, file: fileRecord } = createJson.data;
-      const uploadResp = await fetch(uploadSession.uploadUrl, { method: "PUT", headers: { authorization: `Bearer ${accessToken}` }, body: file, signal: controller.signal });
-      if (!uploadResp.ok) throw new Error("Upload failed");
-      await fetch(`${API_BASE}/api/v1/attachments/upload-sessions/${uploadSession.id}/complete`, {
-        method: "POST",
-        headers: { authorization: `Bearer ${accessToken}` }
-      });
-      setPendingAttachments((prev) => [...prev, { fileId: fileRecord.id, name: file.name, mimeType: file.type, size: file.size, scanStatus: fileRecord.scanStatus }]);
-      const currentDraft = useUiStore.getState().messageDraft;
-      setDraft((currentDraft ? `${currentDraft} ` : "") + `[${file.name}]`);
-    } catch (e) {
-      if (e instanceof Error && e.name !== "AbortError") { /* ignore */ }
-    }
-    setUploading((prev) => prev.filter((e) => e !== entry));
-  };
-
-  const handlePaste = (e: ReactClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (let i = 0; i < items.length; i += 1) {
-      const item = items[i];
-      if (item?.type.startsWith("image/")) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (file) void handleFileUpload(file);
-      }
-    }
   };
 
   const handleEdit = async (messageId: string, newText: string) => {
@@ -781,7 +693,7 @@ const ChatRoute = () => {
     stopTyping();
     setDraft("");
     setReplyMessage(null);
-    setPendingAttachments([]);
+    clearPendingAttachments();
   };
 
   const isLight = settings.theme === "light";
@@ -803,7 +715,6 @@ const ChatRoute = () => {
   const themeDivider = isLight ? "border-slate-200" : "border-slate-700";
   const themeSelect = isLight ? "bg-white border border-slate-300 text-slate-800" : "bg-slate-800 border border-slate-700 text-slate-200";
   const compact = settings.compactMode ? "p-2 text-xs" : "p-4";
-  const senderNames = Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)]));
   const isDm = activeChannel?.kind === "dm";
   const peerUserId = isDm && activeChannel ? parseDmPeerUserId(activeChannel, user?.id ?? "") : undefined;
   const peerOnline = peerUserId ? onlineUserIds.has(peerUserId) : false;
