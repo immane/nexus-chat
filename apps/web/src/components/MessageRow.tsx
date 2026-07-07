@@ -6,13 +6,14 @@ import { useAuthStore, useMessageStore, useUiStore } from "../stores/domain.js";
 import { renderMarkdown, formatRelativeTime, formatFileSize } from "../lib/markdown.js";
 import { API_BASE } from "../lib/api.js";
 
+const REACTION_EMOJIS = ["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉", "😡", "🤔", "💯", "✅", "🚀", "👀", "🎯", "💪", "🙏", "👋", "💀", "🐱"];
+
 export const MessageRow = ({
   message,
   status,
   decryptedText,
   readCount,
   senderName,
-  reactions,
   onReply,
   onForward,
   onEdit,
@@ -25,7 +26,6 @@ export const MessageRow = ({
   decryptedText: string | undefined;
   readCount: number | undefined;
   senderName: string | undefined;
-  reactions: Record<string, { count: number; reacted: boolean }> | undefined;
   onReply: () => void;
   onForward: () => void;
   onEdit: (newText: string) => Promise<void>;
@@ -35,8 +35,9 @@ export const MessageRow = ({
 }) => {
   const settings = useUiStore((state) => state.settings);
   const accessToken = useAuthStore((state) => state.accessToken);
-  const messagesMap = useMessageStore((state) => state.messages);
   const currentUserId = useMessageStore((state) => state.currentUserId);
+  const replyTarget = useMessageStore((state) => (message.replyToMessageId ? state.messages.get(message.replyToMessageId) : undefined));
+  const reactions = useMessageStore((state) => state.reactions[message.id]);
   const isSelf = currentUserId ? message.senderId === currentUserId : false;
   const isLight = settings.theme === "light";
   const time = formatRelativeTime(message.createdAt);
@@ -50,6 +51,7 @@ export const MessageRow = ({
   const [attachmentUrls, setAttachmentUrls] = useState<Record<string, string>>({});
 
   const textAttachments = message.content.type === "text" ? message.content.attachments : [];
+  const imageAttachmentKey = textAttachments.filter((att) => att.mimeType.startsWith("image/")).map((att) => att.fileId).join(":");
 
   useEffect(() => {
     if (!accessToken) {
@@ -85,7 +87,7 @@ export const MessageRow = ({
       cancelled = true;
       objectUrls.forEach((url) => window.URL.revokeObjectURL(url));
     };
-  }, [accessToken, message.id]);
+  }, [accessToken, imageAttachmentKey, message.id]);
 
   const downloadAttachment = useCallback(async (fileId: string, name: string) => {
     if (!accessToken) return;
@@ -102,8 +104,6 @@ export const MessageRow = ({
       // Ignore development-only download failures.
     }
   }, [accessToken]);
-
-  const REACTION_EMOJIS = ["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉", "😡", "🤔", "💯", "✅", "🚀", "👀", "🎯", "💪", "🙏", "👋", "💀", "🐱"];
 
   const compactMsg = settings.compactMode ? "mx-2 my-1 px-2 py-1 text-xs" : "mx-4 my-1 px-4 py-1 text-sm";
   const [sendStatus, transportLabel] = status?.split(" · ") ?? [];
@@ -157,7 +157,6 @@ export const MessageRow = ({
   ];
 
   const reactionEmojis = reactions ? Object.entries(reactions) : [];
-  const replyTarget = message.replyToMessageId ? messagesMap.get(message.replyToMessageId) : undefined;
 
   return (
     <>

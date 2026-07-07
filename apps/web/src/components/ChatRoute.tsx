@@ -1,6 +1,5 @@
 import { useDeferredValue, useEffect, useRef, useState, type FormEvent, type ClipboardEvent as ReactClipboardEvent } from "react";
 import { io, type Socket } from "socket.io-client";
-import { Badge, InputActionBar } from "@nexus-chat/ui";
 import type { BotManifest, Channel, Message, Workspace } from "@nexus-chat/shared";
 import {
   createInMemorySignalSessionStore,
@@ -23,14 +22,17 @@ import {
   useMessageStore,
   useUiStore,
   useWorkspaceStore,
-  usePresenceStore,
-  type DmTransportMode
+  usePresenceStore
 } from "../stores/domain.js";
 import { API_BASE } from "../lib/api.js";
 import { WEB_SIGNAL_DEVICE_ID, parseDmPeerUserId, applyDisappearingPolicy, ensureSignalSession as doEnsureSignalSession, type TransportLabel } from "./signal-helpers.js";
 import { ChannelList } from "./ChannelList.js";
+import { ChatComposer } from "./ChatComposer.js";
+import { ChatHeader } from "./ChatHeader.js";
+import { DeleteConfirmModal } from "./DeleteConfirmModal.js";
+import { ForwardModal } from "./ForwardModal.js";
 import { MessageList } from "./MessageList.js";
-import PolicyControl from "./PolicyControl.js";
+import { RightMemberPanel } from "./RightMemberPanel.js";
 
 const ChatRoute = () => {
   const user = useAuthStore((state) => state.user);
@@ -612,6 +614,28 @@ const ChatRoute = () => {
     } catch { /* */ }
   };
 
+  const cancelForward = () => {
+    setForwardSource(null);
+    setForwardSearch("");
+  };
+
+  const handleForwardToChannel = async (targetChannelId: string) => {
+    if (!accessToken || !forwardSource) return;
+    try {
+      const resp = await fetch(`${API_BASE}/api/v1/messages/${forwardSource.id}/forward`, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ targetChannelId, clientMsgId: `fwd-${Date.now()}` })
+      });
+      const json = (await resp.json()) as { ok: boolean; data?: Message };
+      if (json.ok && json.data) {
+        upsertMessage(json.data);
+        selectChannel(targetChannelId);
+      }
+    } catch { /* */ }
+    cancelForward();
+  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!user || !activeChannel || (!draft.trim() && pendingAttachments.length === 0)) return;
@@ -955,196 +979,89 @@ const ChatRoute = () => {
             ))}
           </div>
         ) : null}
-        <header className={`border-b ${themeHeader} ${compact}`}>
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-lg font-semibold">{activeChannel?.name ?? "Select a channel"}</h2>
-            {isE2e ? <Badge tone="warning">Encrypted DM</Badge> : <Badge tone="success">Bots enabled</Badge>}
-            {isDm ? (
-              <select
-                className={`rounded-lg ${themeSelect} px-2 py-1 text-xs`}
-                value={dmTransportMode}
-                onChange={(e) => setDmTransportMode(e.target.value as DmTransportMode)}
-              >
-                <option value="auto">Auto</option>
-                <option value="relay">Signal</option>
-                <option value="p2p">P2P</option>
-              </select>
-            ) : null}
-            {isDm ? <Badge tone={peerOnline ? "success" : "warning"}>{peerOnline ? "Online" : "Offline"}</Badge> : null}
-            {socketRef.current ? <Badge tone={wsConnected ? "success" : "warning"}>{wsConnected ? "WS connected" : "WS disconnected"}</Badge> : null}
-            <div className="ml-auto flex items-center gap-2">
-              <button className={`rounded-lg px-3 py-1 text-sm transition ${rightSidebarOpen ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setRightSidebarOpen(!rightSidebarOpen)} title="Group Members">👥 Members</button>
-            </div>
-          </div>
-          {isE2e ? <p className="mt-2 text-sm text-amber-200">Bots, slash commands, previews, and server-side search are disabled here.</p> : null}
-          {activeChannelId ? Object.entries(typingUsers).filter(([, chId]) => chId === activeChannelId).length > 0 ? (
-            <p className="mt-1 text-xs italic text-slate-400">
-              {Object.entries(typingUsers)
-                .filter(([, chId]) => chId === activeChannelId)
-                .map(([uid]) => uid.slice(0, 10))
-                .join(", ")}{" "}
-              typing...
-            </p>
-          ) : null : null}
-        </header>
+        <ChatHeader
+          activeChannel={activeChannel}
+          activeChannelId={activeChannelId}
+          compact={compact}
+          dmTransportMode={dmTransportMode}
+          isDm={Boolean(isDm)}
+          isE2e={Boolean(isE2e)}
+          peerOnline={peerOnline}
+          rightSidebarOpen={rightSidebarOpen}
+          setDmTransportMode={setDmTransportMode}
+          setRightSidebarOpen={setRightSidebarOpen}
+          themeHeader={themeHeader}
+          themeSelect={themeSelect}
+          themeTabActive={themeTabActive}
+          themeTabInactive={themeTabInactive}
+          typingUsers={typingUsers}
+          wsConnected={wsConnected}
+          wsVisible={Boolean(socketRef.current)}
+        />
         <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} readReceipts={readReceipts} senderNames={senderNames} onMessagesVisible={handleMessagesVisible} onReply={setReplyMessage} onForward={setForwardSource} onEdit={handleEdit} onDelete={handleDelete} onCopy={handleCopy} onReact={handleReact} />
-        <form className="m-0" onSubmit={submit}>
-          {replyMessage ? (
-            <div className={`mx-4 mb-1 flex items-center gap-2 rounded-t-xl border-l-4 border-sky-400 px-4 py-2 ${isLight ? "bg-sky-50" : "bg-sky-500/10"}`}>
-              <span className="text-xs text-sky-400">Replying to</span>
-              <span className="text-xs font-medium text-sky-300">{senderNames[replyMessage.senderId] ?? replyMessage.senderId.slice(0, 10)}</span>
-              <span className="flex-1 truncate text-xs text-slate-400">{replyMessage.content.type === "text" ? replyMessage.content.text.slice(0, 60) : "message"}</span>
-              <button className="rounded px-1 text-xs text-slate-400 hover:text-slate-200" type="button" onClick={() => setReplyMessage(null)}>✕</button>
-            </div>
-          ) : null}
-          <InputActionBar
-            actions={
-              <>
-                {!isE2e
-                  ? inputActions.map((action) => (
-                      <button key={action.id} className={`rounded-full ${themeBtn} px-3 py-1 text-xs`} type="button" onClick={() => setDraft(action.command)}>
-                        {action.label}
-                      </button>
-                    ))
-                  : null}
-                <PolicyControl isE2e={Boolean(isE2e)} policy={policy} onChange={setPolicy} />
-              </>
-            }
-          >
-            <input ref={fileInputRef} className="hidden" type="file" multiple onChange={(e) => { const files = e.target.files; if (files) for (let i = 0; i < files.length; i += 1) void handleFileUpload(files[i]!); e.target.value = ""; }} />
-            <div className={`flex flex-1 items-center gap-1 rounded-xl border px-2 transition ${isLight ? "bg-white border-slate-300 focus-within:ring-2 focus-within:ring-sky-400" : "bg-slate-800 border-slate-700 focus-within:ring-2 focus-within:ring-sky-400"}`}>
-              {!isE2e ? (
-                <button className="rounded-full p-1 text-slate-400 hover:text-slate-200" type="button" onClick={() => fileInputRef.current?.click()} title="Attach">📎</button>
-              ) : null}
-              <div className="relative flex-1">
-                {suggestions.length ? (
-                  <div className={`absolute bottom-full left-0 z-10 mb-1 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>
-                    {suggestions.map((suggestion) => (
-                      <button key={`${suggestion.botId}-${suggestion.name}`} className={`block w-full px-4 py-3 text-left text-sm ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800"}`} type="button" onClick={() => setDraft(`${suggestion.name} `)}>
-                        <span className="font-medium text-sky-200">{suggestion.name}</span>
-                        <span className="ml-2 text-slate-400">{suggestion.description}</span>
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-                <textarea
-                  className={`w-full resize-none bg-transparent px-2 py-3 text-sm outline-none placeholder:text-slate-400 ${isLight ? "text-slate-900" : "text-slate-200"}`}
-                  placeholder={p2pBlocked ? "P2P mode: peer is offline" : isE2e ? "Encrypted message" : "Message or /command"}
-                  value={draft}
-                  disabled={p2pBlocked}
-                  onChange={(event) => handleTypingChange(event.target.value)}
-                  onBlur={stopTyping}
-                  onPaste={handlePaste}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void submit(event as unknown as FormEvent); }
-                  }}
-                  rows={1}
-                />
-              </div>
-              <div className="relative">
-                <button
-                  className="rounded-full p-1 text-slate-400 hover:text-slate-200"
-                  type="button"
-                  onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
-                  title="Emoji"
-                >😀</button>
-                {emojiPickerOpen ? (
-                  <div className={`absolute bottom-full right-0 z-30 mb-1 w-72 grid grid-cols-8 gap-1 rounded-xl border p-2 shadow-xl ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}>
-                    {["😀","😂","😍","🤔","😢","😡","👍","👎","👏","🙏","💪","🎉","🔥","❤️","💯","✅","❌","⭐","🚀","💡","🎯","📌","👀","💀","🎵","💰","📅","🔒","🔑","💬","🍕","☕"].map((e) => (
-                      <button key={e} className="rounded-lg p-1 text-lg hover:bg-slate-700" type="button" onClick={() => { insertEmoji(e); setEmojiPickerOpen(false); }}>{e}</button>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-            {uploading.map((entry) => (
-              <div key={entry.name} className="flex items-center gap-2 px-1 text-xs text-slate-400">
-                <span className="truncate">{entry.name}</span>
-                <div className="h-1 flex-1 rounded-full bg-slate-700">
-                  <div className="h-full rounded-full bg-sky-400" style={{ width: `${entry.progress}%` }} />
-                </div>
-                <button className="text-red-400 hover:text-red-300" type="button" onClick={entry.cancel}>✕</button>
-              </div>
-            ))}
-          </InputActionBar>
-        </form>
+        <ChatComposer
+          draft={draft}
+          emojiPickerOpen={emojiPickerOpen}
+          fileInputRef={fileInputRef}
+          handleFileUpload={(file) => void handleFileUpload(file)}
+          handlePaste={handlePaste}
+          handleTypingChange={handleTypingChange}
+          inputActions={inputActions}
+          insertEmoji={insertEmoji}
+          isE2e={Boolean(isE2e)}
+          isLight={isLight}
+          onSubmit={submit}
+          pendingReply={replyMessage}
+          p2pBlocked={p2pBlocked}
+          policy={policy}
+          senderNames={senderNames}
+          setDraft={setDraft}
+          setEmojiPickerOpen={setEmojiPickerOpen}
+          setPolicy={setPolicy}
+          setReplyMessage={setReplyMessage}
+          stopTyping={stopTyping}
+          suggestions={suggestions}
+          themeBorder={themeBorder}
+          themeBtn={themeBtn}
+          uploading={uploading}
+        />
       </section>
       {rightSidebarOpen ? (
-        <aside className={`border-l ${themeAside} max-md:hidden overflow-y-auto`}>
-          <div className={`${compact}`}>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Group Members ({channelMembers.length})</h2>
-              <button className={`rounded-lg ${themeBtn} px-2 py-0.5 text-xs`} type="button" onClick={() => setRightSidebarOpen(false)}>✕</button>
-            </div>
-            <div className="mb-2 flex gap-1">
-              <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="User ID to add..." value={addMemberInput} onChange={(e) => setAddMemberInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addChannelMember()} />
-              <button className="rounded-lg bg-sky-500/20 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/30" type="button" onClick={addChannelMember}>Add</button>
-            </div>
-            <div className="space-y-1">
-              {channelMembers.map((cm) => {
-                const memberInfo = members.find((m) => m.userId === cm.userId);
-                return (
-                  <div key={cm.userId} className={`group flex items-center justify-between rounded-lg px-2 py-1.5 text-xs ${themeMember}`}>
-                    <div className="flex items-center gap-2">
-                      <span className={`h-2 w-2 rounded-full ${onlineUserIds.has(cm.userId) ? "bg-emerald-400" : "bg-slate-500"}`}></span>
-                      <span>{memberInfo?.displayName ?? cm.userId.slice(0, 10)}</span>
-                    </div>
-                    {cm.userId !== user?.id ? (
-                      <button className={`rounded ${themeMemberBadge} px-1.5 py-0.5 text-xs opacity-0 group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 transition`} type="button" onClick={() => removeChannelMember(cm.userId)} title="Remove">✕</button>
-                    ) : null}
-                  </div>
-                );
-              })}
-              {channelMembers.length === 0 ? <p className={`text-xs ${themeMuted} px-2`}>No members yet</p> : null}
-            </div>
-          </div>
-        </aside>
+        <RightMemberPanel
+          addChannelMember={addChannelMember}
+          addMemberInput={addMemberInput}
+          channelMembers={channelMembers}
+          compact={compact}
+          currentUserId={user?.id}
+          members={members}
+          onlineUserIds={onlineUserIds}
+          removeChannelMember={removeChannelMember}
+          setAddMemberInput={setAddMemberInput}
+          setRightSidebarOpen={setRightSidebarOpen}
+          themeAside={themeAside}
+          themeBtn={themeBtn}
+          themeInput={themeInput}
+          themeMember={themeMember}
+          themeMemberBadge={themeMemberBadge}
+          themeMuted={themeMuted}
+          themeSectionTitle={themeSectionTitle}
+        />
       ) : null}
       {forwardSource ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => { setForwardSource(null); setForwardSearch(""); }}>
-          <div className={`w-80 rounded-2xl border ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"} p-4 shadow-2xl`} onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-2 text-sm font-semibold">Forward message</h3>
-            <input className={`mb-2 w-full rounded-lg ${themeInput} px-3 py-2 text-sm outline-none`} placeholder="Search channels..." value={forwardSearch} onChange={(e) => setForwardSearch(e.target.value)} autoFocus />
-            <div className="max-h-48 space-y-0.5 overflow-y-auto">
-              {channels.filter((c) => c.id !== activeChannelId && (!forwardSearch || c.name.toLowerCase().includes(forwardSearch.toLowerCase()))).map((c) => (
-                <button
-                  key={c.id}
-                  className={`w-full rounded-lg px-3 py-2 text-left text-sm ${isLight ? "hover:bg-slate-100 text-slate-700" : "hover:bg-slate-800 text-slate-300"}`}
-                  type="button"
-                  onClick={async () => {
-                    if (!accessToken) return;
-                    try {
-                      const resp = await fetch(`${API_BASE}/api/v1/messages/${forwardSource.id}/forward`, {
-                        method: "POST",
-                        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
-                        body: JSON.stringify({ targetChannelId: c.id, clientMsgId: `fwd-${Date.now()}` })
-                      });
-                      const json = (await resp.json()) as { ok: boolean; data?: Message };
-                      if (json.ok && json.data) {
-                        upsertMessage(json.data);
-                        selectChannel(c.id);
-                      }
-                    } catch { /* */ }
-                    setForwardSource(null);
-                    setForwardSearch("");
-                  }}
-                >{c.kind === "dm" ? "@" : "#"} {c.name}</button>
-              ))}
-            </div>
-            <button className={`mt-3 w-full rounded-lg px-3 py-2 text-sm ${themeBtn}`} type="button" onClick={() => { setForwardSource(null); setForwardSearch(""); }}>Cancel</button>
-          </div>
-        </div>
+        <ForwardModal
+          activeChannelId={activeChannelId}
+          channels={channels}
+          forwardSearch={forwardSearch}
+          isLight={isLight}
+          onCancel={cancelForward}
+          onForwardToChannel={(channelId) => void handleForwardToChannel(channelId)}
+          setForwardSearch={setForwardSearch}
+          themeBtn={themeBtn}
+          themeInput={themeInput}
+        />
       ) : null}
       {confirmDeleteId ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setConfirmDeleteId(null)}>
-          <div className={`w-72 rounded-2xl border ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"} p-4 shadow-2xl`} onClick={(e) => e.stopPropagation()}>
-            <p className="mb-4 text-sm">Delete this message?</p>
-            <div className="flex gap-2">
-              <button className="flex-1 rounded-lg bg-red-500/20 px-3 py-2 text-sm text-red-200 hover:bg-red-500/30" type="button" onClick={() => void confirmDelete()}>Delete</button>
-              <button className={`flex-1 rounded-lg px-3 py-2 text-sm ${themeBtn}`} type="button" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
+        <DeleteConfirmModal confirmDelete={() => void confirmDelete()} isLight={isLight} onCancel={() => setConfirmDeleteId(null)} themeBtn={themeBtn} />
       ) : null}
     </main>
   );

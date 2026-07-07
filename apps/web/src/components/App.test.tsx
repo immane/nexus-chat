@@ -38,7 +38,7 @@ describe("ChannelList", () => {
   });
 });
 
-const rowProps = { onReply: noop, onForward: noop, onEdit: noopAsync, onDelete: noop, onCopy: noop, onReact: noop, decryptedText: undefined as string | undefined, readCount: undefined as number | undefined, reactions: undefined as Record<string, { count: number; reacted: boolean }> | undefined, senderName: undefined as string | undefined };
+const rowProps = { onReply: noop, onForward: noop, onEdit: noopAsync, onDelete: noop, onCopy: noop, onReact: noop, decryptedText: undefined as string | undefined, readCount: undefined as number | undefined, senderName: undefined as string | undefined };
 
 describe("MessageRow", () => {
   it("renders normal text messages with optimistic send status", () => {

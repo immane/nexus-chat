@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import type { Message } from "@nexus-chat/shared";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import type { TransportLabel } from "./signal-helpers.js";
-import { useMessageStore } from "../stores/domain.js";
 import { MessageRow } from "./MessageRow.js";
 import { formatDateSeparator } from "../lib/markdown.js";
 
@@ -38,7 +37,6 @@ export const MessageList = ({
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const pendingRef = useRef<string[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const reactionsByMessage = useMessageStore((state) => state.reactions);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -85,7 +83,6 @@ export const MessageList = ({
               senderName={sn}
               readCount={readReceipts[message.id] as number | undefined}
               decryptedText={decryptedText as string | undefined}
-              reactions={reactionsByMessage[message.id]}
               onReply={() => onReply(message)}
               onForward={() => onForward(message)}
               onEdit={(newText) => onEdit(message.id, newText)}
