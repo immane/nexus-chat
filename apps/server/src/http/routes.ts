@@ -116,6 +116,8 @@ export const createHttpApp = () => {
     return c.json(toResponse(workspaceService.createChannel(c.get("userId"), requiredParam(c.req.param("id")), input.name, input.mode, input.isPrivate)), 201);
   });
   app.get("/api/v1/workspaces/:id/channels", authRequired, (c) => c.json(apiOk(workspaceService.listChannels(c.get("userId"), requiredParam(c.req.param("id"))))));
+  app.get("/api/v1/workspaces/:id/unread-counts", authRequired, (c) => c.json(apiOk(messageService.getUnreadCounts(c.get("userId"), requiredParam(c.req.param("id"))))));
+  app.post("/api/v1/channels/:id/mark-read", authRequired, (c) => c.json(toResponse(messageService.markRead(c.get("userId"), requiredParam(c.req.param("id"))))));
   app.post("/api/v1/channels/:id/members", authRequired, zValidator("json", addChannelMemberSchema), (c) => c.json(toResponse(workspaceService.addChannelMember(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").userId))));
   app.delete("/api/v1/channels/:id/members/:userId", authRequired, (c) => c.json(toResponse(workspaceService.removeChannelMember(c.get("userId"), requiredParam(c.req.param("id")), requiredParam(c.req.param("userId"))))));
   app.get("/api/v1/channels/:id/members", authRequired, (c) => c.json(apiOk(workspaceService.listChannelMembers(c.get("userId"), requiredParam(c.req.param("id"))))));
