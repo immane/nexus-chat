@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-05 (post-Phase 1 review, post-bot-fix, coverage-enhanced)
-> Current status: Phase 1 complete (17/17 tasks done), bot `/help` and demo fallback fixed, coverage raised to 99.83% statements / 92.02% branches, 6 functional git commits
+> Last updated: 2026-07-07 (post-Telegram competitive analysis, Phase 1 gap audit, 6 new tasks added)
+> Current status: Phase 1 core complete (18/18 tasks done, 4 Web + 2 Server tasks added for polish), coverage 99.55% statements / 92.35% branches, 85 tests, PR #5 open
 
 ## 1. Project Overview
 
@@ -211,6 +211,13 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 15 | Observability, Audit Logs & Security Hardening | Done |
 | 16 | Local Development, CI, Preview Deploy & Closed Beta Release | Done |
 | 17 | TUI Command-Line Client | Done |
+| 18 | P2P DM Direct Connection | Done |
+| 19 | Web Message Actions & Context Menu | Todo |
+| 20 | Web Message Display & Formatting | Todo |
+| 21 | Web Rich Media & Emoji Picker | Todo |
+| 22 | Web Presence, Channel Info & Notifications | Todo |
+| 23 | Server Message Reply & Pin Backend | Todo |
+| 24 | Server Channel Mute & Description Backend | Todo |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -228,28 +235,26 @@ From `AGENTS.md`:
 
 ---
 
-## 6.5 Current Implementation Stats (as of 2026-07-05, revised post-fix session)
+## 6.5 Current Implementation Stats (as of 2026-07-07)
 
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
 - **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing
-- **Coverage**: 99.83% statements/lines, 92.02% branches, 99.23% functions across core domain + shared packages (up from ~97.6% / ~85.6%)
-- **Tests**: 72 tests across 17 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, and TUI CLI (up from 63 tests)
+- **Coverage**: 99.55% statements/lines, 92.35% branches, 98.50% functions across core domain + shared packages
+- **Tests**: 85 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
+- **Phase 1 tasks**: 18/24 done (6 new tasks added 2026-07-07 for Web polish + Server gaps based on Telegram competitive analysis)
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
 - **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)
 - **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage including missing-key and revoke edge cases
-- **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface; inline `/help` command handler in `botService.invokeCommand` generates bot response message and broadcasts via WS — **fixed in 2026-07-05 session** to correctly read `payload.messageId` from the bot.response return shape and to match help bot via declared `/help` commands rather than requiring exact name `"help"`
-- **Bot command dispatch**: `invokeCommand` no longer double-dispatches events — `publishEvent` already calls `dispatchToBots`, the removed duplicate call prevented events from being enqueued twice; verified by `"dispatches bot command events once"` test
-- **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce) — all using `NexusBotClient`; notification and welcome bots now have branch-level tests for non-triggering payloads
-- **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage
-- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list with timestamps and send status (sending/sent/failed), slash command auto-detect — messages starting with `/` automatically route via `bot.command.invoke` WS event; **demo fallback** added for `/help` when no real WS connection exists; bot input action slot, E2E policy/tombstone UI, right sidebar for channel group members with add/remove, workspace member list with search and hover actions (DM/ban), channel/DM creation inline, functional settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), message deduplication via clientMsgId
+- **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface; inline `/help` command handler in `botService.invokeCommand` generates bot response message and broadcasts via WS
+- **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce) — all using `NexusBotClient`
+- **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback
+- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list with timestamps and send status (sending/sent/failed), slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup with member search, right sidebar channel members, functional settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out)
 - **Desktop shell**: Electron main/preload boundary with secure BrowserWindow options, dev/prod renderer loading, tray menu, native notification IPC, clipboard/window IPC, and auto-update placeholder channel
 - **Observability**: Pino structured logging with redaction, request IDs on all HTTP/WS, Prometheus metrics (HTTP requests, WS connections, message sends, auth failures, bot queue depth, Redis errors), audit log service with in-memory events, centralized error codes, dependency audit in CI, bot command logging in WS gateway
-- **Dev/CI**: Docker Compose (PostgreSQL 16 + Redis 7), GitHub Actions (lint/typecheck/test/coverage/build/security/smoke), `pnpm` scripts for all operations, seed command, TUI smoke scripts
-- **TUI**: Commander CLI with 12 commands, WebSocket real-time messaging, Ink 6 interactive chat UI (compatible with React 19), token persistence to `.env.tui`, real E2E smoke, real bot smoke, slash command detection; **bot smoke install URL fixed** — now correctly passes `workspaceId` as a query parameter
-- **Bot engine**: Inline `/help` handler generates response directly without requiring bot client connection and matches bots by `/help` command declaration rather than exact manifest name; bot install via REST API; `GET /workspaces/:id/members` and `GET /channels/:id/members` REST endpoints for member lists
-- **Docs**: GitHub README and README.zh-CN (detailed bilingual), QUICKSTART.md and QUICKSTART.zh-CN.md (step-by-step setup), beta checklist, known limitations, backup/restore procedure, AI session context document
-- **Git history**: Phase 1 codebase committed in 6 functional groups: monorepo tooling, shared contracts + signal, server backend, bot SDK + first-party bots, web/desktop/TUI clients, documentation
-- **.gitignore**: Extended to ignore local tui tokens (`.env.tui*`), Playwright/MCP artifacts, screenshots/videos, and Electron packaging outputs
+- **Dev/CI**: Docker Compose (server only; in-memory stores), GitHub Actions (lint/typecheck/test/coverage/build/security/smoke), `pnpm` scripts for all operations, dev bootstrap script, TUI smoke scripts
+- **TUI**: Commander CLI with 12 commands, WebSocket real-time messaging, Ink 6 interactive chat UI (compatible with React 19), token persistence to `.env.tui`, real E2E smoke, real bot smoke, slash command detection
+- **Docs**: GitHub README and README.zh-CN (detailed bilingual), QUICKSTART.md and QUICKSTART.zh-CN.md (step-by-step setup), beta checklist, known limitations, backup/restore procedure, AI session context document, Telegram competitive analysis
+- **Git history**: 12 commits on `dev` branch since Phase 1 core completion; PR #5 open against `main`
 
 ---
 
@@ -311,7 +316,33 @@ c9158fe feat(server): implement phase 1 backend
 
 ---
 
-## 8. Open Questions / Next Steps
+## 8. Phase 1 Web Polish Tasks (Added 2026-07-07)
+
+Based on a Telegram competitive analysis (`docs/research/telegram-interface-analysis.md`), a gap audit revealed that the Web client is missing ~17 Phase 1 UX features despite backend support for most. The following 6 new tasks were created to close this gap:
+
+### Web Tasks (4 tasks, ~80% of remaining gap)
+
+| # | Task | Backend Status | Key Deliverables |
+|---|------|---------------|------------------|
+| 19 | Message Actions & Context Menu | All CRUD actions + WS events ready | Right-click menu: Reply/Copy/Forward/Edit/Delete/React; quick-reaction bar; reaction badges; reply bar |
+| 20 | Message Display & Formatting | Plain text only currently | Markdown rendering (bold/italic/code/quote/lists); markdown input with toolbar; link previews; relative timestamps |
+| 21 | Rich Media & Emoji Picker | Attachment service fully ready | Emoji picker popover; file upload button with progress; clipboard paste of images; inline attachment rendering |
+| 22 | Presence, Channel Info & Notifications | Presence WS events ready; store exists | Online status dots; channel info panel; toast + browser notifications; loading skeletons; empty states |
+
+### Server Tasks (2 tasks, ~20% of remaining gap)
+
+| # | Task | Key Deliverables |
+|---|------|-----------------|
+| 23 | Message Reply & Pin Backend | `replyToMessageId` in send schema; pin store + REST API + WS events |
+| 24 | Channel Mute & Description Backend | `description` field on channel; mute store + REST endpoints |
+
+### Gap Distribution
+- **Web**: ~17 items missing from UI (80%) — backend already supports 13/17
+- **Server**: ~4 items missing (20%) — reply, pin, mute, description
+
+---
+
+## 9. Open Questions / Next Steps
 
 1. **Framework finalization**: Hono vs Fastify — decision pending on whether serverless/edge deployment is a near-term requirement. Hono is the research recommendation; Fastify is the fallback if JSON throughput becomes a bottleneck and edge deployment is ruled out.
 

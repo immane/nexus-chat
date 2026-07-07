@@ -77,6 +77,12 @@ nav:
       - Phase 1 — Local Dev, CI & Release: tasks/16-phase-1-local-dev-ci-release.md
       - Phase 1 — TUI CLI: tasks/17-phase-1-tui-cli.md
       - Phase 1 — P2P DM Direct Connection: tasks/18-phase-1-p2p-dm-direct.md
+      - Phase 1 — Web Message Actions & Context Menu: tasks/19-phase-1-web-message-actions.md
+      - Phase 1 — Web Message Display & Formatting: tasks/20-phase-1-web-message-display.md
+      - Phase 1 — Web Rich Media & Emoji Picker: tasks/21-phase-1-web-rich-media.md
+      - Phase 1 — Web Presence, Channel Info & Notifications: tasks/22-phase-1-web-presence-notifications.md
+      - Phase 1 — Server Message Reply & Pin: tasks/23-phase-1-server-message-reply-pin.md
+      - Phase 1 — Server Channel Mute & Description: tasks/24-phase-1-server-channel-mute-description.md
   - Research:
       - Frontend Architecture: research/frontend-architecture.md
       - Backend IM & State Machine: research/backend-im-state-machine.md
