@@ -104,7 +104,6 @@ const ChatRoute = () => {
   const [forwardSearch, setForwardSearch] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [emojiPickerPos, setEmojiPickerPos] = useState<{ x: number; y: number } | null>(null);
   const [uploading, setUploading] = useState<Array<{ name: string; progress: number; cancel: () => void }>>([]);
   const [pendingAttachments, setPendingAttachments] = useState<Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -749,7 +748,6 @@ const ChatRoute = () => {
   const themeSettingLabel = isLight ? "text-slate-500" : "text-slate-400";
   const themeSettingValue = isLight ? "text-slate-900" : "text-slate-100";
   const themeBorder = isLight ? "border-slate-200" : "border-slate-700";
-  const themeChatInput = isLight ? "bg-white border border-slate-200 focus:ring-sky-400" : "bg-slate-900 ring-sky-400";
   const themeDivider = isLight ? "border-slate-200" : "border-slate-700";
   const themeSelect = isLight ? "bg-white border border-slate-300 text-slate-800" : "bg-slate-800 border border-slate-700 text-slate-200";
   const compact = settings.compactMode ? "p-2 text-xs" : "p-4";
@@ -910,13 +908,13 @@ const ChatRoute = () => {
         </div>
         <div className={`border-t ${themeBorder} px-3 py-3`}>
           <div className="flex gap-1">
-            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "chat" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("chat")} title="Chat">💬</button>
-            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "member" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("member")} title="Members">👥</button>
-            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "settings" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("settings")} title="Settings">⚙</button>
+            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "chat" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("chat")} title="Chat">💬</button>
+            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "member" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("member")} title="Members">👥</button>
+            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "settings" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("settings")} title="Settings">⚙️</button>
           </div>
         </div>
       </aside>
-      <section className="relative flex min-w-0 flex-col overflow-hidden">
+      <section className="relative flex min-w-0 flex-col">
         <header className={`border-b ${themeHeader} ${compact}`}>
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-lg font-semibold">{activeChannel?.name ?? "Select a channel"}</h2>
@@ -973,46 +971,51 @@ const ChatRoute = () => {
               </>
             }
           >
-            <div className="relative">
-              <button
-                className={`rounded-full ${themeBtn} px-3 py-1 text-xs`}
-                type="button"
-                onClick={(e) => {
-                  const rect = (e.target as HTMLElement).getBoundingClientRect();
-                  setEmojiPickerPos({ x: rect.left, y: rect.top });
-                  setEmojiPickerOpen(!emojiPickerOpen);
-                }}
-                title="Emoji"
-              >😀</button>
-            </div>
             <input ref={fileInputRef} className="hidden" type="file" multiple onChange={(e) => { const files = e.target.files; if (files) for (let i = 0; i < files.length; i += 1) void handleFileUpload(files[i]!); e.target.value = ""; }} />
-            {!isE2e ? (
-              <button className={`rounded-full ${themeBtn} px-3 py-1 text-xs`} type="button" onClick={() => fileInputRef.current?.click()} title="Attach">📎</button>
-            ) : null}
-            <div className="relative flex flex-1 flex-col">
-              {suggestions.length ? (
-                <div className={`absolute bottom-full left-0 z-10 mb-1 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>
-                  {suggestions.map((suggestion) => (
-                    <button key={`${suggestion.botId}-${suggestion.name}`} className={`block w-full px-4 py-3 text-left text-sm ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800"}`} type="button" onClick={() => setDraft(`${suggestion.name} `)}>
-                      <span className="font-medium text-sky-200">{suggestion.name}</span>
-                      <span className="ml-2 text-slate-400">{suggestion.description}</span>
-                    </button>
-                  ))}
-                </div>
+            <div className={`flex flex-1 items-center gap-1 rounded-xl border px-2 transition ${isLight ? "bg-white border-slate-300 focus-within:ring-2 focus-within:ring-sky-400" : "bg-slate-800 border-slate-700 focus-within:ring-2 focus-within:ring-sky-400"}`}>
+              {!isE2e ? (
+                <button className="rounded-full p-1 text-slate-400 hover:text-slate-200" type="button" onClick={() => fileInputRef.current?.click()} title="Attach">📎</button>
               ) : null}
-              <textarea
-                className={`w-full resize-none rounded-xl ${themeChatInput} px-4 py-3 outline-none transition placeholder:text-slate-400 focus:ring-2`}
-                placeholder={p2pBlocked ? "P2P mode: peer is offline" : isE2e ? "Encrypted message" : "Message or /command"}
-                value={draft}
-                disabled={p2pBlocked}
-                onChange={(event) => handleTypingChange(event.target.value)}
-                onBlur={stopTyping}
-                onPaste={handlePaste}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void submit(event as unknown as FormEvent); }
-                }}
-                rows={1}
-              />
+              <div className="relative flex-1">
+                {suggestions.length ? (
+                  <div className={`absolute bottom-full left-0 z-10 mb-1 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>
+                    {suggestions.map((suggestion) => (
+                      <button key={`${suggestion.botId}-${suggestion.name}`} className={`block w-full px-4 py-3 text-left text-sm ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800"}`} type="button" onClick={() => setDraft(`${suggestion.name} `)}>
+                        <span className="font-medium text-sky-200">{suggestion.name}</span>
+                        <span className="ml-2 text-slate-400">{suggestion.description}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                <textarea
+                  className={`w-full resize-none bg-transparent px-2 py-3 text-sm outline-none placeholder:text-slate-400 ${isLight ? "text-slate-900" : "text-slate-200"}`}
+                  placeholder={p2pBlocked ? "P2P mode: peer is offline" : isE2e ? "Encrypted message" : "Message or /command"}
+                  value={draft}
+                  disabled={p2pBlocked}
+                  onChange={(event) => handleTypingChange(event.target.value)}
+                  onBlur={stopTyping}
+                  onPaste={handlePaste}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void submit(event as unknown as FormEvent); }
+                  }}
+                  rows={1}
+                />
+              </div>
+              <div className="relative">
+                <button
+                  className="rounded-full p-1 text-slate-400 hover:text-slate-200"
+                  type="button"
+                  onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
+                  title="Emoji"
+                >😀</button>
+                {emojiPickerOpen ? (
+                  <div className={`absolute bottom-full right-0 z-30 mb-1 w-72 grid grid-cols-8 gap-1 rounded-xl border p-2 shadow-xl ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}>
+                    {["😀","😂","😍","🤔","😢","😡","👍","👎","👏","🙏","💪","🎉","🔥","❤️","💯","✅","❌","⭐","🚀","💡","🎯","📌","👀","💀","🎵","💰","📅","🔒","🔑","💬","🍕","☕"].map((e) => (
+                      <button key={e} className="rounded-lg p-1 text-lg hover:bg-slate-700" type="button" onClick={() => { insertEmoji(e); setEmojiPickerOpen(false); }}>{e}</button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </div>
             {uploading.map((entry) => (
               <div key={entry.name} className="flex items-center gap-2 px-1 text-xs text-slate-400">
@@ -1023,9 +1026,6 @@ const ChatRoute = () => {
                 <button className="text-red-400 hover:text-red-300" type="button" onClick={entry.cancel}>✕</button>
               </div>
             ))}
-            <button className={`rounded-xl px-5 py-3 font-semibold text-slate-950 transition ${p2pBlocked ? "cursor-not-allowed bg-slate-600" : "bg-sky-400 hover:bg-sky-300"}`} type="submit" disabled={p2pBlocked}>
-              Send
-            </button>
           </InputActionBar>
         </form>
       </section>
@@ -1103,19 +1103,6 @@ const ChatRoute = () => {
               <button className="flex-1 rounded-lg bg-red-500/20 px-3 py-2 text-sm text-red-200 hover:bg-red-500/30" type="button" onClick={() => void confirmDelete()}>Delete</button>
               <button className={`flex-1 rounded-lg px-3 py-2 text-sm ${themeBtn}`} type="button" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
             </div>
-          </div>
-        </div>
-      ) : null}
-      {emojiPickerOpen && emojiPickerPos ? (
-        <div className="fixed inset-0 z-40" onClick={() => setEmojiPickerOpen(false)}>
-          <div
-            className={`absolute grid grid-cols-8 gap-1 rounded-xl border p-2 shadow-2xl ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}
-            style={{ left: emojiPickerPos.x, bottom: window.innerHeight - emojiPickerPos.y + 8 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {["😀","😂","😍","🤔","😢","😡","👍","👎","👏","🙏","💪","🎉","🔥","❤️","💯","✅","❌","⭐","🚀","💡","🎯","📌","👀","💀","🎵","💰","📅","🔒","🔑","💬","🍕","☕"].map((e) => (
-              <button key={e} className="rounded-lg p-1 text-lg hover:bg-slate-700" type="button" onClick={() => { insertEmoji(e); setEmojiPickerOpen(false); }}>{e}</button>
-            ))}
           </div>
         </div>
       ) : null}
