@@ -42,10 +42,10 @@ Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, 
 
 Every channel and DM independently selects its encryption level. There is no global toggle.
 
-| Mode | Server-side content | Bots allowed | Server search | Message features |
-| --- | --- | --- | --- | --- |
-| **Normal** | Plaintext | Yes | Future (Phase 2) | Full: reactions, edits, deletes, forwarding, saves, read receipts |
-| **E2EE** | Ciphertext only | No — rejected at the gateway | Disabled | Reduced: read-once, TTL expiration, tombstoned on deletion |
+| Mode       | Server-side content | Bots allowed                 | Server search    | Message features                                                  |
+| ---------- | ------------------- | ---------------------------- | ---------------- | ----------------------------------------------------------------- |
+| **Normal** | Plaintext           | Yes                          | Future (Phase 2) | Full: reactions, edits, deletes, forwarding, saves, read receipts |
+| **E2EE**   | Ciphertext only     | No — rejected at the gateway | Disabled         | Reduced: read-once, TTL expiration, tombstoned on deletion        |
 
 **Key design properties:**
 

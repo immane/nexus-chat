@@ -3,6 +3,7 @@ import type { Message } from "@nexus-chat/shared";
 import { Badge } from "@nexus-chat/ui";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu.js";
 import { useMessageStore, useUiStore } from "../stores/domain.js";
+import { renderMarkdown, formatRelativeTime } from "../lib/markdown.js";
 
 export const MessageRow = ({
   message,
@@ -36,7 +37,8 @@ export const MessageRow = ({
   const currentUserId = useMessageStore((state) => state.currentUserId);
   const isSelf = currentUserId ? message.senderId === currentUserId : false;
   const isLight = settings.theme === "light";
-  const time = new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const time = formatRelativeTime(message.createdAt);
+  const fullTime = new Date(message.createdAt).toLocaleString();
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState("");
@@ -83,7 +85,6 @@ export const MessageRow = ({
   const body = message.content.type === "text" ? message.content.text : decryptedText ?? "Decrypting encrypted message...";
   const senderStyle = isSelf ? "text-amber-400" : isLight ? "text-slate-700" : "text-slate-300";
   const metaStyle = isLight ? "text-slate-400" : "text-slate-500";
-  const bodyStyle = isLight ? "text-slate-800" : "text-slate-100";
   const canEdit = isSelf && message.content.type === "text";
   const isNotCiphertext = !isCiphertext;
 
@@ -105,7 +106,7 @@ export const MessageRow = ({
         <div className={compactMsg}>
         <div className={`mb-2 flex items-center gap-2 text-xs ${metaStyle}`}>
           <span className={`font-bold ${senderStyle}`}>{senderName ?? message.senderId.slice(0, 12)}</span>
-          <span>{time}</span>
+          <span title={fullTime}>{time}</span>
           {message.editedAt ? <span className="text-xs text-slate-500">(edited)</span> : null}
           {policyLabel ? <Badge tone="warning">{policyLabel}</Badge> : null}
           {sendStatus === "sending" ? <span className="italic text-amber-300">sending...</span> : sendStatus === "sent" && transportLabel?.endsWith("received") ? <span className="text-sky-300">↓ received{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "sent" ? <span className="text-emerald-400">✓ sent{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "failed" ? <span className="text-red-400">✗ failed</span> : null}
@@ -114,7 +115,7 @@ export const MessageRow = ({
         {replyTarget ? (
           <div className={`mb-2 rounded-lg border-l-2 px-3 py-1.5 text-xs ${isLight ? "border-sky-400 bg-sky-50 text-slate-600" : "border-sky-500 bg-sky-500/10 text-slate-400"}`}>
             <span className="font-bold text-sky-400">Replying to {replyTarget.senderId.slice(0, 10)}</span>
-            <span className="ml-2 line-clamp-1">{replyTarget.content.type === "text" ? replyTarget.content.text.slice(0, 80) : replyTarget.content.type === "ciphertext" ? "Encrypted message" : "Message"}</span>
+            <span className="ml-2 line-clamp-1">{(replyTarget.content.type === "text" ? replyTarget.content.text : "Message").slice(0, 80)}</span>
           </div>
         ) : null}
         {editing ? (
@@ -133,7 +134,7 @@ export const MessageRow = ({
             </div>
           </div>
         ) : (
-          <p className={`whitespace-pre-wrap text-sm leading-6 ${bodyStyle}`}>{body}</p>
+          <div className="md-content text-sm" dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }} />
         )}
         {isNotCiphertext ? (
           <div className="mt-1 flex items-center gap-1 pt-1">

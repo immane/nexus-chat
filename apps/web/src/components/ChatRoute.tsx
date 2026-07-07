@@ -923,7 +923,7 @@ const ChatRoute = () => {
           >
             <div className="relative flex flex-1 flex-col">
               {suggestions.length ? (
-                <div className={`absolute bottom-12 left-0 z-10 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>
+                <div className={`absolute bottom-full left-0 z-10 mb-1 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>
                   {suggestions.map((suggestion) => (
                     <button key={`${suggestion.botId}-${suggestion.name}`} className={`block w-full px-4 py-3 text-left text-sm ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800"}`} type="button" onClick={() => setDraft(`${suggestion.name} `)}>
                       <span className="font-medium text-sky-200">{suggestion.name}</span>
@@ -932,13 +932,17 @@ const ChatRoute = () => {
                   ))}
                 </div>
               ) : null}
-              <input
-                className={`w-full rounded-xl ${themeChatInput} px-4 py-3 outline-none transition placeholder:text-slate-400 focus:ring-2`}
+              <textarea
+                className={`w-full resize-none rounded-xl ${themeChatInput} px-4 py-3 outline-none transition placeholder:text-slate-400 focus:ring-2`}
                 placeholder={p2pBlocked ? "P2P mode: peer is offline" : isE2e ? "Encrypted message" : "Message or /command"}
                 value={draft}
                 disabled={p2pBlocked}
                 onChange={(event) => handleTypingChange(event.target.value)}
                 onBlur={stopTyping}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void submit(event as unknown as FormEvent); }
+                }}
+                rows={1}
               />
             </div>
             <button className={`rounded-xl px-5 py-3 font-semibold text-slate-950 transition ${p2pBlocked ? "cursor-not-allowed bg-slate-600" : "bg-sky-400 hover:bg-sky-300"}`} type="submit" disabled={p2pBlocked}>
