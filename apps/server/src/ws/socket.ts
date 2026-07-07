@@ -25,6 +25,7 @@ const isAllowedOrigin = (origin: string | undefined) => {
 const createBroadcaster = (io: Server) => ({
   toChannel: (channelId: string, event: unknown) => io.to(`channel:${channelId}`).emit("event", event),
   toUser: (targetUserId: string, event: unknown) => io.to(`user:${targetUserId}`).emit("event", event),
+  toWorkspace: (workspaceId: string, event: unknown) => io.to(`workspace:${workspaceId}`).emit("event", event),
   relayP2pToUser: (targetUserId: string, envelope: unknown) => io.to(`user:${targetUserId}`).emit("event", envelope)
 });
 

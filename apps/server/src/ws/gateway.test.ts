@@ -25,6 +25,7 @@ const createBroadcaster = () => {
   const broadcaster: WsBroadcaster = {
     toChannel: (_channelId, event) => channelEvents.push(event),
     toUser: (_userId, event) => userEvents.push(event),
+    toWorkspace: (_workspaceId, event) => channelEvents.push(event),
     relayP2pToUser: (_userId, envelope) => relayedP2pEvents.push(envelope)
   };
   return { broadcaster, channelEvents, userEvents, relayedP2pEvents };
@@ -110,7 +111,7 @@ describe("WebSocket gateway", () => {
 
   it("handles typing presence ack invalid payloads and rate limits", () => {
     const { workspace, normal } = createWorkspaceWithChannels();
-    const { broadcaster, channelEvents, userEvents } = createBroadcaster();
+    const { broadcaster, channelEvents } = createBroadcaster();
     const rateLimiter = createWsRateLimiter({ windowMs: 1000, maxEvents: 4 });
     const message = messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "ack-1", content: { type: "text", text: "ack me", attachments: [] } });
     expect(handleClientEnvelope("user-owner", { type: "typing.start", payload: { workspaceId: workspace.id, channelId: normal.id }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: true });
@@ -119,7 +120,7 @@ describe("WebSocket gateway", () => {
     expect(handleClientEnvelope("user-owner", { type: "typing.stop", payload: { workspaceId: workspace.id }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: false, error: { code: "VALIDATION_FAILED" } });
     expect(handleClientEnvelope("user-owner", { type: "message.ack", payload: { messageId: "message-2" }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: false, error: { code: "RATE_LIMITED" } });
     expect(channelEvents[0]).toMatchObject({ type: "typing.updated" });
-    expect(userEvents[0]).toMatchObject({ type: "presence.updated" });
+    expect(channelEvents[1]).toMatchObject({ type: "presence.updated" });
   });
 
   it("relays p2p.offer to target user with sender metadata", () => {

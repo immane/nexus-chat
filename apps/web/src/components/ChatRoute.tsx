@@ -22,7 +22,9 @@ import {
   useChannelStore,
   useMessageStore,
   useUiStore,
-  useWorkspaceStore
+  useWorkspaceStore,
+  usePresenceStore,
+  type DmTransportMode
 } from "../stores/domain.js";
 import { API_BASE } from "../lib/api.js";
 import { WEB_SIGNAL_DEVICE_ID, parseDmPeerUserId, applyDisappearingPolicy, ensureSignalSession as doEnsureSignalSession, type TransportLabel } from "./signal-helpers.js";
@@ -55,6 +57,10 @@ const ChatRoute = () => {
   const updateSettings = useUiStore((state) => state.updateSettings);
   const setDraft = useUiStore((state) => state.setMessageDraft);
   const setPolicy = useUiStore((state) => state.setDisappearingPolicy);
+  const dmTransportMode = useUiStore((state) => state.dmTransportMode);
+  const setDmTransportMode = useUiStore((state) => state.setDmTransportMode);
+  const onlineUserIds = usePresenceStore((state) => state.onlineUserIds);
+  const setOnline = usePresenceStore((state) => state.setOnline);
   const setWorkspaces = useWorkspaceStore((state) => state.setWorkspaces);
   const setActiveWorkspace = useWorkspaceStore((state) => state.setActive);
   const deferredDraft = useDeferredValue(draft);
@@ -348,6 +354,10 @@ const ChatRoute = () => {
           });
         }
       }
+      if (event.type === "presence.updated") {
+        const payload = event.payload as { userId: string; status: string };
+        if (payload.userId) setOnline(payload.userId, payload.status === "online");
+      }
       if (event.type === "message.read") {
         const payload = event.payload as { messageId: string; readCount: number };
         if (payload.messageId && typeof payload.readCount === "number") {
@@ -519,6 +529,7 @@ const ChatRoute = () => {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!user || !activeChannel || !draft.trim()) return;
+    if (p2pBlocked) return;
 
     const text = draft.trim();
     const isSlashCommand = text.startsWith("/");
@@ -607,25 +618,34 @@ const ChatRoute = () => {
 
           setTransportLabels((current) => ({ ...current, [clientMsgId]: result.path === "p2p" ? "p2p sent" : "relay sent" }));
 
-          if (result.ok && result.path === "p2p") {
-            const message: Message = {
-              id: `p2p-local-${clientMsgId}`,
-              workspaceId: activeChannel.workspaceId,
-              channelId: activeChannel.id,
-              senderId: user.id,
-              clientMsgId,
-              content: encryptedContent,
-              state: "sent",
-              createdAt: new Date().toISOString()
-            };
-            upsertMessage(message, "sent");
-            setDecryptedMessages((current) => ({ ...current, [message.id]: text }));
+          if (result.path === "p2p") {
+            if (result.ok) {
+              const message: Message = {
+                id: `p2p-local-${clientMsgId}`,
+                workspaceId: activeChannel.workspaceId,
+                channelId: activeChannel.id,
+                senderId: user.id,
+                clientMsgId,
+                content: encryptedContent,
+                state: "sent",
+                createdAt: new Date().toISOString()
+              };
+              upsertMessage(message, "sent");
+              setDecryptedMessages((current) => ({ ...current, [message.id]: text }));
+            }
+            stopTyping();
+            setDraft("");
+            setReplyMessage(null);
+            return;
           }
 
-          stopTyping();
-          setDraft("");
-          setReplyMessage(null);
-          return;
+          // relay fallback — continue to WS emit below
+          if (isP2pMode) {
+            stopTyping();
+            setDraft("");
+            setReplyMessage(null);
+            return;
+          }
         }
 
         // Don't show optimistic — wait for server broadcast.
@@ -674,6 +694,11 @@ const ChatRoute = () => {
   const themeSelect = isLight ? "bg-white border border-slate-300 text-slate-800" : "bg-slate-800 border border-slate-700 text-slate-200";
   const compact = settings.compactMode ? "p-2 text-xs" : "p-4";
   const senderNames = Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)]));
+  const isDm = activeChannel?.kind === "dm";
+  const peerUserId = isDm && activeChannel ? parseDmPeerUserId(activeChannel, user?.id ?? "") : undefined;
+  const peerOnline = peerUserId ? onlineUserIds.has(peerUserId) : false;
+  const isP2pMode = dmTransportMode === "p2p" || (dmTransportMode === "auto" && peerOnline);
+  const p2pBlocked = dmTransportMode === "p2p" && !peerOnline;
 
   return (
     <main className={`grid h-screen grid-cols-[280px_1fr] ${themeBg} max-md:grid-cols-1`} style={rightSidebarOpen ? { gridTemplateColumns: "280px 1fr 260px" } : undefined}>
@@ -836,6 +861,18 @@ const ChatRoute = () => {
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-lg font-semibold">{activeChannel?.name ?? "Select a channel"}</h2>
             {isE2e ? <Badge tone="warning">Encrypted DM</Badge> : <Badge tone="success">Bots enabled</Badge>}
+            {isDm ? (
+              <select
+                className={`rounded-lg ${themeSelect} px-2 py-1 text-xs`}
+                value={dmTransportMode}
+                onChange={(e) => setDmTransportMode(e.target.value as DmTransportMode)}
+              >
+                <option value="auto">Auto</option>
+                <option value="relay">Signal</option>
+                <option value="p2p">P2P</option>
+              </select>
+            ) : null}
+            {isDm ? <Badge tone={peerOnline ? "success" : "warning"}>{peerOnline ? "Online" : "Offline"}</Badge> : null}
             {socketRef.current ? <Badge tone={wsConnected ? "success" : "warning"}>{wsConnected ? "WS connected" : "WS disconnected"}</Badge> : null}
             <div className="ml-auto flex items-center gap-2">
               <button className={`rounded-lg px-3 py-1 text-sm transition ${rightSidebarOpen ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setRightSidebarOpen(!rightSidebarOpen)} title="Group Members">👥 Members</button>
@@ -889,13 +926,14 @@ const ChatRoute = () => {
               ) : null}
               <input
                 className={`w-full rounded-xl ${themeChatInput} px-4 py-3 outline-none transition placeholder:text-slate-400 focus:ring-2`}
-                placeholder={isE2e ? "Encrypted message" : "Message or /command"}
+                placeholder={p2pBlocked ? "P2P mode: peer is offline" : isE2e ? "Encrypted message" : "Message or /command"}
                 value={draft}
+                disabled={p2pBlocked}
                 onChange={(event) => handleTypingChange(event.target.value)}
                 onBlur={stopTyping}
               />
             </div>
-            <button className="rounded-xl bg-sky-400 px-5 py-3 font-semibold text-slate-950 hover:bg-sky-300" type="submit">
+            <button className={`rounded-xl px-5 py-3 font-semibold text-slate-950 transition ${p2pBlocked ? "cursor-not-allowed bg-slate-600" : "bg-sky-400 hover:bg-sky-300"}`} type="submit" disabled={p2pBlocked}>
               Send
             </button>
           </InputActionBar>

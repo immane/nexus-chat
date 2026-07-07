@@ -14,11 +14,12 @@ import {
 import { botService } from "../domain/bots/service.js";
 import { messageService } from "../domain/messages/service.js";
 import { store } from "../domain/store.js";
+import { workspaceService } from "../domain/workspaces/service.js";
 import { logger } from "../observability/logger.js";
 import { writeAuditEvent } from "../observability/audit.js";
 
 export type WsGatewayResponse = { ok: true; data: unknown } | { ok: false; error: { code: string; message: string } };
-export type WsBroadcaster = { toChannel(channelId: string, event: unknown): void; toUser(userId: string, event: unknown): void; relayP2pToUser(userId: string, envelope: unknown): void };
+export type WsBroadcaster = { toChannel(channelId: string, event: unknown): void; toUser(userId: string, event: unknown): void; toWorkspace(workspaceId: string, event: unknown): void; relayP2pToUser(userId: string, envelope: unknown): void };
 
 type RateBucket = { count: number; resetAt: number };
 
@@ -86,8 +87,11 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
   if (envelope.data.type === "presence.update") {
     const payload = presenceUpdatePayloadSchema.safeParse(envelope.data.payload);
     if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid presence payload" } };
-    broadcaster.toUser(userId, { type: "presence.updated", payload: { userId, status: payload.data.status }, timestamp: new Date().toISOString() });
-    return { ok: true, data: { accepted: true } };
+    const presenceEvent = { type: "presence.updated", payload: { userId, status: payload.data.status }, timestamp: new Date().toISOString() };
+    for (const ws of workspaceService.listWorkspaces(userId)) {
+      broadcaster.toWorkspace(ws.id, presenceEvent);
+    }
+    return { ok: true, data: {} };
   }
 
   if (envelope.data.type === "message.ack") {

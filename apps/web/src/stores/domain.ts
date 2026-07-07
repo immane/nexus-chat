@@ -189,23 +189,28 @@ export type AppSettings = {
   soundEnabled: boolean;
   notificationsEnabled: boolean;
 };
+export type DmTransportMode = "auto" | "relay" | "p2p";
 
 export const useUiStore = create<{
   sidebarOpen: boolean;
   messageDraft: string;
   disappearingPolicy: DisappearingDraftPolicy;
   settings: AppSettings;
+  dmTransportMode: DmTransportMode;
   setSidebarOpen: (open: boolean) => void;
   setMessageDraft: (messageDraft: string) => void;
   setDisappearingPolicy: (disappearingPolicy: DisappearingDraftPolicy) => void;
   updateSettings: (patch: Partial<AppSettings>) => void;
+  setDmTransportMode: (mode: DmTransportMode) => void;
 }>((set) => ({
   sidebarOpen: true,
   messageDraft: "",
   disappearingPolicy: { mode: "none" },
   settings: { theme: "dark", compactMode: false, soundEnabled: false, notificationsEnabled: true },
+  dmTransportMode: "auto",
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setMessageDraft: (messageDraft) => set({ messageDraft }),
   setDisappearingPolicy: (disappearingPolicy) => set({ disappearingPolicy }),
-  updateSettings: (patch) => set((state) => ({ settings: { ...state.settings, ...patch } }))
+  updateSettings: (patch) => set((state) => ({ settings: { ...state.settings, ...patch } })),
+  setDmTransportMode: (dmTransportMode) => set({ dmTransportMode })
 }));
