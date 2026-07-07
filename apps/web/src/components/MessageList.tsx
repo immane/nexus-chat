@@ -10,6 +10,7 @@ export const MessageList = ({
   decryptedMessages = {},
   transportLabels = {},
   readReceipts = {},
+  senderNames = {},
   onMessagesVisible
 }: {
   messages: Message[];
@@ -17,6 +18,7 @@ export const MessageList = ({
   decryptedMessages?: Record<string, string>;
   transportLabels?: Record<string, TransportLabel>;
   readReceipts?: Record<string, number>;
+  senderNames?: Record<string, string>;
   onMessagesVisible?: (messageIds: string[]) => void;
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -53,7 +55,8 @@ export const MessageList = ({
         const decryptedText = decryptedMessages[message.id];
         const devStatus = import.meta.env.DEV && transportLabels[message.clientMsgId] ? `${statuses[message.clientMsgId] ?? "sent"} · ${transportLabels[message.clientMsgId]}` : statuses[message.clientMsgId];
         const rc = readReceipts[message.id];
-        const rowProps = { message, status: devStatus } as { message: typeof message; status: string | undefined; readCount?: number; decryptedText?: string };
+        const sn = senderNames[message.senderId];
+        const rowProps = { message, status: devStatus, senderName: sn } as { message: typeof message; status: string | undefined; readCount?: number; decryptedText?: string; senderName?: string };
         if (rc !== undefined) rowProps.readCount = rc;
         if (decryptedText !== undefined) rowProps.decryptedText = decryptedText as string;
         return <MessageRow {...rowProps} />;

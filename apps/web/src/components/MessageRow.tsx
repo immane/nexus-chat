@@ -2,7 +2,7 @@ import type { Message } from "@nexus-chat/shared";
 import { Badge } from "@nexus-chat/ui";
 import { useUiStore } from "../stores/domain.js";
 
-export const MessageRow = ({ message, status, decryptedText, readCount }: { message: Message; status: string | undefined; decryptedText?: string; readCount?: number }) => {
+export const MessageRow = ({ message, status, decryptedText, readCount, senderName }: { message: Message; status: string | undefined; decryptedText?: string; readCount?: number; senderName?: string }) => {
   const settings = useUiStore((state) => state.settings);
   const isLight = settings.theme === "light";
   const time = new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -28,7 +28,7 @@ export const MessageRow = ({ message, status, decryptedText, readCount }: { mess
   return (
     <article className={`rounded-2xl ${themeCard} ${compactMsg} shadow-sm`}>
       <div className={`mb-2 flex items-center gap-2 text-xs ${metaStyle}`}>
-        <span className={`font-medium ${senderStyle}`}>{message.senderId.slice(0, 12)}</span>
+        <span className={`font-medium ${senderStyle}`}>{senderName ?? message.senderId.slice(0, 12)}</span>
         <span>{time}</span>
         {policyLabel ? <Badge tone="warning">{policyLabel}</Badge> : null}
         {sendStatus === "sending" ? <span className="italic text-amber-300">sending...</span> : sendStatus === "sent" && transportLabel?.endsWith("received") ? <span className="text-sky-300">↓ received{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "sent" ? <span className="text-emerald-400">✓ sent{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "failed" ? <span className="text-red-400">✗ failed</span> : null}

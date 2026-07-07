@@ -515,8 +515,8 @@ const ChatRoute = () => {
         const resp = await fetch(`${API_BASE}/api/v1/workspaces/${workspaces[0]!.id}/members`, {
           headers: { authorization: `Bearer ${accessToken}` }
         });
-        const json = (await resp.json()) as { ok: boolean; data: Array<{ userId: string; role: string }> };
-        if (json.ok) setMembers(json.data.map((m) => ({ ...m, displayName: m.userId.slice(0, 10) })));
+        const json = (await resp.json()) as { ok: boolean; data: Array<{ userId: string; role: string; email: string; displayName: string }> };
+        if (json.ok) setMembers(json.data.map((m) => ({ ...m, displayName: m.displayName || (m.email?.split("@")[0] ?? m.userId.slice(0, 10)) })));
       } catch { /* */ }
     })();
   }, [accessToken, workspaces]);
@@ -625,7 +625,7 @@ const ChatRoute = () => {
                                 setAddPopupSearch("");
                                 setAddPopupOpen(false);
                               }}
-                            >@ {m.displayName ?? m.userId.slice(0, 10)}</button>
+                            >@ {m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)}</button>
                           ))}
                         {channels
                           .filter((c) => c.name.toLowerCase().includes(addPopupSearch.toLowerCase()))
@@ -648,7 +648,7 @@ const ChatRoute = () => {
                   </div>
                 </div>
               ) : null}
-              <ChannelList channels={channels} activeChannelId={activeChannelId} unreadCounts={unreadCounts} onSelect={selectChannel} currentUserId={user!.id} userNames={Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.userId.slice(0, 10)]))} />
+              <ChannelList channels={channels} activeChannelId={activeChannelId} unreadCounts={unreadCounts} onSelect={selectChannel} currentUserId={user!.id} userNames={Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)]))} />
             </section>
           </>
         ) : leftTab === "member" ? (
@@ -664,7 +664,7 @@ const ChatRoute = () => {
                 <div key={m.userId} className={`group flex items-center justify-between rounded-lg px-3 py-1.5 text-xs ${themeMember}`}>
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${m.role === "owner" ? "bg-amber-400" : m.role === "admin" ? "bg-sky-400" : "bg-emerald-400"}`}></span>
-                    <span>{m.displayName ?? m.userId.slice(0, 10)}</span>
+                    <span>{m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)}</span>
                     <span className={themeMuted}>({m.role})</span>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
@@ -750,7 +750,7 @@ const ChatRoute = () => {
             </p>
           ) : null : null}
         </header>
-        <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} readReceipts={readReceipts} onMessagesVisible={handleMessagesVisible} />
+        <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} readReceipts={readReceipts} senderNames={Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)]))} onMessagesVisible={handleMessagesVisible} />
         <form onSubmit={submit}>
           <InputActionBar
             actions={

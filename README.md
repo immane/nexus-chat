@@ -61,22 +61,22 @@ Every channel and DM independently selects its encryption level. There is no glo
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  Clients                                          │
+│  Clients                                         │
 │  Electron  ·  React/Vite Web  ·  TUI (Commander) │
 └────────────────────────┬─────────────────────────┘
                          │  REST (Hono)  +  Socket.IO
                          ▼
 ┌──────────────────────────────────────────────────┐
-│  Gateway Layer                                    │
-│  HTTP API (CORS, Helmet, rate limiting)           │
-│  WebSocket (auth, rooms, per-user rate limit)     │
-│  /bots WS namespace (token auth, event polling)   │
+│  Gateway Layer                                   │
+│  HTTP API (CORS, Helmet, rate limiting)          │
+│  WebSocket (auth, rooms, per-user rate limit)    │
+│  /bots WS namespace (token auth, event polling)  │
 └────────────────────────┬─────────────────────────┘
                          │
         ┌────────────────┼────────────────┐
-        ▼                ▼                 ▼
+        ▼                ▼                ▼
 ┌───────────┐  ┌──────────────┐  ┌──────────────┐
-│  Auth     │  │  Workspace   │  │  Signal/E2EE │
+│ Auth      │  │ Workspace    │  │ Signal/E2EE  │
 │  Service  │  │  Service     │  │  Service     │
 │           │  │              │  │              │
 │ Register  │  │ CRUD         │  │ PreKey CRUD  │
@@ -88,18 +88,18 @@ Every channel and DM independently selects its encryption level. There is no glo
         └────────────────┼─────────────────┘
                          ▼
 ┌──────────────────────────────────────────────────┐
-│  Message Service                                  │
-│  Send · Edit · Delete · React · Forward · Save    │
-│  AckRead · List · ListPage · CleanupExpired       │
-│  State machine: SENDING→SENT→DELIVERED→READ       │
+│  Message Service                                 │
+│  Send · Edit · Delete · React · Forward · Save   │
+│  AckRead · List · ListPage · CleanupExpired      │
+│  State machine: SENDING→SENT→DELIVERED→READ      │
 └────────────────────────┬─────────────────────────┘
                          │
                          ▼
 ┌──────────────────────────────────────────────────┐
-│  Bot Engine                                       │
-│  Install · ValidateToken · Subscribe/Poll          │
-│  invokeCommand · sendBotMessage · publishEvent     │
-│  Inline /help handler (no connected bot needed)    │
+│  Bot Engine                                      │
+│  Install · ValidateToken · Subscribe/Poll        │
+│  invokeCommand · sendBotMessage · publishEvent   │
+│  Inline /help handler (no connected bot needed)  │
 └──────────────────────────────────────────────────┘
 ```
 
