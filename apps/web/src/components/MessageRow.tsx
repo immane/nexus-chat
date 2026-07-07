@@ -84,7 +84,7 @@ export const MessageRow = ({
   const senderStyle = isSelf ? "text-amber-400" : isLight ? "text-slate-700" : "text-slate-300";
   const metaStyle = isLight ? "text-slate-400" : "text-slate-500";
   const bodyStyle = isLight ? "text-slate-800" : "text-slate-100";
-  const canEdit = message.content.type === "text" && !message.editedAt;
+  const canEdit = isSelf && message.content.type === "text";
   const isNotCiphertext = !isCiphertext;
 
   const menuItems: ContextMenuItem[] = [
@@ -106,7 +106,7 @@ export const MessageRow = ({
         <div className={`mb-2 flex items-center gap-2 text-xs ${metaStyle}`}>
           <span className={`font-bold ${senderStyle}`}>{senderName ?? message.senderId.slice(0, 12)}</span>
           <span>{time}</span>
-          {message.editedAt ? <span className="italic">edited</span> : null}
+          {message.editedAt ? <span className="text-xs text-slate-500">(edited)</span> : null}
           {policyLabel ? <Badge tone="warning">{policyLabel}</Badge> : null}
           {sendStatus === "sending" ? <span className="italic text-amber-300">sending...</span> : sendStatus === "sent" && transportLabel?.endsWith("received") ? <span className="text-sky-300">↓ received{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "sent" ? <span className="text-emerald-400">✓ sent{transportName ? ` (${transportName})` : ""}</span> : sendStatus === "failed" ? <span className="text-red-400">✗ failed</span> : null}
           {readCount !== undefined && readCount > 0 ? <span className={isLight ? "text-slate-400" : "text-slate-500"}>· read by {readCount}</span> : null}

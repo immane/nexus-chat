@@ -383,6 +383,14 @@ const ChatRoute = () => {
           if (!current.some((c) => c.id === dm.id)) setChannels([...current, dm]);
         }
       }
+      if (event.type === "message.updated") {
+        const updatedMsg = event.payload as Message;
+        if (updatedMsg.id) upsertMessage(updatedMsg, "sent");
+      }
+      if (event.type === "message.deleted") {
+        const deletedMsg = event.payload as Message;
+        if (deletedMsg.id) upsertMessage(deletedMsg, "sent");
+      }
     });
     return () => {
       p2pTransportRef.current?.destroy();

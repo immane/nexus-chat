@@ -23,7 +23,8 @@ import {
   signalPreKeyBundleSchema,
   transferWorkspaceOwnershipSchema,
   updateWorkspaceSchema,
-  uploadSessionCreateSchema
+  uploadSessionCreateSchema,
+  type Message
 } from "@nexus-chat/shared";
 import { env } from "../config/env.js";
 import { attachmentService } from "../domain/attachments/service.js";
@@ -143,8 +144,20 @@ export const createHttpApp = () => {
     const page = c.req.valid("query");
     return c.json(apiOk(messageService.list(c.get("userId"), requiredParam(c.req.param("id")), page.cursor, page.limit)));
   });
-  app.patch("/api/v1/messages/:id", authRequired, zValidator("json", editMessageSchema), (c) => c.json(toResponse(messageService.edit(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").text))));
-  app.delete("/api/v1/messages/:id", authRequired, (c) => c.json(toResponse(messageService.softDelete(c.get("userId"), requiredParam(c.req.param("id"))))));
+  app.patch("/api/v1/messages/:id", authRequired, zValidator("json", editMessageSchema), (c) => {
+    const result = messageService.edit(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").text);
+    if ("error" in result && !result.ok) return c.json(toResponse(result as ReturnType<typeof apiFail>));
+    const msg = result as Message;
+    broadcastToChannel(msg.channelId, { type: "message.updated", payload: msg, timestamp: new Date().toISOString() });
+    return c.json(apiOk(msg));
+  });
+  app.delete("/api/v1/messages/:id", authRequired, (c) => {
+    const result = messageService.softDelete(c.get("userId"), requiredParam(c.req.param("id")));
+    if ("error" in result && !result.ok) return c.json(toResponse(result as ReturnType<typeof apiFail>));
+    const msg = result as Message;
+    broadcastToChannel(msg.channelId, { type: "message.deleted", payload: msg, timestamp: new Date().toISOString() });
+    return c.json(apiOk(msg));
+  });
   app.post("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => {
     const result = messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji);
     if ("error" in result && !result.ok) return c.json(toResponse(result));
