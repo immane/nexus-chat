@@ -68,6 +68,7 @@ const ChatRoute = () => {
   const [dmCreateOpen, setDmCreateOpen] = useState(false);
   const [newChannelName, setNewChannelName] = useState("");
   const [newDmEmail, setNewDmEmail] = useState("");
+  const [dmError, setDmError] = useState("");
   const [members, setMembers] = useState<Array<{ userId: string; role: string; displayName?: string; email?: string }>>([]);
   const [leftTab, setLeftTab] = useState<"chat" | "member" | "settings">("chat");
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
@@ -380,13 +381,17 @@ const ChatRoute = () => {
   const createDm = async () => {
     if (!newDmEmail.trim() || !accessToken || !workspaces[0]) return;
     const headers = { "content-type": "application/json", authorization: `Bearer ${accessToken}` };
+    setDmError("");
     try {
-      // Resolve email → userId
       let peerUserId = newDmEmail.trim();
       if (peerUserId.includes("@")) {
         const lookupResp = await fetch(`${API_BASE}/api/v1/users/by-email?email=${encodeURIComponent(peerUserId)}`, { headers });
-        const lookupJson = (await lookupResp.json()) as { ok: boolean; data: { id: string } };
-        if (lookupJson.ok && lookupJson.data?.id) peerUserId = lookupJson.data.id;
+        const lookupJson = (await lookupResp.json()) as { ok: boolean; data?: { id: string }; error?: { message: string } };
+        if (!lookupJson.ok) {
+          setDmError(lookupJson.error?.message ?? "User not found");
+          return;
+        }
+        if (lookupJson.data?.id) peerUserId = lookupJson.data.id;
       }
 
       const resp = await fetch(`${API_BASE}/api/v1/dms?workspaceId=${workspaces[0].id}`, {
@@ -394,14 +399,18 @@ const ChatRoute = () => {
         headers,
         body: JSON.stringify({ peerUserId, mode: "e2e" })
       });
-      const json = (await resp.json()) as { ok: boolean; data: Channel };
+      const json = (await resp.json()) as { ok: boolean; data: Channel; error?: { message: string } };
       if (json.ok) {
         if (!channels.some((c) => c.id === json.data.id)) setChannels([...channels, json.data]);
         setActiveChannel(json.data.id);
+        setNewDmEmail("");
+        setDmCreateOpen(false);
+      } else {
+        setDmError(json.error?.message ?? "Failed to create DM");
       }
-    } catch { /* */ }
-    setNewDmEmail("");
-    setDmCreateOpen(false);
+    } catch {
+      setDmError("Network error — is the server running?");
+    }
   };
 
   // Fetch members when in server mode
@@ -476,7 +485,7 @@ const ChatRoute = () => {
                 <h2 className="text-xs uppercase tracking-wide text-slate-400">Channels & DMs</h2>
                 <div className="flex gap-1">
                   <button className="rounded-lg bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700" type="button" onClick={() => { setChannelCreateOpen(!channelCreateOpen); setDmCreateOpen(false); }} title="Create Channel">+CH</button>
-                  <button className="rounded-lg bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700" type="button" onClick={() => { setDmCreateOpen(!dmCreateOpen); setChannelCreateOpen(false); }} title="Create DM">+DM</button>
+                  <button className="rounded-lg bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700" type="button" onClick={() => { setDmCreateOpen(!dmCreateOpen); setChannelCreateOpen(false); setDmError(""); }} title="Create DM">+DM</button>
                 </div>
               </div>
               {channelCreateOpen ? (
@@ -486,9 +495,12 @@ const ChatRoute = () => {
                 </div>
               ) : null}
               {dmCreateOpen ? (
-                <div className="mb-2 flex gap-1">
-                  <input className="flex-1 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none" placeholder="user ID or email" value={newDmEmail} onChange={(e) => setNewDmEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createDm()} />
-                  <button className="rounded-lg bg-purple-500/20 px-2 py-1 text-xs text-purple-200" type="button" onClick={createDm}>DM</button>
+                <div className="mb-2">
+                  <div className="flex gap-1">
+                    <input className="flex-1 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none" placeholder="user ID or email" value={newDmEmail} onChange={(e) => setNewDmEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createDm()} />
+                    <button className="rounded-lg bg-purple-500/20 px-2 py-1 text-xs text-purple-200" type="button" onClick={createDm}>DM</button>
+                  </div>
+                  {dmError ? <p className="mt-1 text-xs text-red-400">{dmError}</p> : null}
                 </div>
               ) : null}
               <ChannelList channels={channels} activeChannelId={activeChannelId} unreadCounts={unreadCounts} onSelect={setActiveChannel} />
