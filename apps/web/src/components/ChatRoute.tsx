@@ -395,6 +395,24 @@ const ChatRoute = () => {
     setChannelCreateOpen(false);
   };
 
+  const startDmWithUser = async (peerUserId: string) => {
+    if (!accessToken || !workspaces[0]) return;
+    const headers = { "content-type": "application/json", authorization: `Bearer ${accessToken}` };
+    try {
+      const resp = await fetch(`${API_BASE}/api/v1/dms?workspaceId=${workspaces[0].id}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ peerUserId, mode: "e2e" })
+      });
+      const json = (await resp.json()) as { ok: boolean; data: Channel; error?: { message: string } };
+      if (json.ok) {
+        if (!channels.some((c) => c.id === json.data.id)) setChannels([...channels, json.data]);
+        setActiveChannel(json.data.id);
+        setLeftTab("chat");
+      }
+    } catch { /* ignore */ }
+  };
+
   const createDm = async () => {
     if (!newDmEmail.trim() || !accessToken || !workspaces[0]) return;
     const headers = { "content-type": "application/json", authorization: `Bearer ${accessToken}` };
@@ -411,20 +429,9 @@ const ChatRoute = () => {
         if (lookupJson.data?.id) peerUserId = lookupJson.data.id;
       }
 
-      const resp = await fetch(`${API_BASE}/api/v1/dms?workspaceId=${workspaces[0].id}`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ peerUserId, mode: "e2e" })
-      });
-      const json = (await resp.json()) as { ok: boolean; data: Channel; error?: { message: string } };
-      if (json.ok) {
-        if (!channels.some((c) => c.id === json.data.id)) setChannels([...channels, json.data]);
-        setActiveChannel(json.data.id);
-        setNewDmEmail("");
-        setDmCreateOpen(false);
-      } else {
-        setDmError(json.error?.message ?? "Failed to create DM");
-      }
+      await startDmWithUser(peerUserId);
+      setNewDmEmail("");
+      setDmCreateOpen(false);
     } catch {
       setDmError("Network error — is the server running?");
     }
@@ -540,12 +547,12 @@ const ChatRoute = () => {
                     <span className="text-slate-500">({m.role})</span>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                    {m.userId !== user?.id ? (
-                      <>
-                        <button className="rounded bg-slate-700 px-1.5 py-0.5 text-xs hover:bg-sky-500/20 hover:text-sky-200" type="button" onClick={() => { setDmCreateOpen(true); setLeftTab("chat"); }} title="Message">💬</button>
-                        <button className="rounded bg-slate-700 px-1.5 py-0.5 text-xs hover:bg-red-500/20 hover:text-red-200" type="button" title="Ban">🚫</button>
-                      </>
-                    ) : null}
+                      {m.userId !== user?.id ? (
+                        <>
+                          <button className="rounded bg-slate-700 px-1.5 py-0.5 text-xs hover:bg-sky-500/20 hover:text-sky-200" type="button" onClick={() => startDmWithUser(m.userId)} title="Message">💬</button>
+                          <button className="rounded bg-slate-700 px-1.5 py-0.5 text-xs hover:bg-red-500/20 hover:text-red-200" type="button" title="Ban">🚫</button>
+                        </>
+                      ) : null}
                   </div>
                 </div>
               ))}
