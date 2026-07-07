@@ -334,7 +334,10 @@ const ChatRoute = () => {
       upsertMessage(message, "sent");
       setTransportLabels((current) => ({ ...current, [message.clientMsgId]: "p2p received" }));
     });
-    socket.on("connect", () => setWsConnected(true));
+    socket.on("connect", () => {
+      setWsConnected(true);
+      socket.emit("event", { type: "presence.update", payload: { status: "online" }, timestamp: new Date().toISOString() });
+    });
     socket.on("disconnect", () => setWsConnected(false));
     socket.on("event", (event: { type: string; payload: unknown }) => {
       if (event.type === "message.created" && event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {

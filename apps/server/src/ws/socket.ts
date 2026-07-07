@@ -50,6 +50,8 @@ export const attachSocketServer = (httpServer: HttpServer) => {
   io.on("connection", (socket) => {
     const userId = socket.data.userId as string;
     wsConnections.inc();
+    const wasOffline = !store.onlineConnections.has(userId);
+    store.onlineConnections.set(userId, (store.onlineConnections.get(userId) ?? 0) + 1);
     socket.join(`user:${userId}`);
     for (const workspace of store.workspaces.values()) {
       if (workspaceService.canAccessWorkspace(userId, workspace.id)) socket.join(`workspace:${workspace.id}`);
@@ -59,6 +61,23 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     }
     logger.info({ userId, socketId: socket.id }, "WebSocket connected");
 
+    // Send existing online users to the connecting client
+    for (const [uid] of store.onlineConnections) {
+      if (uid !== userId) {
+        socket.emit("event", { type: "presence.updated", payload: { userId: uid, status: "online" }, timestamp: new Date().toISOString() });
+      }
+    }
+
+    // Broadcast this user's online status only if they were offline (first connection)
+    if (wasOffline) {
+      const onlineEvent = { type: "presence.updated", payload: { userId, status: "online" }, timestamp: new Date().toISOString() };
+      for (const workspace of store.workspaces.values()) {
+        if (workspaceService.canAccessWorkspace(userId, workspace.id)) {
+          io.to(`workspace:${workspace.id}`).emit("event", onlineEvent);
+        }
+      }
+    }
+
     socket.on("event", (raw, callback?: (response: unknown) => void) => {
       const result = handleClientEnvelope(userId, raw, createBroadcaster(io));
       if (typeof callback === "function") callback(result);
@@ -66,6 +85,16 @@ export const attachSocketServer = (httpServer: HttpServer) => {
 
     socket.on("disconnect", () => {
       wsConnections.dec();
+      const count = (store.onlineConnections.get(userId) ?? 1) - 1;
+      if (count <= 0) {
+        store.onlineConnections.delete(userId);
+        const presenceEvent = { type: "presence.updated", payload: { userId, status: "offline" }, timestamp: new Date().toISOString() };
+        for (const ws of workspaceService.listWorkspaces(userId)) {
+          io.to(`workspace:${ws.id}`).emit("event", presenceEvent);
+        }
+      } else {
+        store.onlineConnections.set(userId, count);
+      }
       logger.info({ userId, socketId: socket.id }, "WebSocket disconnected");
     });
   });

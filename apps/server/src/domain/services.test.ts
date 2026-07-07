@@ -435,4 +435,38 @@ describe("server domain services", () => {
       expect(messageService.getReactions("user-member", publicCh.id)[publicMsg.id]).toEqual([{ emoji: "🚀", count: 1, reacted: true }]);
     }
   });
+
+  it("manages pinned messages with access control and limits", () => {
+    const workspace = createWorkspaceWithMember();
+    const normal = createChannel(workspace, "normal");
+    const msg = messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "pin-msg", content: { type: "text", text: "pin me", attachments: [] } });
+    expect("id" in msg).toBe(true);
+    if (!("id" in msg)) return;
+
+    // Only admins/creators can pin
+    expectError(messageService.pinMessage("user-member", normal.id, msg.id), "FORBIDDEN");
+
+    // Pin by owner
+    expect(messageService.pinMessage("user-owner", normal.id, msg.id)).toEqual({ pinned: true });
+    expect(messageService.pinMessage("user-owner", normal.id, msg.id)).toEqual({ pinned: true }); // idempotent
+
+    // List pins
+    const listResult = messageService.listPins("user-owner", normal.id);
+    expect("ok" in listResult).toBe(false);
+    if (!("ok" in listResult)) {
+      expect(listResult).toHaveLength(1);
+      expect(listResult[0]!.id).toBe(msg.id);
+    }
+
+    // Can't access from another channel
+    expectError(messageService.listPins("stranger", normal.id), "FORBIDDEN");
+
+    // Unpin by owner
+    expect(messageService.unpinMessage("user-owner", normal.id, msg.id)).toEqual({ pinned: false });
+    expectError(messageService.unpinMessage("user-owner", normal.id, msg.id), "NOT_FOUND");
+
+    // Cannot pin deleted message
+    messageService.softDelete("user-owner", msg.id);
+    expectError(messageService.pinMessage("user-owner", normal.id, msg.id), "NOT_FOUND");
+  });
 });

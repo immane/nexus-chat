@@ -35,6 +35,8 @@ export class InMemoryStore {
   oneTimePreKeys = new Map<string, OneTimePreKey>();
   signalSessions = new Map<string, SignalSessionRecord>();
   channelLastRead = new Map<string, string>();
+  pinnedMessages = new Map<string, Set<string>>();
+  onlineConnections = new Map<string, number>();
   devFileContent?: Map<string, ArrayBuffer>;
   auditLogs: Array<{ id: string; actorUserId?: string | undefined; workspaceId?: string | undefined; action: string; metadata: unknown; createdAt: string }> = [];
 }

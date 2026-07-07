@@ -2,6 +2,7 @@ import { URL } from "node:url";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 import {
   addChannelMemberSchema,
   addWorkspaceMemberSchema,
@@ -14,6 +15,7 @@ import {
   createWorkspaceSchema,
   editMessageSchema,
   forwardMessageSchema,
+  idSchema,
   loginRequestSchema,
   paginationSchema,
   reactMessageSchema,
@@ -178,6 +180,25 @@ export const createHttpApp = () => {
     return c.json(toResponse(messageService.forward(c.get("userId"), requiredParam(c.req.param("id")), input.targetChannelId, input.clientMsgId)));
   });
   app.post("/api/v1/messages/:id/save", authRequired, (c) => c.json(toResponse(messageService.save(c.get("userId"), requiredParam(c.req.param("id"))))));
+
+  // Pin routes
+  app.post("/api/v1/channels/:id/pins", authRequired, zValidator("json", z.object({ messageId: idSchema })), (c) => {
+    const { messageId } = c.req.valid("json");
+    const channelId = requiredParam(c.req.param("id"));
+    const result = messageService.pinMessage(c.get("userId"), channelId, messageId);
+    if ("error" in result && !result.ok) return c.json(toResponse(result as ReturnType<typeof apiFail>));
+    broadcastToChannel(channelId, { type: "channel.pin_changed", payload: { channelId, messageId, pinned: true }, timestamp: new Date().toISOString() });
+    return c.json(apiOk(result));
+  });
+  app.delete("/api/v1/channels/:id/pins/:messageId", authRequired, (c) => {
+    const channelId = requiredParam(c.req.param("id"));
+    const messageId = requiredParam(c.req.param("messageId"));
+    const result = messageService.unpinMessage(c.get("userId"), channelId, messageId);
+    if ("error" in result && !result.ok) return c.json(toResponse(result as ReturnType<typeof apiFail>));
+    broadcastToChannel(channelId, { type: "channel.pin_changed", payload: { channelId, messageId, pinned: false }, timestamp: new Date().toISOString() });
+    return c.json(apiOk(result));
+  });
+  app.get("/api/v1/channels/:id/pins", authRequired, (c) => c.json(toResponse(messageService.listPins(c.get("userId"), requiredParam(c.req.param("id"))))));
 
   app.post("/api/v1/attachments/upload-sessions", authRequired, zValidator("json", uploadSessionCreateSchema), (c) => c.json(toResponse(attachmentService.createUploadSession(c.get("userId"), c.req.valid("json"))), 201));
   app.post("/api/v1/attachments/upload-sessions/:id/complete", authRequired, (c) => c.json(toResponse(attachmentService.completeUpload(c.get("userId"), requiredParam(c.req.param("id"))))));

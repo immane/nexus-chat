@@ -214,5 +214,31 @@ export const messageService = {
       }));
     }
     return result;
+  },
+  pinMessage(actorId: string, channelId: string, messageId: string): { pinned: true } | ReturnType<typeof apiFail> {
+    const channel = store.channels.get(channelId);
+    if (!channel || !workspaceService.canManageChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    const message = store.messages.get(messageId);
+    if (!message || message.channelId !== channelId || message.state === "deleted") return apiFail("NOT_FOUND", "Message not found in channel");
+    if (!store.pinnedMessages.has(channelId)) store.pinnedMessages.set(channelId, new Set());
+    const pins = store.pinnedMessages.get(channelId)!;
+    if (pins.has(messageId)) return { pinned: true };
+    if (pins.size >= 50) return apiFail("FORBIDDEN", "Max 50 pinned messages per channel");
+    pins.add(messageId);
+    return { pinned: true };
+  },
+  unpinMessage(actorId: string, channelId: string, messageId: string): { pinned: false } | ReturnType<typeof apiFail> {
+    const channel = store.channels.get(channelId);
+    if (!channel || !workspaceService.canManageChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    const pins = store.pinnedMessages.get(channelId);
+    if (!pins || !pins.has(messageId)) return apiFail("NOT_FOUND", "Message not pinned");
+    pins.delete(messageId);
+    return { pinned: false };
+  },
+  listPins(actorId: string, channelId: string): Message[] | ReturnType<typeof apiFail> {
+    if (!workspaceService.canAccessChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    const pins = store.pinnedMessages.get(channelId);
+    if (!pins) return [];
+    return [...pins].flatMap((id) => store.messages.get(id) ?? []).filter((m) => m.state !== "deleted");
   }
 };
