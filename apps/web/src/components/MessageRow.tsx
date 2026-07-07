@@ -33,15 +33,15 @@ export const MessageRow = ({
 }) => {
   const settings = useUiStore((state) => state.settings);
   const messagesMap = useMessageStore((state) => state.messages);
+  const currentUserId = useMessageStore((state) => state.currentUserId);
+  const isSelf = currentUserId ? message.senderId === currentUserId : false;
   const isLight = settings.theme === "light";
   const time = new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState("");
-  const [showReactionPicker, setShowReactionPicker] = useState(false);
 
-  const themeCard = isLight ? "bg-white ring-slate-200" : "bg-slate-900/80 ring-slate-800";
-  const compactMsg = settings.compactMode ? "mx-2 my-1 p-2 text-xs" : "mx-4 my-2 p-4 text-sm";
+  const compactMsg = settings.compactMode ? "mx-2 my-1 px-2 py-1 text-xs" : "mx-4 my-1 px-4 py-1 text-sm";
   const [sendStatus, transportLabel] = status?.split(" · ") ?? [];
   const transportName = transportLabel?.startsWith("p2p") ? "p2p" : transportLabel?.startsWith("relay") ? "relay" : undefined;
 
@@ -78,7 +78,7 @@ export const MessageRow = ({
   const ciphertextContent = isCiphertext ? (message.content as { type: "ciphertext"; ciphertext: string; algorithm: string; senderDeviceId: string; readOnce: boolean; expiresAt?: string; attachments: unknown[] }) : null;
   const policyLabel = ciphertextContent && ciphertextContent.readOnce ? "Read once" : ciphertextContent && ciphertextContent.expiresAt ? "Disappearing" : undefined;
   const body = message.content.type === "text" ? message.content.text : decryptedText ?? "Decrypting encrypted message...";
-  const senderStyle = isLight ? "text-slate-700" : "text-slate-300";
+  const senderStyle = isSelf ? "text-amber-400" : isLight ? "text-slate-700" : "text-slate-300";
   const metaStyle = isLight ? "text-slate-400" : "text-slate-500";
   const bodyStyle = isLight ? "text-slate-800" : "text-slate-100";
   const canEdit = message.content.type === "text" && !message.editedAt;
@@ -90,18 +90,18 @@ export const MessageRow = ({
     { label: "Forward", icon: "↗", onClick: onForward },
     { label: "Edit", icon: "✏", disabled: !canEdit, onClick: startEdit },
     { label: "Delete", icon: "🗑", danger: true, onClick: onDelete },
-    { label: "React", icon: "😀", onClick: () => { setShowReactionPicker(!showReactionPicker); closeMenu(); } }
+    { label: "React", icon: "😀", onClick: () => { onReact("👍"); closeMenu(); } }
   ];
 
   const reactionEmojis = reactions ? Object.entries(reactions) : [];
-  const reactionBar = isLight ? "border-slate-200 text-slate-600" : "border-slate-700 text-slate-400";
   const replyTarget = message.replyToMessageId ? messagesMap.get(message.replyToMessageId) : undefined;
 
   return (
     <>
-      <article className={`group rounded-2xl ${themeCard} ${compactMsg} shadow-sm`} onContextMenu={handleContextMenu}>
+      <article className="group" onContextMenu={handleContextMenu}>
+        <div className={compactMsg}>
         <div className={`mb-2 flex items-center gap-2 text-xs ${metaStyle}`}>
-          <span className={`font-medium ${senderStyle}`}>{senderName ?? message.senderId.slice(0, 12)}</span>
+          <span className={`font-bold ${senderStyle}`}>{senderName ?? message.senderId.slice(0, 12)}</span>
           <span>{time}</span>
           {message.editedAt ? <span className="italic">edited</span> : null}
           {policyLabel ? <Badge tone="warning">{policyLabel}</Badge> : null}
@@ -110,7 +110,7 @@ export const MessageRow = ({
         </div>
         {replyTarget ? (
           <div className={`mb-2 rounded-lg border-l-2 px-3 py-1.5 text-xs ${isLight ? "border-sky-400 bg-sky-50 text-slate-600" : "border-sky-500 bg-sky-500/10 text-slate-400"}`}>
-            <span className="font-medium text-sky-400">Replying to {replyTarget.senderId.slice(0, 10)}</span>
+            <span className="font-bold text-sky-400">Replying to {replyTarget.senderId.slice(0, 10)}</span>
             <span className="ml-2 line-clamp-1">{replyTarget.content.type === "text" ? replyTarget.content.text.slice(0, 80) : replyTarget.content.type === "ciphertext" ? "Encrypted message" : "Message"}</span>
           </div>
         ) : null}
@@ -133,7 +133,7 @@ export const MessageRow = ({
           <p className={`whitespace-pre-wrap text-sm leading-6 ${bodyStyle}`}>{body}</p>
         )}
         {isNotCiphertext ? (
-          <div className={`mt-2 flex items-center gap-1 border-t ${reactionBar} pt-2`}>
+          <div className="mt-1 flex items-center gap-1 pt-1">
             {reactionEmojis.map(([emoji, info]) => (
               <button
                 key={emoji}
@@ -145,24 +145,9 @@ export const MessageRow = ({
                 {emoji} {info.count > 1 ? info.count : null}
               </button>
             ))}
-            <div className="relative ml-1">
-              <button
-                className={`rounded-full px-2 py-0.5 text-xs transition ${isLight ? "bg-slate-100 hover:bg-slate-200 text-slate-500" : "bg-slate-800 hover:bg-slate-700 text-slate-400"}`}
-                type="button"
-                onClick={() => setShowReactionPicker(!showReactionPicker)}
-              >
-                +{showReactionPicker ? "✕" : ""}
-              </button>
-              {showReactionPicker ? (
-                <div className={`absolute bottom-full left-0 mb-1 flex gap-1 rounded-xl border p-1 shadow-lg ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}>
-                  {["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉"].map((e) => (
-                    <button key={e} className="rounded-lg px-1.5 py-0.5 text-sm hover:bg-slate-700 transition" type="button" onClick={() => { onReact(e); setShowReactionPicker(false); }}>{e}</button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
           </div>
         ) : null}
+        </div>
       </article>
       {menuPos ? <ContextMenu x={menuPos.x} y={menuPos.y} items={menuItems} onClose={closeMenu} /> : null}
     </>

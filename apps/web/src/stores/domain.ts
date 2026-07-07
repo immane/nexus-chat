@@ -115,6 +115,8 @@ export const useMessageStore = create<{
   order: string[];
   sendStatusByClientId: Record<string, MessageSendStatus>;
   reactions: Record<string, Record<string, { count: number; reacted: boolean }>>;
+  currentUserId: string | undefined;
+  setCurrentUser: (userId: string) => void;
   upsert: (message: Message, status?: MessageSendStatus) => void;
   sendOptimistic: (message: Message) => void;
   markFailed: (clientMsgId: string) => void;
@@ -125,6 +127,7 @@ export const useMessageStore = create<{
   order: [],
   sendStatusByClientId: {},
   reactions: {},
+  currentUserId: undefined,
   upsert: (message, status = "sent") => set((state) => {
     const messages = new Map(state.messages);
     messages.set(message.id, message);
@@ -150,7 +153,8 @@ export const useMessageStore = create<{
     else messageReactions[emoji] = { count, reacted };
     return { reactions: { ...state.reactions, [messageId]: messageReactions } };
   }),
-  clear: () => set({ messages: new Map(), order: [], sendStatusByClientId: {}, reactions: {} })
+  setCurrentUser: (userId) => set({ currentUserId: userId }),
+  clear: () => set({ messages: new Map(), order: [], sendStatusByClientId: {}, reactions: {}, currentUserId: undefined })
 }));
 
 export const usePresenceStore = create<{ onlineUserIds: Set<string>; setOnline: (userId: string, online: boolean) => void }>((set) => ({

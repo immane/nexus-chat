@@ -32,6 +32,7 @@ import PolicyControl from "./PolicyControl.js";
 
 const ChatRoute = () => {
   const user = useAuthStore((state) => state.user);
+  const setMessageCurrentUser = useMessageStore((state) => state.setCurrentUser);
   const accessToken = useAuthStore((state) => state.accessToken);
   const workspaces = useWorkspaceStore((state) => state.workspaces);
   const channels = useChannelStore((state) => state.channels);
@@ -191,6 +192,11 @@ const ChatRoute = () => {
 
     return () => { cancelled = true; };
   }, [accessToken, channelMessages, decryptedMessages, user]);
+
+  // Keep message store's currentUserId in sync
+  useEffect(() => {
+    if (user) setMessageCurrentUser(user.id);
+  }, [user, setMessageCurrentUser]);
 
   // Verify persisted token on mount; clear if expired
   useEffect(() => {
