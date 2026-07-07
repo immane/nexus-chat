@@ -114,14 +114,20 @@ export const useMessageStore = create<{
   messages: Map<string, Message>;
   order: string[];
   sendStatusByClientId: Record<string, MessageSendStatus>;
+  reactions: Record<string, Record<string, { count: number; reacted: boolean }>>;
+  currentUserId: string | undefined;
+  setCurrentUser: (userId: string) => void;
   upsert: (message: Message, status?: MessageSendStatus) => void;
   sendOptimistic: (message: Message) => void;
   markFailed: (clientMsgId: string) => void;
+  setReaction: (messageId: string, emoji: string, count: number, reacted: boolean) => void;
   clear: () => void;
 }>((set) => ({
   messages: new Map(),
   order: [],
   sendStatusByClientId: {},
+  reactions: {},
+  currentUserId: undefined,
   upsert: (message, status = "sent") => set((state) => {
     const messages = new Map(state.messages);
     messages.set(message.id, message);
@@ -141,7 +147,14 @@ export const useMessageStore = create<{
     };
   }),
   markFailed: (clientMsgId) => set((state) => ({ sendStatusByClientId: { ...state.sendStatusByClientId, [clientMsgId]: "failed" } })),
-  clear: () => set({ messages: new Map(), order: [], sendStatusByClientId: {} })
+  setReaction: (messageId, emoji, count, reacted) => set((state) => {
+    const messageReactions = { ...(state.reactions[messageId] ?? {}) };
+    if (count === 0) delete messageReactions[emoji];
+    else messageReactions[emoji] = { count, reacted };
+    return { reactions: { ...state.reactions, [messageId]: messageReactions } };
+  }),
+  setCurrentUser: (userId) => set({ currentUserId: userId }),
+  clear: () => set({ messages: new Map(), order: [], sendStatusByClientId: {}, reactions: {}, currentUserId: undefined })
 }));
 
 export const usePresenceStore = create<{ onlineUserIds: Set<string>; setOnline: (userId: string, online: boolean) => void }>((set) => ({
@@ -176,23 +189,28 @@ export type AppSettings = {
   soundEnabled: boolean;
   notificationsEnabled: boolean;
 };
+export type DmTransportMode = "auto" | "relay" | "p2p";
 
 export const useUiStore = create<{
   sidebarOpen: boolean;
   messageDraft: string;
   disappearingPolicy: DisappearingDraftPolicy;
   settings: AppSettings;
+  dmTransportMode: DmTransportMode;
   setSidebarOpen: (open: boolean) => void;
   setMessageDraft: (messageDraft: string) => void;
   setDisappearingPolicy: (disappearingPolicy: DisappearingDraftPolicy) => void;
   updateSettings: (patch: Partial<AppSettings>) => void;
+  setDmTransportMode: (mode: DmTransportMode) => void;
 }>((set) => ({
   sidebarOpen: true,
   messageDraft: "",
   disappearingPolicy: { mode: "none" },
   settings: { theme: "dark", compactMode: false, soundEnabled: false, notificationsEnabled: true },
+  dmTransportMode: "auto",
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setMessageDraft: (messageDraft) => set({ messageDraft }),
   setDisappearingPolicy: (disappearingPolicy) => set({ disappearingPolicy }),
-  updateSettings: (patch) => set((state) => ({ settings: { ...state.settings, ...patch } }))
+  updateSettings: (patch) => set((state) => ({ settings: { ...state.settings, ...patch } })),
+  setDmTransportMode: (dmTransportMode) => set({ dmTransportMode })
 }));

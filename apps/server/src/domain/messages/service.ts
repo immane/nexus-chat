@@ -32,6 +32,11 @@ export const messageService = {
     if (!channel || channel.workspaceId !== input.workspaceId || !workspaceService.canAccessChannel(actorId, input.channelId)) return apiFail("FORBIDDEN", "Channel access denied");
     if (channel.mode === "e2e" && input.content.type !== "ciphertext") return apiFail("VALIDATION_FAILED", "E2E channels accept ciphertext only");
     if (channel.mode === "normal" && input.content.type === "ciphertext") return apiFail("VALIDATION_FAILED", "Normal channels accept plaintext message content");
+    if (input.replyToMessageId) {
+      const repliedTo = store.messages.get(input.replyToMessageId);
+      if (!repliedTo || repliedTo.channelId !== input.channelId || repliedTo.state === "deleted") return apiFail("NOT_FOUND", "Reply target not found or deleted");
+      if (!workspaceService.canAccessChannel(actorId, repliedTo.channelId)) return apiFail("FORBIDDEN", "Cannot reply to this message");
+    }
     const idempotencyKey = `${actorId}:${input.clientMsgId}`;
     const existingId = store.messagesByClientId.get(idempotencyKey);
     if (existingId) return store.messages.get(existingId) ?? apiFail("CONFLICT", "Message idempotency conflict");
@@ -47,6 +52,7 @@ export const messageService = {
       senderId: actorId,
       clientMsgId: input.clientMsgId,
       content: input.content,
+      replyToMessageId: input.replyToMessageId,
       state: "sent",
       createdAt: nowIso()
     });
@@ -185,5 +191,54 @@ export const messageService = {
       if (unread > 0) result[channel.id] = unread;
     }
     return result;
+  },
+  getReactions(actorId: string, channelId: string): Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> {
+    if (!workspaceService.canAccessChannel(actorId, channelId)) return {};
+    const reactions = [...store.messageReactions.values()].filter((r) => {
+      const msg = store.messages.get(r.messageId);
+      return msg && msg.channelId === channelId;
+    });
+    const grouped: Record<string, Record<string, { count: number; userIds: Set<string> }>> = {};
+    for (const r of reactions) {
+      if (!grouped[r.messageId]) grouped[r.messageId] = {};
+      if (!grouped[r.messageId]![r.emoji]) grouped[r.messageId]![r.emoji] = { count: 0, userIds: new Set() };
+      grouped[r.messageId]![r.emoji]!.count += 1;
+      grouped[r.messageId]![r.emoji]!.userIds.add(r.userId);
+    }
+    const result: Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> = {};
+    for (const [msgId, emojis] of Object.entries(grouped)) {
+      result[msgId] = Object.entries(emojis).map(([emoji, info]) => ({
+        emoji,
+        count: info.count,
+        reacted: info.userIds.has(actorId)
+      }));
+    }
+    return result;
+  },
+  pinMessage(actorId: string, channelId: string, messageId: string): { pinned: true } | ReturnType<typeof apiFail> {
+    const channel = store.channels.get(channelId);
+    if (!channel || !workspaceService.canManageChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    const message = store.messages.get(messageId);
+    if (!message || message.channelId !== channelId || message.state === "deleted") return apiFail("NOT_FOUND", "Message not found in channel");
+    if (!store.pinnedMessages.has(channelId)) store.pinnedMessages.set(channelId, new Set());
+    const pins = store.pinnedMessages.get(channelId)!;
+    if (pins.has(messageId)) return { pinned: true };
+    if (pins.size >= 50) return apiFail("FORBIDDEN", "Max 50 pinned messages per channel");
+    pins.add(messageId);
+    return { pinned: true };
+  },
+  unpinMessage(actorId: string, channelId: string, messageId: string): { pinned: false } | ReturnType<typeof apiFail> {
+    const channel = store.channels.get(channelId);
+    if (!channel || !workspaceService.canManageChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    const pins = store.pinnedMessages.get(channelId);
+    if (!pins || !pins.has(messageId)) return apiFail("NOT_FOUND", "Message not pinned");
+    pins.delete(messageId);
+    return { pinned: false };
+  },
+  listPins(actorId: string, channelId: string): Message[] | ReturnType<typeof apiFail> {
+    if (!workspaceService.canAccessChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    const pins = store.pinnedMessages.get(channelId);
+    if (!pins) return [];
+    return [...pins].flatMap((id) => store.messages.get(id) ?? []).filter((m) => m.state !== "deleted");
   }
 };

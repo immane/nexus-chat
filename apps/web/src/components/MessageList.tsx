@@ -3,6 +3,7 @@ import type { Message } from "@nexus-chat/shared";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import type { TransportLabel } from "./signal-helpers.js";
 import { MessageRow } from "./MessageRow.js";
+import { formatDateSeparator } from "../lib/markdown.js";
 
 export const MessageList = ({
   messages,
@@ -11,7 +12,13 @@ export const MessageList = ({
   transportLabels = {},
   readReceipts = {},
   senderNames = {},
-  onMessagesVisible
+  onMessagesVisible,
+  onReply,
+  onForward,
+  onEdit,
+  onDelete,
+  onCopy,
+  onReact
 }: {
   messages: Message[];
   statuses?: Record<string, string>;
@@ -20,6 +27,12 @@ export const MessageList = ({
   readReceipts?: Record<string, number>;
   senderNames?: Record<string, string>;
   onMessagesVisible?: (messageIds: string[]) => void;
+  onReply: (message: Message) => void;
+  onForward: (message: Message) => void;
+  onEdit: (messageId: string, newText: string) => Promise<void>;
+  onDelete: (messageId: string) => void;
+  onCopy: (message: Message) => void;
+  onReact: (messageId: string, emoji: string) => void;
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const pendingRef = useRef<string[]>([]);
@@ -51,15 +64,34 @@ export const MessageList = ({
         if (timerRef.current) clearTimeout(timerRef.current);
         timerRef.current = setTimeout(flushAcks, 500);
       }}
-      itemContent={(_, message) => {
+      itemContent={(index, message) => {
         const decryptedText = decryptedMessages[message.id];
         const devStatus = import.meta.env.DEV && transportLabels[message.clientMsgId] ? `${statuses[message.clientMsgId] ?? "sent"} · ${transportLabels[message.clientMsgId]}` : statuses[message.clientMsgId];
-        const rc = readReceipts[message.id];
         const sn = senderNames[message.senderId];
-        const rowProps = { message, status: devStatus, senderName: sn } as { message: typeof message; status: string | undefined; readCount?: number; decryptedText?: string; senderName?: string };
-        if (rc !== undefined) rowProps.readCount = rc;
-        if (decryptedText !== undefined) rowProps.decryptedText = decryptedText as string;
-        return <MessageRow {...rowProps} />;
+        const prev = index > 0 ? messages[index - 1] : undefined;
+        const showDate = !prev || new Date(prev.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
+        return (
+          <>
+            {showDate ? (
+              <div className="my-2 text-center">
+                <span className="inline-block rounded-full bg-slate-800 px-4 py-1 text-xs text-slate-400">{formatDateSeparator(message.createdAt)}</span>
+              </div>
+            ) : null}
+            <MessageRow
+              message={message}
+              status={devStatus}
+              senderName={sn}
+              readCount={readReceipts[message.id] as number | undefined}
+              decryptedText={decryptedText as string | undefined}
+              onReply={() => onReply(message)}
+              onForward={() => onForward(message)}
+              onEdit={(newText) => onEdit(message.id, newText)}
+              onDelete={() => onDelete(message.id)}
+              onCopy={() => onCopy(message)}
+              onReact={(emoji) => onReact(message.id, emoji)}
+            />
+          </>
+        );
       }}
     />
   );

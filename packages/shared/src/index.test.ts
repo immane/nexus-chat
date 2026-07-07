@@ -25,6 +25,7 @@ import {
   loginRequestSchema,
   messageSchema,
   normalMessageContentSchema,
+  nowIso,
   p2pAnswerSchema,
   p2pHangupSchema,
   p2pIceCandidateSchema,
@@ -35,7 +36,8 @@ import {
   sendMessageSchema,
   signalPreKeyBundleSchema,
   uploadSessionCreateSchema,
-  wsEnvelopeSchema
+  wsEnvelopeSchema,
+  wsServerEventSchema
 } from "./index.js";
 
 describe("shared contracts", () => {
@@ -69,6 +71,7 @@ describe("shared contracts", () => {
     expect(() => loginRequestSchema.parse({ email: "bad", password: "x" })).toThrow();
     expect(apiOk({ ok: true }).ok).toBe(true);
     expect(apiFail("FORBIDDEN", "no").error.code).toBe("FORBIDDEN");
+    expect(nowIso()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     expect(ApiSuccessSchema.parse({ ok: true, data: { value: 1 }, requestId: "req-1" }).requestId).toBe("req-1");
     expect(ApiErrorSchema.parse({ ok: false, error: { code: "FORBIDDEN", message: "no" }, requestId: "req-1" }).error.code).toBe("FORBIDDEN");
     expect(() => ApiSuccessSchema.parse({ ok: true, data: null })).toThrow();
@@ -100,6 +103,7 @@ describe("shared contracts", () => {
     expect(uploadSessionCreateSchema.parse({ workspaceId: "workspace-1", fileName: "a.txt", contentType: "text/plain", sizeBytes: 1 }).encrypted).toBe(false);
     expect(signalPreKeyBundleSchema.parse({ userId: "user-123", deviceId: "device-1", identityKey: "i", signedPreKeyId: 1, signedPreKey: "s", signedPreKeySignature: "sig" }).deviceId).toBe("device-1");
     expect(wsEnvelopeSchema.parse({ type: "message.send", payload: {}, timestamp: new Date().toISOString() }).encrypted).toBe(false);
+    expect(wsServerEventSchema.options).toEqual(expect.arrayContaining(["channel.created", "channel.pin_changed", "dm.created"]));
     expect(WsMessageSendEnvelopeSchema.parse({ type: "message.send", payload: { workspaceId: "workspace-1", channelId: "channel-1", clientMsgId: "client-1", content: { type: "text", text: "hello", attachments: [] } }, timestamp: new Date().toISOString() }).payload.clientMsgId).toBe("client-1");
     expect(WsBotCommandInvokeEnvelopeSchema.parse({ type: "bot.command.invoke", payload: { type: "bot.command.invoke", workspaceId: "workspace-1", channelId: "channel-1", botName: "HelpBot", command: "help", args: [] }, timestamp: new Date().toISOString() }).payload.botName).toBe("HelpBot");
     expect(() => WsMessageSendEnvelopeSchema.parse({ type: "message.send", payload: { bad: true }, timestamp: new Date().toISOString() })).toThrow();

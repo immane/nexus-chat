@@ -9,6 +9,7 @@ import { workspaceService } from "../domain/workspaces/service.js";
 import { logger } from "../observability/logger.js";
 import { wsConnections } from "../observability/metrics.js";
 import { handleClientEnvelope } from "./gateway.js";
+import { setIO } from "./broadcast.js";
 
 const isAllowedOrigin = (origin: string | undefined) => {
   if (!origin) return false;
@@ -24,6 +25,7 @@ const isAllowedOrigin = (origin: string | undefined) => {
 const createBroadcaster = (io: Server) => ({
   toChannel: (channelId: string, event: unknown) => io.to(`channel:${channelId}`).emit("event", event),
   toUser: (targetUserId: string, event: unknown) => io.to(`user:${targetUserId}`).emit("event", event),
+  toWorkspace: (workspaceId: string, event: unknown) => io.to(`workspace:${workspaceId}`).emit("event", event),
   relayP2pToUser: (targetUserId: string, envelope: unknown) => io.to(`user:${targetUserId}`).emit("event", envelope)
 });
 
@@ -34,6 +36,7 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     pingInterval: 30000,
     pingTimeout: 10000
   });
+  setIO(io);
 
   io.use((socket, next) => {
     if (socket.nsp?.name === "/bots") return next();
@@ -47,11 +50,33 @@ export const attachSocketServer = (httpServer: HttpServer) => {
   io.on("connection", (socket) => {
     const userId = socket.data.userId as string;
     wsConnections.inc();
+    const wasOffline = !store.onlineConnections.has(userId);
+    store.onlineConnections.set(userId, (store.onlineConnections.get(userId) ?? 0) + 1);
     socket.join(`user:${userId}`);
+    for (const workspace of store.workspaces.values()) {
+      if (workspaceService.canAccessWorkspace(userId, workspace.id)) socket.join(`workspace:${workspace.id}`);
+    }
     for (const channel of store.channels.values()) {
       if (workspaceService.canAccessChannel(userId, channel.id)) socket.join(`channel:${channel.id}`);
     }
     logger.info({ userId, socketId: socket.id }, "WebSocket connected");
+
+    // Send existing online users to the connecting client
+    for (const [uid] of store.onlineConnections) {
+      if (uid !== userId) {
+        socket.emit("event", { type: "presence.updated", payload: { userId: uid, status: "online" }, timestamp: new Date().toISOString() });
+      }
+    }
+
+    // Broadcast this user's online status only if they were offline (first connection)
+    if (wasOffline) {
+      const onlineEvent = { type: "presence.updated", payload: { userId, status: "online" }, timestamp: new Date().toISOString() };
+      for (const workspace of store.workspaces.values()) {
+        if (workspaceService.canAccessWorkspace(userId, workspace.id)) {
+          io.to(`workspace:${workspace.id}`).emit("event", onlineEvent);
+        }
+      }
+    }
 
     socket.on("event", (raw, callback?: (response: unknown) => void) => {
       const result = handleClientEnvelope(userId, raw, createBroadcaster(io));
@@ -60,6 +85,16 @@ export const attachSocketServer = (httpServer: HttpServer) => {
 
     socket.on("disconnect", () => {
       wsConnections.dec();
+      const count = (store.onlineConnections.get(userId) ?? 1) - 1;
+      if (count <= 0) {
+        store.onlineConnections.delete(userId);
+        const presenceEvent = { type: "presence.updated", payload: { userId, status: "offline" }, timestamp: new Date().toISOString() };
+        for (const ws of workspaceService.listWorkspaces(userId)) {
+          io.to(`workspace:${ws.id}`).emit("event", presenceEvent);
+        }
+      } else {
+        store.onlineConnections.set(userId, count);
+      }
       logger.info({ userId, socketId: socket.id }, "WebSocket disconnected");
     });
   });

@@ -116,6 +116,7 @@ export const channelSchema = z.object({
   id: idSchema,
   workspaceId: idSchema,
   name: z.string().min(1).max(120),
+  description: z.string().max(500).optional(),
   kind: channelKindSchema,
   mode: channelModeSchema,
   isPrivate: z.boolean(),
@@ -203,6 +204,7 @@ export const messageSchema = z.object({
   clientMsgId: z.string().min(1).max(128),
   content: messageContentSchema,
   state: messageStateSchema,
+  replyToMessageId: idSchema.optional(),
   originalMessageId: idSchema.optional(),
   originalSenderId: idSchema.optional(),
   originalCreatedAt: isoDateSchema.optional(),
@@ -215,7 +217,8 @@ export const sendMessageSchema = z.object({
   workspaceId: idSchema,
   channelId: idSchema,
   clientMsgId: z.string().min(1).max(128),
-  content: messageContentSchema
+  content: messageContentSchema,
+  replyToMessageId: idSchema.optional()
 });
 
 export const editMessageSchema = z.object({ text: z.string().min(1).max(8000) });
@@ -243,6 +246,9 @@ export const wsServerEventSchema = z.enum([
   "message.read",
   "presence.updated",
   "typing.updated",
+  "channel.created",
+  "channel.pin_changed",
+  "dm.created",
   "bot.response",
   "error",
   "p2p.offer",

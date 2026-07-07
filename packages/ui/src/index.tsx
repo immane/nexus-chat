@@ -11,7 +11,7 @@ export const Badge = ({ children, tone = "neutral" }: PropsWithChildren<{ tone?:
 };
 
 export const InputActionBar = ({ children, actions }: PropsWithChildren<{ actions?: ReactNode }>) => (
-  <div className="border-t border-slate-800 bg-slate-950/95 p-3">
+  <div className="bg-slate-950/95 p-3">
     {actions ? <div className="mb-2 flex flex-wrap items-center gap-2">{actions}</div> : null}
     <div className="flex items-center gap-2">{children}</div>
   </div>
