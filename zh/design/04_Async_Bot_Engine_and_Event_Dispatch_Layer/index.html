@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 99.8% statement coverage.">
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 24/24 tasks, 100% coverage, 89 tests.">
       
       
       
@@ -1592,6 +1592,18 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -2269,6 +2281,216 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/19-phase-1-web-message-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — Web 消息操作和上下文菜单
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/20-phase-1-web-message-display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — Web 消息显示和格式化
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/21-phase-1-web-rich-media/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 网络富媒体和表情符号选择器
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/22-phase-1-web-presence-notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 网络呈现、渠道信息和通知
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/23-phase-1-server-message-reply-pin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 服务器消息回复和 Pin 图
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/24-phase-1-server-channel-mute-description/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 服务器通道静音和描述
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2284,6 +2506,8 @@
   
     
     
+      
+        
       
         
       
@@ -2529,6 +2753,34 @@
     
   
     AI Agent 编排与流式交互设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/telegram-interface-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telegram 接口分析
   
 
     
@@ -3864,17 +4116,19 @@
 </blockquote>
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>1.<a href="#1-bot-engine-overview">Bot Engine Overview</a>
-2. <a href="#2-event-pipeline">Event Pipeline</a>
-3. <a href="#3-bot-connection-management">Bot Connection Management</a>
-4. <a href="#4-bot-sdk-design-typescript">Bot SDK Design (TypeScript)</a>
-5.<a href="#5-slash-command-framework">Slash Command Framework</a>
-6. <a href="#6-webhook-delivery-phase-15">Webhook Delivery (Phase 1.5)</a>
-7.<a href="#7-task-queue-design-bullmq">Task Queue Design (BullMQ)</a>
-8.<a href="#8-bot-permissions--security">Bot Permissions &amp; Security</a>
+<ol>
+<li><a href="#1-bot-engine-overview">Bot Engine Overview</a>
+2.<a href="#2-event-pipeline">Event Pipeline</a></li>
+<li><a href="#3-bot-connection-management">Bot Connection Management</a></li>
+<li><a href="#4-bot-sdk-design-typescript">Bot SDK Design (TypeScript)</a>
+5.<a href="#5-slash-command-framework">Slash Command Framework</a></li>
+<li><a href="#6-webhook-delivery-phase-15">Webhook Delivery (Phase 1.5)</a>
+7.<a href="#7-task-queue-design-bullmq">Task Queue Design (BullMQ)</a></li>
+<li><a href="#8-bot-permissions--security">Bot Permissions &amp; Security</a>
 9.<a href="#9-monitoring--observability">Monitoring &amp; Observability</a>
-10. <a href="#10-streaming-message-protocol-extension">Streaming Message Protocol Extension</a>
-11. <a href="#11-base-bot-catalog-integration">Base Bot Catalog Integration</a></p>
+10.<a href="#10-streaming-message-protocol-extension">Streaming Message Protocol Extension</a></li>
+<li><a href="#11-base-bot-catalog-integration">Base Bot Catalog Integration</a></li>
+</ol>
 <hr />
 <h2 id="1">1. 机器人引擎概述<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <h3 id="11">1.1 目的<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
@@ -4927,7 +5181,7 @@
 </tr>
 <tr>
 <td>无法访问其他工作区</td>
-<td>来自令牌上下文的每个查询的范围都是 <code>workspace_id</code></td>
+<td>来自令牌上下文的每个查询的范围为 <code>workspace_id</code></td>
 </tr>
 <tr>
 <td>不能超出声明的范围</td>
@@ -5078,7 +5332,7 @@
 <tr>
 <th>警报</th>
 <th>状况</th>
-<th>严重性</th>
+<th>严重程度</th>
 <th>行动</th>
 </tr>
 </thead>

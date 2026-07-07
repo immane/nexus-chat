@@ -1,0 +1,3989 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 24/24 tasks, 100% coverage, 89 tests.">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/research/telegram-interface-analysis/">
+      
+      
+        <link rel="prev" href="../ai-agent-orchestration/">
+      
+      
+        <link rel="next" href="../../sdk/nodejs/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Telegram Interface Analysis - Nexus Chat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#telegram-interface-feature-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Telegram Interface Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../README.zh-CN.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中文首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../QUICKSTART.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/00_System_High_Level_Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System High-Level Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Shell & UI Rendering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long Connection & Core Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic & Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async Bot Engine & Event Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration & Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/06_Phase_Roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/07_P2P_DM_Direct_Connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P DM Direct Connection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Tasks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Implementation Tasks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/01-phase-1-project-scaffold/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Project Scaffold
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/02-phase-1-shared-contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Shared Contracts
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/03-phase-1-database-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Database Schema
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/04-phase-1-auth-session-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Auth & Security
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/05-phase-1-core-gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Core Gateway
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/06-phase-1-workspace-channel-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Workspace & Channel
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/07-phase-1-message-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Message Service
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/08-phase-1-attachment-service-foundation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Attachment Foundation
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/09-phase-1-signal-dm-e2ee/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Signal DM E2EE
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/10-phase-1-bot-engine-core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Bot Engine Core
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/11-phase-1-bot-sdk-node-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Node Bot SDK
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/12-phase-1-base-bots-minimal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Minimal Base Bots
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/13-phase-1-web-client-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Web Client Shell
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/14-phase-1-electron-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Electron Shell
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/15-phase-1-observability-security-hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Observability & Hardening
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/16-phase-1-local-dev-ci-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Local Dev, CI & Release
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/17-phase-1-tui-cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — TUI CLI
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/18-phase-1-p2p-dm-direct/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — P2P DM Direct Connection
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/19-phase-1-web-message-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Web Message Actions & Context Menu
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/20-phase-1-web-message-display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Web Message Display & Formatting
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/21-phase-1-web-rich-media/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Web Rich Media & Emoji Picker
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/22-phase-1-web-presence-notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Web Presence, Channel Info & Notifications
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/23-phase-1-server-message-reply-pin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Server Message Reply & Pin
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/24-phase-1-server-channel-mute-description/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Server Channel Mute & Description
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend IM & State Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI Components & Plugin Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot Engine & Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Defense & E2EE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base Bot Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telegram Interface Analysis
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telegram Interface Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-chat-messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Chat &amp; Messaging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Chat &amp; Messaging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#message-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-reactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Reactions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-channels-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Channels &amp; Groups
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Channels &amp; Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#channel-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Channel Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-types-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group Types &amp; Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Admin Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topics-forums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topics / Forums
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-11-dms-secret-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 1:1 DMs &amp; Secret Chats
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 1:1 DMs &amp; Secret Chats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#normal-dms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Normal DMs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secret-chats-e2e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret Chats (E2E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-voice-video-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Voice &amp; Video Calls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Voice &amp; Video Calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1:1 Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-voice-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group Voice Chats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#video-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Video Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-stickers-gifs-emoji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Stickers, GIFs, Emoji
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Stickers, GIFs, Emoji">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stickers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stickers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gifs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GIFs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emoji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Emoji
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-bots-mini-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Bots &amp; Mini Apps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Bots &amp; Mini Apps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bot-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bot Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mini-apps-web-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mini Apps / Web Apps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-folders-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Folders &amp; Organization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Folders &amp; Organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chat-folders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat Folders
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archived-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Archived Chats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saved-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saved Messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pinned-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pinned Chats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Search
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Notifications
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-privacy-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Privacy &amp; Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-profile-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Profile &amp; Settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-file-sharing-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. File Sharing &amp; Storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-multi-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Multi-Device
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-premium-features-499mo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Premium Features (~$4.99/mo)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-uiux-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. UI/UX Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. UI/UX Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gestures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gestures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Media
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chat-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat Interaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways-for-nexus-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Takeaways for Nexus Chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup-restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup & Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../beta-checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beta Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known-limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Limitations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-chat-messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Chat &amp; Messaging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Chat &amp; Messaging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#message-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-reactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Reactions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-channels-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Channels &amp; Groups
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Channels &amp; Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#channel-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Channel Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-types-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group Types &amp; Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Admin Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topics-forums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topics / Forums
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-11-dms-secret-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 1:1 DMs &amp; Secret Chats
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 1:1 DMs &amp; Secret Chats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#normal-dms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Normal DMs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secret-chats-e2e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret Chats (E2E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-voice-video-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Voice &amp; Video Calls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Voice &amp; Video Calls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1:1 Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-voice-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group Voice Chats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#video-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Video Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-stickers-gifs-emoji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Stickers, GIFs, Emoji
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Stickers, GIFs, Emoji">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stickers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stickers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gifs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GIFs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emoji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Emoji
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-bots-mini-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Bots &amp; Mini Apps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Bots &amp; Mini Apps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bot-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bot Capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mini-apps-web-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mini Apps / Web Apps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-folders-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Folders &amp; Organization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Folders &amp; Organization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chat-folders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat Folders
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archived-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Archived Chats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saved-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saved Messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pinned-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pinned Chats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Search
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Notifications
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-privacy-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Privacy &amp; Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-profile-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Profile &amp; Settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-file-sharing-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. File Sharing &amp; Storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-multi-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Multi-Device
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-premium-features-499mo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Premium Features (~$4.99/mo)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-uiux-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. UI/UX Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. UI/UX Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gestures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gestures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#media" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Media
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chat-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat Interaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-takeaways-for-nexus-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Takeaways for Nexus Chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="telegram-interface-feature-analysis">Telegram Interface &amp; Feature Analysis<a class="headerlink" href="#telegram-interface-feature-analysis" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Research date: 2026-07-07
+Purpose: Competitive analysis for Nexus Chat UX design</p>
+</blockquote>
+<h2 id="1-chat-messaging">1. Chat &amp; Messaging<a class="headerlink" href="#1-chat-messaging" title="Permanent link">&para;</a></h2>
+<h3 id="message-types">Message Types<a class="headerlink" href="#message-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td>Markdown: bold, italic, monospace, strikethrough, underline, quote block, spoiler, inline links</td>
+</tr>
+<tr>
+<td>Voice</td>
+<td>Tap-and-hold mic, swipe up to lock recording, animated waveform, waveform visualization on playback</td>
+</tr>
+<tr>
+<td>Video message</td>
+<td>Round "bubble" format, tap-to-play, up to 60s</td>
+</tr>
+<tr>
+<td>Stickers</td>
+<td>Static, animated (TGS ~30KB), video stickers</td>
+</tr>
+<tr>
+<td>GIFs</td>
+<td>Giphy integration, searchable, premium: 400 favorites</td>
+</tr>
+<tr>
+<td>Polls</td>
+<td>Anonymous, Visible Votes, Quiz mode with correct answer</td>
+</tr>
+<tr>
+<td>Quizzes</td>
+<td>Multi-question via @QuizBot, global leaderboards</td>
+</tr>
+<tr>
+<td>Location</td>
+<td>Live location sharing with duration timer</td>
+</tr>
+<tr>
+<td>Media albums</td>
+<td>Group up to 10 photos/videos, swipeable</td>
+</tr>
+<tr>
+<td>Dice / animated emoji</td>
+<td>Interactive, full-screen synchronized effects</td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-actions">Message Actions<a class="headerlink" href="#message-actions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Reply</strong> — swipe left on message; preview header links to original</li>
+<li><strong>Forward</strong> — option to hide sender name/captions; preserve reply context</li>
+<li><strong>Edit</strong> — shows "edited" label</li>
+<li><strong>Delete</strong> — self or everyone (48h window)</li>
+<li><strong>Pin</strong> — premium: 10 in main list, unlimited per folder</li>
+<li><strong>Copy</strong> — select portion or full copy</li>
+<li><strong>Translate</strong> — per-message translate button</li>
+<li><strong>Schedule</strong> — long-press Send &gt; Schedule; reminders via Saved Messages</li>
+<li><strong>Silent messages</strong> — long-press Send &gt; Send Without Sound</li>
+<li><strong>Message effects</strong> — 6 free, hundreds premium; animated send effects</li>
+<li><strong>Hashtags</strong> — global + per-chat search</li>
+</ul>
+<h3 id="message-reactions">Message Reactions<a class="headerlink" href="#message-reactions" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Double-tap for default 👍 (configurable)</li>
+<li>Extended reaction menu: 😁🎉😱🔥👎</li>
+<li>Premium exclusive emoji set</li>
+<li>Compact + press-and-hold larger animations</li>
+<li>Synchronized real-time reactions</li>
+<li>♡ button when unseen reactions exist</li>
+<li>Admin control per group/channel</li>
+</ul>
+<h3 id="auto-delete">Auto-Delete<a class="headerlink" href="#auto-delete" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Flexible timers in any chat: 24h, 7d, custom durations</li>
+<li>Quick toggle from chat info</li>
+</ul>
+<hr />
+<h2 id="2-channels-groups">2. Channels &amp; Groups<a class="headerlink" href="#2-channels-groups" title="Permanent link">&para;</a></h2>
+<h3 id="channel-types">Channel Types<a class="headerlink" href="#channel-types" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Public</strong> — @username, discoverable, t.me links</li>
+<li><strong>Private</strong> — invite-only, no search visibility</li>
+<li>Stats for channels &gt;50 subscribers</li>
+<li>Free: 500 channels max; premium: 1,000</li>
+</ul>
+<h3 id="group-types-limits">Group Types &amp; Limits<a class="headerlink" href="#group-types-limits" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Basic groups: up to 200 members</li>
+<li>Supergroups: up to 200,000 members</li>
+<li>Public groups: join requests + admin approval</li>
+<li>Private groups: invite links only</li>
+</ul>
+<h3 id="admin-tools">Admin Tools<a class="headerlink" href="#admin-tools" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Custom admin titles displayed on messages</li>
+<li>Granular per-member-type permissions</li>
+<li>Slow mode with visible cooldown</li>
+<li>Reaction emoji management</li>
+<li>Multiple invite links with expiry/usage limits, QR codes</li>
+<li>Join requests — approve before member can write</li>
+<li>Recent actions / admin log (full audit)</li>
+<li>Group ownership transfer</li>
+<li>Anti-spam: bot-based + AI guardians</li>
+</ul>
+<h3 id="topics-forums">Topics / Forums<a class="headerlink" href="#topics-forums" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Split large groups into subject-based subtopics</li>
+<li>Each topic acts as individual chat with own media and notification settings</li>
+<li>Admin control over topic creation</li>
+</ul>
+<hr />
+<h2 id="3-11-dms-secret-chats">3. 1:1 DMs &amp; Secret Chats<a class="headerlink" href="#3-11-dms-secret-chats" title="Permanent link">&para;</a></h2>
+<h3 id="normal-dms">Normal DMs<a class="headerlink" href="#normal-dms" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Cloud-based, synced across devices</li>
+<li>Server-client encrypted (MTProto)</li>
+<li>All standard messaging features available</li>
+</ul>
+<h3 id="secret-chats-e2e">Secret Chats (E2E)<a class="headerlink" href="#secret-chats-e2e" title="Permanent link">&para;</a></h3>
+<ul>
+<li>E2EE via MTProto</li>
+<li>Device-specific — not synced to cloud</li>
+<li>Self-destruct timer: 1s to 1 week</li>
+<li>Screenshot alerts</li>
+<li>No forwarding allowed</li>
+<li>Key verification via emoji comparison</li>
+<li>No cloud backup — exists only on 2 devices</li>
+</ul>
+<hr />
+<h2 id="4-voice-video-calls">4. Voice &amp; Video Calls<a class="headerlink" href="#4-voice-video-calls" title="Permanent link">&para;</a></h2>
+<h3 id="11-calls">1:1 Calls<a class="headerlink" href="#11-calls" title="Permanent link">&para;</a></h3>
+<ul>
+<li>E2E encrypted</li>
+<li>4-emoji key verification</li>
+<li>P2P with relay fallback</li>
+<li>AI adaptive audio quality</li>
+<li>Privacy: control who can call (Everyone / Contacts / Nobody)</li>
+</ul>
+<h3 id="group-voice-chats">Group Voice Chats<a class="headerlink" href="#group-voice-chats" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Thousands of participants</li>
+<li>Join/leave freely, talk or listen</li>
+<li>Admin-recordable</li>
+<li>Shareable invite links</li>
+</ul>
+<h3 id="video-calls">Video Calls<a class="headerlink" href="#video-calls" title="Permanent link">&para;</a></h3>
+<ul>
+<li>E2E encrypted 1:1 video</li>
+<li>Screen sharing, video streaming</li>
+<li>PiP on all platforms (pinch to resize)</li>
+<li>Dynamic backgrounds and animations</li>
+</ul>
+<hr />
+<h2 id="5-stickers-gifs-emoji">5. Stickers, GIFs, Emoji<a class="headerlink" href="#5-stickers-gifs-emoji" title="Permanent link">&para;</a></h2>
+<h3 id="stickers">Stickers<a class="headerlink" href="#stickers" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Static (webp/PNG), animated (TGS &lt;30KB), video stickers</li>
+<li>Custom sticker packs — anyone can create</li>
+<li>Premium: full-screen animations, monthly artist updates</li>
+<li>Emoji-based sticker suggestions</li>
+</ul>
+<h3 id="gifs">GIFs<a class="headerlink" href="#gifs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Giphy integration, searchable</li>
+<li>Premium: 400 favorites</li>
+</ul>
+<h3 id="emoji">Emoji<a class="headerlink" href="#emoji" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Animated emoji for single sends (❤️👍😁🔥)</li>
+<li>Interactive synchronized full-screen effects</li>
+<li>Custom emoji platform — open, premium: 500+ emoji</li>
+<li><code>:keyword</code> search for emoji suggestions</li>
+</ul>
+<hr />
+<h2 id="6-bots-mini-apps">6. Bots &amp; Mini Apps<a class="headerlink" href="#6-bots-mini-apps" title="Permanent link">&para;</a></h2>
+<h3 id="bot-capabilities">Bot Capabilities<a class="headerlink" href="#bot-capabilities" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Inline bots: <code>@botname</code> in any chat without adding</li>
+<li><code>/command</code> with autocomplete</li>
+<li>Reply keyboards (replace standard keyboard)</li>
+<li>Inline keyboards (buttons under messages)</li>
+<li>Bot menu button in profile</li>
+<li>Attachment menu integration</li>
+<li>Bot payments: 15 providers + Google/Apple Pay</li>
+<li>Seamless Telegram login authorization</li>
+<li>Admin bots with instant rights configuration</li>
+</ul>
+<h3 id="mini-apps-web-apps">Mini Apps / Web Apps<a class="headerlink" href="#mini-apps-web-apps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Full JS/HTML5 interfaces inside Telegram</li>
+<li>Match user theme (day/night, custom colors)</li>
+<li>Access native features via Telegram API</li>
+<li>Seamless auth + payments</li>
+</ul>
+<hr />
+<h2 id="7-folders-organization">7. Folders &amp; Organization<a class="headerlink" href="#7-folders-organization" title="Permanent link">&para;</a></h2>
+<h3 id="chat-folders">Chat Folders<a class="headerlink" href="#chat-folders" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Tab-based, custom categories</li>
+<li>Filter by: chat type, unread, individual selection</li>
+<li>Swipe between folder tabs</li>
+<li>Unlimited pins per folder</li>
+<li>Cross-device sync</li>
+<li>Premium: 20 folders with 200 chats each, default folder</li>
+<li>Shareable folder links</li>
+</ul>
+<h3 id="archived-chats">Archived Chats<a class="headerlink" href="#archived-chats" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Swipe left to archive</li>
+<li>Notification pops archived chat back (muted stays archived)</li>
+<li>Premium: auto-archive new non-contact chats</li>
+</ul>
+<h3 id="saved-messages">Saved Messages<a class="headerlink" href="#saved-messages" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Personal cloud storage for notes/reminders/forwarded content</li>
+<li>Scheduled messages become reminders</li>
+<li>Premium: sub-folders within Saved Messages</li>
+</ul>
+<h3 id="pinned-chats">Pinned Chats<a class="headerlink" href="#pinned-chats" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Pin to top; premium: up to 10</li>
+</ul>
+<hr />
+<h2 id="8-search">8. Search<a class="headerlink" href="#8-search" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Global</strong>: all public channels, groups, bots, by @username</li>
+<li><strong>In-chat</strong>: per-chat message search, date picker</li>
+<li><strong>Filters</strong>: media, links, files, music, voice messages</li>
+<li><strong>Hashtags</strong>: # search within and across chats</li>
+</ul>
+<hr />
+<h2 id="9-notifications">9. Notifications<a class="headerlink" href="#9-notifications" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Custom notification sounds per chat (any audio &lt;5s, &lt;300KB)</li>
+<li>Cross-platform sound sync</li>
+<li>Mute: 1h, 8h, 2d, custom, until turned on</li>
+<li>Per-chat notification exceptions</li>
+<li>Preview control: sender name, message text, or none</li>
+</ul>
+<hr />
+<h2 id="10-privacy-security">10. Privacy &amp; Security<a class="headerlink" href="#10-privacy-security" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2FA</td>
+<td>Password + SMS code on new device</td>
+</tr>
+<tr>
+<td>Passkeys</td>
+<td>Biometric passwordless login</td>
+</tr>
+<tr>
+<td>Active sessions</td>
+<td>View and terminate all sessions</td>
+</tr>
+<tr>
+<td>Passcode lock</td>
+<td>App-level passcode or biometric</td>
+</tr>
+<tr>
+<td>Last seen</td>
+<td>Everyone / Contacts / Nobody + exceptions</td>
+</tr>
+<tr>
+<td>Profile photo</td>
+<td>Per-privacy-level control</td>
+</tr>
+<tr>
+<td>Phone number</td>
+<td>Visibility + find-by-number settings</td>
+</tr>
+<tr>
+<td>Forwarded messages</td>
+<td>Link-back to account control</td>
+</tr>
+<tr>
+<td>Calls</td>
+<td>Restrict who can call</td>
+</tr>
+<tr>
+<td>Blocking</td>
+<td>Block + report spam</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-profile-settings">11. Profile &amp; Settings<a class="headerlink" href="#11-profile-settings" title="Permanent link">&para;</a></h2>
+<ul>
+<li>@username for t.me links; collectible (TON blockchain)</li>
+<li>Bio with link (premium: longer)</li>
+<li>Profile photo (premium: animated video)</li>
+<li>Themed QR codes for any entity</li>
+<li>Phone number change while keeping data</li>
+<li>Multiple accounts: 3 free, 4 premium</li>
+<li>Custom cloud themes with shareable links and color wheel</li>
+</ul>
+<hr />
+<h2 id="12-file-sharing-storage">12. File Sharing &amp; Storage<a class="headerlink" href="#12-file-sharing-storage" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Free: 2GB per file, unlimited cloud storage</li>
+<li>Premium: 4GB per file</li>
+<li>Uncompressed documents option</li>
+<li>Video compression preview before sending</li>
+<li>Cloud sync across all devices</li>
+<li>Any media type supported</li>
+</ul>
+<hr />
+<h2 id="13-multi-device">13. Multi-Device<a class="headerlink" href="#13-multi-device" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Seamless cloud sync (chats, messages, media, folders, themes, sounds)</li>
+<li>Desktop: Windows, Mac, Linux</li>
+<li>Web: WebK, WebA (mobile)</li>
+<li>Mobile: iOS, iPadOS, Android</li>
+<li>Smartwatch: Apple Watch, Android wearables</li>
+<li>Secret Chats exception: device-specific only</li>
+</ul>
+<hr />
+<h2 id="14-premium-features-499mo">14. Premium Features (~$4.99/mo)<a class="headerlink" href="#14-premium-features-499mo" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uploads</td>
+<td>4GB files</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Fastest download</td>
+</tr>
+<tr>
+<td>Limits</td>
+<td>1,000 channels, 20 folders, 4 accounts, 10 pins, 20 public links</td>
+</tr>
+<tr>
+<td>Voice-to-Text</td>
+<td>Convert voice/video messages</td>
+</tr>
+<tr>
+<td>Translation</td>
+<td>Real-time full chat translation</td>
+</tr>
+<tr>
+<td>Stickers</td>
+<td>Exclusive animated, monthly updates</td>
+</tr>
+<tr>
+<td>Reactions</td>
+<td>10+ exclusive emoji</td>
+</tr>
+<tr>
+<td>Chat Mgmt</td>
+<td>Default folder, auto-archive non-contacts</td>
+</tr>
+<tr>
+<td>Profile</td>
+<td>Animated video, badge, premium icons</td>
+</tr>
+<tr>
+<td>Ads</td>
+<td>No sponsored messages</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>Control who sends voice/video messages</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15-uiux-patterns">15. UI/UX Patterns<a class="headerlink" href="#15-uiux-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="navigation">Navigation<a class="headerlink" href="#navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Desktop: sidebar chat list + conversation pane</li>
+<li>Android: hamburger menu + swipe tabs</li>
+<li>iOS: bottom tab bar (Chats, Calls, Settings)</li>
+<li>Long-press back button: recent chats quick jump</li>
+</ul>
+<h3 id="gestures">Gestures<a class="headerlink" href="#gestures" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Swipe left on message → reply</li>
+<li>Swipe left on chat → archive</li>
+<li>Pull down → reveal hidden archive</li>
+<li>Long-press chat → bulk actions</li>
+<li>Long-press send → schedule, silent, effects</li>
+<li>Swipe up lock → hands-free voice recording</li>
+<li>Pinch on PiP → resize player</li>
+</ul>
+<h3 id="visual">Visual<a class="headerlink" href="#visual" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Dark mode with accent color variants</li>
+<li>Custom cloud-synced themes with color wheel</li>
+<li>Message bubble corner radius toggle</li>
+<li>120 FPS animations on supported devices</li>
+<li>Pulsing loading placeholders</li>
+<li>Swipe-to-reply animation feedback</li>
+</ul>
+<h3 id="media">Media<a class="headerlink" href="#media" title="Permanent link">&para;</a></h3>
+<ul>
+<li>PiP on all platforms</li>
+<li>Video scrubbing with thumbnail previews</li>
+<li>Media compression preview</li>
+</ul>
+<h3 id="chat-interaction">Chat Interaction<a class="headerlink" href="#chat-interaction" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Long-press profile pic → chat preview without marking read</li>
+<li>Multi-select chats for batch operations</li>
+<li>Drag to rearrange folders</li>
+<li>Pull-to-refresh chat list</li>
+</ul>
+<hr />
+<h2 id="key-takeaways-for-nexus-chat">Key Takeaways for Nexus Chat<a class="headerlink" href="#key-takeaways-for-nexus-chat" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Reaction system</strong> — synchronized real-time, per-emoji counts, admin control</li>
+<li><strong>Secret chat model</strong> — device-specific E2E, self-destruct, screenshot alerts, key verification</li>
+<li><strong>Folders</strong> — tab-based organization with custom filters, cross-device sync</li>
+<li><strong>Search</strong> — multi-dimensional (text, media, links, files, date, hashtags)</li>
+<li><strong>Bot platform</strong> — inline, slash commands, custom keyboards, payments, mini apps</li>
+<li><strong>Notification granularity</strong> — per-chat custom sounds, flexible mute, exception rules</li>
+<li><strong>Privacy controls</strong> — layered per-setting with exception lists</li>
+<li><strong>Multi-account</strong> — 3-4 accounts in single app</li>
+<li><strong>Theming</strong> — shareable, cloud-synced, color wheel customization</li>
+<li><strong>Premium model</strong> — cosmetic + limit boosts, not feature gating</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

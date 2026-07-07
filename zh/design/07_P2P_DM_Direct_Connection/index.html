@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 99.8% statement coverage.">
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 24/24 tasks, 100% coverage, 89 tests.">
       
       
       
@@ -1510,6 +1510,18 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -2187,6 +2199,216 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/19-phase-1-web-message-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — Web 消息操作和上下文菜单
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/20-phase-1-web-message-display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — Web 消息显示和格式化
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/21-phase-1-web-rich-media/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 网络富媒体和表情符号选择器
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/22-phase-1-web-presence-notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 网络呈现、渠道信息和通知
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/23-phase-1-server-message-reply-pin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 服务器消息回复和 Pin 图
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/24-phase-1-server-channel-mute-description/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 阶段 — 服务器通道静音和描述
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2202,6 +2424,8 @@
   
     
     
+      
+        
       
         
       
@@ -2447,6 +2671,34 @@
     
   
     AI Agent 编排与流式交互设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/telegram-interface-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telegram 接口分析
   
 
     
@@ -4125,7 +4377,7 @@
 <ul>
 <li><strong>WebRTC keepalive</strong>：ICE 同意新鲜度（内置，约 15 秒间隔）</li>
 <li><strong>数据通道关闭检测</strong>：<code>ondatachannel.onclose</code>→从池中删除，发出<code>p2p.status</code></li>
-<li><strong>重新连接</strong>：如果 P2P 消息发送失败（数据通道关闭或正在关闭），发送功能会自动回退到该消息的服务器中继。下次尝试发送时，将建立新的 WebRTC 连接。</li>
+<li><strong>重新连接</strong>：如果 P2P 消息发送失败（数据通道关闭或关闭），发送功能会自动回退到该消息的服务器中继。下次尝试发送时，将建立新的 WebRTC 连接。</li>
 </ul>
 <h3 id="65-electron">6.5 浏览器选项卡/Electron 窗口生命周期<a class="headerlink" href="#65-electron" title="Permanent link">&para;</a></h3>
 <table>
@@ -4146,7 +4398,7 @@
 </tr>
 <tr>
 <td>网络变革（线下→线上）</td>
-<td>所有 WebRTC 连接均已断开；水池已清理；下一条消息有新连接</td>
+<td>所有 WebRTC 连接均已断开；水池已清理干净；下一条消息有新连接</td>
 </tr>
 <tr>
 <td>睡眠/唤醒</td>
@@ -4617,7 +4869,7 @@
 <p>|浏览器 | RTCPeerConnection | RTCPeerConnection | RTC 数据通道 |笔记|
 |---|---|---|---|
 | Chrome 130+ | ✓ | ✓ |全力支持|
-|火狐 130+ | ✓ | ✓ |全力支持|
+|火狐 130+ | ✓ | ✓ |全力支持 |
 | Safari 18+ | ✓ | ✓ |某些操作需要用户手势 |
 |电子39+ | ✓ | ✓ |相当于 Chrome 130+ |</p>
 <hr />
