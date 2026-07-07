@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Message } from "@nexus-chat/shared";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import type { TransportLabel } from "./signal-helpers.js";
+import { useMessageStore } from "../stores/domain.js";
 import { MessageRow } from "./MessageRow.js";
 
 export const MessageList = ({
@@ -11,7 +12,13 @@ export const MessageList = ({
   transportLabels = {},
   readReceipts = {},
   senderNames = {},
-  onMessagesVisible
+  onMessagesVisible,
+  onReply,
+  onForward,
+  onEdit,
+  onDelete,
+  onCopy,
+  onReact
 }: {
   messages: Message[];
   statuses?: Record<string, string>;
@@ -20,10 +27,17 @@ export const MessageList = ({
   readReceipts?: Record<string, number>;
   senderNames?: Record<string, string>;
   onMessagesVisible?: (messageIds: string[]) => void;
+  onReply: (message: Message) => void;
+  onForward: (message: Message) => void;
+  onEdit: (messageId: string, newText: string) => Promise<void>;
+  onDelete: (messageId: string) => void;
+  onCopy: (message: Message) => void;
+  onReact: (messageId: string, emoji: string) => void;
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const pendingRef = useRef<string[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const reactionsByMessage = useMessageStore((state) => state.reactions);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -54,12 +68,23 @@ export const MessageList = ({
       itemContent={(_, message) => {
         const decryptedText = decryptedMessages[message.id];
         const devStatus = import.meta.env.DEV && transportLabels[message.clientMsgId] ? `${statuses[message.clientMsgId] ?? "sent"} · ${transportLabels[message.clientMsgId]}` : statuses[message.clientMsgId];
-        const rc = readReceipts[message.id];
         const sn = senderNames[message.senderId];
-        const rowProps = { message, status: devStatus, senderName: sn } as { message: typeof message; status: string | undefined; readCount?: number; decryptedText?: string; senderName?: string };
-        if (rc !== undefined) rowProps.readCount = rc;
-        if (decryptedText !== undefined) rowProps.decryptedText = decryptedText as string;
-        return <MessageRow {...rowProps} />;
+        return (
+          <MessageRow
+            message={message}
+            status={devStatus}
+            senderName={sn}
+            readCount={readReceipts[message.id] as number | undefined}
+            decryptedText={decryptedText as string | undefined}
+            reactions={reactionsByMessage[message.id]}
+            onReply={() => onReply(message)}
+            onForward={() => onForward(message)}
+            onEdit={(newText) => onEdit(message.id, newText)}
+            onDelete={() => onDelete(message.id)}
+            onCopy={() => onCopy(message)}
+            onReact={(emoji) => onReact(message.id, emoji)}
+          />
+        );
       }}
     />
   );

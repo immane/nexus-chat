@@ -114,14 +114,17 @@ export const useMessageStore = create<{
   messages: Map<string, Message>;
   order: string[];
   sendStatusByClientId: Record<string, MessageSendStatus>;
+  reactions: Record<string, Record<string, { count: number; reacted: boolean }>>;
   upsert: (message: Message, status?: MessageSendStatus) => void;
   sendOptimistic: (message: Message) => void;
   markFailed: (clientMsgId: string) => void;
+  setReaction: (messageId: string, emoji: string, count: number, reacted: boolean) => void;
   clear: () => void;
 }>((set) => ({
   messages: new Map(),
   order: [],
   sendStatusByClientId: {},
+  reactions: {},
   upsert: (message, status = "sent") => set((state) => {
     const messages = new Map(state.messages);
     messages.set(message.id, message);
@@ -141,7 +144,13 @@ export const useMessageStore = create<{
     };
   }),
   markFailed: (clientMsgId) => set((state) => ({ sendStatusByClientId: { ...state.sendStatusByClientId, [clientMsgId]: "failed" } })),
-  clear: () => set({ messages: new Map(), order: [], sendStatusByClientId: {} })
+  setReaction: (messageId, emoji, count, reacted) => set((state) => {
+    const messageReactions = { ...(state.reactions[messageId] ?? {}) };
+    if (count === 0) delete messageReactions[emoji];
+    else messageReactions[emoji] = { count, reacted };
+    return { reactions: { ...state.reactions, [messageId]: messageReactions } };
+  }),
+  clear: () => set({ messages: new Map(), order: [], sendStatusByClientId: {}, reactions: {} })
 }));
 
 export const usePresenceStore = create<{ onlineUserIds: Set<string>; setOnline: (userId: string, online: boolean) => void }>((set) => ({

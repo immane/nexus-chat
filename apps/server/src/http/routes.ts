@@ -137,6 +137,7 @@ export const createHttpApp = () => {
   app.patch("/api/v1/messages/:id", authRequired, zValidator("json", editMessageSchema), (c) => c.json(toResponse(messageService.edit(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").text))));
   app.delete("/api/v1/messages/:id", authRequired, (c) => c.json(toResponse(messageService.softDelete(c.get("userId"), requiredParam(c.req.param("id"))))));
   app.post("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => c.json(toResponse(messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji))));
+  app.delete("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => c.json(toResponse(messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji, "remove"))));
   app.post("/api/v1/messages/:id/forward", authRequired, zValidator("json", forwardMessageSchema), (c) => {
     const input = c.req.valid("json");
     return c.json(toResponse(messageService.forward(c.get("userId"), requiredParam(c.req.param("id")), input.targetChannelId, input.clientMsgId)));

@@ -35,7 +35,13 @@ export default [
         RTCIceServer: "readonly",
         RTCSessionDescriptionInit: "readonly",
         RTCIceCandidateInit: "readonly",
-        localStorage: "readonly"
+        localStorage: "readonly",
+        navigator: "readonly",
+        React: "readonly",
+        HTMLDivElement: "readonly",
+        MouseEvent: "readonly",
+        KeyboardEvent: "readonly",
+        Node: "readonly"
       }
     }
   },

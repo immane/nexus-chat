@@ -203,6 +203,7 @@ export const messageSchema = z.object({
   clientMsgId: z.string().min(1).max(128),
   content: messageContentSchema,
   state: messageStateSchema,
+  replyToMessageId: idSchema.optional(),
   originalMessageId: idSchema.optional(),
   originalSenderId: idSchema.optional(),
   originalCreatedAt: isoDateSchema.optional(),
@@ -215,7 +216,8 @@ export const sendMessageSchema = z.object({
   workspaceId: idSchema,
   channelId: idSchema,
   clientMsgId: z.string().min(1).max(128),
-  content: messageContentSchema
+  content: messageContentSchema,
+  replyToMessageId: idSchema.optional()
 });
 
 export const editMessageSchema = z.object({ text: z.string().min(1).max(8000) });

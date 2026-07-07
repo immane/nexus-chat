@@ -3,6 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 import type { Channel, Message } from "@nexus-chat/shared";
 import { ChannelList, MessageRow } from "./App.js";
 
+const noop = vi.fn();
+const noopAsync = vi.fn().mockResolvedValue(undefined);
+
 const channels: Channel[] = [
   {
     id: "channel-general-1",
@@ -35,6 +38,8 @@ describe("ChannelList", () => {
   });
 });
 
+const rowProps = { onReply: noop, onForward: noop, onEdit: noopAsync, onDelete: noop, onCopy: noop, onReact: noop, decryptedText: undefined as string | undefined, readCount: undefined as number | undefined, reactions: undefined as Record<string, { count: number; reacted: boolean }> | undefined, senderName: undefined as string | undefined };
+
 describe("MessageRow", () => {
   it("renders normal text messages with optimistic send status", () => {
     const message: Message = {
@@ -48,7 +53,7 @@ describe("MessageRow", () => {
       createdAt: "2026-07-05T00:00:00.000Z"
     };
 
-    const html = renderToStaticMarkup(<MessageRow message={message} status="sending" />);
+    const html = renderToStaticMarkup(<MessageRow message={message} status="sending" {...rowProps} />);
 
     expect(html).toContain("hello");
     expect(html).toContain("sending");
@@ -66,6 +71,6 @@ describe("MessageRow", () => {
       createdAt: "2026-07-05T00:00:00.000Z"
     };
 
-    expect(renderToStaticMarkup(<MessageRow message={message} status={undefined} />)).toContain("Message expired");
+    expect(renderToStaticMarkup(<MessageRow message={message} status={undefined} {...rowProps} />)).toContain("Message expired");
   });
 });

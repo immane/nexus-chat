@@ -32,6 +32,11 @@ export const messageService = {
     if (!channel || channel.workspaceId !== input.workspaceId || !workspaceService.canAccessChannel(actorId, input.channelId)) return apiFail("FORBIDDEN", "Channel access denied");
     if (channel.mode === "e2e" && input.content.type !== "ciphertext") return apiFail("VALIDATION_FAILED", "E2E channels accept ciphertext only");
     if (channel.mode === "normal" && input.content.type === "ciphertext") return apiFail("VALIDATION_FAILED", "Normal channels accept plaintext message content");
+    if (input.replyToMessageId) {
+      const repliedTo = store.messages.get(input.replyToMessageId);
+      if (!repliedTo || repliedTo.channelId !== input.channelId || repliedTo.state === "deleted") return apiFail("NOT_FOUND", "Reply target not found or deleted");
+      if (!workspaceService.canAccessChannel(actorId, repliedTo.channelId)) return apiFail("FORBIDDEN", "Cannot reply to this message");
+    }
     const idempotencyKey = `${actorId}:${input.clientMsgId}`;
     const existingId = store.messagesByClientId.get(idempotencyKey);
     if (existingId) return store.messages.get(existingId) ?? apiFail("CONFLICT", "Message idempotency conflict");
@@ -47,6 +52,7 @@ export const messageService = {
       senderId: actorId,
       clientMsgId: input.clientMsgId,
       content: input.content,
+      replyToMessageId: input.replyToMessageId,
       state: "sent",
       createdAt: nowIso()
     });

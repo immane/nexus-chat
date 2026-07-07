@@ -92,7 +92,13 @@ const ChatRoute = () => {
   const [channelMembers, setChannelMembers] = useState<Array<{ channelId: string; userId: string; role?: string }>>([]);
   const [addMemberInput, setAddMemberInput] = useState("");
   const [friendSearchInput, setFriendSearchInput] = useState("");
+  const [replyMessage, setReplyMessage] = useState<Message | null>(null);
+  const [forwardSource, setForwardSource] = useState<Message | null>(null);
+  const [forwardSearch, setForwardSearch] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const clearAuth = useAuthStore((state) => state.clear);
+  const reactions = useMessageStore((state) => state.reactions);
+  const setReaction = useMessageStore((state) => state.setReaction);
   const activeChannel = channels.find((channel) => channel.id === activeChannelId);
   const channelMessages = selectChannelMessages(messagesMap, order, activeChannelId);
   const isE2e = activeChannel?.mode === "e2e";
@@ -330,6 +336,12 @@ const ChatRoute = () => {
           setReadReceipts((prev) => ({ ...prev, [payload.messageId]: payload.readCount }));
         }
       }
+      if (event.type === "message.reaction") {
+        const payload = event.payload as { messageId: string; emoji: string; count: number; reacted: boolean };
+        if (payload.messageId && payload.emoji) {
+          setReaction(payload.messageId, payload.emoji, payload.count, payload.reacted);
+        }
+      }
     });
     return () => {
       p2pTransportRef.current?.destroy();
@@ -337,139 +349,6 @@ const ChatRoute = () => {
       socket.disconnect();
     };
   }, [accessToken, user?.id]);
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!user || !activeChannel || !draft.trim()) return;
-
-    const text = draft.trim();
-    const isSlashCommand = text.startsWith("/");
-    const [cmdName, ...cmdArgs] = isSlashCommand ? text.split(/\s+/) : ["", []];
-    const isDemoSession = accessToken === "demo-access-token";
-
-    if (!socketRef.current?.connected && isDemoSession) {
-      const msg = createOptimisticMessage({
-        workspaceId: activeChannel.workspaceId,
-        channelId: activeChannel.id,
-        senderId: user.id,
-        text,
-        policy: isE2e ? policy : { mode: "none" }
-      });
-      upsertMessage(msg, "sent");
-
-      if (!isE2e && cmdName === "/help") {
-        const helpBot = manifests.find((manifest) => manifest.commands.some((command) => command.name === "/help"));
-        if (helpBot) {
-          const now = new Date().toISOString();
-          const commands = helpBot.commands.map((command) => `${command.name} - ${command.description}`).join("\n");
-          upsertMessage({
-            id: `demo-bot-${Date.now()}`,
-            workspaceId: activeChannel.workspaceId,
-            channelId: activeChannel.id,
-            senderId: helpBot.id,
-            clientMsgId: `demo-bot-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-            content: { type: "text", text: `Available commands:\n${commands}`, attachments: [] },
-            state: "sent",
-            createdAt: now
-          });
-        }
-      }
-
-      stopTyping();
-      setDraft("");
-      return;
-    }
-
-    if (socketRef.current?.connected) {
-      if (!isE2e && isSlashCommand && cmdName) {
-        const msg = createOptimisticMessage({
-          workspaceId: activeChannel.workspaceId,
-          channelId: activeChannel.id,
-          senderId: user.id,
-          text,
-          policy: isE2e ? policy : { mode: "none" }
-        });
-        sendOptimistic(msg);
-        socketRef.current.emit(
-          "event",
-          {
-            type: "bot.command.invoke",
-            workspaceId: activeChannel.workspaceId,
-            channelId: activeChannel.id,
-            payload: {
-              type: "bot.command.invoke",
-              botName: cmdName.replace("/", ""),
-              command: cmdName,
-              workspaceId: activeChannel.workspaceId,
-              channelId: activeChannel.id,
-              args: cmdArgs
-            },
-            timestamp: new Date().toISOString(),
-            encrypted: false
-          },
-          (response: { ok: boolean; error?: { message: string } }) => {
-            useMessageStore.getState().upsert(msg, response.ok ? "sent" : "failed");
-          }
-        );
-      } else {
-        const clientMsgId = `web-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        const peerUserId = activeChannel.kind === "dm" ? parseDmPeerUserId(activeChannel, user.id) : undefined;
-        const session = isE2e ? await ensureSignalSession(peerUserId ?? user.id) : undefined;
-        const encryptedContent = session ? applyDisappearingPolicy(await encryptForSession(session, text), policy) : undefined;
-
-        if (isE2e && encryptedContent && peerUserId && p2pTransportRef.current) {
-          const result = await p2pTransportRef.current.sendMessage({
-            workspaceId: activeChannel.workspaceId,
-            channelId: activeChannel.id,
-            clientMsgId,
-            content: encryptedContent,
-            targetUserId: peerUserId
-          });
-
-          setTransportLabels((current) => ({ ...current, [clientMsgId]: result.path === "p2p" ? "p2p sent" : "relay sent" }));
-
-          if (result.ok && result.path === "p2p") {
-            const message: Message = {
-              id: `p2p-local-${clientMsgId}`,
-              workspaceId: activeChannel.workspaceId,
-              channelId: activeChannel.id,
-              senderId: user.id,
-              clientMsgId,
-              content: encryptedContent,
-              state: "sent",
-              createdAt: new Date().toISOString()
-            };
-            upsertMessage(message, "sent");
-            setDecryptedMessages((current) => ({ ...current, [message.id]: text }));
-          }
-
-          stopTyping();
-          setDraft("");
-          return;
-        }
-
-        // Don't show optimistic — wait for server broadcast.
-        socketRef.current.emit(
-          "event",
-          {
-            type: "message.send",
-            workspaceId: activeChannel.workspaceId,
-            channelId: activeChannel.id,
-            payload: {
-              workspaceId: activeChannel.workspaceId,
-              channelId: activeChannel.id,
-              clientMsgId,
-              content: encryptedContent ?? { type: "text" as const, text, attachments: [] }
-            },
-            timestamp: new Date().toISOString(),
-            encrypted: Boolean(encryptedContent)
-          }
-        );
-      }
-    }
-    stopTyping();
-    setDraft("");
-  };
 
   const createChannel = async (name?: string) => {
     const channelName = (name ?? newChannelName).trim();
@@ -552,6 +431,197 @@ const ChatRoute = () => {
     } catch { /* */ }
   };
 
+  const handleCopy = (message: Message) => {
+    const text = message.content.type === "text" ? message.content.text : decryptedMessages[message.id] ?? "";
+    void window.navigator.clipboard.writeText(text);
+  };
+
+  const handleEdit = async (messageId: string, newText: string) => {
+    if (!accessToken) return;
+    try {
+      const resp = await fetch(`${API_BASE}/api/v1/messages/${messageId}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ text: newText })
+      });
+      const json = (await resp.json()) as { ok: boolean; data?: Message };
+      if (json.ok && json.data) upsertMessage(json.data);
+    } catch { /* */ }
+  };
+
+  const handleDelete = async (messageId: string) => {
+    setConfirmDeleteId(messageId);
+  };
+
+  const confirmDelete = async () => {
+    if (!accessToken || !confirmDeleteId) { setConfirmDeleteId(null); return; }
+    try {
+      const resp = await fetch(`${API_BASE}/api/v1/messages/${confirmDeleteId}`, {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${accessToken}` }
+      });
+      const json = (await resp.json()) as { ok: boolean; data?: Message };
+      if (json.ok && json.data) upsertMessage(json.data);
+    } catch { /* */ }
+    setConfirmDeleteId(null);
+  };
+
+  const handleReact = async (messageId: string, emoji: string) => {
+    if (!accessToken) return;
+    const msgReactions = reactions[messageId] ?? {};
+    const existing = msgReactions[emoji];
+    const isRemove = existing?.reacted === true;
+    try {
+      const method = isRemove ? "DELETE" : "POST";
+      const resp = await fetch(`${API_BASE}/api/v1/messages/${messageId}/reactions`, {
+        method,
+        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ emoji })
+      });
+      const json = (await resp.json()) as { ok: boolean; data?: { messageId: string; emoji: string; count: number; reacted: boolean } };
+      if (json.ok && json.data) {
+        setReaction(json.data.messageId, json.data.emoji, json.data.count, json.data.reacted);
+      }
+    } catch { /* */ }
+  };
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!user || !activeChannel || !draft.trim()) return;
+
+    const text = draft.trim();
+    const isSlashCommand = text.startsWith("/");
+    const [cmdName, ...cmdArgs] = isSlashCommand ? text.split(/\s+/) : ["", []];
+    const isDemoSession = accessToken === "demo-access-token";
+
+    if (!socketRef.current?.connected && isDemoSession) {
+      const msg = createOptimisticMessage({
+        workspaceId: activeChannel.workspaceId,
+        channelId: activeChannel.id,
+        senderId: user.id,
+        text,
+        policy: isE2e ? policy : { mode: "none" }
+      });
+      upsertMessage(msg, "sent");
+
+      if (!isE2e && cmdName === "/help") {
+        const helpBot = manifests.find((manifest) => manifest.commands.some((command) => command.name === "/help"));
+        if (helpBot) {
+          const now = new Date().toISOString();
+          const commands = helpBot.commands.map((command) => `${command.name} - ${command.description}`).join("\n");
+          upsertMessage({
+            id: `demo-bot-${Date.now()}`,
+            workspaceId: activeChannel.workspaceId,
+            channelId: activeChannel.id,
+            senderId: helpBot.id,
+            clientMsgId: `demo-bot-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            content: { type: "text", text: `Available commands:\n${commands}`, attachments: [] },
+            state: "sent",
+            createdAt: now
+          });
+        }
+      }
+
+      stopTyping();
+      setDraft("");
+      setReplyMessage(null);
+      return;
+    }
+
+    if (socketRef.current?.connected) {
+      if (!isE2e && isSlashCommand && cmdName) {
+        const msg = createOptimisticMessage({
+          workspaceId: activeChannel.workspaceId,
+          channelId: activeChannel.id,
+          senderId: user.id,
+          text,
+          policy: isE2e ? policy : { mode: "none" }
+        });
+        sendOptimistic(msg);
+        socketRef.current.emit(
+          "event",
+          {
+            type: "bot.command.invoke",
+            workspaceId: activeChannel.workspaceId,
+            channelId: activeChannel.id,
+            payload: {
+              type: "bot.command.invoke",
+              botName: cmdName.replace("/", ""),
+              command: cmdName,
+              workspaceId: activeChannel.workspaceId,
+              channelId: activeChannel.id,
+              args: cmdArgs
+            },
+            timestamp: new Date().toISOString(),
+            encrypted: false
+          },
+          (response: { ok: boolean; error?: { message: string } }) => {
+            useMessageStore.getState().upsert(msg, response.ok ? "sent" : "failed");
+          }
+        );
+      } else {
+        const clientMsgId = `web-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const peerUserId = activeChannel.kind === "dm" ? parseDmPeerUserId(activeChannel, user.id) : undefined;
+        const session = isE2e ? await ensureSignalSession(peerUserId ?? user.id) : undefined;
+        const encryptedContent = session ? applyDisappearingPolicy(await encryptForSession(session, text), policy) : undefined;
+
+        if (isE2e && encryptedContent && peerUserId && p2pTransportRef.current) {
+          const result = await p2pTransportRef.current.sendMessage({
+            workspaceId: activeChannel.workspaceId,
+            channelId: activeChannel.id,
+            clientMsgId,
+            content: encryptedContent,
+            targetUserId: peerUserId
+          });
+
+          setTransportLabels((current) => ({ ...current, [clientMsgId]: result.path === "p2p" ? "p2p sent" : "relay sent" }));
+
+          if (result.ok && result.path === "p2p") {
+            const message: Message = {
+              id: `p2p-local-${clientMsgId}`,
+              workspaceId: activeChannel.workspaceId,
+              channelId: activeChannel.id,
+              senderId: user.id,
+              clientMsgId,
+              content: encryptedContent,
+              state: "sent",
+              createdAt: new Date().toISOString()
+            };
+            upsertMessage(message, "sent");
+            setDecryptedMessages((current) => ({ ...current, [message.id]: text }));
+          }
+
+          stopTyping();
+          setDraft("");
+          setReplyMessage(null);
+          return;
+        }
+
+        // Don't show optimistic — wait for server broadcast.
+        socketRef.current.emit(
+          "event",
+          {
+            type: "message.send",
+            workspaceId: activeChannel.workspaceId,
+            channelId: activeChannel.id,
+            payload: {
+              workspaceId: activeChannel.workspaceId,
+              channelId: activeChannel.id,
+              clientMsgId,
+              content: encryptedContent ?? { type: "text" as const, text, attachments: [] },
+              ...(replyMessage ? { replyToMessageId: replyMessage.id } : {})
+            },
+            timestamp: new Date().toISOString(),
+            encrypted: Boolean(encryptedContent)
+          }
+        );
+      }
+    }
+    stopTyping();
+    setDraft("");
+    setReplyMessage(null);
+  };
+
   const isLight = settings.theme === "light";
   const themeBg = isLight ? "bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100";
   const themeAside = isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-950";
@@ -572,6 +642,7 @@ const ChatRoute = () => {
   const themeDivider = isLight ? "border-slate-200" : "border-slate-700";
   const themeSelect = isLight ? "bg-white border border-slate-300 text-slate-800" : "bg-slate-800 border border-slate-700 text-slate-200";
   const compact = settings.compactMode ? "p-2 text-xs" : "p-4";
+  const senderNames = Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)]));
 
   return (
     <main className={`grid h-screen grid-cols-[280px_1fr] ${themeBg} max-md:grid-cols-1`} style={rightSidebarOpen ? { gridTemplateColumns: "280px 1fr 260px" } : undefined}>
@@ -648,7 +719,7 @@ const ChatRoute = () => {
                   </div>
                 </div>
               ) : null}
-              <ChannelList channels={channels} activeChannelId={activeChannelId} unreadCounts={unreadCounts} onSelect={selectChannel} currentUserId={user!.id} userNames={Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)]))} />
+              <ChannelList channels={channels} activeChannelId={activeChannelId} unreadCounts={unreadCounts} onSelect={selectChannel} currentUserId={user!.id} userNames={senderNames} />
             </section>
           </>
         ) : leftTab === "member" ? (
@@ -750,8 +821,16 @@ const ChatRoute = () => {
             </p>
           ) : null : null}
         </header>
-        <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} readReceipts={readReceipts} senderNames={Object.fromEntries(members.map((m) => [m.userId, m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)]))} onMessagesVisible={handleMessagesVisible} />
+        <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} readReceipts={readReceipts} senderNames={senderNames} onMessagesVisible={handleMessagesVisible} onReply={setReplyMessage} onForward={setForwardSource} onEdit={handleEdit} onDelete={handleDelete} onCopy={handleCopy} onReact={handleReact} />
         <form onSubmit={submit}>
+          {replyMessage ? (
+            <div className={`mx-4 mb-1 flex items-center gap-2 rounded-t-xl border-l-4 border-sky-400 px-4 py-2 ${isLight ? "bg-sky-50" : "bg-sky-500/10"}`}>
+              <span className="text-xs text-sky-400">Replying to</span>
+              <span className="text-xs font-medium text-sky-300">{senderNames[replyMessage.senderId] ?? replyMessage.senderId.slice(0, 10)}</span>
+              <span className="flex-1 truncate text-xs text-slate-400">{replyMessage.content.type === "text" ? replyMessage.content.text.slice(0, 60) : "message"}</span>
+              <button className="rounded px-1 text-xs text-slate-400 hover:text-slate-200" type="button" onClick={() => setReplyMessage(null)}>✕</button>
+            </div>
+          ) : null}
           <InputActionBar
             actions={
               <>
@@ -821,6 +900,52 @@ const ChatRoute = () => {
             </div>
           </div>
         </aside>
+      ) : null}
+      {forwardSource ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => { setForwardSource(null); setForwardSearch(""); }}>
+          <div className={`w-80 rounded-2xl border ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"} p-4 shadow-2xl`} onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-2 text-sm font-semibold">Forward message</h3>
+            <input className={`mb-2 w-full rounded-lg ${themeInput} px-3 py-2 text-sm outline-none`} placeholder="Search channels..." value={forwardSearch} onChange={(e) => setForwardSearch(e.target.value)} autoFocus />
+            <div className="max-h-48 space-y-0.5 overflow-y-auto">
+              {channels.filter((c) => c.id !== activeChannelId && (!forwardSearch || c.name.toLowerCase().includes(forwardSearch.toLowerCase()))).map((c) => (
+                <button
+                  key={c.id}
+                  className={`w-full rounded-lg px-3 py-2 text-left text-sm ${isLight ? "hover:bg-slate-100 text-slate-700" : "hover:bg-slate-800 text-slate-300"}`}
+                  type="button"
+                  onClick={async () => {
+                    if (!accessToken) return;
+                    try {
+                      const resp = await fetch(`${API_BASE}/api/v1/messages/${forwardSource.id}/forward`, {
+                        method: "POST",
+                        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
+                        body: JSON.stringify({ targetChannelId: c.id, clientMsgId: `fwd-${Date.now()}` })
+                      });
+                      const json = (await resp.json()) as { ok: boolean; data?: Message };
+                      if (json.ok && json.data) {
+                        upsertMessage(json.data);
+                        selectChannel(c.id);
+                      }
+                    } catch { /* */ }
+                    setForwardSource(null);
+                    setForwardSearch("");
+                  }}
+                >{c.kind === "dm" ? "@" : "#"} {c.name}</button>
+              ))}
+            </div>
+            <button className={`mt-3 w-full rounded-lg px-3 py-2 text-sm ${themeBtn}`} type="button" onClick={() => { setForwardSource(null); setForwardSearch(""); }}>Cancel</button>
+          </div>
+        </div>
+      ) : null}
+      {confirmDeleteId ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setConfirmDeleteId(null)}>
+          <div className={`w-72 rounded-2xl border ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"} p-4 shadow-2xl`} onClick={(e) => e.stopPropagation()}>
+            <p className="mb-4 text-sm">Delete this message?</p>
+            <div className="flex gap-2">
+              <button className="flex-1 rounded-lg bg-red-500/20 px-3 py-2 text-sm text-red-200 hover:bg-red-500/30" type="button" onClick={() => void confirmDelete()}>Delete</button>
+              <button className={`flex-1 rounded-lg px-3 py-2 text-sm ${themeBtn}`} type="button" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </main>
   );
