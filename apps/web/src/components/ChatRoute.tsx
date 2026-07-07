@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useRef, useState, type FormEvent } from "react";
 import { io, type Socket } from "socket.io-client";
-import type { BotManifest, Channel, Message, Workspace } from "@nexus-chat/shared";
+import type { Channel, Message } from "@nexus-chat/shared";
 import {
   createInMemorySignalSessionStore,
   createLocalSignalIdentity,
@@ -26,8 +26,11 @@ import {
 } from "../stores/domain.js";
 import { API_BASE } from "../lib/api.js";
 import { useAttachments } from "../hooks/useAttachments.js";
+import { useChatBootstrap } from "../hooks/useChatBootstrap.js";
 import { useChannelMembers } from "../hooks/useChannelMembers.js";
 import { useMessageActions } from "../hooks/useMessageActions.js";
+import { useReadReceipts } from "../hooks/useReadReceipts.js";
+import { useTyping } from "../hooks/useTyping.js";
 import { WEB_SIGNAL_DEVICE_ID, parseDmPeerUserId, applyDisappearingPolicy, ensureSignalSession as doEnsureSignalSession, type TransportLabel } from "./signal-helpers.js";
 import { ChannelList } from "./ChannelList.js";
 import { ChatComposer } from "./ChatComposer.js";
@@ -39,7 +42,6 @@ import { RightMemberPanel } from "./RightMemberPanel.js";
 
 const ChatRoute = () => {
   const user = useAuthStore((state) => state.user);
-  const setMessageCurrentUser = useMessageStore((state) => state.setCurrentUser);
   const accessToken = useAuthStore((state) => state.accessToken);
   const workspaces = useWorkspaceStore((state) => state.workspaces);
   const channels = useChannelStore((state) => state.channels);
@@ -53,7 +55,6 @@ const ChatRoute = () => {
   const statuses = useMessageStore((state) => state.sendStatusByClientId);
   const sendOptimistic = useMessageStore((state) => state.sendOptimistic);
   const upsertMessage = useMessageStore((state) => state.upsert);
-  const setManifests = useBotStore((state) => state.setManifests);
   const manifests = useBotStore((state) => state.manifests);
   const inputActions = useBotStore((state) => state.inputActions);
   const draft = useUiStore((state) => state.messageDraft);
@@ -66,8 +67,6 @@ const ChatRoute = () => {
   const setDmTransportMode = useUiStore((state) => state.setDmTransportMode);
   const onlineUserIds = usePresenceStore((state) => state.onlineUserIds);
   const setOnline = usePresenceStore((state) => state.setOnline);
-  const setWorkspaces = useWorkspaceStore((state) => state.setWorkspaces);
-  const setActiveWorkspace = useWorkspaceStore((state) => state.setActive);
   const deferredDraft = useDeferredValue(draft);
   const socketRef = useRef<Socket | undefined>(undefined);
   const p2pTransportRef = useRef<HybridTransport | undefined>(undefined);
@@ -75,25 +74,7 @@ const ChatRoute = () => {
   const signalSessionStoreRef = useRef(createInMemorySignalSessionStore());
   const signalSessionsRef = useRef(new Map<string, SignalSession>());
   const [wsConnected, setWsConnected] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const isTypingRef = useRef(false);
-  const ackedMessagesRef = useRef(new Set<string>());
-  const [readReceipts, setReadReceipts] = useState<Record<string, number>>({});
   const [decryptedMessages, setDecryptedMessages] = useState<Record<string, string>>({});
-
-  const handleMessagesVisible = (messageIds: string[]) => {
-    if (!socketRef.current?.connected) return;
-    for (const id of messageIds) {
-      if (ackedMessagesRef.current.has(id)) continue;
-      ackedMessagesRef.current.add(id);
-      socketRef.current.emit("event", {
-        type: "message.ack",
-        payload: { messageId: id },
-        timestamp: new Date().toISOString()
-      });
-    }
-  };
   const [transportLabels, setTransportLabels] = useState<Record<string, TransportLabel>>({});
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [addPopupSearch, setAddPopupSearch] = useState("");
@@ -105,7 +86,6 @@ const ChatRoute = () => {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [toasts, setToasts] = useState<Array<{ id: string; text: string; channelId: string }>>([]);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const dataLoadedRef = useRef(false);
   const clearAuth = useAuthStore((state) => state.clear);
   const setReaction = useMessageStore((state) => state.setReaction);
   const activeChannel = channels.find((channel) => channel.id === activeChannelId);
@@ -113,8 +93,11 @@ const ChatRoute = () => {
   const channelMessages = selectChannelMessages(messagesMap, order, activeChannelId);
   const isE2e = activeChannel?.mode === "e2e";
   const suggestions = isE2e ? [] : getCommandSuggestions(manifests, deferredDraft);
+  useChatBootstrap();
   const { addChannelMember, addMemberInput, channelMembers, members, removeChannelMember, senderNames, setAddMemberInput } = useChannelMembers({ accessToken, activeChannelId, workspaceId: activeWorkspaceId });
   const { clearPendingAttachments, fileInputRef, handleFileUpload, handlePaste, pendingAttachments, uploading } = useAttachments({ accessToken, setDraft, workspaceId: activeWorkspaceId });
+  const { handleMessagesVisible, readReceipts, setReadReceipts } = useReadReceipts(socketRef);
+  const { handleTypingChange, setTypingUsers, stopTyping, typingUsers } = useTyping({ activeChannel, setDraft, socketRef, userId: user?.id });
 
   const selectChannel = (id: string) => {
     stopTyping();
@@ -143,38 +126,6 @@ const ChatRoute = () => {
     setForwardSearch,
     setForwardSource
   } = useMessageActions({ accessToken, decryptedMessages, selectChannel });
-
-  const emitTyping = (typing: boolean) => {
-    if (!socketRef.current?.connected || !activeChannel || !user) return;
-    socketRef.current.emit("event", {
-      type: typing ? "typing.start" : "typing.stop",
-      workspaceId: activeChannel.workspaceId,
-      channelId: activeChannel.id,
-      payload: { workspaceId: activeChannel.workspaceId, channelId: activeChannel.id },
-      timestamp: new Date().toISOString()
-    });
-  };
-
-  const handleTypingChange = (value: string) => {
-    setDraft(value);
-    if (!isTypingRef.current && value.length > 0) {
-      isTypingRef.current = true;
-      emitTyping(true);
-    }
-    if (value.length === 0) {
-      stopTyping();
-    }
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(stopTyping, 3000);
-  };
-
-  const stopTyping = () => {
-    if (typingTimeoutRef.current) { clearTimeout(typingTimeoutRef.current); typingTimeoutRef.current = undefined; }
-    if (isTypingRef.current) {
-      isTypingRef.current = false;
-      emitTyping(false);
-    }
-  };
 
   const ensureSignalSession = async (peerUserId: string, peerDeviceId = WEB_SIGNAL_DEVICE_ID): Promise<SignalSession> =>
     doEnsureSignalSession({
@@ -219,111 +170,6 @@ const ChatRoute = () => {
 
     return () => { cancelled = true; };
   }, [accessToken, channelMessages, decryptedMessages, user]);
-
-  // Keep message store's currentUserId in sync
-  useEffect(() => {
-    if (user) setMessageCurrentUser(user.id);
-  }, [user, setMessageCurrentUser]);
-
-  // Request notification permission
-  useEffect(() => {
-    if ("Notification" in window && window.Notification.permission === "default") {
-      window.Notification.requestPermission().catch(() => {});
-    }
-  }, []);
-
-  // Verify persisted token on mount; clear if expired
-  useEffect(() => {
-    if (!accessToken || accessToken === "demo-access-token") return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const resp = await fetch(`${API_BASE}/api/v1/auth/me`, {
-          headers: { authorization: `Bearer ${accessToken}` }
-        });
-        if (!cancelled && !resp.ok) clearAuth();
-      } catch {
-        // server not reachable — keep session for offline retry
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [accessToken]);
-
-  // Connect to server and fetch data when in server mode
-  useEffect(() => {
-    if (!accessToken || dataLoadedRef.current) return;
-    dataLoadedRef.current = true;
-    (async () => {
-      try {
-        const headers = { authorization: `Bearer ${accessToken}`, "content-type": "application/json" };
-        const w = await fetch(`${API_BASE}/api/v1/workspaces`, { headers });
-        const wJson = (await w.json()) as { ok: boolean; data: Workspace[] };
-        if (!wJson.ok || !wJson.data?.length) return;
-        setWorkspaces(wJson.data);
-        setActiveWorkspace(wJson.data[0]!.id);
-
-        // Seed bot manifests (no server endpoint for manifests yet)
-        const botManifests = [
-          { id: "bot-help", name: "help", description: "Lists available commands.", commands: [{ name: "/help", description: "Show command help." }], scopes: ["commands:handle", "messages:write"] },
-          { id: "bot-notification", name: "notification", description: "Sends announcements.", commands: [{ name: "/announce", description: "Send an announcement." }], scopes: ["commands:handle", "messages:write"] }
-        ] as BotManifest[];
-        setManifests(botManifests);
-
-        for (const manifest of botManifests) {
-          await fetch(`${API_BASE}/api/v1/bots/install?workspaceId=${encodeURIComponent(wJson.data[0]!.id)}`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(manifest)
-          }).catch(() => {});
-        }
-
-        const ch = await fetch(`${API_BASE}/api/v1/workspaces/${wJson.data[0]!.id}/channels`, { headers });
-        const chJson = (await ch.json()) as { ok: boolean; data: Channel[] };
-        if (chJson.ok && chJson.data?.length) {
-          setChannels(chJson.data);
-          setActiveChannel(chJson.data[0]!.id);
-          setUnread(chJson.data[0]!.id, 0);
-
-          const unreadResp = await fetch(`${API_BASE}/api/v1/workspaces/${wJson.data[0]!.id}/unread-counts`, { headers });
-          const unreadJson = (await unreadResp.json()) as { ok: boolean; data: Record<string, number> };
-          if (unreadJson.ok && unreadJson.data) {
-            for (const [chId, count] of Object.entries(unreadJson.data)) {
-              useChannelStore.getState().setUnread(chId, count);
-            }
-          }
-
-          for (const channel of chJson.data) {
-            const msgs = await fetch(`${API_BASE}/api/v1/channels/${channel.id}/messages?limit=50`, { headers });
-            const msgsJson = (await msgs.json()) as { ok: boolean; data: Message[] };
-            if (msgsJson.ok && Array.isArray(msgsJson.data)) {
-              msgsJson.data.forEach((m: Message) => upsertMessage(m, "sent"));
-            }
-
-            // Load reactions for this channel
-            const reactResp = await fetch(`${API_BASE}/api/v1/channels/${channel.id}/reactions`, { headers });
-            const reactJson = (await reactResp.json()) as { ok: boolean; data: Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> };
-            if (reactJson.ok && reactJson.data) {
-              const state = useMessageStore.getState();
-              for (const [msgId, emojiList] of Object.entries(reactJson.data)) {
-                for (const item of emojiList) {
-                  state.setReaction(msgId, item.emoji, item.count, item.reacted);
-                }
-              }
-            }
-
-            if (channel.mode === "normal") {
-              for (const manifest of botManifests) {
-                await fetch(`${API_BASE}/api/v1/bots/${manifest.id}/channels/${channel.id}`, {
-                  method: "POST",
-                  headers
-                }).catch(() => {});
-              }
-            }
-          }
-        }
-      } catch { /* server may be down */ }
-    })();
-  }, [accessToken]);
 
   // WebSocket connection
   useEffect(() => {

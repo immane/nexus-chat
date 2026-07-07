@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-07 (Phase 1 complete — all 24 tasks done)
-> Current status: Phase 1 complete (24/24 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests, PR #5 open
+> Last updated: 2026-07-08 (Phase 1 complete — Web ChatRoute refactor finalized)
+> Current status: Phase 1 complete (24/24 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests, Web ChatRoute split into UI components and focused hooks
 
 ## 1. Project Overview
 
@@ -235,10 +235,10 @@ From `AGENTS.md`:
 
 ---
 
-## 6.5 Current Implementation Stats (as of 2026-07-07)
+## 6.5 Current Implementation Stats (as of 2026-07-08)
 
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
-- **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing
+- **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. Latest Web refactor verification passed `pnpm --filter @nexus-chat/web lint`, `pnpm --filter @nexus-chat/web typecheck`, `pnpm --filter @nexus-chat/web test`, `pnpm build`, and `pnpm test`.
 - **Coverage**: 100.00% statements/lines/functions, 92.62% branches across core domain + shared packages
 - **Tests**: 89 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
 - **Phase 1 tasks**: 24/24 done — Phase 1 complete
@@ -248,7 +248,7 @@ From `AGENTS.md`:
 - **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface
 - **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce)
 - **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback
-- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar (📎 textarea 😀)
+- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar. `ChatRoute.tsx` is now split into focused UI components plus hooks for channel members, attachments, message actions, bootstrap loading, read receipts, and typing state; Signal/P2P send orchestration and WebSocket connection ownership remain in the route.
 - **Server**: REST API with 60+ endpoints, WebSocket gateway with room-based broadcasting, channel description & mute support, message pinning, reply-to with validation, presence tracking with connection count, WS broadcast for reactions/edits/deletes/channel-created, in-memory dev file upload/download endpoints
 
 ---
@@ -334,6 +334,22 @@ Based on a Telegram competitive analysis (`docs/research/telegram-interface-anal
 ### Gap Distribution
 - **Web**: ~17 items missing from UI (80%) — backend already supports 13/17
 - **Server**: ~4 items missing (20%) — reply, pin, mute, description
+
+### 8.1 Web ChatRoute Refactor (2026-07-08)
+
+The Web chat route was refactored in small, verified steps to reduce `ChatRoute.tsx` size while preserving runtime behavior:
+
+- UI JSX moved into focused components: `ChatHeader`, `ChatComposer`, `RightMemberPanel`, `ForwardModal`, and `DeleteConfirmModal`.
+- Store-heavy list rendering optimized so `MessageList` no longer subscribes to the full reactions map; each `MessageRow` subscribes only to the current message's reactions and reply target.
+- Business logic moved into hooks:
+- `useChannelMembers`: workspace members, channel members, add/remove member actions, and sender display names.
+- `useAttachments`: file input ref, upload state, pending attachments, file upload, and pasted image handling.
+- `useMessageActions`: copy, edit, delete confirmation, reactions, forwarding state, and forwarding submit.
+- `useChatBootstrap`: current-user synchronization, notification permission request, persisted-token validation, workspace/channel/message/reaction bootstrap, and temporary bot manifest seeding.
+- `useTyping`: typing user state, typing start/stop emission, and composer draft change handling.
+- `useReadReceipts`: visible-message ack batching and read receipt state.
+- `ChatRoute.tsx` intentionally still owns Signal identity/session refs, encrypted message decryption, WebSocket connection setup, P2P transport lifecycle, and final message-send orchestration. Those areas are tightly coupled and were left in place to avoid risky behavior changes.
+- Verification after the final split passed: `pnpm --filter @nexus-chat/web lint`, `pnpm --filter @nexus-chat/web typecheck`, `pnpm --filter @nexus-chat/web test`, `pnpm build`, and `pnpm test`.
 
 ---
 
