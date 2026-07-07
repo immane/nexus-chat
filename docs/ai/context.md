@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-07 (post-Telegram competitive analysis, Phase 1 gap audit, 6 new tasks added)
-> Current status: Phase 1 core complete (18/18 tasks done, 4 Web + 2 Server tasks added for polish), coverage 99.55% statements / 92.35% branches, 85 tests, PR #5 open
+> Last updated: 2026-07-07 (post-coverage push, 100% statements/functions/lines)
+> Current status: Phase 1 polish in progress — task 19 (Message Actions) done, coverage 100% statements/functions/lines, 92.81% branches, 87 tests, PR #5 open
 
 ## 1. Project Overview
 
@@ -212,7 +212,7 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 16 | Local Development, CI, Preview Deploy & Closed Beta Release | Done |
 | 17 | TUI Command-Line Client | Done |
 | 18 | P2P DM Direct Connection | Done |
-| 19 | Web Message Actions & Context Menu | Todo |
+| 19 | Web Message Actions & Context Menu | Done |
 | 20 | Web Message Display & Formatting | Todo |
 | 21 | Web Rich Media & Emoji Picker | Todo |
 | 22 | Web Presence, Channel Info & Notifications | Todo |
@@ -239,22 +239,22 @@ From `AGENTS.md`:
 
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
 - **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing
-- **Coverage**: 99.55% statements/lines, 92.35% branches, 98.50% functions across core domain + shared packages
-- **Tests**: 85 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
-- **Phase 1 tasks**: 18/24 done (6 new tasks added 2026-07-07 for Web polish + Server gaps based on Telegram competitive analysis)
+- **Coverage**: 100.00% statements/lines/functions, 92.81% branches across core domain + shared packages
+- **Tests**: 87 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
+- **Phase 1 tasks**: 19/24 done (5 tasks remaining: 3 Web + 2 Server)
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
 - **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)
-- **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage including missing-key and revoke edge cases
-- **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface; inline `/help` command handler in `botService.invokeCommand` generates bot response message and broadcasts via WS
-- **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce) — all using `NexusBotClient`
+- **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage
+- **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface
+- **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce)
 - **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback
-- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list with timestamps and send status (sending/sent/failed), slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup with member search, right sidebar channel members, functional settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out)
+- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients
 - **Desktop shell**: Electron main/preload boundary with secure BrowserWindow options, dev/prod renderer loading, tray menu, native notification IPC, clipboard/window IPC, and auto-update placeholder channel
-- **Observability**: Pino structured logging with redaction, request IDs on all HTTP/WS, Prometheus metrics (HTTP requests, WS connections, message sends, auth failures, bot queue depth, Redis errors), audit log service with in-memory events, centralized error codes, dependency audit in CI, bot command logging in WS gateway
-- **Dev/CI**: Docker Compose (server only; in-memory stores), GitHub Actions (lint/typecheck/test/coverage/build/security/smoke), `pnpm` scripts for all operations, dev bootstrap script, TUI smoke scripts
-- **TUI**: Commander CLI with 12 commands, WebSocket real-time messaging, Ink 6 interactive chat UI (compatible with React 19), token persistence to `.env.tui`, real E2E smoke, real bot smoke, slash command detection
+- **Observability**: Pino structured logging with redaction, request IDs on all HTTP/WS, Prometheus metrics, audit log service, centralized error codes, dependency audit in CI
+- **Dev/CI**: Docker Compose (server only; in-memory stores), GitHub Actions (lint/typecheck/test/coverage/build/security/smoke), `pnpm` scripts, dev bootstrap script, TUI smoke scripts
+- **TUI**: Commander CLI with 12 commands, WebSocket real-time messaging, Ink 6 interactive chat UI, token persistence, real E2E smoke, real bot smoke, slash command detection
 - **Docs**: GitHub README and README.zh-CN (detailed bilingual), QUICKSTART.md and QUICKSTART.zh-CN.md (step-by-step setup), beta checklist, known limitations, backup/restore procedure, AI session context document, Telegram competitive analysis
-- **Git history**: 12 commits on `dev` branch since Phase 1 core completion; PR #5 open against `main`
+- **Git history**: 15+ commits on `dev` branch since Phase 1 core completion; PR #5 open against `main`
 
 ---
 
