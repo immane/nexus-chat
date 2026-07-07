@@ -482,20 +482,36 @@ const ChatRoute = () => {
     } catch { /* */ }
   };
 
-  const themeBg = settings.theme === "light" ? "bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100";
-  const themeAside = settings.theme === "light" ? "border-slate-200 bg-white" : "border-slate-800";
-  const themeHeader = settings.theme === "light" ? "border-slate-200 bg-white" : "border-slate-800";
+  const isLight = settings.theme === "light";
+  const themeBg = isLight ? "bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100";
+  const themeAside = isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-950";
+  const themeHeader = isLight ? "border-slate-200 bg-white" : "border-slate-700";
+  const themeCard = isLight ? "bg-slate-100 text-slate-800" : "bg-slate-900 text-slate-300";
+  const themeBtn = isLight ? "bg-slate-200 text-slate-700 hover:bg-slate-300" : "bg-slate-800 text-slate-300 hover:bg-slate-700";
+  const themeInput = isLight ? "bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400" : "bg-slate-800 text-slate-200 placeholder:text-slate-500";
+  const themeMuted = isLight ? "text-slate-400" : "text-slate-400";
+  const themeSectionTitle = isLight ? "text-slate-500" : "text-slate-400";
+  const themeTabActive = isLight ? "bg-sky-500/10 text-sky-700 ring-1 ring-sky-300" : "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30";
+  const themeTabInactive = isLight ? "bg-slate-200 text-slate-500 hover:bg-slate-300" : "bg-slate-800 text-slate-400 hover:bg-slate-700";
+  const themeMember = isLight ? "text-slate-700 hover:bg-slate-200" : "text-slate-300 hover:bg-slate-800";
+  const themeMemberBadge = isLight ? "bg-slate-200 text-slate-500" : "bg-slate-700 text-slate-300";
+  const themeSettingLabel = isLight ? "text-slate-500" : "text-slate-400";
+  const themeSettingValue = isLight ? "text-slate-900" : "text-slate-100";
+  const themeBorder = isLight ? "border-slate-200" : "border-slate-700";
+  const themeChatInput = isLight ? "bg-white border border-slate-200 focus:ring-sky-400" : "bg-slate-900 ring-sky-400";
+  const themeDivider = isLight ? "border-slate-200" : "border-slate-700";
+  const themeSelect = isLight ? "bg-white border border-slate-300 text-slate-800" : "bg-slate-800 border border-slate-700 text-slate-200";
   const compact = settings.compactMode ? "p-2 text-xs" : "p-4";
 
   return (
-    <main className={`grid min-h-screen grid-cols-[280px_1fr] ${themeBg} max-md:grid-cols-1`} style={rightSidebarOpen ? { gridTemplateColumns: "280px 1fr 260px" } : undefined}>
+    <main className={`grid h-screen grid-cols-[280px_1fr] ${themeBg} max-md:grid-cols-1`} style={rightSidebarOpen ? { gridTemplateColumns: "280px 1fr 260px" } : undefined}>
       <aside className={`flex flex-col h-screen overflow-hidden border-r ${themeAside} max-md:border-b max-md:border-r-0`}>
         <div className={`${compact}`}>
           <h1 className="text-xl font-semibold">Nexus Chat</h1>
           <section className="mt-6">
-            <h2 className="text-xs uppercase tracking-wide text-slate-400">Workspaces</h2>
+            <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Workspaces</h2>
             {workspaces.map((workspace) => (
-              <div key={workspace.id} className="mt-2 rounded-xl bg-slate-900 p-3 text-sm font-medium">
+              <div key={workspace.id} className={`mt-2 rounded-xl ${themeCard} p-3 text-sm font-medium`}>
                 {workspace.name}
               </div>
             ))}
@@ -506,22 +522,22 @@ const ChatRoute = () => {
           <>
             <section className="mt-6">
               <div className="mb-2 flex items-center justify-between">
-                <h2 className="text-xs uppercase tracking-wide text-slate-400">Channels & DMs</h2>
+                <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Channels & DMs</h2>
                 <div className="flex gap-1">
-                  <button className="rounded-lg bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700" type="button" onClick={() => { setChannelCreateOpen(!channelCreateOpen); setDmCreateOpen(false); }} title="Create Channel">+CH</button>
-                  <button className="rounded-lg bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700" type="button" onClick={() => { setDmCreateOpen(!dmCreateOpen); setChannelCreateOpen(false); setDmError(""); }} title="Create DM">+DM</button>
+                  <button className={`rounded-lg ${themeBtn} px-2 py-0.5 text-xs`} type="button" onClick={() => { setChannelCreateOpen(!channelCreateOpen); setDmCreateOpen(false); }} title="Create Channel">+CH</button>
+                  <button className={`rounded-lg ${themeBtn} px-2 py-0.5 text-xs`} type="button" onClick={() => { setDmCreateOpen(!dmCreateOpen); setChannelCreateOpen(false); setDmError(""); }} title="Create DM">+DM</button>
                 </div>
               </div>
               {channelCreateOpen ? (
                 <div className="mb-2 flex gap-1">
-                  <input className="flex-1 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none" placeholder="channel name" value={newChannelName} onChange={(e) => setNewChannelName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createChannel()} />
+                  <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="channel name" value={newChannelName} onChange={(e) => setNewChannelName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createChannel()} />
                   <button className="rounded-lg bg-sky-500/20 px-2 py-1 text-xs text-sky-200" type="button" onClick={createChannel}>Create</button>
                 </div>
               ) : null}
               {dmCreateOpen ? (
                 <div className="mb-2">
                   <div className="flex gap-1">
-                    <input className="flex-1 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none" placeholder="user ID or email" value={newDmEmail} onChange={(e) => setNewDmEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createDm()} />
+                    <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="user ID or email" value={newDmEmail} onChange={(e) => setNewDmEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createDm()} />
                     <button className="rounded-lg bg-purple-500/20 px-2 py-1 text-xs text-purple-200" type="button" onClick={createDm}>DM</button>
                   </div>
                   {dmError ? <p className="mt-1 text-xs text-red-400">{dmError}</p> : null}
@@ -533,64 +549,64 @@ const ChatRoute = () => {
         ) : leftTab === "member" ? (
           <section className="mt-6">
             <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-xs uppercase tracking-wide text-slate-400">Members ({members.length})</h2>
+              <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Members ({members.length})</h2>
             </div>
             <div className="mb-2 flex gap-1">
-              <input className="flex-1 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none" placeholder="Search..." value={friendSearchInput} onChange={(e) => setFriendSearchInput(e.target.value)} />
+              <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="Search..." value={friendSearchInput} onChange={(e) => setFriendSearchInput(e.target.value)} />
             </div>
             <div className="space-y-1">
               {members.filter((m) => !friendSearchInput || m.displayName?.toLowerCase().includes(friendSearchInput.toLowerCase()) || m.userId.includes(friendSearchInput)).map((m) => (
-                <div key={m.userId} className="group flex items-center justify-between rounded-lg px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800">
+                <div key={m.userId} className={`group flex items-center justify-between rounded-lg px-3 py-1.5 text-xs ${themeMember}`}>
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${m.role === "owner" ? "bg-amber-400" : m.role === "admin" ? "bg-sky-400" : "bg-emerald-400"}`}></span>
                     <span>{m.displayName ?? m.userId.slice(0, 10)}</span>
-                    <span className="text-slate-500">({m.role})</span>
+                    <span className={themeMuted}>({m.role})</span>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
                       {m.userId !== user?.id ? (
                         <>
-                          <button className="rounded bg-slate-700 px-1.5 py-0.5 text-xs hover:bg-sky-500/20 hover:text-sky-200" type="button" onClick={() => startDmWithUser(m.userId)} title="Message">💬</button>
-                          <button className="rounded bg-slate-700 px-1.5 py-0.5 text-xs hover:bg-red-500/20 hover:text-red-200" type="button" title="Ban">🚫</button>
+                          <button className={`rounded ${themeMemberBadge} px-1.5 py-0.5 text-xs hover:bg-sky-500/20 hover:text-sky-200`} type="button" onClick={() => startDmWithUser(m.userId)} title="Message">💬</button>
+                          <button className={`rounded ${themeMemberBadge} px-1.5 py-0.5 text-xs hover:bg-red-500/20 hover:text-red-200`} type="button" title="Ban">🚫</button>
                         </>
                       ) : null}
                   </div>
                 </div>
               ))}
-              {members.length === 0 ? <p className="text-xs text-slate-500 px-3">No members</p> : null}
+              {members.length === 0 ? <p className={`text-xs ${themeMuted} px-3`}>No members</p> : null}
             </div>
           </section>
         ) : (
           <section className="mt-6">
-            <h2 className="mb-3 text-xs uppercase tracking-wide text-slate-400">Settings</h2>
+            <h2 className={`mb-3 text-xs uppercase tracking-wide ${themeSectionTitle}`}>Settings</h2>
             {user ? (
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="text-slate-400 mb-1">Display Name</p>
-                  <p className="text-slate-100 font-medium">{user.displayName}</p>
+                  <p className={`${themeSettingLabel} mb-1`}>Display Name</p>
+                  <p className={`${themeSettingValue} font-medium`}>{user.displayName}</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 mb-1">Email</p>
-                  <p className="text-slate-100 text-xs">{user.email}</p>
+                  <p className={`${themeSettingLabel} mb-1`}>Email</p>
+                  <p className={`${themeSettingValue} text-xs`}>{user.email}</p>
                 </div>
-                <hr className="border-slate-700" />
+                <hr className={themeDivider} />
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-300">Theme</span>
-                  <select className="rounded-lg bg-slate-800 px-3 py-1 text-sm text-slate-200 border border-slate-700" value={settings.theme} onChange={(e) => updateSettings({ theme: e.target.value as "dark" | "light" })}>
+                  <span className={themeSettingLabel}>Theme</span>
+                  <select className={`rounded-lg ${themeSelect} px-3 py-1 text-sm`} value={settings.theme} onChange={(e) => updateSettings({ theme: e.target.value as "dark" | "light" })}>
                     <option value="dark">Dark</option>
                     <option value="light">Light</option>
                   </select>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-300">Compact</span>
-                  <button className={`rounded-lg px-3 py-1 text-sm transition ${settings.compactMode ? "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30" : "bg-slate-800 text-slate-400"}`} type="button" onClick={() => updateSettings({ compactMode: !settings.compactMode })}>{settings.compactMode ? "ON" : "OFF"}</button>
+                  <span className={themeSettingLabel}>Compact</span>
+                  <button className={`rounded-lg px-3 py-1 text-sm transition ${settings.compactMode ? themeTabActive : themeBtn}`} type="button" onClick={() => updateSettings({ compactMode: !settings.compactMode })}>{settings.compactMode ? "ON" : "OFF"}</button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-300">Sound</span>
-                  <button className={`rounded-lg px-3 py-1 text-sm transition ${settings.soundEnabled ? "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30" : "bg-slate-800 text-slate-400"}`} type="button" onClick={() => updateSettings({ soundEnabled: !settings.soundEnabled })}>{settings.soundEnabled ? "ON" : "OFF"}</button>
+                  <span className={themeSettingLabel}>Sound</span>
+                  <button className={`rounded-lg px-3 py-1 text-sm transition ${settings.soundEnabled ? themeTabActive : themeBtn}`} type="button" onClick={() => updateSettings({ soundEnabled: !settings.soundEnabled })}>{settings.soundEnabled ? "ON" : "OFF"}</button>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-300">Notifications</span>
-                  <button className={`rounded-lg px-3 py-1 text-sm transition ${settings.notificationsEnabled ? "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30" : "bg-slate-800 text-slate-400"}`} type="button" onClick={() => updateSettings({ notificationsEnabled: !settings.notificationsEnabled })}>{settings.notificationsEnabled ? "ON" : "OFF"}</button>
+                  <span className={themeSettingLabel}>Notifications</span>
+                  <button className={`rounded-lg px-3 py-1 text-sm transition ${settings.notificationsEnabled ? themeTabActive : themeBtn}`} type="button" onClick={() => updateSettings({ notificationsEnabled: !settings.notificationsEnabled })}>{settings.notificationsEnabled ? "ON" : "OFF"}</button>
                 </div>
               </div>
             ) : null}
@@ -600,22 +616,22 @@ const ChatRoute = () => {
           </section>
         )}
         </div>
-        <div className="border-t border-slate-800 px-3 py-3">
+        <div className={`border-t ${themeBorder} px-3 py-3`}>
           <div className="flex gap-1">
-            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "chat" ? "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30" : "bg-slate-800 text-slate-400 hover:bg-slate-700"}`} type="button" onClick={() => setLeftTab("chat")} title="Chat">💬</button>
-            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "member" ? "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30" : "bg-slate-800 text-slate-400 hover:bg-slate-700"}`} type="button" onClick={() => setLeftTab("member")} title="Members">👥</button>
-            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "settings" ? "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30" : "bg-slate-800 text-slate-400 hover:bg-slate-700"}`} type="button" onClick={() => setLeftTab("settings")} title="Settings">⚙</button>
+            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "chat" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("chat")} title="Chat">💬</button>
+            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "member" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("member")} title="Members">👥</button>
+            <button className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition ${leftTab === "settings" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("settings")} title="Settings">⚙</button>
           </div>
         </div>
       </aside>
-      <section className="relative flex min-h-screen min-w-0 flex-col max-md:min-h-[70vh]">
+      <section className="relative flex min-w-0 flex-col overflow-hidden">
         <header className={`border-b ${themeHeader} ${compact}`}>
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-lg font-semibold">{activeChannel?.name ?? "Select a channel"}</h2>
             {isE2e ? <Badge tone="warning">Encrypted DM</Badge> : <Badge tone="success">Bots enabled</Badge>}
             {socketRef.current ? <Badge tone={wsConnected ? "success" : "warning"}>{wsConnected ? "WS connected" : "WS disconnected"}</Badge> : null}
             <div className="ml-auto flex items-center gap-2">
-              <button className={`rounded-lg px-3 py-1 text-sm transition ${rightSidebarOpen ? "bg-sky-500/20 text-sky-200 ring-1 ring-sky-400/30" : "bg-slate-800 text-slate-400 hover:bg-slate-700"}`} type="button" onClick={() => setRightSidebarOpen(!rightSidebarOpen)} title="Group Members">👥 Members</button>
+              <button className={`rounded-lg px-3 py-1 text-sm transition ${rightSidebarOpen ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setRightSidebarOpen(!rightSidebarOpen)} title="Group Members">👥 Members</button>
             </div>
           </div>
           {isE2e ? <p className="mt-2 text-sm text-amber-200">Bots, slash commands, previews, and server-side search are disabled here.</p> : null}
@@ -627,7 +643,7 @@ const ChatRoute = () => {
               <>
                 {!isE2e
                   ? inputActions.map((action) => (
-                      <button key={action.id} className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-200 hover:bg-slate-700" type="button" onClick={() => setDraft(action.command)}>
+                      <button key={action.id} className={`rounded-full ${themeBtn} px-3 py-1 text-xs`} type="button" onClick={() => setDraft(action.command)}>
                         {action.label}
                       </button>
                     ))
@@ -638,9 +654,9 @@ const ChatRoute = () => {
           >
             <div className="relative flex flex-1 flex-col">
               {suggestions.length ? (
-                <div className="absolute bottom-12 left-0 z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-xl">
+                <div className={`absolute bottom-12 left-0 z-10 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>
                   {suggestions.map((suggestion) => (
-                    <button key={`${suggestion.botId}-${suggestion.name}`} className="block w-full px-4 py-3 text-left text-sm hover:bg-slate-800" type="button" onClick={() => setDraft(`${suggestion.name} `)}>
+                    <button key={`${suggestion.botId}-${suggestion.name}`} className={`block w-full px-4 py-3 text-left text-sm ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800"}`} type="button" onClick={() => setDraft(`${suggestion.name} `)}>
                       <span className="font-medium text-sky-200">{suggestion.name}</span>
                       <span className="ml-2 text-slate-400">{suggestion.description}</span>
                     </button>
@@ -648,7 +664,7 @@ const ChatRoute = () => {
                 </div>
               ) : null}
               <input
-                className="w-full rounded-xl bg-slate-900 px-4 py-3 outline-none ring-sky-400 transition placeholder:text-slate-500 focus:ring-2"
+                className={`w-full rounded-xl ${themeChatInput} px-4 py-3 outline-none transition placeholder:text-slate-400 focus:ring-2`}
                 placeholder={isE2e ? "Encrypted message" : "Message or /command"}
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
@@ -664,29 +680,29 @@ const ChatRoute = () => {
         <aside className={`border-l ${themeAside} max-md:hidden overflow-y-auto`}>
           <div className={`${compact}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs uppercase tracking-wide text-slate-400">Group Members ({channelMembers.length})</h2>
-              <button className="rounded-lg bg-slate-800 px-2 py-0.5 text-xs text-slate-400 hover:bg-slate-700" type="button" onClick={() => setRightSidebarOpen(false)}>✕</button>
+              <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Group Members ({channelMembers.length})</h2>
+              <button className={`rounded-lg ${themeBtn} px-2 py-0.5 text-xs`} type="button" onClick={() => setRightSidebarOpen(false)}>✕</button>
             </div>
             <div className="mb-2 flex gap-1">
-              <input className="flex-1 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-200 outline-none" placeholder="User ID to add..." value={addMemberInput} onChange={(e) => setAddMemberInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addChannelMember()} />
+              <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="User ID to add..." value={addMemberInput} onChange={(e) => setAddMemberInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addChannelMember()} />
               <button className="rounded-lg bg-sky-500/20 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/30" type="button" onClick={addChannelMember}>Add</button>
             </div>
             <div className="space-y-1">
               {channelMembers.map((cm) => {
                 const memberInfo = members.find((m) => m.userId === cm.userId);
                 return (
-                  <div key={cm.userId} className="group flex items-center justify-between rounded-lg px-2 py-1.5 text-xs text-slate-300 hover:bg-slate-800">
+                  <div key={cm.userId} className={`group flex items-center justify-between rounded-lg px-2 py-1.5 text-xs ${themeMember}`}>
                     <div className="flex items-center gap-2">
                       <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
                       <span>{memberInfo?.displayName ?? cm.userId.slice(0, 10)}</span>
                     </div>
                     {cm.userId !== user?.id ? (
-                      <button className="rounded bg-slate-700 px-1.5 py-0.5 text-xs opacity-0 group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 transition" type="button" onClick={() => removeChannelMember(cm.userId)} title="Remove">✕</button>
+                      <button className={`rounded ${themeMemberBadge} px-1.5 py-0.5 text-xs opacity-0 group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 transition`} type="button" onClick={() => removeChannelMember(cm.userId)} title="Remove">✕</button>
                     ) : null}
                   </div>
                 );
               })}
-              {channelMembers.length === 0 ? <p className="text-xs text-slate-500 px-2">No members yet</p> : null}
+              {channelMembers.length === 0 ? <p className={`text-xs ${themeMuted} px-2`}>No members yet</p> : null}
             </div>
           </div>
         </aside>

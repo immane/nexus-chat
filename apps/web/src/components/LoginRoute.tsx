@@ -33,7 +33,7 @@ const LoginRoute = () => {
   };
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_top_left,#164e63,#020617_45%)] p-6 text-slate-100">
+    <main className="grid h-screen place-items-center bg-[radial-gradient(circle_at_top_left,#164e63,#020617_45%)] p-6 text-slate-100">
       <div className="w-full max-w-md">
         <div className="mb-4 flex gap-2">
           <button className={`rounded-xl px-4 py-2 text-sm font-medium ${mode === "demo" ? "bg-sky-400 text-slate-950" : "bg-slate-800 text-slate-300"}`} type="button" onClick={() => setMode("demo")}>Demo</button>
