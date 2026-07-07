@@ -104,6 +104,9 @@ const ChatRoute = () => {
   const [forwardSearch, setForwardSearch] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [toasts, setToasts] = useState<Array<{ id: string; text: string; channelId: string }>>([]);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const dataLoadedRef = useRef(false);
   const [uploading, setUploading] = useState<Array<{ name: string; progress: number; cancel: () => void }>>([]);
   const [pendingAttachments, setPendingAttachments] = useState<Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -208,6 +211,13 @@ const ChatRoute = () => {
     if (user) setMessageCurrentUser(user.id);
   }, [user, setMessageCurrentUser]);
 
+  // Request notification permission
+  useEffect(() => {
+    if ("Notification" in window && window.Notification.permission === "default") {
+      window.Notification.requestPermission().catch(() => {});
+    }
+  }, []);
+
   // Verify persisted token on mount; clear if expired
   useEffect(() => {
     if (!accessToken || accessToken === "demo-access-token") return;
@@ -223,11 +233,12 @@ const ChatRoute = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [accessToken]);
 
   // Connect to server and fetch data when in server mode
   useEffect(() => {
-    if (!accessToken || workspaces.length > 0) return;
+    if (!accessToken || dataLoadedRef.current) return;
+    dataLoadedRef.current = true;
     (async () => {
       try {
         const headers = { authorization: `Bearer ${accessToken}`, "content-type": "application/json" };
@@ -345,6 +356,17 @@ const ChatRoute = () => {
         if (serverMsg.channelId !== currentActive && serverMsg.senderId !== user?.id) {
           const counts = useChannelStore.getState().unreadCounts;
           useChannelStore.getState().setUnread(serverMsg.channelId, (counts[serverMsg.channelId] ?? 0) + 1);
+          const ch = useChannelStore.getState().channels.find((c) => c.id === serverMsg.channelId);
+          const sender = senderNames[serverMsg.senderId] ?? serverMsg.senderId.slice(0, 10);
+          const preview = serverMsg.content.type === "text" ? serverMsg.content.text.slice(0, 40) : "Attachment";
+          const toastId = `toast-${Date.now()}`;
+          const notificationBody = `${sender}: ${preview}`;
+          setToasts((prev) => [...prev, { id: toastId, text: `${ch?.name ?? "DM"}: ${notificationBody}`, channelId: serverMsg.channelId }]);
+          if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+          toastTimerRef.current = setTimeout(() => { setToasts((prev) => prev.slice(1)); }, 5000);
+          if (settings.notificationsEnabled && document.hidden) {
+            try { new window.Notification("Nexus Chat", { body: notificationBody }); } catch { /* */ }
+          }
         }
       }
       if (event.type === "typing.updated") {
@@ -848,7 +870,7 @@ const ChatRoute = () => {
               {members.filter((m) => !friendSearchInput || m.displayName?.toLowerCase().includes(friendSearchInput.toLowerCase()) || m.userId.includes(friendSearchInput)).map((m) => (
                 <div key={m.userId} className={`group flex items-center justify-between rounded-lg px-3 py-1.5 text-xs ${themeMember}`}>
                   <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 rounded-full ${m.role === "owner" ? "bg-amber-400" : m.role === "admin" ? "bg-sky-400" : "bg-emerald-400"}`}></span>
+                    <span className={`h-2 w-2 rounded-full ${onlineUserIds.has(m.userId) ? "bg-emerald-400" : "bg-slate-500"}`}></span>
                     <span>{m.displayName ?? m.email?.split("@")[0] ?? m.userId.slice(0, 10)}</span>
                     <span className={themeMuted}>({m.role})</span>
                   </div>
@@ -915,6 +937,18 @@ const ChatRoute = () => {
         </div>
       </aside>
       <section className="relative flex min-w-0 flex-col">
+        {toasts.length > 0 ? (
+          <div className="absolute right-2 top-2 z-20 flex flex-col gap-1">
+            {toasts.map((t) => (
+              <button
+                key={t.id}
+                className={`cursor-pointer rounded-lg px-4 py-2 text-sm shadow-lg transition ${isLight ? "bg-white text-slate-800" : "bg-slate-800 text-slate-200"}`}
+                type="button"
+                onClick={() => selectChannel(t.channelId)}
+              >{t.text}</button>
+            ))}
+          </div>
+        ) : null}
         <header className={`border-b ${themeHeader} ${compact}`}>
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-lg font-semibold">{activeChannel?.name ?? "Select a channel"}</h2>
@@ -1046,7 +1080,7 @@ const ChatRoute = () => {
                 return (
                   <div key={cm.userId} className={`group flex items-center justify-between rounded-lg px-2 py-1.5 text-xs ${themeMember}`}>
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                      <span className={`h-2 w-2 rounded-full ${onlineUserIds.has(cm.userId) ? "bg-emerald-400" : "bg-slate-500"}`}></span>
                       <span>{memberInfo?.displayName ?? cm.userId.slice(0, 10)}</span>
                     </div>
                     {cm.userId !== user?.id ? (

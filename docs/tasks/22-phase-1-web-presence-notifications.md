@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: todo
+status: done
 ---
 
 # 22 — Phase 1 — Web Presence, Channel Info & Notifications

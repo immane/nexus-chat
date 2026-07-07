@@ -47,7 +47,8 @@ export default [
         HTMLInputElement: "readonly",
         HTMLTextAreaElement: "readonly",
         HTMLImageElement: "readonly",
-        HTMLElement: "readonly"
+        HTMLElement: "readonly",
+        Notification: "readonly"
       }
     }
   },
