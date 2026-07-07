@@ -146,5 +146,19 @@ export const workspaceService = {
     if (!channel) return false;
     const role = this.getRole(userId, channel.workspaceId);
     return channel.createdById === userId || role === "owner" || role === "admin";
+  },
+  muteChannel(actorId: string, channelId: string): { muted: true } | ReturnType<typeof apiFail> {
+    if (!this.canAccessChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    if (!store.channelMutes.has(actorId)) store.channelMutes.set(actorId, new Set());
+    store.channelMutes.get(actorId)!.add(channelId);
+    return { muted: true };
+  },
+  unmuteChannel(actorId: string, channelId: string): { muted: false } | ReturnType<typeof apiFail> {
+    if (!this.canAccessChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+    store.channelMutes.get(actorId)?.delete(channelId);
+    return { muted: false };
+  },
+  isChannelMuted(actorId: string, channelId: string): boolean {
+    return store.channelMutes.get(actorId)?.has(channelId) ?? false;
   }
 };

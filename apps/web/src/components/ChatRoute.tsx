@@ -931,15 +931,15 @@ const ChatRoute = () => {
           </section>
         )}
         </div>
-        <div className={`border-t ${themeBorder} px-3 py-3`}>
-          <div className="flex gap-1">
+        <div className={`${themeBorder} p-3`}>
+          <div className="flex items-center gap-1">
             <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "chat" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("chat")} title="Chat">💬</button>
             <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "member" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("member")} title="Members">👥</button>
             <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "settings" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("settings")} title="Settings">⚙️</button>
           </div>
         </div>
       </aside>
-      <section className="relative flex min-w-0 flex-col">
+      <section className="chat-main relative flex min-w-0 flex-col">
         {toasts.length > 0 ? (
           <div className="absolute right-2 top-2 z-20 flex flex-col gap-1">
             {toasts.map((t) => (
@@ -985,7 +985,7 @@ const ChatRoute = () => {
           ) : null : null}
         </header>
         <MessageList messages={channelMessages} statuses={statuses} decryptedMessages={decryptedMessages} transportLabels={transportLabels} readReceipts={readReceipts} senderNames={senderNames} onMessagesVisible={handleMessagesVisible} onReply={setReplyMessage} onForward={setForwardSource} onEdit={handleEdit} onDelete={handleDelete} onCopy={handleCopy} onReact={handleReact} />
-        <form onSubmit={submit}>
+        <form className="m-0" onSubmit={submit}>
           {replyMessage ? (
             <div className={`mx-4 mb-1 flex items-center gap-2 rounded-t-xl border-l-4 border-sky-400 px-4 py-2 ${isLight ? "bg-sky-50" : "bg-sky-500/10"}`}>
               <span className="text-xs text-sky-400">Replying to</span>

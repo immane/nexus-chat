@@ -116,6 +116,7 @@ export const channelSchema = z.object({
   id: idSchema,
   workspaceId: idSchema,
   name: z.string().min(1).max(120),
+  description: z.string().max(500).optional(),
   kind: channelKindSchema,
   mode: channelModeSchema,
   isPrivate: z.boolean(),

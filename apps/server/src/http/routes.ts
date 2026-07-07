@@ -26,6 +26,7 @@ import {
   transferWorkspaceOwnershipSchema,
   updateWorkspaceSchema,
   uploadSessionCreateSchema,
+  type Channel,
   type Message
 } from "@nexus-chat/shared";
 import { env } from "../config/env.js";
@@ -123,9 +124,29 @@ export const createHttpApp = () => {
     broadcastToWorkspace(result.workspaceId, { type: "channel.created", payload: result, timestamp: new Date().toISOString() });
     return c.json(toResponse(result), 201);
   });
-  app.get("/api/v1/workspaces/:id/channels", authRequired, (c) => c.json(apiOk(workspaceService.listChannels(c.get("userId"), requiredParam(c.req.param("id"))))));
+  app.get("/api/v1/workspaces/:id/channels", authRequired, (c) => {
+    const userId = c.get("userId");
+    const channels = workspaceService.listChannels(userId, requiredParam(c.req.param("id")));
+    return c.json(apiOk(channels.map((ch) => ({ ...ch, muted: workspaceService.isChannelMuted(userId, ch.id) }))));
+  });
   app.get("/api/v1/workspaces/:id/unread-counts", authRequired, (c) => c.json(apiOk(messageService.getUnreadCounts(c.get("userId"), requiredParam(c.req.param("id"))))));
   app.post("/api/v1/channels/:id/mark-read", authRequired, (c) => c.json(toResponse(messageService.markRead(c.get("userId"), requiredParam(c.req.param("id"))))));
+  app.patch("/api/v1/channels/:id", authRequired, async (c) => {
+    const body = await c.req.json() as { name?: string; description?: string };
+    const channelId = requiredParam(c.req.param("id"));
+    const channel = store.channels.get(channelId);
+    if (!channel) return c.json(apiFail("NOT_FOUND", "Channel not found"), 404);
+    if (!workspaceService.canManageChannel(c.get("userId"), channelId)) return c.json(apiFail("FORBIDDEN", "Only admins and channel creators can update channels"), 403);
+    const updates: Partial<Channel> = {};
+    if (body.name !== undefined) updates.name = body.name.trim().slice(0, 120);
+    if (body.description !== undefined) updates.description = body.description.trim().slice(0, 500) || undefined;
+    const updated = { ...channel, ...updates };
+    store.channels.set(channelId, updated);
+    return c.json(apiOk(updated));
+  });
+  app.post("/api/v1/channels/:id/mute", authRequired, (c) => c.json(toResponse(workspaceService.muteChannel(c.get("userId"), requiredParam(c.req.param("id"))))));
+  app.delete("/api/v1/channels/:id/mute", authRequired, (c) => c.json(toResponse(workspaceService.unmuteChannel(c.get("userId"), requiredParam(c.req.param("id"))))));
+  app.get("/api/v1/channels/:id/mute-status", authRequired, (c) => c.json(apiOk({ muted: workspaceService.isChannelMuted(c.get("userId"), requiredParam(c.req.param("id"))) })));
   app.post("/api/v1/channels/:id/members", authRequired, zValidator("json", addChannelMemberSchema), (c) => c.json(toResponse(workspaceService.addChannelMember(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").userId))));
   app.delete("/api/v1/channels/:id/members/:userId", authRequired, (c) => c.json(toResponse(workspaceService.removeChannelMember(c.get("userId"), requiredParam(c.req.param("id")), requiredParam(c.req.param("userId"))))));
   app.get("/api/v1/channels/:id/members", authRequired, (c) => c.json(apiOk(workspaceService.listChannelMembers(c.get("userId"), requiredParam(c.req.param("id"))))));

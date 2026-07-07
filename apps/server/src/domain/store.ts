@@ -37,6 +37,7 @@ export class InMemoryStore {
   channelLastRead = new Map<string, string>();
   pinnedMessages = new Map<string, Set<string>>();
   onlineConnections = new Map<string, number>();
+  channelMutes = new Map<string, Set<string>>();
   devFileContent?: Map<string, ArrayBuffer>;
   auditLogs: Array<{ id: string; actorUserId?: string | undefined; workspaceId?: string | undefined; action: string; metadata: unknown; createdAt: string }> = [];
 }

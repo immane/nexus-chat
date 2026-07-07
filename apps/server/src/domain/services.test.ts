@@ -469,4 +469,16 @@ describe("server domain services", () => {
     messageService.softDelete("user-owner", msg.id);
     expectError(messageService.pinMessage("user-owner", normal.id, msg.id), "NOT_FOUND");
   });
+
+  it("manages per-user per-channel mute state", () => {
+    const workspace = createWorkspaceWithMember();
+    const normal = createChannel(workspace, "normal");
+    expect(workspaceService.isChannelMuted("user-owner", normal.id)).toBe(false);
+    expectError(workspaceService.muteChannel("stranger", normal.id), "FORBIDDEN");
+    expect(workspaceService.muteChannel("user-owner", normal.id)).toEqual({ muted: true });
+    expect(workspaceService.isChannelMuted("user-owner", normal.id)).toBe(true);
+    expect(workspaceService.isChannelMuted("user-member", normal.id)).toBe(false);
+    expect(workspaceService.unmuteChannel("user-owner", normal.id)).toEqual({ muted: false });
+    expect(workspaceService.isChannelMuted("user-owner", normal.id)).toBe(false);
+  });
 });
