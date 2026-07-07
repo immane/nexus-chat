@@ -25,6 +25,7 @@ import {
   loginRequestSchema,
   messageSchema,
   normalMessageContentSchema,
+  nowIso,
   p2pAnswerSchema,
   p2pHangupSchema,
   p2pIceCandidateSchema,
@@ -69,6 +70,7 @@ describe("shared contracts", () => {
     expect(() => loginRequestSchema.parse({ email: "bad", password: "x" })).toThrow();
     expect(apiOk({ ok: true }).ok).toBe(true);
     expect(apiFail("FORBIDDEN", "no").error.code).toBe("FORBIDDEN");
+    expect(nowIso()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     expect(ApiSuccessSchema.parse({ ok: true, data: { value: 1 }, requestId: "req-1" }).requestId).toBe("req-1");
     expect(ApiErrorSchema.parse({ ok: false, error: { code: "FORBIDDEN", message: "no" }, requestId: "req-1" }).error.code).toBe("FORBIDDEN");
     expect(() => ApiSuccessSchema.parse({ ok: true, data: null })).toThrow();

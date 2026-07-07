@@ -54,6 +54,9 @@ describe("server domain services", () => {
     await expect(authService.register("grace@example.com", "Password12345!", "Grace Again")).resolves.toMatchObject({ ok: false, error: { error: { code: "CONFLICT" } } });
     if (!registered.ok) return;
 
+    expect(authService.lookupByEmail("grace@example.com")?.id).toBe(registered.session.user.id);
+    expect(authService.lookupByEmail("nobody@example.com")).toBeUndefined();
+
     const refreshToken = "nxrefresh_missing_user";
     store.refreshSessions.set(refreshToken, { userId: registered.session.user.id, tokenHash: createHash("sha256").update(refreshToken).digest("hex"), expiresAt: Date.now() + 1000 });
     store.users.delete(registered.session.user.id);
@@ -353,6 +356,10 @@ describe("server domain services", () => {
     expect("oneTimePreKeyId" in exhausted && typeof exhausted.oneTimePreKeyId === "number").toBe(false);
     expectError(signalService.consumeOneTimePreKey("user-owner", "device-1", 5), "NOT_FOUND");
     expect(store.signalBundles.size).toBe(1);
+    // Successful consumption of a fresh key (not auto-consumed by fetchBundle)
+    expect(signalService.uploadBundle("user-owner", { userId: "user-owner", deviceId: "device-2", identityKey: "ik2", signedPreKeyId: 1, signedPreKey: "spk", signedPreKeySignature: "sig" }, [{ keyId: 1, publicKey: "pk" }])).toMatchObject({ identityKey: "ik2" });
+    expect(signalService.consumeOneTimePreKey("user-owner", "device-2", 1)).toEqual({ consumed: true });
+    expectError(signalService.consumeOneTimePreKey("user-owner", "device-2", 1), "CONFLICT");
   });
 
   it("manages signal sessions lifecycle", () => {
@@ -364,5 +371,68 @@ describe("server domain services", () => {
     expect(signalService.listUserSessions("user-member")).toHaveLength(1);
     expect(signalService.listUserSessions("user-3")).toHaveLength(0);
     expectError(signalService.getSession("missing"), "NOT_FOUND");
+  });
+
+  it("validates replyToMessageId in message send", () => {
+    const workspace = createWorkspaceWithMember();
+    const normal = createChannel(workspace, "normal");
+
+    const target = messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "reply-target", content: { type: "text", text: "target", attachments: [] } });
+    expect("id" in target).toBe(true);
+    if (!("id" in target)) return;
+
+    // Valid reply
+    const reply = messageService.send("user-member", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "reply-msg", content: { type: "text", text: "reply", attachments: [] }, replyToMessageId: target.id });
+    expect("id" in reply && reply.replyToMessageId).toBe(target.id);
+
+    // Reply to missing message
+    expectError(messageService.send("user-member", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "bad-reply", content: { type: "text", text: "bad", attachments: [] }, replyToMessageId: "missing-id" }), "NOT_FOUND");
+
+    // Reply to a deleted message
+    messageService.softDelete("user-owner", target.id);
+    expectError(messageService.send("user-member", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "deleted-reply", content: { type: "text", text: "bad", attachments: [] }, replyToMessageId: target.id }), "NOT_FOUND");
+
+    // Reply from a different channel
+    const other = workspaceService.createChannel("user-owner", workspace.id, "other-ch", "normal", false) as Channel;
+    const otherMsg = messageService.send("user-owner", { workspaceId: workspace.id, channelId: other.id, clientMsgId: "other-target", content: { type: "text", text: "other", attachments: [] } });
+    if ("id" in otherMsg) {
+      expectError(messageService.send("user-member", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "cross-reply", content: { type: "text", text: "bad", attachments: [] }, replyToMessageId: otherMsg.id }), "NOT_FOUND");
+    }
+  });
+
+  it("aggregates reactions by message with access control", () => {
+    const workspace = createWorkspaceWithMember();
+    const normal = createChannel(workspace, "normal");
+    const msg = messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "react-msg", content: { type: "text", text: "reactable", attachments: [] } });
+    expect("id" in msg).toBe(true);
+    if (!("id" in msg)) return;
+
+    // No access
+    expect(messageService.getReactions("stranger", normal.id)).toEqual({});
+
+    // Empty reactions
+    expect(messageService.getReactions("user-owner", normal.id)).toEqual({});
+
+    // Add reactions
+    messageService.react("user-owner", msg.id, "👍");
+    messageService.react("user-member", msg.id, "👍");
+    messageService.react("user-member", msg.id, "❤️");
+
+    const reactions = messageService.getReactions("user-owner", normal.id);
+    expect(reactions[msg.id]).toEqual(
+      expect.arrayContaining([
+        { emoji: "👍", count: 2, reacted: true },
+        { emoji: "❤️", count: 1, reacted: false }
+      ])
+    );
+
+    // Access through channel permission
+    const publicCh = workspaceService.createChannel("user-owner", workspace.id, "public", "normal", false) as Channel;
+    workspaceService.addChannelMember("user-owner", publicCh.id, "user-member");
+    const publicMsg = messageService.send("user-owner", { workspaceId: workspace.id, channelId: publicCh.id, clientMsgId: "pub-msg", content: { type: "text", text: "hi", attachments: [] } });
+    if ("id" in publicMsg) {
+      messageService.react("user-member", publicMsg.id, "🚀");
+      expect(messageService.getReactions("user-member", publicCh.id)[publicMsg.id]).toEqual([{ emoji: "🚀", count: 1, reacted: true }]);
+    }
   });
 });
