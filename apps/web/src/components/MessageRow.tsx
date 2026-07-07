@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { Message } from "@nexus-chat/shared";
 import { Badge } from "@nexus-chat/ui";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu.js";
-import { useMessageStore, useUiStore } from "../stores/domain.js";
+import { useAuthStore, useMessageStore, useUiStore } from "../stores/domain.js";
 import { renderMarkdown, formatRelativeTime, formatFileSize } from "../lib/markdown.js";
 import { API_BASE } from "../lib/api.js";
 
@@ -34,6 +34,7 @@ export const MessageRow = ({
   onReact: (emoji: string) => void;
 }) => {
   const settings = useUiStore((state) => state.settings);
+  const accessToken = useAuthStore((state) => state.accessToken);
   const messagesMap = useMessageStore((state) => state.messages);
   const currentUserId = useMessageStore((state) => state.currentUserId);
   const isSelf = currentUserId ? message.senderId === currentUserId : false;
@@ -46,6 +47,61 @@ export const MessageRow = ({
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const [enlargedImg, setEnlargedImg] = useState<string | null>(null);
+  const [attachmentUrls, setAttachmentUrls] = useState<Record<string, string>>({});
+
+  const textAttachments = message.content.type === "text" ? message.content.attachments : [];
+
+  useEffect(() => {
+    if (!accessToken) {
+      setAttachmentUrls({});
+      return;
+    }
+    const imageAttachments = textAttachments.filter((att) => att.mimeType.startsWith("image/"));
+    if (imageAttachments.length === 0) {
+      setAttachmentUrls({});
+      return;
+    }
+    const objectUrls: string[] = [];
+    let cancelled = false;
+
+    void (async () => {
+      const next: Record<string, string> = {};
+      for (const att of imageAttachments) {
+        try {
+          const response = await fetch(`${API_BASE}/dev-download/${att.fileId}`, { headers: { authorization: `Bearer ${accessToken}` } });
+          if (!response.ok) continue;
+          const url = window.URL.createObjectURL(await response.blob());
+          objectUrls.push(url);
+          next[att.fileId] = url;
+        } catch {
+          // Ignore broken development-only previews.
+        }
+      }
+      if (!cancelled) setAttachmentUrls(next);
+      else objectUrls.forEach((url) => window.URL.revokeObjectURL(url));
+    })();
+
+    return () => {
+      cancelled = true;
+      objectUrls.forEach((url) => window.URL.revokeObjectURL(url));
+    };
+  }, [accessToken, message.id]);
+
+  const downloadAttachment = useCallback(async (fileId: string, name: string) => {
+    if (!accessToken) return;
+    try {
+      const response = await fetch(`${API_BASE}/dev-download/${fileId}`, { headers: { authorization: `Bearer ${accessToken}` } });
+      if (!response.ok) return;
+      const url = window.URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = name;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      // Ignore development-only download failures.
+    }
+  }, [accessToken]);
 
   const REACTION_EMOJIS = ["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉", "😡", "🤔", "💯", "✅", "🚀", "👀", "🎯", "💪", "🙏", "👋", "💀", "🐱"];
 
@@ -139,20 +195,22 @@ export const MessageRow = ({
         ) : (
           <>
             <div className="md-content text-sm" dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }} />
-            {message.content.type === "text" && message.content.attachments.length > 0 ? (
+            {textAttachments.length > 0 ? (
               <div className="mt-2 grid gap-2">
-                {message.content.attachments.map((att) => {
+                {textAttachments.map((att) => {
                   const isImage = att.mimeType.startsWith("image/");
+                  const imageUrl = attachmentUrls[att.fileId];
                   if (isImage) {
                     return (
                       <div key={att.fileId}>
-                        <img
-                          src={`${API_BASE}/dev-download/${att.fileId}`}
-                          alt={att.name}
-                          className="max-h-48 cursor-pointer rounded-lg object-cover hover:opacity-90"
-                          onClick={() => setEnlargedImg(`${API_BASE}/dev-download/${att.fileId}`)}
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                        />
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={att.name}
+                            className="max-h-48 cursor-pointer rounded-lg object-cover hover:opacity-90"
+                            onClick={() => setEnlargedImg(imageUrl)}
+                          />
+                        ) : null}
                       </div>
                     );
                   }
@@ -163,7 +221,7 @@ export const MessageRow = ({
                         <p className="text-slate-300">{att.name}</p>
                         <p className="text-slate-500">{formatFileSize(att.size)}</p>
                       </div>
-                      <button className="rounded bg-sky-500/20 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/30" type="button" onClick={() => window.open(`${API_BASE}/dev-download/${att.fileId}`, "_blank")}>DL</button>
+                      <button className="rounded bg-sky-500/20 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/30" type="button" onClick={() => void downloadAttachment(att.fileId, att.name)}>DL</button>
                     </div>
                   );
                 })}

@@ -394,15 +394,18 @@ const ChatRoute = () => {
         }
       }
       if (event.type === "message.reaction") {
-        const payload = event.payload as { messageId: string; emoji: string; count: number; reacted: boolean };
+        const payload = event.payload as { messageId: string; emoji: string; count: number; reacted: boolean; actorUserId?: string };
         if (payload.messageId && payload.emoji) {
-          setReaction(payload.messageId, payload.emoji, payload.count, payload.reacted);
+          const current = useMessageStore.getState().reactions[payload.messageId]?.[payload.emoji];
+          const reacted = payload.actorUserId === user?.id ? payload.reacted : current?.reacted ?? false;
+          setReaction(payload.messageId, payload.emoji, payload.count, reacted);
         }
       }
       if (event.type === "channel.created") {
         const ch = event.payload as Channel;
         if (ch.id && ch.workspaceId) {
-          setChannels([...useChannelStore.getState().channels, ch]);
+          const current = useChannelStore.getState().channels;
+          if (!current.some((c) => c.id === ch.id)) setChannels([...current, ch]);
         }
       }
       if (event.type === "dm.created") {
@@ -532,7 +535,7 @@ const ChatRoute = () => {
       const createJson = (await createResp.json()) as { ok: boolean; data?: { file: { id: string; objectKey: string; scanStatus: string }; uploadSession: { id: string; uploadUrl: string } } };
       if (!createJson.ok || !createJson.data) return;
       const { uploadSession, file: fileRecord } = createJson.data;
-      const uploadResp = await fetch(uploadSession.uploadUrl, { method: "PUT", body: file, signal: controller.signal });
+      const uploadResp = await fetch(uploadSession.uploadUrl, { method: "PUT", headers: { authorization: `Bearer ${accessToken}` }, body: file, signal: controller.signal });
       if (!uploadResp.ok) throw new Error("Upload failed");
       await fetch(`${API_BASE}/api/v1/attachments/upload-sessions/${uploadSession.id}/complete`, {
         method: "POST",

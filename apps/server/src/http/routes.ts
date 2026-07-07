@@ -182,17 +182,19 @@ export const createHttpApp = () => {
     return c.json(apiOk(msg));
   });
   app.post("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => {
-    const result = messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji);
+    const actorUserId = c.get("userId");
+    const result = messageService.react(actorUserId, requiredParam(c.req.param("id")), c.req.valid("json").emoji);
     if ("error" in result && !result.ok) return c.json(toResponse(result));
     const msg = store.messages.get(requiredParam(c.req.param("id")));
-    if (msg) broadcastToChannel(msg.channelId, { type: "message.reaction", payload: result, timestamp: new Date().toISOString() });
+    if (msg) broadcastToChannel(msg.channelId, { type: "message.reaction", payload: { ...result, actorUserId }, timestamp: new Date().toISOString() });
     return c.json(apiOk(result));
   });
   app.delete("/api/v1/messages/:id/reactions", authRequired, zValidator("json", reactMessageSchema), (c) => {
-    const result = messageService.react(c.get("userId"), requiredParam(c.req.param("id")), c.req.valid("json").emoji, "remove");
+    const actorUserId = c.get("userId");
+    const result = messageService.react(actorUserId, requiredParam(c.req.param("id")), c.req.valid("json").emoji, "remove");
     if ("error" in result && !result.ok) return c.json(toResponse(result));
     const msg = store.messages.get(requiredParam(c.req.param("id")));
-    if (msg) broadcastToChannel(msg.channelId, { type: "message.reaction", payload: result, timestamp: new Date().toISOString() });
+    if (msg) broadcastToChannel(msg.channelId, { type: "message.reaction", payload: { ...result, actorUserId }, timestamp: new Date().toISOString() });
     return c.json(apiOk(result));
   });
   app.get("/api/v1/channels/:id/reactions", authRequired, (c) => c.json(apiOk(messageService.getReactions(c.get("userId"), requiredParam(c.req.param("id"))))));
@@ -226,8 +228,10 @@ export const createHttpApp = () => {
   app.get("/api/v1/attachments/:fileId", authRequired, (c) => c.json(toResponse(attachmentService.getFile(c.get("userId"), requiredParam(c.req.param("fileId"))))));
   app.post("/api/v1/attachments/:fileId/download-url", authRequired, (c) => c.json(toResponse(attachmentService.createDownloadUrl(c.get("userId"), requiredParam(c.req.param("fileId"))))));
 
-  app.put("/dev-upload/:fileId", async (c) => {
-    const fileId = c.req.param("fileId");
+  app.put("/dev-upload/:fileId", authRequired, async (c) => {
+    const fileId = requiredParam(c.req.param("fileId"));
+    const uploadSession = [...store.uploadSessions.values()].find((session) => session.fileId === fileId && session.userId === c.get("userId"));
+    if (!uploadSession) return c.json(apiFail("FORBIDDEN", "Upload session access denied"), 403);
     const body = await c.req.arrayBuffer();
     const file = store.files.get(fileId);
     if (!file) return c.json({ ok: false, error: { code: "NOT_FOUND", message: "File not found" } }, 404);
@@ -237,11 +241,12 @@ export const createHttpApp = () => {
     return c.json({ ok: true, data: {} });
   });
 
-  app.get("/dev-download/:fileId", (c) => {
-    const fileId = c.req.param("fileId");
+  app.get("/dev-download/:fileId", authRequired, (c) => {
+    const fileId = requiredParam(c.req.param("fileId"));
     const file = store.files.get(fileId);
     const content = store.devFileContent?.get(fileId);
     if (!file || !content) return c.notFound();
+    if (!workspaceService.canAccessWorkspace(c.get("userId"), file.workspaceId)) return c.json(apiFail("FORBIDDEN", "File access denied"), 403);
     c.header("content-type", file.contentType ?? "application/octet-stream");
     return c.body(new Uint8Array(content));
   });

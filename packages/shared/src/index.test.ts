@@ -36,7 +36,8 @@ import {
   sendMessageSchema,
   signalPreKeyBundleSchema,
   uploadSessionCreateSchema,
-  wsEnvelopeSchema
+  wsEnvelopeSchema,
+  wsServerEventSchema
 } from "./index.js";
 
 describe("shared contracts", () => {
@@ -102,6 +103,7 @@ describe("shared contracts", () => {
     expect(uploadSessionCreateSchema.parse({ workspaceId: "workspace-1", fileName: "a.txt", contentType: "text/plain", sizeBytes: 1 }).encrypted).toBe(false);
     expect(signalPreKeyBundleSchema.parse({ userId: "user-123", deviceId: "device-1", identityKey: "i", signedPreKeyId: 1, signedPreKey: "s", signedPreKeySignature: "sig" }).deviceId).toBe("device-1");
     expect(wsEnvelopeSchema.parse({ type: "message.send", payload: {}, timestamp: new Date().toISOString() }).encrypted).toBe(false);
+    expect(wsServerEventSchema.options).toEqual(expect.arrayContaining(["channel.created", "channel.pin_changed", "dm.created"]));
     expect(WsMessageSendEnvelopeSchema.parse({ type: "message.send", payload: { workspaceId: "workspace-1", channelId: "channel-1", clientMsgId: "client-1", content: { type: "text", text: "hello", attachments: [] } }, timestamp: new Date().toISOString() }).payload.clientMsgId).toBe("client-1");
     expect(WsBotCommandInvokeEnvelopeSchema.parse({ type: "bot.command.invoke", payload: { type: "bot.command.invoke", workspaceId: "workspace-1", channelId: "channel-1", botName: "HelpBot", command: "help", args: [] }, timestamp: new Date().toISOString() }).payload.botName).toBe("HelpBot");
     expect(() => WsMessageSendEnvelopeSchema.parse({ type: "message.send", payload: { bad: true }, timestamp: new Date().toISOString() })).toThrow();
