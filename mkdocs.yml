@@ -85,6 +85,7 @@ nav:
       - Security Defense & E2EE: research/security-defense-e2ee-roadmap.md
       - Base Bot Catalog: research/base-bot-catalog.md
       - AI Agent Orchestration: research/ai-agent-orchestration.md
+      - Telegram Interface Analysis: research/telegram-interface-analysis.md
   - Bot SDK:
       - Node.js / TypeScript: sdk/nodejs.md
       - Java: sdk/java.md
