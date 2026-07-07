@@ -184,6 +184,26 @@ export const createHttpApp = () => {
   app.get("/api/v1/attachments/:fileId", authRequired, (c) => c.json(toResponse(attachmentService.getFile(c.get("userId"), requiredParam(c.req.param("fileId"))))));
   app.post("/api/v1/attachments/:fileId/download-url", authRequired, (c) => c.json(toResponse(attachmentService.createDownloadUrl(c.get("userId"), requiredParam(c.req.param("fileId"))))));
 
+  app.put("/dev-upload/:fileId", async (c) => {
+    const fileId = c.req.param("fileId");
+    const body = await c.req.arrayBuffer();
+    const file = store.files.get(fileId);
+    if (!file) return c.json({ ok: false, error: { code: "NOT_FOUND", message: "File not found" } }, 404);
+    store.files.set(fileId, { ...file, objectKey: `dev-uploaded-${fileId}`, scanStatus: "clean" as const, sizeBytes: body.byteLength });
+    store.devFileContent = store.devFileContent ?? new Map();
+    store.devFileContent.set(fileId, body);
+    return c.json({ ok: true, data: {} });
+  });
+
+  app.get("/dev-download/:fileId", (c) => {
+    const fileId = c.req.param("fileId");
+    const file = store.files.get(fileId);
+    const content = store.devFileContent?.get(fileId);
+    if (!file || !content) return c.notFound();
+    c.header("content-type", file.contentType ?? "application/octet-stream");
+    return c.body(new Uint8Array(content));
+  });
+
   app.post("/api/v1/signal/prekey-bundles", authRequired, zValidator("json", signalPreKeyBundleSchema), (c) => {
     const { oneTimePreKeys, ...bundle } = c.req.valid("json");
     return c.json(toResponse(signalService.uploadBundle(c.get("userId"), bundle, oneTimePreKeys)));

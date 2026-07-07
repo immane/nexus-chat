@@ -3,7 +3,8 @@ import type { Message } from "@nexus-chat/shared";
 import { Badge } from "@nexus-chat/ui";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu.js";
 import { useMessageStore, useUiStore } from "../stores/domain.js";
-import { renderMarkdown, formatRelativeTime } from "../lib/markdown.js";
+import { renderMarkdown, formatRelativeTime, formatFileSize } from "../lib/markdown.js";
+import { API_BASE } from "../lib/api.js";
 
 export const MessageRow = ({
   message,
@@ -43,6 +44,8 @@ export const MessageRow = ({
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState("");
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
+  const [enlargedImg, setEnlargedImg] = useState<string | null>(null);
 
   const REACTION_EMOJIS = ["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉", "😡", "🤔", "💯", "✅", "🚀", "👀", "🎯", "💪", "🙏", "👋", "💀", "🐱"];
 
@@ -134,7 +137,44 @@ export const MessageRow = ({
             </div>
           </div>
         ) : (
-          <div className="md-content text-sm" dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }} />
+          <>
+            <div className="md-content text-sm" dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }} />
+            {message.content.type === "text" && message.content.attachments.length > 0 ? (
+              <div className="mt-2 grid gap-2">
+                {message.content.attachments.map((att) => {
+                  const isImage = att.mimeType.startsWith("image/");
+                  if (isImage) {
+                    return (
+                      <div key={att.fileId}>
+                        <img
+                          src={`${API_BASE}/dev-download/${att.fileId}`}
+                          alt={att.name}
+                          className="max-h-48 cursor-pointer rounded-lg object-cover hover:opacity-90"
+                          onClick={() => setEnlargedImg(`${API_BASE}/dev-download/${att.fileId}`)}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                        />
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={att.fileId} className={`flex items-center gap-2 rounded-lg p-2 text-xs ${isLight ? "bg-slate-100" : "bg-slate-800/50"}`}>
+                      <span className="text-lg">📄</span>
+                      <div className="flex-1 truncate">
+                        <p className="text-slate-300">{att.name}</p>
+                        <p className="text-slate-500">{formatFileSize(att.size)}</p>
+                      </div>
+                      <button className="rounded bg-sky-500/20 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/30" type="button" onClick={() => window.open(`${API_BASE}/dev-download/${att.fileId}`, "_blank")}>DL</button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+            {enlargedImg ? (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 cursor-pointer" onClick={() => setEnlargedImg(null)}>
+                <img src={enlargedImg} alt="enlarged" className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain" />
+              </div>
+            ) : null}
+          </>
         )}
         {isNotCiphertext ? (
           <div className="mt-1 flex items-center gap-1 pt-1">

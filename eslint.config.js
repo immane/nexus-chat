@@ -41,7 +41,13 @@ export default [
         HTMLDivElement: "readonly",
         MouseEvent: "readonly",
         KeyboardEvent: "readonly",
-        Node: "readonly"
+        Node: "readonly",
+        File: "readonly",
+        AbortController: "readonly",
+        HTMLInputElement: "readonly",
+        HTMLTextAreaElement: "readonly",
+        HTMLImageElement: "readonly",
+        HTMLElement: "readonly"
       }
     }
   },

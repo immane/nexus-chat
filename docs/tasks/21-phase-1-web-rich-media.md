@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 1
-status: todo
+status: done
 ---
 
 # 21 — Phase 1 — Web Rich Media & Emoji Picker

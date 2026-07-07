@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useRef, useState, type FormEvent } from "react";
+import { useDeferredValue, useEffect, useRef, useState, type FormEvent, type ClipboardEvent as ReactClipboardEvent } from "react";
 import { io, type Socket } from "socket.io-client";
 import { Badge, InputActionBar } from "@nexus-chat/ui";
 import type { BotManifest, Channel, Message, Workspace } from "@nexus-chat/shared";
@@ -103,6 +103,11 @@ const ChatRoute = () => {
   const [forwardSource, setForwardSource] = useState<Message | null>(null);
   const [forwardSearch, setForwardSearch] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [emojiPickerPos, setEmojiPickerPos] = useState<{ x: number; y: number } | null>(null);
+  const [uploading, setUploading] = useState<Array<{ name: string; progress: number; cancel: () => void }>>([]);
+  const [pendingAttachments, setPendingAttachments] = useState<Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }>>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const clearAuth = useAuthStore((state) => state.clear);
   const reactions = useMessageStore((state) => state.reactions);
   const setReaction = useMessageStore((state) => state.setReaction);
@@ -485,6 +490,52 @@ const ChatRoute = () => {
     void window.navigator.clipboard.writeText(text);
   };
 
+  const insertEmoji = (emoji: string) => {
+    setDraft(draft + emoji);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (!accessToken || !workspaces[0]) return;
+    const controller = new AbortController();
+    const entry = { name: file.name, progress: 0, cancel: () => controller.abort() };
+    setUploading((prev) => [...prev, entry]);
+    try {
+      const createResp = await fetch(`${API_BASE}/api/v1/attachments/upload-sessions`, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ workspaceId: workspaces[0].id, fileName: file.name, contentType: file.type, sizeBytes: file.size })
+      });
+      const createJson = (await createResp.json()) as { ok: boolean; data?: { file: { id: string; objectKey: string; scanStatus: string }; uploadSession: { id: string; uploadUrl: string } } };
+      if (!createJson.ok || !createJson.data) return;
+      const { uploadSession, file: fileRecord } = createJson.data;
+      const uploadResp = await fetch(uploadSession.uploadUrl, { method: "PUT", body: file, signal: controller.signal });
+      if (!uploadResp.ok) throw new Error("Upload failed");
+      await fetch(`${API_BASE}/api/v1/attachments/upload-sessions/${uploadSession.id}/complete`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${accessToken}` }
+      });
+      setPendingAttachments((prev) => [...prev, { fileId: fileRecord.id, name: file.name, mimeType: file.type, size: file.size, scanStatus: fileRecord.scanStatus }]);
+      const currentDraft = useUiStore.getState().messageDraft;
+      setDraft((currentDraft ? `${currentDraft} ` : "") + `[${file.name}]`);
+    } catch (e) {
+      if (e instanceof Error && e.name !== "AbortError") { /* ignore */ }
+    }
+    setUploading((prev) => prev.filter((e) => e !== entry));
+  };
+
+  const handlePaste = (e: ReactClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+      if (item?.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) void handleFileUpload(file);
+      }
+    }
+  };
+
   const handleEdit = async (messageId: string, newText: string) => {
     if (!accessToken) return;
     try {
@@ -536,7 +587,7 @@ const ChatRoute = () => {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!user || !activeChannel || !draft.trim()) return;
+    if (!user || !activeChannel || (!draft.trim() && pendingAttachments.length === 0)) return;
     if (p2pBlocked) return;
 
     const text = draft.trim();
@@ -667,7 +718,7 @@ const ChatRoute = () => {
               workspaceId: activeChannel.workspaceId,
               channelId: activeChannel.id,
               clientMsgId,
-              content: encryptedContent ?? { type: "text" as const, text, attachments: [] },
+              content: encryptedContent ?? { type: "text" as const, text, attachments: pendingAttachments.map(({ scanStatus, ...a }) => ({ ...a, scanStatus: scanStatus as "pending" | "clean" | "blocked" | "skipped" })) },
               ...(replyMessage ? { replyToMessageId: replyMessage.id } : {})
             },
             timestamp: new Date().toISOString(),
@@ -679,6 +730,7 @@ const ChatRoute = () => {
     stopTyping();
     setDraft("");
     setReplyMessage(null);
+    setPendingAttachments([]);
   };
 
   const isLight = settings.theme === "light";
@@ -921,6 +973,22 @@ const ChatRoute = () => {
               </>
             }
           >
+            <div className="relative">
+              <button
+                className={`rounded-full ${themeBtn} px-3 py-1 text-xs`}
+                type="button"
+                onClick={(e) => {
+                  const rect = (e.target as HTMLElement).getBoundingClientRect();
+                  setEmojiPickerPos({ x: rect.left, y: rect.top });
+                  setEmojiPickerOpen(!emojiPickerOpen);
+                }}
+                title="Emoji"
+              >😀</button>
+            </div>
+            <input ref={fileInputRef} className="hidden" type="file" multiple onChange={(e) => { const files = e.target.files; if (files) for (let i = 0; i < files.length; i += 1) void handleFileUpload(files[i]!); e.target.value = ""; }} />
+            {!isE2e ? (
+              <button className={`rounded-full ${themeBtn} px-3 py-1 text-xs`} type="button" onClick={() => fileInputRef.current?.click()} title="Attach">📎</button>
+            ) : null}
             <div className="relative flex flex-1 flex-col">
               {suggestions.length ? (
                 <div className={`absolute bottom-full left-0 z-10 mb-1 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>
@@ -939,12 +1007,22 @@ const ChatRoute = () => {
                 disabled={p2pBlocked}
                 onChange={(event) => handleTypingChange(event.target.value)}
                 onBlur={stopTyping}
+                onPaste={handlePaste}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void submit(event as unknown as FormEvent); }
                 }}
                 rows={1}
               />
             </div>
+            {uploading.map((entry) => (
+              <div key={entry.name} className="flex items-center gap-2 px-1 text-xs text-slate-400">
+                <span className="truncate">{entry.name}</span>
+                <div className="h-1 flex-1 rounded-full bg-slate-700">
+                  <div className="h-full rounded-full bg-sky-400" style={{ width: `${entry.progress}%` }} />
+                </div>
+                <button className="text-red-400 hover:text-red-300" type="button" onClick={entry.cancel}>✕</button>
+              </div>
+            ))}
             <button className={`rounded-xl px-5 py-3 font-semibold text-slate-950 transition ${p2pBlocked ? "cursor-not-allowed bg-slate-600" : "bg-sky-400 hover:bg-sky-300"}`} type="submit" disabled={p2pBlocked}>
               Send
             </button>
@@ -1025,6 +1103,19 @@ const ChatRoute = () => {
               <button className="flex-1 rounded-lg bg-red-500/20 px-3 py-2 text-sm text-red-200 hover:bg-red-500/30" type="button" onClick={() => void confirmDelete()}>Delete</button>
               <button className={`flex-1 rounded-lg px-3 py-2 text-sm ${themeBtn}`} type="button" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
             </div>
+          </div>
+        </div>
+      ) : null}
+      {emojiPickerOpen && emojiPickerPos ? (
+        <div className="fixed inset-0 z-40" onClick={() => setEmojiPickerOpen(false)}>
+          <div
+            className={`absolute grid grid-cols-8 gap-1 rounded-xl border p-2 shadow-2xl ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}
+            style={{ left: emojiPickerPos.x, bottom: window.innerHeight - emojiPickerPos.y + 8 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {["😀","😂","😍","🤔","😢","😡","👍","👎","👏","🙏","💪","🎉","🔥","❤️","💯","✅","❌","⭐","🚀","💡","🎯","📌","👀","💀","🎵","💰","📅","🔒","🔑","💬","🍕","☕"].map((e) => (
+              <button key={e} className="rounded-lg p-1 text-lg hover:bg-slate-700" type="button" onClick={() => { insertEmoji(e); setEmojiPickerOpen(false); }}>{e}</button>
+            ))}
           </div>
         </div>
       ) : null}
