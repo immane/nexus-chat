@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-07 (post-coverage push, 100% statements/functions/lines)
-> Current status: Phase 1 polish in progress — task 19 (Message Actions) done, coverage 100% statements/functions/lines, 92.81% branches, 87 tests, PR #5 open
+> Last updated: 2026-07-07 (Phase 1 complete — all 24 tasks done)
+> Current status: Phase 1 complete (24/24 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests, PR #5 open
 
 ## 1. Project Overview
 
@@ -213,11 +213,11 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 17 | TUI Command-Line Client | Done |
 | 18 | P2P DM Direct Connection | Done |
 | 19 | Web Message Actions & Context Menu | Done |
-| 20 | Web Message Display & Formatting | Todo |
-| 21 | Web Rich Media & Emoji Picker | Todo |
-| 22 | Web Presence, Channel Info & Notifications | Todo |
-| 23 | Server Message Reply & Pin Backend | Todo |
-| 24 | Server Channel Mute & Description Backend | Todo |
+| 20 | Web Message Display & Formatting | Done |
+| 21 | Web Rich Media & Emoji Picker | Done |
+| 22 | Web Presence, Channel Info & Notifications | Done |
+| 23 | Server Message Reply & Pin Backend | Done |
+| 24 | Server Channel Mute & Description Backend | Done |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -239,22 +239,17 @@ From `AGENTS.md`:
 
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
 - **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing
-- **Coverage**: 100.00% statements/lines/functions, 92.81% branches across core domain + shared packages
-- **Tests**: 87 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
-- **Phase 1 tasks**: 19/24 done (5 tasks remaining: 3 Web + 2 Server)
+- **Coverage**: 100.00% statements/lines/functions, 92.62% branches across core domain + shared packages
+- **Tests**: 89 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
+- **Phase 1 tasks**: 24/24 done — Phase 1 complete
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
 - **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)
 - **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage
 - **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface
 - **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce)
 - **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback
-- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients
-- **Desktop shell**: Electron main/preload boundary with secure BrowserWindow options, dev/prod renderer loading, tray menu, native notification IPC, clipboard/window IPC, and auto-update placeholder channel
-- **Observability**: Pino structured logging with redaction, request IDs on all HTTP/WS, Prometheus metrics, audit log service, centralized error codes, dependency audit in CI
-- **Dev/CI**: Docker Compose (server only; in-memory stores), GitHub Actions (lint/typecheck/test/coverage/build/security/smoke), `pnpm` scripts, dev bootstrap script, TUI smoke scripts
-- **TUI**: Commander CLI with 12 commands, WebSocket real-time messaging, Ink 6 interactive chat UI, token persistence, real E2E smoke, real bot smoke, slash command detection
-- **Docs**: GitHub README and README.zh-CN (detailed bilingual), QUICKSTART.md and QUICKSTART.zh-CN.md (step-by-step setup), beta checklist, known limitations, backup/restore procedure, AI session context document, Telegram competitive analysis
-- **Git history**: 15+ commits on `dev` branch since Phase 1 core completion; PR #5 open against `main`
+- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar (📎 textarea 😀)
+- **Server**: REST API with 60+ endpoints, WebSocket gateway with room-based broadcasting, channel description & mute support, message pinning, reply-to with validation, presence tracking with connection count, WS broadcast for reactions/edits/deletes/channel-created, in-memory dev file upload/download endpoints
 
 ---
 

@@ -1,5 +1,5 @@
 site_name: Nexus Chat
-site_description: A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 99.8% statement coverage.
+site_description: A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 24/24 tasks, 100% coverage, 89 tests.
 repo_url: https://github.com/immane/nexus-chat
 edit_uri: edit/main/docs/
 site_dir: site

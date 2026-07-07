@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-87%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-89%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -496,15 +496,15 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | Metric | Value |
 | --- | --- |
 | Statements | 100.00% |
-| Branches | 92.81% |
+| Branches | 92.62% |
 | Functions | 100.00% |
 | Lines | 100.00% |
 
-**Test breakdown (18 files, 87 tests):**
+**Test breakdown (18 files, 89 tests):**
 
 | Package | Test file | Tests |
 | --- | --- | --- |
-| `@nexus-chat/server` | `domain/services.test.ts` | 18 |
+| `@nexus-chat/server` | `domain/services.test.ts` | 20 |
 | `@nexus-chat/server` | `ws/gateway.test.ts` | 9 |
 | `@nexus-chat/server` | `http/routes.test.ts` | 4 |
 | `@nexus-chat/server` | `observability/audit.test.ts` | 4 |
