@@ -31,7 +31,7 @@ import { authService } from "../domain/auth/service.js";
 import { botService } from "../domain/bots/service.js";
 import { messageService } from "../domain/messages/service.js";
 import { store } from "../domain/store.js";
-import { broadcastToChannel } from "../ws/broadcast.js";
+import { broadcastToChannel, broadcastToWorkspace } from "../ws/broadcast.js";
 import { signalService } from "../domain/signal/service.js";
 import { workspaceService } from "../domain/workspaces/service.js";
 import { registry } from "../observability/metrics.js";
@@ -115,7 +115,10 @@ export const createHttpApp = () => {
   app.get("/api/v1/workspaces/:id/members", authRequired, (c) => c.json(apiOk(workspaceService.listMembers(c.get("userId"), requiredParam(c.req.param("id"))))));
   app.post("/api/v1/workspaces/:id/channels", authRequired, zValidator("json", createChannelSchema), (c) => {
     const input = c.req.valid("json");
-    return c.json(toResponse(workspaceService.createChannel(c.get("userId"), requiredParam(c.req.param("id")), input.name, input.mode, input.isPrivate)), 201);
+    const result = workspaceService.createChannel(c.get("userId"), requiredParam(c.req.param("id")), input.name, input.mode, input.isPrivate);
+    if ("ok" in result) return c.json(toResponse(result));
+    broadcastToWorkspace(result.workspaceId, { type: "channel.created", payload: result, timestamp: new Date().toISOString() });
+    return c.json(toResponse(result), 201);
   });
   app.get("/api/v1/workspaces/:id/channels", authRequired, (c) => c.json(apiOk(workspaceService.listChannels(c.get("userId"), requiredParam(c.req.param("id"))))));
   app.get("/api/v1/workspaces/:id/unread-counts", authRequired, (c) => c.json(apiOk(messageService.getUnreadCounts(c.get("userId"), requiredParam(c.req.param("id"))))));
@@ -128,7 +131,11 @@ export const createHttpApp = () => {
   app.post("/api/v1/dms", authRequired, zValidator("json", createDmSchema), (c) => {
     const input = c.req.valid("json");
     const workspaceId = c.req.query("workspaceId");
-    return workspaceId ? c.json(toResponse(workspaceService.createOrGetDm(c.get("userId"), workspaceId, input.peerUserId, input.mode)), 201) : c.json(apiFail("VALIDATION_FAILED", "workspaceId query parameter is required"), 400);
+    if (!workspaceId) return c.json(apiFail("VALIDATION_FAILED", "workspaceId query parameter is required"), 400);
+    const result = workspaceService.createOrGetDm(c.get("userId"), workspaceId, input.peerUserId, input.mode);
+    if ("ok" in result) return c.json(toResponse(result));
+    broadcastToWorkspace(result.workspaceId, { type: "dm.created", payload: result, timestamp: new Date().toISOString() });
+    return c.json(toResponse(result), 201);
   });
 
   app.post("/api/v1/messages", authRequired, zValidator("json", sendMessageSchema), (c) => c.json(toResponse(messageService.send(c.get("userId"), c.req.valid("json"))), 201));

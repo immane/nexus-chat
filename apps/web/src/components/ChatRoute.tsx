@@ -360,6 +360,19 @@ const ChatRoute = () => {
           setReaction(payload.messageId, payload.emoji, payload.count, payload.reacted);
         }
       }
+      if (event.type === "channel.created") {
+        const ch = event.payload as Channel;
+        if (ch.id && ch.workspaceId) {
+          setChannels([...useChannelStore.getState().channels, ch]);
+        }
+      }
+      if (event.type === "dm.created") {
+        const dm = event.payload as Channel;
+        if (dm.id && dm.workspaceId) {
+          const current = useChannelStore.getState().channels;
+          if (!current.some((c) => c.id === dm.id)) setChannels([...current, dm]);
+        }
+      }
     });
     return () => {
       p2pTransportRef.current?.destroy();

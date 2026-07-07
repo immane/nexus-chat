@@ -50,6 +50,9 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     const userId = socket.data.userId as string;
     wsConnections.inc();
     socket.join(`user:${userId}`);
+    for (const workspace of store.workspaces.values()) {
+      if (workspaceService.canAccessWorkspace(userId, workspace.id)) socket.join(`workspace:${workspace.id}`);
+    }
     for (const channel of store.channels.values()) {
       if (workspaceService.canAccessChannel(userId, channel.id)) socket.join(`channel:${channel.id}`);
     }
