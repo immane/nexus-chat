@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-08 (Phase 1 complete — Web ChatRoute refactor finalized)
-> Current status: Phase 1 complete (24/24 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests, Web ChatRoute split into UI components and focused hooks
+> Last updated: 2026-07-08 (Phase 1 — TUI chat redesign planned, new task #25)
+> Current status: Phase 1 complete (24/24 tasks done), 25 tasks defined (1 pending: TUI redesign), coverage 100% statements/functions/lines, 92.62% branches, 89 tests. Electron desktop launched successfully. README screenshots added.
 
 ## 1. Project Overview
 
@@ -218,6 +218,7 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 22 | Web Presence, Channel Info & Notifications | Done |
 | 23 | Server Message Reply & Pin Backend | Done |
 | 24 | Server Channel Mute & Description Backend | Done |
+| 25 | TUI Chat Interface Redesign | Pending |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -350,6 +351,21 @@ The Web chat route was refactored in small, verified steps to reduce `ChatRoute.
 - `useReadReceipts`: visible-message ack batching and read receipt state.
 - `ChatRoute.tsx` intentionally still owns Signal identity/session refs, encrypted message decryption, WebSocket connection setup, P2P transport lifecycle, and final message-send orchestration. Those areas are tightly coupled and were left in place to avoid risky behavior changes.
 - Verification after the final split passed: `pnpm --filter @nexus-chat/web lint`, `pnpm --filter @nexus-chat/web typecheck`, `pnpm --filter @nexus-chat/web test`, `pnpm build`, and `pnpm test`.
+
+### 8.2 Electron Desktop Launch & README Screenshots (2026-07-08)
+
+- Fixed Vite `base: "./"` in `apps/web/vite.config.ts` so built assets use relative paths. Previously Electron rendered a blank page because `file://` protocol cannot resolve absolute `/assets/...` paths.
+- Added login and chat sample screenshots side-by-side to `README.md` and `README.zh-CN.md`.
+- Fixed `.gitignore` exception pattern from `!docs/images/` to `!docs/images/*.jpg` so the global `*.jpg` ignore rule is properly re-included.
+- Electron desktop verified running with 4 processes (Main, GPU, Network, Renderer).
+
+### 8.3 TUI Chat Redesign Plan (2026-07-08)
+
+A comprehensive redesign was planned to upgrade the TUI interactive chat from a single-column stack into a two-pane layout mirroring the Web client architecture. The design references OpenCode's file-tree + editor TUI style.
+
+- **Design doc**: `docs/design/08_TUI_Chat_Redesign.md` — full layout spec, component tree, data flow, keyboard shortcuts.
+- **Task**: `docs/tasks/25-phase-1-tui-chat-redesign.md` — 6 implementation steps covering base layout, channel sidebar enhancements, message area rewrite, WS event expansion, message actions (reply/edit/delete/react/forward), and composer enhancement.
+- Key changes: two-pane layout with Sidebar (28 columns) + MainPanel, TopBar, BottomBar, per-panel keyboard focus, message scrolling with pagination, and 9 WebSocket events instead of only `message.created`.
 
 ---
 
