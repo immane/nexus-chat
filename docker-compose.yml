@@ -35,7 +35,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: "4000"
-      WEB_ORIGIN: http://localhost:5174
+      WEB_ORIGIN: http://localhost
       SESSION_STORE: memory
       JWT_ISSUER: nexus-chat
       JWT_AUDIENCE: nexus-chat-clients

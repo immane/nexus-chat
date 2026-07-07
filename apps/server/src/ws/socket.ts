@@ -1,4 +1,5 @@
 import type { Server as HttpServer } from "node:http";
+import { URL } from "node:url";
 import { Server } from "socket.io";
 import { env } from "../config/env.js";
 import { verifyAccessToken } from "../domain/auth/service.js";
@@ -9,6 +10,17 @@ import { logger } from "../observability/logger.js";
 import { wsConnections } from "../observability/metrics.js";
 import { handleClientEnvelope } from "./gateway.js";
 
+const isAllowedOrigin = (origin: string | undefined) => {
+  if (!origin) return false;
+  try {
+    const requestOrigin = new URL(origin);
+    const allowedOrigin = new URL(env.WEB_ORIGIN);
+    return requestOrigin.protocol === allowedOrigin.protocol && requestOrigin.hostname === allowedOrigin.hostname;
+  } catch {
+    return false;
+  }
+};
+
 const createBroadcaster = (io: Server) => ({
   toChannel: (channelId: string, event: unknown) => io.to(`channel:${channelId}`).emit("event", event),
   toUser: (targetUserId: string, event: unknown) => io.to(`user:${targetUserId}`).emit("event", event),
@@ -17,7 +29,7 @@ const createBroadcaster = (io: Server) => ({
 
 export const attachSocketServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
-    cors: { origin: env.WEB_ORIGIN, credentials: true },
+    cors: { origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => { callback(null, isAllowedOrigin(origin)); }, credentials: true },
     transports: ["websocket"],
     pingInterval: 30000,
     pingTimeout: 10000

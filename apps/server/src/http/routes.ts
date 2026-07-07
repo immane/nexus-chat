@@ -1,3 +1,4 @@
+import { URL } from "node:url";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { zValidator } from "@hono/zod-validator";
@@ -38,13 +39,22 @@ import { authRequired, requestContext, securityHeaders, type AppVariables } from
 const isError = (value: unknown): value is ReturnType<typeof apiFail> => typeof value === "object" && value !== null && "ok" in value && value.ok === false;
 const toResponse = (value: unknown) => (isError(value) ? value : apiOk(value));
 const requiredParam = (value: string | undefined) => value ?? "";
+const isAllowedOrigin = (origin: string) => {
+  try {
+    const requestOrigin = new URL(origin);
+    const allowedOrigin = new URL(env.WEB_ORIGIN);
+    return requestOrigin.protocol === allowedOrigin.protocol && requestOrigin.hostname === allowedOrigin.hostname;
+  } catch {
+    return false;
+  }
+};
 
 export const createHttpApp = () => {
   const app = new Hono<{ Variables: AppVariables }>();
 
   app.use("*", requestContext);
   app.use("*", securityHeaders);
-  app.use("*", cors({ origin: env.WEB_ORIGIN, credentials: true }));
+  app.use("*", cors({ origin: (origin) => (isAllowedOrigin(origin) ? origin : env.WEB_ORIGIN), credentials: true }));
 
   app.get("/healthz", (c) => c.json(apiOk({ status: "ok" })));
   app.get("/metrics", async (c) => c.text(await registry.metrics(), 200, { "content-type": registry.contentType }));
