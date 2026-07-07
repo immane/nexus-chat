@@ -149,6 +149,43 @@ describe("server domain services", () => {
     }
   });
 
+  it("tracks unread counts and marks channels read per member", () => {
+    const workspace = createWorkspaceWithMember();
+    const normal = createChannel(workspace, "normal");
+    const privateChannel = workspaceService.createChannel("user-owner", workspace.id, "owner-only", "normal", true) as Channel;
+
+    expect(messageService.getUnreadCounts("stranger", workspace.id)).toEqual({});
+    expectError(messageService.markRead("stranger", normal.id), "FORBIDDEN");
+
+    messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "unread-1", content: { type: "text", text: "one", attachments: [] } });
+    messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "unread-2", content: { type: "text", text: "two", attachments: [] } });
+    messageService.send("user-member", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "own-message", content: { type: "text", text: "mine", attachments: [] } });
+    messageService.send("user-owner", { workspaceId: workspace.id, channelId: privateChannel.id, clientMsgId: "private-unread", content: { type: "text", text: "secret", attachments: [] } });
+
+    expect(messageService.getUnreadCounts("user-member", workspace.id)).toEqual({ [normal.id]: 2 });
+    expect(messageService.getUnreadCounts("user-owner", workspace.id)).toEqual({ [normal.id]: 1 });
+    expect(messageService.markRead("user-member", normal.id)).toEqual({ ok: true });
+    expect(messageService.getUnreadCounts("user-member", workspace.id)).toEqual({});
+
+    const unreadAfterRead = messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "unread-after-read", content: { type: "text", text: "new", attachments: [] } });
+    if ("id" in unreadAfterRead) store.messages.set(unreadAfterRead.id, { ...unreadAfterRead, createdAt: new Date(Date.now() + 1000).toISOString() });
+    expect(messageService.getUnreadCounts("user-member", workspace.id)).toEqual({ [normal.id]: 1 });
+  });
+
+  it("returns workspace members with stored display identities", () => {
+    const createdAt = new Date().toISOString();
+    store.users.set("user-owner", { id: "user-owner", email: "owner@example.com", displayName: "Owner", createdAt, passwordHash: "hash" });
+    store.users.set("user-member", { id: "user-member", email: "member@example.com", displayName: "Member", createdAt, passwordHash: "hash" });
+    const workspace = createWorkspaceWithMember();
+
+    expect(workspaceService.listMembers("user-owner", workspace.id)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ userId: "user-owner", role: "owner", email: "owner@example.com", displayName: "Owner" }),
+        expect.objectContaining({ userId: "user-member", role: "member", email: "member@example.com", displayName: "Member" })
+      ])
+    );
+  });
+
   it("paginates messages and flushes read receipts in batches", () => {
     const workspace = createWorkspaceWithMember();
     const normal = createChannel(workspace, "normal");
