@@ -125,6 +125,23 @@ const ChatRoute = () => {
     return () => { cancelled = true; };
   }, [accessToken, channelMessages, decryptedMessages, user]);
 
+  // Verify persisted token on mount; clear if expired
+  useEffect(() => {
+    if (!accessToken || accessToken === "demo-access-token") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await fetch(`${API_BASE}/api/v1/auth/me`, {
+          headers: { authorization: `Bearer ${accessToken}` }
+        });
+        if (!cancelled && !resp.ok) clearAuth();
+      } catch {
+        // server not reachable — keep session for offline retry
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   // Connect to server and fetch data when in server mode
   useEffect(() => {
     if (!accessToken || workspaces.length > 0) return;

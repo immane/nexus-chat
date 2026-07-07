@@ -34,7 +34,8 @@ export default [
         RTCConfiguration: "readonly",
         RTCIceServer: "readonly",
         RTCSessionDescriptionInit: "readonly",
-        RTCIceCandidateInit: "readonly"
+        RTCIceCandidateInit: "readonly",
+        localStorage: "readonly"
       }
     }
   },
