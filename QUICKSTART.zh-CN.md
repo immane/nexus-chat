@@ -36,7 +36,7 @@ cp .env.example .env
 
 ```env
 PORT=4000
-WEB_ORIGIN=http://localhost:5173
+WEB_ORIGIN=http://localhost
 DATABASE_URL=postgres://nexus:nexus@localhost:5432/nexus_chat
 REDIS_URL=redis://localhost:6379
 SESSION_STORE=memory
@@ -45,47 +45,59 @@ VITE_API_BASE=http://localhost:4000
 
 如果希望本地测试 refresh session 存到 Redis，可以设置 `SESSION_STORE=redis`。
 
-## 4. 启动 PostgreSQL 和 Redis
+## 4. 启动本地 Server 容器
 
 ```bash
+docker compose build server
 docker compose up -d
 ```
 
-确认容器运行中：
+确认 server 运行中：
 
 ```bash
 docker compose ps
+curl http://localhost:4000/healthz
 ```
 
-## 5. 应用 Migrations 并写入 Seed 数据
+Phase 1 运行时服务使用内存 domain stores。`docker-compose.yml` 里的 PostgreSQL 和 Redis 目前故意保持注释，直到持久化接入后再启用。
+
+## 5. 写入内存开发数据
 
 ```bash
-pnpm db:migrate
-pnpm db:seed
+bash scripts/dev-bootstrap.sh
 ```
 
-Seed 账号：
+开发账号：
 
 | Email | Password |
 | --- | --- |
-| `ada@example.com` | `Password12345!` |
-| `grace@example.com` | `Password12345!` |
+| `alice@dev.local` | `test1234abcd` |
+| `bob@dev.local` | `test1234abcd` |
 
-注意：Phase 1 运行时服务默认使用内存 domain stores。PostgreSQL schema、migration 和 seed 流程仍用于本地基础设施验证，并为后续持久化集成做准备。
+bootstrap 会创建 `Dev Workspace`、默认 `#general` channel，并把 Bob 加入 workspace/channel。因为当前是内存 store，每次重启或重建 server 容器后都需要重新执行。
 
 ## 6. 启动开发服务
 
+如果使用 Docker server + Web UI，保持 server 容器运行，然后单独启动 Vite：
+
 ```bash
+pnpm --filter @nexus-chat/web dev
+```
+
+如果要运行 native all-app 开发流，先停止 Docker，避免占用 `4000` 端口：
+
+```bash
+docker compose down
 pnpm dev
 ```
 
 打开：
 
-- Web client: `http://localhost:5173`
+- Web client: Web dev server 输出的 Vite URL，通常是 `http://localhost:5173` 或 `http://localhost:5174`
 - API health check: `http://localhost:4000/healthz`
 - Metrics: `http://localhost:4000/metrics`
 
-Web app 支持 demo 模式和真实服务端模式。如果使用真实服务端模式，并且内存运行时里还没有用户，可以在 UI 中注册，或通过 API 注册。
+Web app 支持 demo 模式和真实服务端模式。真实服务端模式可以使用上面的开发账号，也可以通过 API/UI 注册新用户。
 
 ## 7. 运行快速验证
 
@@ -105,29 +117,38 @@ pnpm coverage
 查看帮助：
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- --help
+pnpm --filter @nexus-chat/tui dev --help
 ```
 
 登录本地服务：
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- login -e ada@example.com -p 'Password12345!'
+pnpm --filter @nexus-chat/tui dev login -e alice@dev.local -p test1234abcd
 ```
 
 列出工作区：
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- workspaces
+pnpm --filter @nexus-chat/tui dev workspaces
 ```
 
 运行 smoke tests：
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- api-smoke
-pnpm --filter @nexus-chat/tui dev -- p2p-smoke
-pnpm --filter @nexus-chat/tui dev -- bot-smoke
-pnpm --filter @nexus-chat/tui dev -- e2e-smoke
+pnpm --filter @nexus-chat/tui dev api-smoke
+pnpm --filter @nexus-chat/tui dev p2p-smoke
+pnpm --filter @nexus-chat/tui dev bot-smoke
+pnpm --filter @nexus-chat/tui dev e2e-smoke
 ```
+
+运行完整 native CI smoke：
+
+```bash
+docker compose down
+pnpm smoke:tui:ci
+```
+
+`smoke:tui:ci` 会自己启动 native server 并绑定 `4000`，因此 Docker 不能同时占用该端口。
 
 CLI 会把本地 token 存到 `.env.tui`，该文件已被 Git ignore。
 
@@ -154,7 +175,7 @@ pnpm --filter @nexus-chat/desktop dev
 运行 TUI/CLI：
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- --help
+pnpm --filter @nexus-chat/tui dev --help
 ```
 
 ## 10. 常用重置命令
@@ -165,30 +186,30 @@ pnpm --filter @nexus-chat/tui dev -- --help
 docker compose down
 ```
 
-删除 PostgreSQL 数据并重新创建：
+重建内存 Docker server 并重新写入开发数据：
 
 ```bash
-docker compose down -v
+docker compose down
+docker compose build server
 docker compose up -d
-pnpm db:migrate
-pnpm db:seed
+bash scripts/dev-bootstrap.sh
 ```
 
 清除 TUI auth token：
 
 ```bash
-pnpm --filter @nexus-chat/tui dev -- logout
+pnpm --filter @nexus-chat/tui dev logout
 ```
 
 ## 故障排查
 
-如果 `pnpm dev` 端口绑定失败，检查是否已有进程占用 `4000` 或 `5173`。
+如果 `pnpm dev` 或 `smoke:tui:ci` 端口绑定失败，检查是否已有进程占用 `4000`、`5173` 或 `5174`。运行 native CI smoke 前先用 `docker compose down` 停止 Docker server。
 
-如果 TUI 登录失败，确认 server 正在运行，并且当前运行时存在对应用户。因为 Phase 1 默认使用内存 store，PostgreSQL seed 用户不会自动加载到内存 auth store。
+如果 TUI 登录失败，确认 server 正在运行，并且当前运行时存在对应用户。因为 Phase 1 默认使用内存 store，每次 fresh server 启动后需要执行 `scripts/dev-bootstrap.sh`，或者手动注册用户。
 
-如果 `pnpm db:migrate` 失败，确认 Docker 正在运行，并且 `DATABASE_URL` 指向本地 PostgreSQL 容器。
+如果 `pnpm db:migrate` 失败，请注意默认 Docker 流程不会启动 PostgreSQL。只有在验证 migrations 时，才需要先取消注释 `docker-compose.yml` 里的 PostgreSQL。
 
-如果 WebSocket 命令失败，确认 web origin 与 `WEB_ORIGIN` 匹配，并且 server 可通过 `VITE_API_BASE` 访问。
+如果 WebSocket 命令失败，确认 server 可通过 `VITE_API_BASE` 访问。默认 `WEB_ORIGIN=http://localhost` 会允许 browser client 使用任意 localhost 端口。
 
 ## 下一步
 
