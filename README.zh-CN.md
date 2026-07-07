@@ -13,6 +13,11 @@
 
 Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、Signal 风格 E2EE 服务边界、1:1 E2EE DM 的 WebRTC P2P 直连、emoji reaction、消息回复/转发/右键菜单、Markdown 渲染、文件/图片上传、在线状态、通知等。测试套件覆盖 18 个文件，89 个测试，statement/function/line coverage 100%。
 
+<p align="center">
+  <img src="docs/images/login-sample.jpg" alt="登录界面" width="45%">
+  <img src="docs/images/chat-sample.jpg" alt="聊天界面" width="45%">
+</p>
+
 ---
 
 ## 目录
