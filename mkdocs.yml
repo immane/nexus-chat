@@ -4,6 +4,7 @@ repo_url: https://github.com/immane/nexus-chat
 edit_uri: edit/main/docs/
 site_dir: site
 site_url: https://immane.github.io/nexus-chat/
+copyright: Copyright &copy; 2026 Lam K. &mdash; <a href="https://github.com/immane/nexus-chat/blob/main/LICENSE">MIT License</a>
 
 theme:
   name: material
