@@ -1,0 +1,3853 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 25/25 tasks.">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/README.project/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../QUICKSTART/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Readme - Nexus Chat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nexus" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Readme
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="选择当前语言">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Readme
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Readme
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加密模型
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        快速入门
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        存储库结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术堆栈
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消息生命周期
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="消息生命周期">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        状态机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        幂等性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        分页
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已读回执
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2ee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2EE 消息处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人框架
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="机器人框架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人 SDK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        内联/help
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        事件类型
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e2ee_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2EE设计
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E2EE设计">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        服务边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        客户端外观
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2ee_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2EE 通道限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p2p" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2P直连
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        安全
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API 参考
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API 参考">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        授权
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        工作区
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        频道和 DM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消息
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2ee_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        信号/E2EE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        行动
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#websocket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSocket 协议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WebSocket 协议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        客户端→服务器事件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        服务器→客户端事件
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试和覆盖范围
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        文档
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已知限制
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        贡献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        许可证
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICKSTART/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速入门
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    设计文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    设计文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/00_System_High_Level_Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统总体架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    客户端外壳与 UI 渲染层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    长连接与核心网关层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    业务逻辑与持久化后端
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    异步 Bot 引擎与事件分发层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent 编排与流式引擎
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/06_Phase_Roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    阶段路线图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/07_P2P_DM_Direct_Connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P DM 直连
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/08_TUI_Chat_Redesign/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI 聊天室重新设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/09_Web_Client_UI_Design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技术调研
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    技术调研
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    前端架构与性能优化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js 核心 IM 与状态机设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    组件化 UI 与插件生态协议
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    异步 Bot 引擎与微服务解耦
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    低成本防御方案与未来 E2EE 路线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础 Bot 目录
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent 编排与流式交互设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/telegram-interface-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telegram 接口分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backup-restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    备份与恢复
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../beta-checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    测试版清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    已知限制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI 会话上下文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加密模型
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        快速入门
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        存储库结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术堆栈
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消息生命周期
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="消息生命周期">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        状态机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        幂等性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        分页
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已读回执
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2ee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2EE 消息处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人框架
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="机器人框架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人 SDK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        内联/help
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        事件类型
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e2ee_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2EE设计
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E2EE设计">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        服务边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        客户端外观
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2ee_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2EE 通道限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p2p" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2P直连
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        安全
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API 参考
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API 参考">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        授权
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        工作区
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        频道和 DM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        消息
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        机器人
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2ee_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        信号/E2EE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        行动
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#websocket" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSocket 协议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WebSocket 协议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        客户端→服务器事件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        服务器→客户端事件
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试和覆盖范围
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        文档
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已知限制
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        贡献
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        许可证
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<p><p对齐=“中心”>
+  <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="覆盖范围">
+  <img src="https://img.shields.io/badge/tests-89%20passed-green" alt="测试">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="许可证">
+  <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="节点">
+  <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
+</p></p>
+<h1 id="nexus">Nexus 聊天<a class="headerlink" href="#nexus" title="Permanent link">&para;</a></h1>
+<p>具有<strong>混合加密</strong>的类似 Slack 的工作区聊天系统：支持机器人、消息历史记录和服务器端工作流程的正常通道，以及服务器只能看到密文的端到端加密 DM。使用 React、Electron、Hono 和 Socket.IO 使用 TypeScript 从头开始​​构建。</p>
+<p>第一阶段提供了一个带有 Web 客户端、Electron 桌面 shell、TUI/CLI、REST/WebSocket 网关、完整消息状态机、带有 SDK 的机器人引擎、三个第一方机器人、Signal 式 E2E 服务边界、用于 1:1 E2EE DM 的机会性 WebRTC P2P 直接连接、表情符号反应、消息回复/转发/上下文菜单和实时状态的单一存储库。该测试套件涵盖 18 个文件、87 个测试，语句、函数和行覆盖率为 100%。</p>
+<p><p对齐=“中心”>
+  <img src="docs/images/login-sample.jpg" alt="登录屏幕" width="30%">
+  <img src="docs/images/chat-sample.jpg" alt="聊天屏幕" width="30%">
+  <img src="docs/images/tui-sample.jpg" alt="TUI 聊天" width="30%">
+</p></p>
+<hr />
+<h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#encryption-model">Encryption Model</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#repository-structure">Repository Structure</a></li>
+<li><a href="#tech-stack">Tech Stack</a></li>
+<li><a href="#message-lifecycle">Message Lifecycle</a></li>
+<li><a href="#bot-framework">Bot Framework</a></li>
+<li><a href="#e2ee-design">E2EE Design</a></li>
+<li><a href="#p2p-direct-connection">P2P Direct Connection</a></li>
+<li><a href="#security">Security</a></li>
+<li><a href="#api-reference">API Reference</a></li>
+<li><a href="#websocket-protocol">WebSocket Protocol</a></li>
+<li><a href="#testing--coverage">Testing &amp; Coverage</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#known-limitations">Known Limitations</a></li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<hr />
+<h2 id="_2">加密模型<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>每个通道和 DM 独立选择其加密级别。没有全局切换。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>服务器端内容</th>
+<th>允许机器人</th>
+<th>服务器搜索</th>
+<th>留言功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>正常</strong></td>
+<td>明文</td>
+<td>是的</td>
+<td>未来（第二阶段）</td>
+<td>完整：反应、编辑、删除、转发、保存、已读回执</td>
+</tr>
+<tr>
+<td><strong>E2EE</strong></td>
+<td>仅密文</td>
+<td>否 — 在网关被拒绝</td>
+<td>已禁用</td>
+<td>减少：只读一次、TTL 过期、删除时墓碑化</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键设计特性：</strong></p>
+<ul>
+<li>加密模式按通道存储在数据库中。客户端和服务器在通道创建时就这一点达成一致。</li>
+<li>E2EE通道仅接受<code>content.type === "ciphertext"</code>。任何发送到 E2EE 通道的普通明文消息都会返回 <code>VALIDATION_FAILED</code>。</li>
+<li>机器人无法加入E2EE频道。如果机器人尝试加入、安装到 E2EE 通道或向 E2EE 通道发送消息，服务器将返回 <code>E2E_BOT_NOT_ALLOWED</code>。</li>
+<li>E2EE 通道的所有机器人事件（<code>bot.command.invoke</code>、<code>message.created</code>）均被抑制 — 机器人引擎在 <code>channel.mode === "e2e"</code> 时跳过调度。</li>
+<li>E2EE附件元数据也被门控：加密文件必须携带<code>scanStatus: "skipped"</code>。未跳过的 E2EE 附件将被拒绝。</li>
+</ul>
+<hr />
+<h2 id="_3">架构<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌──────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│  Clients                                         │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  Electron  ·  React/Vite Web  ·  TUI (Commander) │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>└────────────────────────┬─────────────────────────┘
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                         │  REST (Hono)  +  Socket.IO
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                         ▼
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>┌──────────────────────────────────────────────────┐
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  Gateway Layer                                   │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  HTTP API (CORS, Helmet, rate limiting)          │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  WebSocket (auth, rooms, per-user rate limit)    │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  /bots WS namespace (token auth, event polling)  │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└────────────────────────┬─────────────────────────┘
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                         │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        ┌────────────────┼────────────────┐
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        ▼                ▼                ▼
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>┌───────────┐  ┌──────────────┐  ┌──────────────┐
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│ Auth      │  │ Workspace    │  │ Signal/E2EE  │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  Service  │  │  Service     │  │  Service     │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│           │  │              │  │              │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│ Register  │  │ CRUD         │  │ PreKey CRUD  │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│ Login     │  │ Members/RBAC │  │ Bundle fetch │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│ Refresh   │  │ Channels/DMs │  │ OPK consume  │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│ Logout    │  │ Ownership    │  │ Sessions     │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>└───────────┘  └──────────────┘  └──────────────┘
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        │                │                 │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        └────────────────┼─────────────────┘
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                         ▼
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>┌──────────────────────────────────────────────────┐
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│  Message Service                                 │
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│  Send · Edit · Delete · React · Forward · Save   │
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│  AckRead · List · ListPage · CleanupExpired      │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│  State machine: SENDING→SENT→DELIVERED→READ      │
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>└────────────────────────┬─────────────────────────┘
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>                         │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>                         ▼
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>┌──────────────────────────────────────────────────┐
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>│  Bot Engine                                      │
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│  Install · ValidateToken · Subscribe/Poll        │
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│  invokeCommand · sendBotMessage · publishEvent   │
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│  Inline /help handler (no connected bot needed)  │
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>└──────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>阶段 1 中的数据层：</strong> 域服务使用内存存储（基于<code>Map</code>）。完整的 PostgreSQL 模式（17 个表，Drizzle ORM）和 Redis 基础设施是通过迁移定义和验证的，但运行时存储层尚未连接到 Postgres。 <code>SESSION_STORE=redis</code> 路径通过 <code>RedisRefreshSessionStore</code> 执行 Redis 支持的刷新会话。</p>
+<p><strong>正常消息发送的数据流：</strong></p>
+<ol>
+<li>Web 客户端通过 Socket.IO 发出 <code>{ type: "message.send", payload: { workspaceId, channelId, clientMsgId, content } }</code>。</li>
+<li>网关根据 Zod 模式验证 WS 信封和内部负载。</li>
+<li><code>messageService.send()</code> 检查通道访问、模式兼容性、幂等性 (<code>clientMsgId</code>) 和附件有效性。</li>
+<li>使用 <code>id</code> (UUID v7)、状态 <code>"sent"</code> 创建一条新消息，并将其存储在内存中。</li>
+<li>如果通道正常，<code>botService.publishEvent({ type: "message.created", ... })</code>会调度到订阅的机器人。</li>
+<li>网关向频道房间内的所有客户端广播<code>{ type: "message.created", payload: message }</code>。</li>
+<li>客户端通过<code>{ type: "message.ack", payload: { messageId } }</code>确认。</li>
+<li>已读收据缓冲在内存中并批量刷新（设计中为 3 秒窗口，在第一阶段立即执行）。</li>
+</ol>
+<hr />
+<h2 id="_4">快速入门<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p><strong>先决条件：</strong> Node.js &gt;=22、pnpm 9.15.x、Docker。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pnpm<span class="w"> </span>install
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>pnpm<span class="w"> </span>db:migrate
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>pnpm<span class="w"> </span>db:seed
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>pnpm<span class="w"> </span>dev
+</code></pre></div>
+<p>服务器在 <code>http://127.0.0.1:4000</code> 上启动，Web 客户端在 <code>http://localhost:5173</code> 上启动。</p>
+<p>Docker 还可以运行 API 服务器和构建的 Web 客户端：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>server<span class="w"> </span>web
+</code></pre></div>
+<p>Web 容器侦听 <code>http://127.0.0.1:5173</code>。对于 LAN 访问，请使用浏览器可以访问的 API URL 重建 Web 映像：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">VITE_API_BASE</span><span class="o">=</span>http://192.168.1.20:4000<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>web
+</code></pre></div>
+<p><strong>种子凭证：</strong></p>
+<table>
+<thead>
+<tr>
+<th>电子邮件</th>
+<th>密码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ada@example.com</code></td>
+<td><code>Password12345!</code></td>
+</tr>
+<tr>
+<td><code>grace@example.com</code></td>
+<td><code>Password12345!</code></td>
+</tr>
+</tbody>
+</table>
+<p>您还可以直接在网络应用程序中或通过 API 注册用户。有关故障排除的详细分步指南，请参阅 <a href="../QUICKSTART/">QUICKSTART.md</a>。</p>
+<hr />
+<h2 id="_5">存储库结构<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nexus-chat/
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>├── apps/
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>│   ├── server/           Hono REST API, Socket.IO, domain services, Drizzle
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>│   │   └── src/
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>│   │       ├── domain/   Auth, Workspaces, Messages, Bots, Signal, Attachments
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>│   │       ├── http/     Route handlers, middleware, rate limiting
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>│   │       ├── ws/       Socket.IO gateway and event dispatch
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>│   │       ├── db/       Drizzle schema, client, migrations, seed
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>│   │       ├── config/   Environment configuration
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>│   │       └── observability/  Pino logger, Prometheus, audit
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>│   ├── web/              React 19 + Vite + Zustand + Tailwind CSS
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>│   │   └── src/
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>│   │       ├── components/  App shell, channel sidebar, message list
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>│   │       └── stores/      Auth, workspace, channel, message, presence, UI
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>│   ├── desktop/          Electron main/preload with security defaults
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>│   └── tui/              Commander CLI + Ink interactive UI
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>├── packages/
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>│   ├── shared/           40+ Zod schemas, protocol types, API envelope helpers
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>│   ├── signal/           Local Signal-style facade (pre-key, encrypt/decrypt)
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>│   ├── bot-sdk/          NexusBotClient: WS connect, middleware, event dispatch
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>│   ├── ui/               Shared React primitives and design tokens
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>│   └── bots/
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>│       ├── help/         Responds to /help
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>│       ├── notification/ Responds to /announce
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>│       └── welcome/      Sends onboarding messages on member_added
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>├── docs/                 Architecture, research, tasks, SDK guides, beta docs
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>├── docker-compose.yml    PostgreSQL 16 + Redis 7
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>├── pnpm-workspace.yaml
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>├── turbo.json
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>└── package.json
+</code></pre></div>
+<hr />
+<h2 id="_6">技术堆栈<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>技术</th>
+<th>第一阶段角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>语言</strong></td>
+<td>TypeScript <code>strict</code></td>
+<td>整个代码库</td>
+</tr>
+<tr>
+<td><strong>莫诺雷波</strong></td>
+<td>pnpm 工作区 + Turborepo</td>
+<td>依赖关系图，并行构建</td>
+</tr>
+<tr>
+<td><strong>HTTP</strong></td>
+<td>荣耀 4.x</td>
+<td>所有REST路由，Zod验证中间件</td>
+</tr>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td>Socket.IO 4.x</td>
+<td>客户端网关 + <code>/bots</code> 命名空间</td>
+</tr>
+<tr>
+<td><strong>授权</strong></td>
+<td><code>@node-rs/argon2</code>、<code>jsonwebtoken</code> (RS256)</td>
+<td>密码哈希、JWT 签名/验证</td>
+</tr>
+<tr>
+<td><strong>架构</strong></td>
+<td>佐德 3.x</td>
+<td>每个 I/O 边界：API、WS、机器人、E2EE</td>
+</tr>
+<tr>
+<td><strong>ORM</strong></td>
+<td>毛毛雨 ORM 0.38</td>
+<td>架构定义、迁移、种子</td>
+</tr>
+<tr>
+<td><strong>数据库</strong></td>
+<td>PostgreSQL 16（Docker）</td>
+<td>架构实时；运行时使用内存存储</td>
+</tr>
+<tr>
+<td><strong>缓存</strong></td>
+<td>Redis 7（Docker）</td>
+<td>会话存储（Redis 模式），准备发布/订阅</td>
+</tr>
+<tr>
+<td><strong>前端</strong></td>
+<td>React 19、Vite、Zustand 5、Tailwind CSS、React Virtuoso</td>
+<td>网页客户端</td>
+</tr>
+<tr>
+<td><strong>桌面</strong></td>
+<td>电子</td>
+<td>BrowserWindow、预加载 IPC、托盘、通知</td>
+</tr>
+<tr>
+<td><strong>命令行</strong></td>
+<td>指挥官，墨水 (React 19)</td>
+<td>TUI 聊天、冒烟测试</td>
+</tr>
+<tr>
+<td><strong>可观察性</strong></td>
+<td>皮诺，<code>prom-client</code></td>
+<td>结构化日志、请求 ID、指标</td>
+</tr>
+<tr>
+<td><strong>测试</strong></td>
+<td>维泰斯特+V8覆盖</td>
+<td>18 个测试文件，87 个测试</td>
+</tr>
+<tr>
+<td><strong>P2P</strong></td>
+<td>WebRTC（浏览器原生，无 npm 依赖）</td>
+<td>1:1 E2EE DM直连+服务器信令中继</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_7">消息生命周期<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h3 id="_8">状态机<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>DRAFT ──→ SENDING ──→ SENT ──→ DELIVERED ──→ READ
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>                        │
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>                        └──→ FAILED (retry ≤3, exponential backoff)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>                              └──→ DELETED (tombstone)
+</code></pre></div>
+<h3 id="_9">幂等性<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p>每条消息都带有一个<code>clientMsgId</code>（客户端生成的唯一字符串）。服务器存储<code>(senderId, clientMsgId)</code>映射。重复发送返回现有消息 - 没有重复行，没有重播副作用。</p>
+<h3 id="_10">分页<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p>消息按<code>(channel_id, created_at DESC, id DESC)</code>排序。 API 使用基于游标的分页，消息 <code>id</code> 作为游标。这可以避免新消息到达时的偏移漂移。</p>
+<h3 id="_11">已读回执<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p>已读回执 (<code>message.ack</code>) 缓冲在内存中。该设计要求 Redis 刷新窗口为 3 秒；第一阶段通过<code>messageService.flushReadReceipts()</code>实现立即刷新。</p>
+<h3 id="e2ee">E2EE 消息处理<a class="headerlink" href="#e2ee" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>只读一次：</strong> 当带有 <code>readOnce: true</code> 的密文消息被确认时，它会立即被逻辑删除（<code>type: "tombstone"</code>、<code>reason: "read_once_consumed"</code>）。</li>
+<li><strong>TTL 过期：</strong> <code>messageService.cleanupExpiredMessages()</code> 扫描超过其 <code>expiresAt</code> 的密文消息，并将其替换为 <code>reason: "expired"</code> 逻辑删除。</li>
+<li><strong>定期删除：</strong> <code>softDelete</code> 生成 <code>reason: "deleted"</code> 墓碑。原始密文永远不会泄露。</li>
+</ul>
+<hr />
+<h2 id="_12">机器人框架<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h3 id="_13">架构<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<p>机器人通过机器人特定的令牌身份验证连接到专用的 <code>/bots</code> Socket.IO 命名空间。命名空间运行事件轮询循环（500 毫秒间隔），将待处理事件推送到连接的机器人。</p>
+<h3 id="_14">生命周期<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>安装：</strong> <code>POST /api/v1/bots/install</code> 以及清单。返回 <code>nxbot_v1_...</code> 令牌。</li>
+<li><strong>频道会员：</strong> <code>POST /api/v1/bots/:botId/channels/:channelId</code>。机器人必须具有 <code>channels:read</code> 范围。</li>
+<li><strong>事件订阅：</strong> <code>POST /api/v1/bots/subscriptions?eventType=message.created</code>。订阅的事件通过 <code>dispatchToBots</code> 调度。</li>
+<li><strong>消息发送：</strong> 机器人使用其令牌调用 <code>POST /api/v1/bots/messages</code>。服务器验证范围 (<code>messages:write</code>)、通道成员资格和 E2EE 限制。</li>
+</ol>
+<h3 id="sdk">机器人 SDK<a class="headerlink" href="#sdk" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NexusBotClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nexus-chat/bot-sdk&quot;</span><span class="p">;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">bot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NexusBotClient</span><span class="p">({</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nx">baseUrl</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;http://127.0.0.1:4000&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;nxbot_v1_...&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nx">manifest</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;my-bot&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;MyBot&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nx">commands</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/echo&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Echo input&quot;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nx">scopes</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;commands:handle&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;messages:write&quot;</span><span class="p">]</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">});</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="nx">bot</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* middleware */</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">next</span><span class="p">();</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="nx">bot</span><span class="p">.</span><span class="nx">onCommand</span><span class="p">(</span><span class="s2">&quot;/echo&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handle command */</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="nx">bot</span><span class="p">.</span><span class="nx">onEvent</span><span class="p">(</span><span class="s2">&quot;message.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handle event */</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="nx">bot</span><span class="p">.</span><span class="nx">connect</span><span class="p">();</span>
+</code></pre></div>
+<p><strong>SDK功能：</strong>
+- 自动重新连接，具有指数退避和抖动（最多 10 次重试，1 秒至 30 秒窗口）。
+- 带有 <code>use()</code> 的中间件管道。
+- 类型安全的 <code>sendMessage()</code>、<code>getChannelInfo()</code>、<code>subscribe()</code>/<code>unsubscribe()</code> REST 帮助程序。
+- <code>redactToken()</code> 用于日志安全的实用程序。</p>
+<h3 id="help">内联<code>/help</code><a class="headerlink" href="#help" title="Permanent link">&para;</a></h3>
+<p>服务器无需连接机器人客户端即可处理 <code>/help</code>。 <code>botService.invokeCommand</code> 检测 <code>command === "/help"</code>，查找其清单声明 <code>/help</code> 命令的任何已安装机器人，生成列出所有命令的响应消息，并将其广播到频道。即使没有机器人连接到<code>/bots</code>，这也可以工作。</p>
+<h3 id="_15">事件类型<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>活动</th>
+<th>触发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bot.command.invoke</code></td>
+<td>用户通过 WS 发送斜杠命令</td>
+</tr>
+<tr>
+<td><code>message.created</code></td>
+<td>发送正常模式消息</td>
+</tr>
+<tr>
+<td><code>workspace.member_added</code></td>
+<td>成员加入工作区</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="e2ee_1">E2EE设计<a class="headerlink" href="#e2ee_1" title="Permanent link">&para;</a></h2>
+<h3 id="_16">服务边界<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p><code>apps/server/src/domain/signal/service.ts</code> 中的 <code>signalService</code> 提供服务器端预密钥基础结构：</p>
+<ul>
+<li><strong>上传捆绑包：</strong> 存储身份密钥、签名预密钥和可选的一次性预密钥。</li>
+<li><strong>获取捆绑包：</strong> 检索预密钥捆绑包并以事务方式使用一个一次性预密钥。</li>
+<li><strong>使用一次性预密钥：</strong> 将特定 OPK 标记为已使用（幂等；如果已使用，则返回 <code>CONFLICT</code>）。</li>
+<li><strong>会话存储：</strong> 存储链接到所有者和对等用户 ID 的 Signal 会话。</li>
+</ul>
+<h3 id="_17">客户端外观<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p><code>packages/signal</code> 提供了带有 <code>generateIdentity</code>、<code>generatePreKeyBundle</code>、<code>encryptMessage</code> 和 <code>decryptMessage</code> 的本地外观。这用于测试和烟雾脚本。生产信号协议集成 (<code>@signalapp/libsignal-client</code>) 是针对许可影响进行评估的 AGPL-3.0 依赖项。</p>
+<h3 id="e2ee_2">E2EE 通道限制<a class="headerlink" href="#e2ee_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>仅接受<code>content.type === "ciphertext"</code>。</li>
+<li>机器人在网关、服务和渠道会员级别被拒绝。</li>
+<li>附件必须带有<code>scanStatus: "skipped"</code>——无服务器端病毒扫描。</li>
+<li>E2EE 通道的服务器端消息事件 (<code>message.created</code>) 被抑制。</li>
+</ul>
+<h3 id="p2p">P2P直连<a class="headerlink" href="#p2p" title="Permanent link">&para;</a></h3>
+<p>1:1 E2EE DM 使用 WebRTC 数据通道伺机绕过服务器。服务器仅中继 SDP/ICE 信令，而不中继消息数据。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Alice ═══ WebRTC Data Channel ═══► Bob     (preferred, DTLS + Signal encrypted)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  │                                  │
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  └── WebSocket signaling ──► Server ◄── signaling reply ──┘
+</code></pre></div>
+<p><strong>连接策略：</strong></p>
+<ol>
+<li>发送 E2EE DM 时，客户端会检查与对等方的活动 WebRTC 连接。</li>
+<li>如果不存在，则启动 WebRTC 握手：SDP Offer/answer + ICE 候选者通过服务器 WebSocket 信令（<code>p2p.offer</code>、<code>p2p.answer</code>、<code>p2p.ice-candidate</code>）交换。</li>
+<li>如果连接在 5 秒内成功 → 消息通过数据通道流动。</li>
+<li>如果 WebRTC 失败（NAT/防火墙）→ 透明回退到现有服务器中继的 WebSocket 路径。</li>
+<li>尝试失败后，对等方会进入 30 秒的冷却期，然后再重试。</li>
+</ol>
+<p><strong>关键属性：</strong></p>
+<ul>
+<li>无 npm 依赖项 — WebRTC 是浏览器原生的（<code>RTCPeerConnection</code>、<code>RTCDataChannel</code>）。</li>
+<li>双重加密：DTLS（传输）+信号协议（应用）。</li>
+<li>服务器永远不会看到 P2P 消息内容、时间戳或计数 — 只能看到信令元数据。</li>
+<li>TUI/CLI 客户端保持仅中继（Node.js 缺乏本机 WebRTC）。</li>
+</ul>
+<p><strong>实现：</strong> <code>apps/web/src/lib/p2p/</code> - <code>P2pConnectionPool</code>，<code>HybridTransport</code>，信令处理程序。</p>
+<hr />
+<h2 id="_18">安全<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>实施</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>密码哈希</td>
+<td>Argon2id (<code>memoryCost: 65536, timeCost: 3, parallelism: 4</code>)</td>
+</tr>
+<tr>
+<td>访问令牌</td>
+<td>JWT RS256，15 分钟到期，<code>sub</code> 索赔</td>
+</tr>
+<tr>
+<td>刷新令牌</td>
+<td>不透明<code>nxrefresh_...</code>、7天有效期、一次性轮换、重放检测</td>
+</tr>
+<tr>
+<td>会话后端</td>
+<td><code>InMemoryRefreshSessionStore</code> (dev) 或 <code>RedisRefreshSessionStore</code></td>
+</tr>
+<tr>
+<td>速率限制</td>
+<td>每IP登录速率限制器+每用户WS事件限制器（50个事件/10秒）</td>
+</tr>
+<tr>
+<td>跨域资源共享</td>
+<td>通过 <code>WEB_ORIGIN</code></td>
+</tr>
+<tr>
+<td>安全标头</td>
+<td><code>X-Content-Type-Options</code>、<code>X-Frame-Options</code>、<code>Referrer-Policy</code>、<code>X-XSS-Protection</code></td>
+</tr>
+<tr>
+<td>日志编辑</td>
+<td>Pino 密文、令牌、密码编辑</td>
+</tr>
+<tr>
+<td>审计追踪</td>
+<td>针对身份验证、工作区、通道、机器人和附件操作的内存审核事件</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="api">API 参考<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<p>所有路由都挂载在<code>/api/v1</code>下。经过身份验证的路由需要 <code>Authorization: Bearer &lt;accessToken&gt;</code>。</p>
+<h3 id="_19">授权<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>正文/注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/register</code></td>
+<td><code>{ email, password, displayName }</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/login</code></td>
+<td><code>{ email, password }</code> — 每个 IP+电子邮件的速率限制</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/refresh</code></td>
+<td><code>{ refreshToken }</code> — 轮换令牌，检测重播</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/auth/logout</code></td>
+<td><code>{ refreshToken }</code> — 撤销会话</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/auth/me</code></td>
+<td>返回当前用户</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_20">工作区<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/workspaces</code></td>
+<td><code>{ name }</code> — 自动创建#general 频道</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/workspaces</code></td>
+<td>列出用户的工作区</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/workspaces/:id</code></td>
+<td>获取工作区详细信息</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/workspaces/:id</code></td>
+<td><code>{ name }</code> — 仅限所有者/管理员</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/workspaces/:id/members</code></td>
+<td><code>{ userId, role }</code> — 添加成员</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/workspaces/:id/members/:userId</code></td>
+<td>删除会员</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/workspaces/:id/members</code></td>
+<td>成员名单</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/workspaces/:id/transfer-ownership</code></td>
+<td><code>{ newOwnerUserId }</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="dm">频道和 DM<a class="headerlink" href="#dm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/workspaces/:id/channels</code></td>
+<td><code>{ name, mode, isPrivate }</code></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/workspaces/:id/channels</code></td>
+<td>列出可访问的频道</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/channels/:id/members</code></td>
+<td><code>{ userId }</code></td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/channels/:id/members/:userId</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/channels/:id/members</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/channels/:id/archive</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/channels/:id</code></td>
+<td>软删除</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/dms?workspaceId=...</code></td>
+<td><code>{ peerUserId, mode }</code> — 幂等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_21">消息<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/messages</code></td>
+<td><code>{ workspaceId, channelId, clientMsgId, content }</code></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/channels/:id/messages</code></td>
+<td><code>?cursor=&amp;limit=</code> — 光标分页</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/messages/:id</code></td>
+<td><code>{ text }</code> — 仅编辑自己的短信</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/messages/:id</code></td>
+<td>软删除 → 墓碑</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/messages/:id/reactions</code></td>
+<td><code>{ emoji }</code> — 切换添加/删除</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/messages/:id/forward</code></td>
+<td><code>{ targetChannelId, clientMsgId }</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/messages/:id/save</code></td>
+<td>书签留言</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_22">机器人<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/bots/install?workspaceId=...</code></td>
+<td><code>BotManifest</code> — 返回令牌</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/bots/:botId/channels/:channelId</code></td>
+<td>将机器人添加到频道</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/bots/:botId/channels/:channelId</code></td>
+<td>从频道中删除机器人</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/bots/subscriptions?eventType=...</code></td>
+<td>订阅（机器人令牌身份验证）</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/bots/subscriptions?eventType=...</code></td>
+<td>取消订阅（机器人令牌身份验证）</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/bots/:botId/subscriptions</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/bots/messages</code></td>
+<td>机器人验证的消息发送</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/bots/commands</code></td>
+<td>命令调用的 HTTP 回退</td>
+</tr>
+</tbody>
+</table>
+<h3 id="e2ee_3">信号/E2EE<a class="headerlink" href="#e2ee_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/signal/prekey-bundles</code></td>
+<td>上传身份+预密钥</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/signal/prekey-bundles/:userId/:deviceId</code></td>
+<td>获取并使用 OPK</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/signal/prekey-bundles/:userId/:deviceId/consume?keyId=</code></td>
+<td>显式 OPK 消耗</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/signal/prekey-bundles/:userId/:deviceId/count</code></td>
+<td>剩余 OPK 数量</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/signal/sessions?peerUserId=&amp;deviceId=</code></td>
+<td>商店会议</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/signal/sessions</code></td>
+<td>列出用户会话</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/signal/sessions/:id</code></td>
+<td>获取会话</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_23">附件<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/attachments/upload-sessions</code></td>
+<td>创建预签名会话</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/attachments/upload-sessions/:id/complete</code></td>
+<td>标记上传完成</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/attachments/:fileId</code></td>
+<td>文件元数据</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/attachments/:fileId/download-url</code></td>
+<td>生成下载网址</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_24">行动<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/healthz</code></td>
+<td><code>{ status: "ok" }</code></td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/metrics</code></td>
+<td>普罗米修斯文本格式</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="websocket">WebSocket 协议<a class="headerlink" href="#websocket" title="Permanent link">&para;</a></h2>
+<p>客户端使用 JWT 身份验证连接到主命名空间，并自动加入每个可访问频道 (<code>channel:&lt;id&gt;</code>) 及其用户收件箱 (<code>user:&lt;userId&gt;</code>) 的房间。</p>
+<h3 id="_25">客户端→服务器事件<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>活动</th>
+<th>有效负载</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>message.send</code></td>
+<td><code>{ workspaceId, channelId, clientMsgId, content }</code></td>
+<td>创建并广播消息</td>
+</tr>
+<tr>
+<td><code>message.ack</code></td>
+<td><code>{ messageId }</code></td>
+<td>标记为已读，刷新收据</td>
+</tr>
+<tr>
+<td><code>bot.command.invoke</code></td>
+<td><code>{ type, workspaceId, channelId, botName, command, args[] }</code></td>
+<td>到机器人引擎的路由</td>
+</tr>
+<tr>
+<td><code>typing.start</code></td>
+<td><code>{ workspaceId, channelId }</code></td>
+<td>广播 <code>typing.updated</code></td>
+</tr>
+<tr>
+<td><code>typing.stop</code></td>
+<td><code>{ workspaceId, channelId }</code></td>
+<td>广播 <code>typing.updated</code></td>
+</tr>
+<tr>
+<td><code>presence.update</code></td>
+<td><code>{ status }</code></td>
+<td>发送 <code>presence.updated</code> 给自己</td>
+</tr>
+<tr>
+<td><code>p2p.offer</code></td>
+<td><code>{ targetUserId, sdp }</code></td>
+<td>中继到对等点以进行 WebRTC 握手</td>
+</tr>
+<tr>
+<td><code>p2p.answer</code></td>
+<td><code>{ targetUserId, sdp }</code></td>
+<td>中继到对等点以进行 WebRTC 握手</td>
+</tr>
+<tr>
+<td><code>p2p.ice-candidate</code></td>
+<td><code>{ targetUserId, candidate }</code></td>
+<td>中继到对等方以进行 NAT 穿越</td>
+</tr>
+<tr>
+<td><code>p2p.hangup</code></td>
+<td><code>{ targetUserId }</code></td>
+<td>中继到对等点以关闭 P2P 连接</td>
+</tr>
+<tr>
+<td><code>p2p.status</code></td>
+<td><code>{ targetUserId, status }</code></td>
+<td>仅在服务器端记录</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_26">服务器→客户端事件<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>活动</th>
+<th>有效负载</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>message.created</code></td>
+<td>完整的 <code>Message</code> 对象</td>
+</tr>
+<tr>
+<td><code>message.updated</code></td>
+<td>更新<code>Message</code></td>
+</tr>
+<tr>
+<td><code>message.deleted</code></td>
+<td>墓碑<code>Message</code></td>
+</tr>
+<tr>
+<td><code>message.reaction</code></td>
+<td><code>{ messageId, emoji, count, reacted }</code></td>
+</tr>
+<tr>
+<td><code>message.read</code></td>
+<td><code>{ messageId, channelId, readCount, readers[], flushedAt }</code></td>
+</tr>
+<tr>
+<td><code>typing.updated</code></td>
+<td><code>{ userId, channelId, workspaceId, typing }</code></td>
+</tr>
+<tr>
+<td><code>presence.updated</code></td>
+<td><code>{ userId, status }</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_27">测试和覆盖范围<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pnpm<span class="w"> </span>lint<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pnpm<span class="w"> </span>typecheck<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pnpm<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pnpm<span class="w"> </span>coverage<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pnpm<span class="w"> </span>build
+</code></pre></div>
+<p><strong>覆盖范围</strong>（V8，工作区范围）：</p>
+<table>
+<thead>
+<tr>
+<th>公制</th>
+<th>价值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>声明</td>
+<td>100.00%</td>
+</tr>
+<tr>
+<td>分支机构</td>
+<td>92.62%</td>
+</tr>
+<tr>
+<td>功能</td>
+<td>100.00%</td>
+</tr>
+<tr>
+<td>线路</td>
+<td>100.00%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>测试细分（18 个文件，89 个测试）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>套餐</th>
+<th>测试文件</th>
+<th>测试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>domain/services.test.ts</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>ws/gateway.test.ts</code></td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>http/routes.test.ts</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>observability/audit.test.ts</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>domain/auth/session-store.test.ts</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>observability/logger.test.ts</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>db/schema.test.ts</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/bot-sdk</code></td>
+<td><code>index.test.ts</code></td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/shared</code></td>
+<td><code>index.test.ts</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/web</code></td>
+<td><code>stores/domain.test.ts</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/web</code></td>
+<td><code>components/App.test.tsx</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/web</code></td>
+<td><code>lib/p2p/transport.test.ts</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/help-bot</code></td>
+<td><code>index.test.ts</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/notification-bot</code></td>
+<td><code>index.test.ts</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/welcome-bot</code></td>
+<td><code>index.test.ts</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/signal</code></td>
+<td><code>index.test.ts</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/tui</code></td>
+<td><code>index.test.ts</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/desktop</code></td>
+<td><code>config.test.ts</code></td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>CI 在每次推送时运行：lint、类型检查、测试、覆盖、构建、依赖项审计和 TUI 冒烟测试。</p>
+<hr />
+<h2 id="_28">配置<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h2>
+<p>将 <code>.env.example</code> 复制到 <code>.env</code>。所有变量：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>默认</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NODE_ENV</code></td>
+<td><code>development</code></td>
+<td>运行环境</td>
+</tr>
+<tr>
+<td><code>HOST</code></td>
+<td><code>127.0.0.1</code></td>
+<td>服务器绑定地址；使用 <code>0.0.0.0</code> 进行 Docker/LAN/公共主机访问</td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td><code>4000</code></td>
+<td>HTTP + WebSocket 服务器端口</td>
+</tr>
+<tr>
+<td><code>WEB_ORIGIN</code></td>
+<td><code>http://localhost</code></td>
+<td>CORS/WebSocket 允许浏览器来源；仅将 <code>*</code> 用于临时本地/LAN 测试</td>
+</tr>
+<tr>
+<td><code>DATABASE_URL</code></td>
+<td><code>postgres://nexus:nexus@localhost:5432/nexus_chat</code></td>
+<td>PostgreSQL 连接</td>
+</tr>
+<tr>
+<td><code>REDIS_URL</code></td>
+<td><code>redis://localhost:6379</code></td>
+<td>Redis连接</td>
+</tr>
+<tr>
+<td><code>SESSION_STORE</code></td>
+<td><code>memory</code></td>
+<td><code>memory</code> 或 <code>redis</code></td>
+</tr>
+<tr>
+<td><code>JWT_ISSUER</code></td>
+<td><code>nexus-chat</code></td>
+<td><code>iss</code> 索赔</td>
+</tr>
+<tr>
+<td><code>JWT_AUDIENCE</code></td>
+<td><code>nexus-chat-clients</code></td>
+<td><code>aud</code> 索赔</td>
+</tr>
+<tr>
+<td><code>JWT_KID</code></td>
+<td><code>local-dev</code></td>
+<td>JWT 标头中的密钥 ID</td>
+</tr>
+<tr>
+<td><code>JWT_PRIVATE_KEY_PEM</code></td>
+<td><em>（自动生成）</em></td>
+<td>RS256 签名密钥</td>
+</tr>
+<tr>
+<td><code>JWT_PUBLIC_KEY_PEM</code></td>
+<td><em>（自动生成）</em></td>
+<td>RS256验证密钥</td>
+</tr>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td><code>info</code></td>
+<td>Pino 日志级别</td>
+</tr>
+<tr>
+<td><code>API_PUBLIC_BASE</code></td>
+<td><code>http://127.0.0.1:4000</code></td>
+<td>开发上传/下载 URL 中嵌入公共 API URL</td>
+</tr>
+<tr>
+<td><code>VITE_API_BASE</code></td>
+<td><code>http://127.0.0.1:4000</code></td>
+<td>Web 客户端 API URL</td>
+</tr>
+<tr>
+<td><code>OBJECT_STORAGE_ENDPOINT</code></td>
+<td><code>http://localhost:9000</code></td>
+<td>S3 兼容端点</td>
+</tr>
+<tr>
+<td><code>OBJECT_STORAGE_BUCKET</code></td>
+<td><code>nexus-chat-local</code></td>
+<td>存储桶名称</td>
+</tr>
+<tr>
+<td><code>NEXUS_STUN_SERVERS</code></td>
+<td><code>stun:stun.l.google.com:19302</code></td>
+<td>WebRTC STUN 服务器（逗号分隔）</td>
+</tr>
+<tr>
+<td><code>NEXUS_TURN_SERVERS</code></td>
+<td><em>（空）</em></td>
+<td>WebRTC TURN 服务器（逗号分隔）</td>
+</tr>
+<tr>
+<td><code>NEXUS_TURN_USERNAME</code></td>
+<td><em>（空）</em></td>
+<td>TURN 认证用户名</td>
+</tr>
+<tr>
+<td><code>NEXUS_TURN_CREDENTIAL</code></td>
+<td><em>（空）</em></td>
+<td>TURN认证凭证</td>
+</tr>
+<tr>
+<td><code>NEXUS_P2P_CONNECTION_TIMEOUT_MS</code></td>
+<td><code>5000</code></td>
+<td>WebRTC 连接超时（以毫秒为单位）</td>
+</tr>
+<tr>
+<td><code>NEXUS_P2P_RELAY_COOLDOWN_MS</code></td>
+<td><code>30000</code></td>
+<td>P2P 尝试失败后的冷却时间（以毫秒为单位）</td>
+</tr>
+</tbody>
+</table>
+<p>对于主机或 LAN 访问，将所有外部可见的 URL 设置为相同的主机名或 IP：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>HOST=0.0.0.0
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>WEB_ORIGIN=http://192.168.1.20:5173
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>VITE_API_BASE=http://192.168.1.20:4000
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>API_PUBLIC_BASE=http://192.168.1.20:4000
+</code></pre></div>
+<p>TUI 客户端可以使用 <code>NEXUS_API_BASE=http://192.168.1.20:4000</code> 连接到该主机。桌面版使用相同的 Web 渲染器，因此将 <code>VITE_API_BASE</code> 设置为主机 API URL 来构建它。</p>
+<hr />
+<h2 id="_29">文档<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../QUICKSTART/">QUICKSTART.md</a></td>
+<td>逐步进行本地设置并进行故障排除</td>
+</tr>
+<tr>
+<td><a href="docs/ai/context.md">docs/ai/context.md</a></td>
+<td>AI 代理的完整会话上下文</td>
+</tr>
+<tr>
+<td><a href="docs/design/">docs/design/</a></td>
+<td>架构文档（7 个文档，5 层 + P2P + 路线图）</td>
+</tr>
+<tr>
+<td><a href="docs/research/">docs/research/</a></td>
+<td>技术调查：后端、前端、E2EE、机器人、UI、AI</td>
+</tr>
+<tr>
+<td><a href="docs/tasks/">docs/tasks/</a></td>
+<td>18项实施任务分解</td>
+</tr>
+<tr>
+<td><a href="docs/sdk/">docs/sdk/</a></td>
+<td>Bot SDK 指南（Node.js、Java、Python、PHP、Go、Rust）</td>
+</tr>
+<tr>
+<td><a href="docs/beta-checklist.md">docs/beta-checklist.md</a></td>
+<td>内测准备清单</td>
+</tr>
+<tr>
+<td><a href="docs/backup-restore.md">docs/backup-restore.md</a></td>
+<td>备份和恢复程序</td>
+</tr>
+<tr>
+<td><a href="docs/known-limitations.md">docs/known-limitations.md</a></td>
+<td>第一阶段的限制和计划的解决方案</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_30">已知限制<a class="headerlink" href="#_30" title="Permanent link">&para;</a></h2>
+<p>第一阶段是本地开发和内测里程碑。主要限制：</p>
+<ul>
+<li><strong>内存存储：</strong> 域服务使用基于 <code>Map</code> 的状态。 PostgreSQL 模式和迁移已定义，但运行时持久层未连接。 Redis 可通过 <code>SESSION_STORE=redis</code> 进行会话存储。</li>
+<li><strong>单设备 E2EE：</strong> 每个用户一台设备。多设备支持和组 E2EE（发送方密钥）被推迟。</li>
+<li><strong>无全文搜索：</strong> 消息搜索仅限于基于光标的分页。 <code>tsvector</code> 索引计划在第二阶段进行。</li>
+<li><strong>无 WebSocket 水平缩放：</strong> Socket.IO 在开发中无需 Redis 适配器即可运行单进程。</li>
+<li><strong>电子打包：</strong> 无生产代码签名、公证或自动更新发布。</li>
+<li><strong>附件用户体验：</strong> 服务器端附件原语存在；未构建网络/桌面上传 UI。</li>
+<li><strong>P2P 客户端支持：</strong> 基于 WebRTC 的 P2P 直接连接可在 Web（浏览器）和 Electron 客户端中使用。 TUI/CLI 仍然仅用于服务器中继（Node.js 缺少原生 <code>RTCPeerConnection</code>）。</li>
+</ul>
+<p>完整列表请参见<a href="docs/known-limitations.md">docs/known-limitations.md</a>。</p>
+<hr />
+<h2 id="_31">贡献<a class="headerlink" href="#_31" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>语言：</strong> 所有文档、评论和提交消息均采用英语。</li>
+<li><strong>代码风格：</strong> TypeScript 严格模式、ESLint、Prettier。没有理由就没有<code>any</code>。</li>
+<li><strong>验证：</strong> Zod 在每个 I/O 边界（HTTP、WS、机器人事件、E2EE 元数据）。</li>
+<li><strong>提交：</strong> 常规提交（<code>feat:</code>、<code>fix:</code>、<code>docs:</code>、<code>test:</code>、<code>chore:</code>、<code>refactor:</code>）。</li>
+<li><strong>PR 之前：</strong> <code>pnpm lint</code>、<code>pnpm typecheck</code>、<code>pnpm test</code>。</li>
+</ul>
+<p>请参阅 <code>AGENTS.md</code> 了解完整的约定参考。</p>
+<hr />
+<h2 id="_32">许可证<a class="headerlink" href="#_32" title="Permanent link">&para;</a></h2>
+<p>麻省理工学院——参见<a href="LICENSE">LICENSE</a>。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

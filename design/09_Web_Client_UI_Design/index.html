@@ -1,0 +1,3751 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 25/25 tasks.">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/design/09_Web_Client_UI_Design/">
+      
+      
+        <link rel="prev" href="../08_TUI_Chat_Redesign/">
+      
+      
+        <link rel="next" href="../../research/frontend-architecture/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Web Client UI Design - Nexus Chat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#web-client-ui-design" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Web Client UI Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../README.project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Readme
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../QUICKSTART/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00_System_High_Level_Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System High-Level Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Shell & UI Rendering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long Connection & Core Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic & Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async Bot Engine & Event Dispatch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration & Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06_Phase_Roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07_P2P_DM_Direct_Connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P DM Direct Connection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08_TUI_Chat_Redesign/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI Chat Redesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Client UI Design
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Client UI Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-entry-point-shell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Entry Point &amp; Shell
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Entry Point &amp; Shell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-html-appswebindexhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 HTML (apps/web/index.html)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-app-shell-appswebsrccomponentsapptsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 App Shell (apps/web/src/components/App.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-styles-entry-appswebsrcstylescss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Styles Entry (apps/web/src/styles.css)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-tailwind-configuration-appswebtailwindconfigts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 Tailwind Configuration (apps/web/tailwind.config.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-zustand-state-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Zustand State Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Zustand State Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-store-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Store Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-uistore-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 UiStore Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-desktop-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Desktop Layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Desktop Layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-main-grid-chatroutetsx-line-508" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Main Grid (ChatRoute.tsx ~line 508)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-left-sidebar-chatroutetsx-line-509" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Left Sidebar (ChatRoute.tsx ~line 509)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-main-chat-area-chatroutetsx-line-663" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Main Chat Area (ChatRoute.tsx ~line 663)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-chatheader-chatheadertsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 ChatHeader (ChatHeader.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-messagelist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 MessageList
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-messagerow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 MessageRow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-chatcomposer-chatcomposertsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 ChatComposer (ChatComposer.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-right-panel-rightmemberpaneltsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 Right Panel (RightMemberPanel.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#39-modals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 Modals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-login-route-loginroutetsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Login Route (LoginRoute.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-current-responsive-behavior-broken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Current Responsive Behavior (BROKEN)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Current Responsive Behavior (BROKEN)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-why-the-current-behavior-is-broken-on-mobile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Why the current behavior is broken on mobile
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-mobile-adaptation-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Mobile Adaptation Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Mobile Adaptation Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-p0-essential-app-unusable-without-these" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 P0 — Essential (app unusable without these)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.1 P0 — Essential (app unusable without these)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#611-viewport-meta-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.1 Viewport Meta Tag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#612-mobile-sidebar-as-overlay-drawer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.2 Mobile Sidebar as Overlay Drawer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#613-hamburger-menu-button" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.3 Hamburger Menu Button
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-p1-high-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 P1 — High Priority
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 P1 — High Priority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#621-mobile-grid-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.1 Mobile Grid Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#622-long-press-context-menu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.2 Long-Press Context Menu
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#622-responsive-modals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.2 Responsive Modals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#623-emoji-picker-responsive-sizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.3 Emoji Picker Responsive Sizing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#624-login-bottom-padding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.4 Login Bottom Padding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-p2-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 P2 — Polish
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 P2 — Polish">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-right-panel-as-bottom-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.1 Right Panel as Bottom Sheet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-touch-target-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.2 Touch Target Sizes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-channel-name-truncation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.3 Channel Name Truncation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-safe-area-inset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.4 Safe Area Inset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#635-composer-keyboard-avoidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.5 Composer Keyboard Avoidance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-component-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Component Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Component Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-component-files-appswebsrccomponents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Component Files (apps/web/src/components/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-hooks-appswebsrchooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Hooks (apps/web/src/hooks/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-stores-appswebsrcstores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Stores (apps/web/src/stores/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-library-appswebsrclib" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Library (apps/web/src/lib/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-shared-ui-package-packagesuisrc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Shared UI Package (packages/ui/src/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Design Decisions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Design Decisions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-why-overlay-drawer-not-hamburger-replace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Why overlay drawer, not hamburger-replace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-why-long-press-not-tap-to-select" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Why long-press, not tap-to-select
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-why-md768px-breakpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Why md:768px breakpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-why-no-custom-breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Why no custom breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-url-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. URL / Routing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-themes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Themes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Notifications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Notifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-toast-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Toast Notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-browser-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Browser Notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-responsive-behavior-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Responsive Behavior Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend IM & State Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UI Components & Plugin Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot Engine & Microservices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Defense & E2EE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base Bot Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/telegram-interface-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telegram Interface Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup-restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backup & Restore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../beta-checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Beta Checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known-limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Limitations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-entry-point-shell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Entry Point &amp; Shell
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Entry Point &amp; Shell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-html-appswebindexhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 HTML (apps/web/index.html)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-app-shell-appswebsrccomponentsapptsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 App Shell (apps/web/src/components/App.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-styles-entry-appswebsrcstylescss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Styles Entry (apps/web/src/styles.css)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-tailwind-configuration-appswebtailwindconfigts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 Tailwind Configuration (apps/web/tailwind.config.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-zustand-state-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Zustand State Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Zustand State Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-store-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Store Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-uistore-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 UiStore Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-desktop-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Desktop Layout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Desktop Layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-main-grid-chatroutetsx-line-508" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Main Grid (ChatRoute.tsx ~line 508)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-left-sidebar-chatroutetsx-line-509" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Left Sidebar (ChatRoute.tsx ~line 509)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-main-chat-area-chatroutetsx-line-663" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Main Chat Area (ChatRoute.tsx ~line 663)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-chatheader-chatheadertsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 ChatHeader (ChatHeader.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-messagelist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 MessageList
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-messagerow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 MessageRow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-chatcomposer-chatcomposertsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 ChatComposer (ChatComposer.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-right-panel-rightmemberpaneltsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 Right Panel (RightMemberPanel.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#39-modals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 Modals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-login-route-loginroutetsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Login Route (LoginRoute.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-current-responsive-behavior-broken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Current Responsive Behavior (BROKEN)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Current Responsive Behavior (BROKEN)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-why-the-current-behavior-is-broken-on-mobile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Why the current behavior is broken on mobile
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-mobile-adaptation-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Mobile Adaptation Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Mobile Adaptation Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-p0-essential-app-unusable-without-these" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 P0 — Essential (app unusable without these)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.1 P0 — Essential (app unusable without these)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#611-viewport-meta-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.1 Viewport Meta Tag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#612-mobile-sidebar-as-overlay-drawer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.2 Mobile Sidebar as Overlay Drawer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#613-hamburger-menu-button" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1.3 Hamburger Menu Button
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-p1-high-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 P1 — High Priority
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 P1 — High Priority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#621-mobile-grid-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.1 Mobile Grid Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#622-long-press-context-menu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.2 Long-Press Context Menu
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#622-responsive-modals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.2 Responsive Modals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#623-emoji-picker-responsive-sizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.3 Emoji Picker Responsive Sizing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#624-login-bottom-padding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2.4 Login Bottom Padding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-p2-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 P2 — Polish
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 P2 — Polish">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-right-panel-as-bottom-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.1 Right Panel as Bottom Sheet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-touch-target-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.2 Touch Target Sizes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-channel-name-truncation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.3 Channel Name Truncation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-safe-area-inset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.4 Safe Area Inset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#635-composer-keyboard-avoidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.5 Composer Keyboard Avoidance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-component-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Component Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Component Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-component-files-appswebsrccomponents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Component Files (apps/web/src/components/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-hooks-appswebsrchooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Hooks (apps/web/src/hooks/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-stores-appswebsrcstores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Stores (apps/web/src/stores/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-library-appswebsrclib" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Library (apps/web/src/lib/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-shared-ui-package-packagesuisrc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Shared UI Package (packages/ui/src/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Design Decisions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Design Decisions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-why-overlay-drawer-not-hamburger-replace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Why overlay drawer, not hamburger-replace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-why-long-press-not-tap-to-select" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Why long-press, not tap-to-select
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-why-md768px-breakpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Why md:768px breakpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-why-no-custom-breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Why no custom breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-url-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. URL / Routing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-themes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Themes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Notifications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Notifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-toast-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Toast Notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-browser-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Browser Notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-responsive-behavior-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Responsive Behavior Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="web-client-ui-design">Web Client UI Design<a class="headerlink" href="#web-client-ui-design" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Last updated: 2026-07-09<br />
+Covers: desktop layout, component architecture, state management, and mobile adaptation plan</p>
+</blockquote>
+<hr />
+<h2 id="1-entry-point-shell">1. Entry Point &amp; Shell<a class="headerlink" href="#1-entry-point-shell" title="Permanent link">&para;</a></h2>
+<h3 id="11-html-appswebindexhtml">1.1 HTML (<code>apps/web/index.html</code>)<a class="headerlink" href="#11-html-appswebindexhtml" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;root&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;module&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/src/main.tsx&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+<ul>
+<li>No viewport meta tag — must be added for mobile:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;viewport&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<h3 id="12-app-shell-appswebsrccomponentsapptsx">1.2 App Shell (<code>apps/web/src/components/App.tsx</code>)<a class="headerlink" href="#12-app-shell-appswebsrccomponentsapptsx" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span><span class="nx">user</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">&lt;</span><span class="nt">ChatRoute</span><span class="w"> </span><span class="p">/&gt;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">&lt;</span><span class="nt">LoginRoute</span><span class="w"> </span><span class="p">/&gt;}</span>
+</code></pre></div>
+<p>Two-mode rendering:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Rendered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No authenticated user</td>
+<td><code>LoginRoute</code> (demo / real server toggle)</td>
+</tr>
+<tr>
+<td>Authenticated user</td>
+<td><code>ChatRoute</code> (full chat layout)</td>
+</tr>
+</tbody>
+</table>
+<p>No router. No layout wrapper. The entire app is a single-page conditional render.</p>
+<h3 id="13-styles-entry-appswebsrcstylescss">1.3 Styles Entry (<code>apps/web/src/styles.css</code>)<a class="headerlink" href="#13-styles-entry-appswebsrcstylescss" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Tailwind directives (<code>@tailwind base/components/utilities</code>)</li>
+<li>One custom layer: <code>.md-content</code> for rendered Markdown</li>
+<li>Global: <code>html, body, #root { overflow: hidden; height: 100%; }</code></li>
+</ul>
+<h3 id="14-tailwind-configuration-appswebtailwindconfigts">1.4 Tailwind Configuration (<code>apps/web/tailwind.config.ts</code>)<a class="headerlink" href="#14-tailwind-configuration-appswebtailwindconfigts" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;./index.html&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;./src/**/*.{ts,tsx}&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;../../packages/ui/src/**/*.{ts,tsx}&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">extend</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span><span class="w"> </span><span class="nx">satisfies</span><span class="w"> </span><span class="nx">Config</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li>Default breakpoints: <code>sm:640px</code>, <code>md:768px</code>, <code>lg:1024px</code>, <code>xl:1280px</code></li>
+<li>No custom breakpoints, no dark mode config</li>
+<li><code>md:768px</code> is the mobile/desktop boundary</li>
+</ul>
+<hr />
+<h2 id="2-zustand-state-architecture">2. Zustand State Architecture<a class="headerlink" href="#2-zustand-state-architecture" title="Permanent link">&para;</a></h2>
+<p>All stores in <code>apps/web/src/stores/domain.ts</code>.</p>
+<h3 id="21-store-map">2.1 Store Map<a class="headerlink" href="#21-store-map" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Store</th>
+<th>Key State</th>
+<th>Persisted</th>
+<th>Mobile Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>useAuthStore</code></td>
+<td><code>user</code>, <code>accessToken</code></td>
+<td><code>localStorage</code></td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>useWorkspaceStore</code></td>
+<td><code>workspaces</code>, <code>activeWorkspaceId</code></td>
+<td>No</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>useChannelStore</code></td>
+<td><code>channels</code>, <code>activeChannelId</code>, <code>unreadCounts</code></td>
+<td>No</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>useMessageStore</code></td>
+<td><code>messages</code> (Map), <code>reactions</code> (Map), <code>order</code></td>
+<td>No</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>usePresenceStore</code></td>
+<td><code>onlineUserIds</code> (Set)</td>
+<td>No</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>useSignalStore</code></td>
+<td><code>e2eEnabledChannelIds</code></td>
+<td>No</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>useBotStore</code></td>
+<td><code>manifests</code>, <code>inputActions</code></td>
+<td>No</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong><code>useUiStore</code></strong></td>
+<td><strong><code>sidebarOpen</code></strong>, <code>messageDraft</code>, <code>disappearingPolicy</code>, <code>settings</code></td>
+<td><code>localStorage</code> for settings</td>
+<td><strong><code>sidebarOpen</code> is the mobile sidebar toggle</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-uistore-detail">2.2 UiStore Detail<a class="headerlink" href="#22-uistore-detail" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">UiState</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nx">sidebarOpen</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w">           </span><span class="c1">// Desktop: always true. Mobile: toggled by hamburger.</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nx">messageDraft</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nx">disappearingPolicy</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;off&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;24h&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;7d&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;30d&quot;</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nx">settings</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;dark&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;light&quot;</span><span class="p">;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nx">compact</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nx">sound</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nx">notifications</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="nx">setSidebarOpen</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">open</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="nx">setMessageDraft</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">draft</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="nx">setDisappearingPolicy</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">policy</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="nx">setSettings</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">partial</span><span class="o">:</span><span class="w"> </span><span class="kt">Partial</span><span class="o">&lt;</span><span class="nx">UiSettings</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>sidebarOpen</code> is <strong>currently unused in the UI</strong> but is fully defined and ready for mobile hamburger wiring.</p>
+<hr />
+<h2 id="3-desktop-layout">3. Desktop Layout<a class="headerlink" href="#3-desktop-layout" title="Permanent link">&para;</a></h2>
+<h3 id="31-main-grid-chatroutetsx-line-508">3.1 Main Grid (ChatRoute.tsx ~line 508)<a class="headerlink" href="#31-main-grid-chatroutetsx-line-508" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>┌──────────────────────────────────────────────┐
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>│  [Sidebar 280px] │ [Chat Area 1fr] │ [Right Panel 260px]  │
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│                  │                 │                        │
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│  Channel list    │  ChatHeader     │  Member list           │
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│  DM list         │  MessageList    │  Online indicators     │
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│  Tab bar         │  Composer       │                        │
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>└──────────────────────────────────────────────┘
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">&lt;</span><span class="nt">main</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;grid h-screen grid-cols-[280px_1fr] max-md:grid-cols-1&quot;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="na">style</span><span class="o">=</span><span class="p">{</span><span class="nx">rightSidebarOpen</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">gridTemplateColumns</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;280px 1fr 260px&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">undefined</span><span class="p">}&gt;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Region</th>
+<th>Width</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left sidebar</td>
+<td><code>280px</code></td>
+<td>Fixed. Three tabs: Chat / Members / Settings</td>
+</tr>
+<tr>
+<td>Chat main</td>
+<td><code>1fr</code></td>
+<td>Flexible. Min-width constrained via <code>min-w-0</code></td>
+</tr>
+<tr>
+<td>Right panel</td>
+<td><code>260px</code></td>
+<td>Conditional. Only when <code>rightSidebarOpen === true</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-left-sidebar-chatroutetsx-line-509">3.2 Left Sidebar (ChatRoute.tsx ~line 509)<a class="headerlink" href="#32-left-sidebar-chatroutetsx-line-509" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>┌─────────────────┐
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>│ &quot;Nexus Chat&quot; h1 │
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>│ Workspace select │
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>├─────────────────┤
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>│                 │
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>│ Channels / DMs  │  ← Scrollable (flex-1 overflow-y-auto)
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>│ (per tab)       │
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>│                 │
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>├─────────────────┤
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>│ [Chat][Members] │  ← Fixed bottom tab bar
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>│ [Settings]      │
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>└─────────────────┘
+</code></pre></div>
+<p>Tabs and their content:</p>
+<table>
+<thead>
+<tr>
+<th>Tab</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Chat" (<code>💬</code>)</td>
+<td>Channel list + DM list + "Add" popup (<code>ChannelList</code>)</td>
+</tr>
+<tr>
+<td>"Members" (<code>👥</code>)</td>
+<td>Member search + member list with online dots</td>
+</tr>
+<tr>
+<td>"Settings" (<code>⚙️</code>)</td>
+<td>User info, theme toggle, compact mode, sound, notifications, logout</td>
+</tr>
+</tbody>
+</table>
+<p>Toggle buttons are at the bottom of the sidebar in a flex row.</p>
+<h3 id="33-main-chat-area-chatroutetsx-line-663">3.3 Main Chat Area (ChatRoute.tsx ~line 663)<a class="headerlink" href="#33-main-chat-area-chatroutetsx-line-663" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>┌─────────────────────────────────────────┐
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>│ ChatHeader                              │
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>│ #channel-name [badges] [Members btn →]  │
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>├─────────────────────────────────────────┤
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│                                         │
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>│ MessageList (react-virtuoso)            │  ← flex-1, virtualized
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>│                                         │
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>├─────────────────────────────────────────┤
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>│ ChatComposer                            │
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>│ [📎] [textarea] [😀] [send]             │
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>└─────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="34-chatheader-chatheadertsx">3.4 ChatHeader (ChatHeader.tsx)<a class="headerlink" href="#34-chatheader-chatheadertsx" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">&lt;</span><span class="nt">header</span><span class="p">&gt;</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex flex-wrap items-center gap-3&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span><span class="nx">Channel</span><span class="o">/</span><span class="nx">DM</span><span class="w"> </span><span class="nx">name</span><span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="c">&lt;!--</span><span class="w"> </span><span class="nx">Badges</span><span class="o">:</span><span class="w"> </span><span class="kt">E2EE</span><span class="p">,</span><span class="w"> </span><span class="nx">Bots</span><span class="p">,</span><span class="w"> </span><span class="nx">Online</span><span class="p">,</span><span class="w"> </span><span class="nx">WS</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">--&gt;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="c">&lt;!--</span><span class="w"> </span><span class="nx">Transport</span><span class="w"> </span><span class="nx">mode</span><span class="w"> </span><span class="nx">selector</span><span class="w"> </span><span class="p">(</span><span class="nx">P2P</span><span class="o">/</span><span class="nx">Signal</span><span class="p">)</span><span class="w"> </span><span class="o">--&gt;</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="c">&lt;!--</span><span class="w"> </span><span class="nx">Members</span><span class="w"> </span><span class="nx">toggle</span><span class="w"> </span><span class="nx">button</span><span class="w"> </span><span class="p">(</span><span class="nx">ml</span><span class="o">-</span><span class="nx">auto</span><span class="p">)</span><span class="w"> </span><span class="o">--&gt;</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">&lt;/</span><span class="nt">header</span><span class="p">&gt;</span>
+</code></pre></div>
+<p><code>flex-wrap</code> allows badges to wrap on narrow screens.</p>
+<h3 id="35-messagelist">3.5 MessageList<a class="headerlink" href="#35-messagelist" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>react-virtuoso</code> for virtualized scrolling</li>
+<li><code>followOutput="smooth"</code> auto-scroll</li>
+<li>Date separators as centered badges</li>
+<li><code>className="flex-1"</code> to fill available space</li>
+</ul>
+<h3 id="36-messagerow">3.6 MessageRow<a class="headerlink" href="#36-messagerow" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Standard desktop: <code>mx-4 my-1 px-4 py-1 text-sm</code></li>
+<li>Compact mode: <code>mx-2 my-1 px-2 py-1 text-xs</code></li>
+<li>Right-click <code>onContextMenu</code> for action menu (reply, copy, forward, edit, delete, react)</li>
+<li>Image attachments: <code>max-h-48</code></li>
+<li>Image lightbox: <code>fixed inset-0</code> fullscreen overlay</li>
+</ul>
+<h3 id="37-chatcomposer-chatcomposertsx">3.7 ChatComposer (ChatComposer.tsx)<a class="headerlink" href="#37-chatcomposer-chatcomposertsx" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>┌──────────────────────────────────────────┐
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>│ Reply preview (conditional)              │
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>├──────────────────────────────────────────┤
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>│ Slash command suggestions (conditional)  │
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>├──────────────────────────────────────────┤
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>│ [📎] [textarea (auto-grow)] [😀] [send] │
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>├──────────────────────────────────────────┤
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>│ Upload progress indicators               │
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>└──────────────────────────────────────────┘
+</code></pre></div>
+<ul>
+<li>Textarea: <code>resize-none</code>, <code>rows={1}</code>, <code>Enter</code> sends, <code>Shift+Enter</code> newline</li>
+<li>Emoji picker: <code>w-72</code> (288px), <code>grid-cols-8</code>, positioned <code>absolute bottom-full</code></li>
+<li>File upload: <code>InputActionBar</code> action buttons wrapping with <code>flex-wrap</code></li>
+</ul>
+<h3 id="38-right-panel-rightmemberpaneltsx">3.8 Right Panel (RightMemberPanel.tsx)<a class="headerlink" href="#38-right-panel-rightmemberpaneltsx" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">&lt;</span><span class="nt">aside</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;max-md:hidden overflow-y-auto&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<ul>
+<li>Channel member list with online/offline indicators</li>
+<li>Hidden entirely on mobile (<code>max-md:hidden</code>)</li>
+</ul>
+<h3 id="39-modals">3.9 Modals<a class="headerlink" href="#39-modals" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Width</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ForwardModal</code></td>
+<td><code>w-80</code> (320px)</td>
+<td>Fixed; overflows on screens &lt;320px</td>
+</tr>
+<tr>
+<td><code>DeleteConfirmModal</code></td>
+<td><code>w-72</code> (288px)</td>
+<td>Fixed; overflows on screens &lt;288px</td>
+</tr>
+<tr>
+<td><code>ContextMenu</code></td>
+<td>Absolute at cursor</td>
+<td>No touch-event support; no boundary detection</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-login-route-loginroutetsx">4. Login Route (LoginRoute.tsx)<a class="headerlink" href="#4-login-route-loginroutetsx" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>┌──────────────────────────┐
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>│  [Demo] [Real Server]    │  ← Tab toggle
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>│                          │
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>│  &quot;Nexus Chat&quot;            │
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>│  Sign in heading         │
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>│  Email input             │
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>│  Password input          │
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>│  [Continue]              │
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>│  Error message           │
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>└──────────────────────────┘
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">&lt;</span><span class="nt">main</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;grid h-screen place-items-center p-6&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;w-full max-w-md&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Already responsive due to <code>max-w-md</code>. Needs more bottom padding on mobile (<code>pb-8 sm:pb-0</code>).</p>
+<hr />
+<h2 id="5-current-responsive-behavior-broken">5. Current Responsive Behavior (BROKEN)<a class="headerlink" href="#5-current-responsive-behavior-broken" title="Permanent link">&para;</a></h2>
+<p>Only 3 responsive classes exist in the entire codebase:</p>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Class</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ChatRoute.tsx:508</code></td>
+<td><code>max-md:grid-cols-1</code></td>
+<td>Grid becomes single column</td>
+</tr>
+<tr>
+<td><code>ChatRoute.tsx:509</code></td>
+<td><code>max-md:border-b max-md:border-r-0</code></td>
+<td>Sidebar border switches direction</td>
+</tr>
+<tr>
+<td><code>RightMemberPanel.tsx:41</code></td>
+<td><code>max-md:hidden</code></td>
+<td>Right panel hidden</td>
+</tr>
+</tbody>
+</table>
+<h3 id="51-why-the-current-behavior-is-broken-on-mobile">5.1 Why the current behavior is broken on mobile<a class="headerlink" href="#51-why-the-current-behavior-is-broken-on-mobile" title="Permanent link">&para;</a></h3>
+<ol>
+<li>No <code>&lt;meta name="viewport"&gt;</code> → browser renders at 980px desktop viewport. Everything is zoomed out and unreadable.</li>
+<li><code>max-md:grid-cols-1</code> stacks the full 280px sidebar <strong>above</strong> the chat area. User must scroll past the entire channel list before seeing any messages.</li>
+<li>The sidebar has no close mechanism — it permanently occupies the top of the viewport.</li>
+<li><code>onContextMenu</code> (right-click) does not fire on touch devices — messages are uninteractive.</li>
+<li>Modals and emoji picker use fixed widths that overflow on small viewports.</li>
+</ol>
+<hr />
+<h2 id="6-mobile-adaptation-plan">6. Mobile Adaptation Plan<a class="headerlink" href="#6-mobile-adaptation-plan" title="Permanent link">&para;</a></h2>
+<p>Mobile boundary: <code>&lt; 768px</code> (Tailwind <code>max-md:</code> breakpoint).</p>
+<h3 id="61-p0-essential-app-unusable-without-these">6.1 P0 — Essential (app unusable without these)<a class="headerlink" href="#61-p0-essential-app-unusable-without-these" title="Permanent link">&para;</a></h3>
+<h4 id="611-viewport-meta-tag">6.1.1 Viewport Meta Tag<a class="headerlink" href="#611-viewport-meta-tag" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/index.html</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;viewport&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>Required before any other mobile fix. Without this, the browser renders a zoomed-out 980px desktop view.</p>
+<h4 id="612-mobile-sidebar-as-overlay-drawer">6.1.2 Mobile Sidebar as Overlay Drawer<a class="headerlink" href="#612-mobile-sidebar-as-overlay-drawer" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChatRoute.tsx</code> (~line 508)</p>
+<p><strong>Desktop (unchanged):</strong> Sidebar is a left grid column (<code>w-[280px]</code>), always visible.</p>
+<p><strong>Mobile (<code>max-md:</code>):</strong> Sidebar becomes a fixed overlay:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>┌────────────────────────────────┐
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>│ ████████████ │                 │
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>│ █ Sidebar ██ │  Chat Area      │
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>│ █ 85vw    ██ │                 │
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>│ █         ██ │                 │
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>│ ████████████ │                 │
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>│              │                 │
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>│ Backdrop ░░░░│                 │
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>└────────────────────────────────┘
+</code></pre></div>
+<p>Behavior:
+- Hidden by default on mobile (<code>max-md:hidden</code>)
+- Overlay slides in from left when <code>sidebarOpen === true</code>
+- Semi-transparent backdrop overlay behind the sidebar; tap to close
+- Selecting a channel auto-closes the sidebar
+- <code>Escape</code> key closes the sidebar
+- Smooth CSS transition (<code>transition-transform duration-200</code>)</p>
+<p>Implementation approach:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span><span class="cm">/* Backdrop overlay */</span><span class="p">}</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="p">{</span><span class="nx">sidebarOpen</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;max-md:fixed max-md:inset-0 max-md:z-30 max-md:bg-black/50&quot;</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">       </span><span class="na">onClick</span><span class="o">=</span><span class="p">{()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">setSidebarOpen</span><span class="p">(</span><span class="kc">false</span><span class="p">)}</span><span class="w"> </span><span class="p">/&gt;</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">)}</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="p">{</span><span class="cm">/* Sidebar */</span><span class="p">}</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="p">&lt;</span><span class="nt">aside</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">  </span><span class="sb">`flex flex-col h-screen overflow-hidden border-r</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="sb">   max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:w-[85vw] max-md:max-w-[320px]</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="sb">   max-md:z-40 max-md:shadow-2xl</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="sb">   </span><span class="si">${</span><span class="nx">sidebarOpen</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;max-md:translate-x-0&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;max-md:-translate-x-full&#39;</span><span class="si">}</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="sb">   transition-transform duration-200`</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="p">}&gt;</span>
+</code></pre></div>
+<h4 id="613-hamburger-menu-button">6.1.3 Hamburger Menu Button<a class="headerlink" href="#613-hamburger-menu-button" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChatHeader.tsx</code></p>
+<p>Add a hamburger button before the channel name on mobile:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span><span class="cm">/* Hamburger - mobile only */</span><span class="p">}</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="p">&lt;</span><span class="nt">button</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;max-md:flex hidden flex-col gap-1 p-2&quot;</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">        </span><span class="na">onClick</span><span class="o">=</span><span class="p">{()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">setSidebarOpen</span><span class="p">(</span><span class="o">!</span><span class="nx">sidebarOpen</span><span class="p">)}</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">        </span><span class="na">aria-label</span><span class="o">=</span><span class="s">&quot;Toggle sidebar&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">span</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;block h-0.5 w-5 bg-current&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">span</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;block h-0.5 w-5 bg-current&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">span</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;block h-0.5 w-5 bg-current&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</code></pre></div>
+<h3 id="62-p1-high-priority">6.2 P1 — High Priority<a class="headerlink" href="#62-p1-high-priority" title="Permanent link">&para;</a></h3>
+<h4 id="621-mobile-grid-layout">6.2.1 Mobile Grid Layout<a class="headerlink" href="#621-mobile-grid-layout" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChatRoute.tsx</code> (~line 508)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p">&lt;</span><span class="nt">main</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;grid h-screen grid-cols-[280px_1fr] max-md:grid-cols-[1fr]&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>The sidebar is removed from the grid flow on mobile (rendered as fixed overlay instead).</p>
+<h4 id="622-long-press-context-menu">6.2.2 Long-Press Context Menu<a class="headerlink" href="#622-long-press-context-menu" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/MessageRow.tsx</code></p>
+<p>Replace right-click-only behavior with long-press support for touch devices:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">longPressTimer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRef</span><span class="o">&lt;</span><span class="nx">ReturnType</span><span class="o">&lt;</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">setTimeout</span><span class="o">&gt;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="o">&gt;</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">longPressTriggered</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRef</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">onTouchStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">  </span><span class="nx">longPressTriggered</span><span class="p">.</span><span class="nx">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">  </span><span class="nx">longPressTimer</span><span class="p">.</span><span class="nx">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">    </span><span class="nx">longPressTriggered</span><span class="p">.</span><span class="nx">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">    </span><span class="c1">// Open action sheet (same actions as right-click menu)</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">500</span><span class="p">);</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="p">};</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="kd">const</span><span class="w"> </span><span class="nx">onTouchEnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">longPressTimer</span><span class="p">.</span><span class="nx">current</span><span class="p">)</span><span class="w"> </span><span class="nx">clearTimeout</span><span class="p">(</span><span class="nx">longPressTimer</span><span class="p">.</span><span class="nx">current</span><span class="p">);</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="p">};</span>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="kd">const</span><span class="w"> </span><span class="nx">onTouchMove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="w">  </span><span class="c1">// Cancel if finger moved more than 10px</span>
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">longPressTimer</span><span class="p">.</span><span class="nx">current</span><span class="p">)</span><span class="w"> </span><span class="nx">clearTimeout</span><span class="p">(</span><span class="nx">longPressTimer</span><span class="p">.</span><span class="nx">current</span><span class="p">);</span>
+<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="p">};</span>
+</code></pre></div>
+<p>On mobile, render the action menu as a <strong>bottom sheet</strong> (full-width panel sliding up from the bottom) instead of a fixed-position dropdown. Actions: Reply, Copy, Forward, Edit, Delete, React.</p>
+<h4 id="622-responsive-modals">6.2.2 Responsive Modals<a class="headerlink" href="#622-responsive-modals" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ForwardModal.tsx</code> (~line 25)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1">// Before</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;w-80 rounded-2xl&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="c1">// After</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;w-[calc(100vw-2rem)] max-w-80 rounded-2xl max-h-[80vh] overflow-y-auto&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>File: <code>apps/web/src/components/DeleteConfirmModal.tsx</code> (~line 13)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1">// Before</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;w-72 rounded-2xl&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="c1">// After</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;w-[calc(100vw-2rem)] max-w-72 rounded-2xl max-h-[80vh] overflow-y-auto&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<h4 id="623-emoji-picker-responsive-sizing">6.2.3 Emoji Picker Responsive Sizing<a class="headerlink" href="#623-emoji-picker-responsive-sizing" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChatComposer.tsx</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1">// Adjust grid for narrow screens</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;w-[288px] max-sm:w-[calc(100vw-1rem)] grid grid-cols-8 max-sm:grid-cols-6&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<h4 id="624-login-bottom-padding">6.2.4 Login Bottom Padding<a class="headerlink" href="#624-login-bottom-padding" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/LoginRoute.tsx</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="p">&lt;</span><span class="nt">main</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;... pb-8 sm:pb-0&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<h3 id="63-p2-polish">6.3 P2 — Polish<a class="headerlink" href="#63-p2-polish" title="Permanent link">&para;</a></h3>
+<h4 id="631-right-panel-as-bottom-sheet">6.3.1 Right Panel as Bottom Sheet<a class="headerlink" href="#631-right-panel-as-bottom-sheet" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/RightMemberPanel.tsx</code></p>
+<p>Instead of <code>max-md:hidden</code>, render the member panel as a bottom sheet overlay on mobile:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>┌────────────────────────────────┐
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>│                                │
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>│         Chat Area              │
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>│                                │
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>├────────────────────────────────┤
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>│ Members (bottom sheet)         │
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>│ Alice  ●                       │
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>│ Bob    ●                       │
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>│ Carol  ○                       │
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>└────────────────────────────────┘
+</code></pre></div>
+<p>Triggered by the existing "Members" button in ChatHeader. Dismissed by swiping down or tapping outside.</p>
+<h4 id="632-touch-target-sizes">6.3.2 Touch Target Sizes<a class="headerlink" href="#632-touch-target-sizes" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChannelList.tsx</code></p>
+<p>Channel/DM list items: increase padding to reach minimum 44×44px touch target (Apple HIG):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1">// Before</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;px-2 py-0.5&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="c1">// After</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;px-2 py-2 min-h-[44px] flex items-center&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<h4 id="633-channel-name-truncation">6.3.3 Channel Name Truncation<a class="headerlink" href="#633-channel-name-truncation" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChannelList.tsx</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="p">&lt;</span><span class="nt">span</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;truncate&quot;</span><span class="p">&gt;{</span><span class="nx">channel</span><span class="p">.</span><span class="nx">name</span><span class="p">}&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+</code></pre></div>
+<h4 id="634-safe-area-inset">6.3.4 Safe Area Inset<a class="headerlink" href="#634-safe-area-inset" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChatComposer.tsx</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="p">&lt;</span><span class="nt">form</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;pb-[env(safe-area-inset-bottom,0px)]&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<p>File: <code>apps/web/src/components/ChatRoute.tsx</code> (sidebar bottom tab bar)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;pb-[env(safe-area-inset-bottom,0px)]&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+<h4 id="635-composer-keyboard-avoidance">6.3.5 Composer Keyboard Avoidance<a class="headerlink" href="#635-composer-keyboard-avoidance" title="Permanent link">&para;</a></h4>
+<p>File: <code>apps/web/src/components/ChatComposer.tsx</code></p>
+<p>The composer is at the bottom of the flex layout and will be pushed up by the virtual keyboard on most browsers. For iOS Safari with <code>visualViewport</code>, additional handling may be needed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="nx">useEffect</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">viewport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">visualViewport</span><span class="p">;</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">viewport</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">setProperty</span><span class="p">(</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="w">        </span><span class="s1">&#39;--viewport-offset&#39;</span><span class="p">,</span>
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="w">        </span><span class="sb">`</span><span class="si">${</span><span class="nb">window</span><span class="p">.</span><span class="nx">innerHeight</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">viewport</span><span class="p">.</span><span class="nx">height</span><span class="si">}</span><span class="sb">px`</span>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="w">      </span><span class="p">);</span>
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="w">  </span><span class="nb">window</span><span class="p">.</span><span class="nx">visualViewport</span><span class="o">?</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;resize&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handler</span><span class="p">);</span>
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">visualViewport</span><span class="o">?</span><span class="p">.</span><span class="nx">removeEventListener</span><span class="p">(</span><span class="s1">&#39;resize&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handler</span><span class="p">);</span>
+<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a><span class="p">},</span><span class="w"> </span><span class="p">[]);</span>
+</code></pre></div>
+<p>Note: this is P2. Most mobile browsers handle this acceptably without explicit intervention.</p>
+<hr />
+<h2 id="7-component-reference">7. Component Reference<a class="headerlink" href="#7-component-reference" title="Permanent link">&para;</a></h2>
+<h3 id="71-component-files-appswebsrccomponents">7.1 Component Files (<code>apps/web/src/components/</code>)<a class="headerlink" href="#71-component-files-appswebsrccomponents" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+<th>Key Classes / Styles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>App.tsx</code></td>
+<td>Root render switch</td>
+<td><code>h-screen overflow-hidden</code></td>
+</tr>
+<tr>
+<td><code>ChatRoute.tsx</code></td>
+<td>Main layout orchestration</td>
+<td><code>grid grid-cols-[280px_1fr] max-md:grid-cols-1</code></td>
+</tr>
+<tr>
+<td><code>ChatHeader.tsx</code></td>
+<td>Channel name, badges, transport, hamburger</td>
+<td><code>flex flex-wrap items-center gap-3</code></td>
+</tr>
+<tr>
+<td><code>ChatComposer.tsx</code></td>
+<td>Message input, emoji picker, file upload, suggestions</td>
+<td><code>InputActionBar</code> wrapper</td>
+</tr>
+<tr>
+<td><code>MessageList.tsx</code></td>
+<td>Virtualized message list</td>
+<td><code>flex-1</code> (react-virtuoso)</td>
+</tr>
+<tr>
+<td><code>MessageRow.tsx</code></td>
+<td>Single message display, context menu</td>
+<td><code>mx-4 my-1 px-4 py-1</code></td>
+</tr>
+<tr>
+<td><code>ContextMenu.tsx</code></td>
+<td>Right-click action menu</td>
+<td><code>fixed</code> position at cursor</td>
+</tr>
+<tr>
+<td><code>ChannelList.tsx</code></td>
+<td>Channel/DM list with unread</td>
+<td><code>flex flex-col</code></td>
+</tr>
+<tr>
+<td><code>RightMemberPanel.tsx</code></td>
+<td>Right sidebar member list</td>
+<td><code>max-md:hidden</code></td>
+</tr>
+<tr>
+<td><code>ForwardModal.tsx</code></td>
+<td>Forward message overlay</td>
+<td><code>fixed inset-0 z-50</code></td>
+</tr>
+<tr>
+<td><code>DeleteConfirmModal.tsx</code></td>
+<td>Delete confirmation overlay</td>
+<td><code>fixed inset-0 z-50</code></td>
+</tr>
+<tr>
+<td><code>LoginRoute.tsx</code></td>
+<td>Login form</td>
+<td><code>max-w-md w-full</code></td>
+</tr>
+<tr>
+<td><code>PolicyControl.tsx</code></td>
+<td>E2E disappearing message policy</td>
+<td><code>flex flex-wrap gap-1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-hooks-appswebsrchooks">7.2 Hooks (<code>apps/web/src/hooks/</code>)<a class="headerlink" href="#72-hooks-appswebsrchooks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>useAttachments.ts</code></td>
+<td>File upload state, clipboard paste</td>
+</tr>
+<tr>
+<td><code>useChannelMembers.ts</code></td>
+<td>Channel member CRUD, sender names</td>
+</tr>
+<tr>
+<td><code>useChatBootstrap.ts</code></td>
+<td>Initial data loading, seed data</td>
+</tr>
+<tr>
+<td><code>useMessageActions.ts</code></td>
+<td>Copy, edit, delete, react, forward</td>
+</tr>
+<tr>
+<td><code>useReadReceipts.ts</code></td>
+<td>IntersectionObserver-based read ack</td>
+</tr>
+<tr>
+<td><code>useTyping.ts</code></td>
+<td>Typing indicator start/stop debounce</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-stores-appswebsrcstores">7.3 Stores (<code>apps/web/src/stores/</code>)<a class="headerlink" href="#73-stores-appswebsrcstores" title="Permanent link">&para;</a></h3>
+<p>Single file: <code>domain.ts</code> with 8 Zustand stores (see Section 2).</p>
+<h3 id="74-library-appswebsrclib">7.4 Library (<code>apps/web/src/lib/</code>)<a class="headerlink" href="#74-library-appswebsrclib" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api.ts</code></td>
+<td><code>API_BASE</code>, <code>apiRequest</code> fetch wrapper</td>
+</tr>
+</tbody>
+</table>
+<h3 id="75-shared-ui-package-packagesuisrc">7.5 Shared UI Package (<code>packages/ui/src/</code>)<a class="headerlink" href="#75-shared-ui-package-packagesuisrc" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InputActionBar</code></td>
+<td>Composer wrapper with action buttons</td>
+</tr>
+<tr>
+<td><code>createInputActionBar</code></td>
+<td>Factory for action bar configuration</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-design-decisions">8. Design Decisions<a class="headerlink" href="#8-design-decisions" title="Permanent link">&para;</a></h2>
+<h3 id="81-why-overlay-drawer-not-hamburger-replace">8.1 Why overlay drawer, not hamburger-replace<a class="headerlink" href="#81-why-overlay-drawer-not-hamburger-replace" title="Permanent link">&para;</a></h3>
+<p>On mobile, replacing the sidebar content inline (above the chat) with the current <code>max-md:grid-cols-1</code> approach is unusable:</p>
+<ul>
+<li>The sidebar is 85% channel navigation, which is not the immediate task on mobile</li>
+<li>Users open the app to read and send messages; channel switching is secondary</li>
+<li>An overlay drawer provides the same navigation capability without sacrificing screen real estate for messages</li>
+</ul>
+<h3 id="82-why-long-press-not-tap-to-select">8.2 Why long-press, not tap-to-select<a class="headerlink" href="#82-why-long-press-not-tap-to-select" title="Permanent link">&para;</a></h3>
+<p>Desktop uses right-click for context actions. Mobile has no right-click. Alternatives:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Pro</th>
+<th>Con</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tap-to-select-then-action-bar</td>
+<td>Discoverable</td>
+<td>Extra step; breaks existing muscle memory</td>
+</tr>
+<tr>
+<td>Swipe actions (left/right)</td>
+<td>Common in chat apps</td>
+<td>Complex to implement on a virtualized list</td>
+</tr>
+<tr>
+<td><strong>Long-press → bottom sheet</strong></td>
+<td><strong>Matches iOS/Android convention</strong></td>
+<td><strong>Requires 500ms delay</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Long-press is the most native-feeling option for mobile messaging apps.</p>
+<h3 id="83-why-md768px-breakpoint">8.3 Why <code>md:768px</code> breakpoint<a class="headerlink" href="#83-why-md768px-breakpoint" title="Permanent link">&para;</a></h3>
+<p>Tailwind's default <code>md</code> breakpoint at 768px is the standard tablet/mobile boundary. Most tablets in landscape are ≥768px and can use the desktop layout. Phones in portrait are &lt;768px and get the mobile layout.</p>
+<h3 id="84-why-no-custom-breakpoints">8.4 Why no custom breakpoints<a class="headerlink" href="#84-why-no-custom-breakpoints" title="Permanent link">&para;</a></h3>
+<p>The default Tailwind breakpoints are sufficient:
+- <code>md:768px</code> covers all phones (portrait) and most small tablets
+- The desktop layout works from 768px upward
+- No need for a custom <code>mobile</code> breakpoint at e.g., 480px</p>
+<hr />
+<h2 id="9-url-routing">9. URL / Routing<a class="headerlink" href="#9-url-routing" title="Permanent link">&para;</a></h2>
+<p>No client-side router is used. The entire app lives on a single URL. State transitions are driven by:</p>
+<ul>
+<li><code>useAuthStore.user</code> — toggles between <code>LoginRoute</code> and <code>ChatRoute</code></li>
+<li><code>useChannelStore.activeChannelId</code> — toggles between "welcome" view and "messages" view</li>
+<li><code>useUiStore.sidebarOpen</code> — toggles sidebar visibility (mobile)</li>
+<li><code>rightSidebarOpen</code> (local state in ChatRoute) — toggles right member panel</li>
+</ul>
+<hr />
+<h2 id="10-themes">10. Themes<a class="headerlink" href="#10-themes" title="Permanent link">&para;</a></h2>
+<p>Two themes supported via <code>useUiStore.settings.theme</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Theme</th>
+<th>Background</th>
+<th>Text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dark</strong> (default)</td>
+<td><code>bg-slate-950</code> / <code>bg-slate-900</code></td>
+<td><code>text-slate-100</code></td>
+</tr>
+<tr>
+<td><strong>Light</strong></td>
+<td><code>bg-white</code> / <code>bg-slate-50</code></td>
+<td><code>text-slate-900</code></td>
+</tr>
+</tbody>
+</table>
+<p>Theme is persisted in <code>localStorage</code> and applied via Tailwind class toggling.</p>
+<hr />
+<h2 id="11-notifications">11. Notifications<a class="headerlink" href="#11-notifications" title="Permanent link">&para;</a></h2>
+<h3 id="111-toast-notifications">11.1 Toast Notifications<a class="headerlink" href="#111-toast-notifications" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Position: <code>absolute right-2 top-2</code> in chat area</li>
+<li>Content: new message preview with channel name</li>
+<li>Click: navigates to the channel</li>
+<li>Auto-dismiss: 5 seconds</li>
+</ul>
+<h3 id="112-browser-notifications">11.2 Browser Notifications<a class="headerlink" href="#112-browser-notifications" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Permission requested on first login (<code>Notification.requestPermission()</code>)</li>
+<li>Triggered for new messages when the tab is not focused</li>
+<li>Managed by <code>useChatBootstrap</code> hook</li>
+</ul>
+<hr />
+<h2 id="12-responsive-behavior-summary">12. Responsive Behavior Summary<a class="headerlink" href="#12-responsive-behavior-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Viewport</th>
+<th>Sidebar</th>
+<th>Right Panel</th>
+<th>Grid</th>
+<th>Context Menu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≥ 768px (Desktop)</td>
+<td>Permanent left column</td>
+<td>Conditional right column</td>
+<td><code>grid-cols-[280px_1fr]</code> or <code>grid-cols-[280px_1fr_260px]</code></td>
+<td>Right-click dropdown at cursor</td>
+</tr>
+<tr>
+<td>&lt; 768px (Mobile)</td>
+<td>Overlay drawer (hamburger toggle)</td>
+<td>Bottom sheet (member button toggle)</td>
+<td><code>grid-cols-[1fr]</code></td>
+<td>Long-press → bottom action sheet</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

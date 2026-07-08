@@ -5,6 +5,14 @@
          <lastmod>2026-07-08</lastmod>
     </url>
     <url>
+         <loc>https://immane.github.io/nexus-chat/QUICKSTART/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://immane.github.io/nexus-chat/README.project/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
          <loc>https://immane.github.io/nexus-chat/backup-restore/</loc>
          <lastmod>2026-07-08</lastmod>
     </url>
@@ -54,6 +62,10 @@
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/design/08_TUI_Chat_Redesign/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://immane.github.io/nexus-chat/design/09_Web_Client_UI_Design/</loc>
          <lastmod>2026-07-08</lastmod>
     </url>
     <url>
@@ -210,6 +222,10 @@
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/tasks/25-phase-1-tui-chat-redesign/</loc>
+         <lastmod>2026-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://immane.github.io/nexus-chat/tasks/26-phase-1-web-mobile-adaptation/</loc>
          <lastmod>2026-07-08</lastmod>
     </url>
 </urlset>
