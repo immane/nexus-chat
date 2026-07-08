@@ -137,7 +137,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-服务端启动在 `http://localhost:4000`，Web 客户端在 `http://localhost:5173`。
+服务端启动在 `http://127.0.0.1:4000`，Web 客户端在 `http://localhost:5173`。
 
 **Seed 测试账号：**
 
@@ -259,7 +259,7 @@ Bot 连接到专用的 `/bots` Socket.IO namespace，使用 Bot 专属 token 认
 import { NexusBotClient } from "@nexus-chat/bot-sdk";
 
 const bot = new NexusBotClient({
-  baseUrl: "http://localhost:4000",
+  baseUrl: "http://127.0.0.1:4000",
   token: "nxbot_v1_...",
   manifest: {
     id: "my-bot",
@@ -540,8 +540,9 @@ CI 在每次 push 时运行：lint、typecheck、test、coverage、build、depen
 | Variable | 默认值 | 用途 |
 | --- | --- | --- |
 | `NODE_ENV` | `development` | 运行时环境 |
+| `HOST` | `127.0.0.1` | Server 绑定地址；Docker/LAN/公网宿主机访问使用 `0.0.0.0` |
 | `PORT` | `4000` | HTTP + WebSocket 服务端端口 |
-| `WEB_ORIGIN` | `http://localhost:5173` | CORS 允许的 origin |
+| `WEB_ORIGIN` | `http://localhost` | CORS/WebSocket 允许的浏览器 origin；`*` 仅用于临时本地/局域网测试 |
 | `DATABASE_URL` | `postgres://nexus:nexus@localhost:5432/nexus_chat` | PostgreSQL 连接 |
 | `REDIS_URL` | `redis://localhost:6379` | Redis 连接 |
 | `SESSION_STORE` | `memory` | `memory` 或 `redis` |
@@ -551,7 +552,8 @@ CI 在每次 push 时运行：lint、typecheck、test、coverage、build、depen
 | `JWT_PRIVATE_KEY_PEM` | *(自动生成)* | RS256 签名密钥 |
 | `JWT_PUBLIC_KEY_PEM` | *(自动生成)* | RS256 验证密钥 |
 | `LOG_LEVEL` | `info` | Pino 日志级别 |
-| `VITE_API_BASE` | `http://localhost:4000` | Web 客户端 API URL |
+| `API_PUBLIC_BASE` | `http://127.0.0.1:4000` | 开发环境上传/下载 URL 中嵌入的公开 API URL |
+| `VITE_API_BASE` | `http://127.0.0.1:4000` | Web 客户端 API URL |
 | `OBJECT_STORAGE_ENDPOINT` | `http://localhost:9000` | S3 兼容 endpoint |
 | `OBJECT_STORAGE_BUCKET` | `nexus-chat-local` | 存储 bucket 名称 |
 | `NEXUS_STUN_SERVERS` | `stun:stun.l.google.com:19302` | WebRTC STUN 服务器（逗号分隔） |
@@ -560,6 +562,17 @@ CI 在每次 push 时运行：lint、typecheck、test、coverage、build、depen
 | `NEXUS_TURN_CREDENTIAL` | *(空)* | TURN 认证密码 |
 | `NEXUS_P2P_CONNECTION_TIMEOUT_MS` | `5000` | WebRTC 连接超时（毫秒） |
 | `NEXUS_P2P_RELAY_COOLDOWN_MS` | `30000` | P2P 失败后冷却时间（毫秒） |
+
+如果要从宿主机或局域网访问，把所有外部可见 URL 指向同一个宿主机名或 IP：
+
+```env
+HOST=0.0.0.0
+WEB_ORIGIN=http://192.168.1.20:5173
+VITE_API_BASE=http://192.168.1.20:4000
+API_PUBLIC_BASE=http://192.168.1.20:4000
+```
+
+TUI 可以用 `NEXUS_API_BASE=http://192.168.1.20:4000` 连接该宿主机。Desktop 使用同一套 Web renderer，因此构建 Desktop 前也要把 `VITE_API_BASE` 设置为宿主机 API URL。
 
 ---
 

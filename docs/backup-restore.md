@@ -172,7 +172,7 @@ export_<userId>_<timestamp>.zip
 4. [ ] Verify Redis connectivity: `redis-cli PING`
 5. [ ] Run database migrations: `pnpm db:migrate`
 6. [ ] Run smoke tests: `pnpm smoke:tui`
-7. [ ] Verify API health: `curl http://localhost:4000/health`
+7. [ ] Verify API health: `curl http://127.0.0.1:4000/healthz`
 8. [ ] Verify auth flow: login with seed credentials
 9. [ ] Restore S3 objects (Phase 2+): `aws s3 sync`
 10. [ ] Notify users of maintenance completion

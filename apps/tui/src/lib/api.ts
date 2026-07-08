@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const envFile = path.join(process.cwd(), ".env.tui");
-export let apiBase = process.env.NEXUS_API_BASE ?? "http://localhost:4000";
+export let apiBase = process.env.NEXUS_API_BASE ?? "http://127.0.0.1:4000";
 
 const loadToken = (): string => {
   if (process.env.NEXUS_ACCESS_TOKEN) return process.env.NEXUS_ACCESS_TOKEN;

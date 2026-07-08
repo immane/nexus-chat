@@ -6,8 +6,8 @@ import { logger } from "./observability/logger.js";
 import { attachSocketServer } from "./ws/socket.js";
 
 const app = createHttpApp();
-const httpServer = serve({ fetch: app.fetch, port: env.PORT }, () => {
-  logger.info({ port: env.PORT }, "Nexus Chat server started");
+const httpServer = serve({ fetch: app.fetch, hostname: env.HOST, port: env.PORT }, () => {
+  logger.info({ host: env.HOST, port: env.PORT }, "Nexus Chat server started");
 });
 
 attachSocketServer(httpServer as unknown as HttpServer);

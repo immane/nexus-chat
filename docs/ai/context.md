@@ -242,7 +242,7 @@ From `AGENTS.md`:
 - **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. Latest Web refactor verification passed `pnpm --filter @nexus-chat/web lint`, `pnpm --filter @nexus-chat/web typecheck`, `pnpm --filter @nexus-chat/web test`, `pnpm build`, and `pnpm test`.
 - **Coverage**: 100.00% statements/lines/functions, 92.62% branches across core domain + shared packages
 - **Tests**: 89 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
-- **Phase 1 tasks**: 24/24 done — Phase 1 complete
+- **Phase 1 tasks**: 25/25 done — Phase 1 complete
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
 - **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)
 - **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage
@@ -372,6 +372,15 @@ The TUI chat was redesigned and implemented with a two-pane layout featuring a d
 - **IME fix**: `isPrintable()` filter strips ANSI escape sequences and control characters to prevent CoreText crashes during CJK input.
 - **Screenshots**: Added TUI sample to README alongside Web login/chat screenshots (3 images, 30% each).
 - Verification: `pnpm --filter @nexus-chat/tui lint`, `pnpm --filter @nexus-chat/tui typecheck`, `pnpm --filter @nexus-chat/tui test`, `pnpm --filter @nexus-chat/tui build`, `pnpm build`, `pnpm test` all passed.
+
+### 8.4 Server Host & CORS Configuration (2026-07-08)
+
+Added explicit server binding and CORS documentation to support LAN / production deployment:
+
+- `apps/server/src/config/env.ts`: Added `HOST` env var (default `"127.0.0.1"` after CI IPv4/IPv6 fix).
+- `apps/server/src/index.ts`: `serve()` now passes `hostname: env.HOST` for binding control.
+- `docker-compose.yml`: Added `HOST` with extensive comments covering `localhost`, `0.0.0.0`, `::`, domain, and IP scenarios. Added `WEB_ORIGIN` CORS documentation.
+- `.env.example`: Added `HOST`, `WEB_ORIGIN`, and `VITE_API_BASE` with deployment scenario comments.
 
 ---
 

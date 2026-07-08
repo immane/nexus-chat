@@ -1,9 +1,11 @@
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail, fileSchema, nowIso, type AttachmentRef, type FileRecord } from "@nexus-chat/shared";
+import { env } from "../../config/env.js";
 import { store } from "../store.js";
 import { workspaceService } from "../workspaces/service.js";
 
 const objectKey = (workspaceId: string, fileId: string, fileName: string) => `workspaces/${workspaceId}/files/${fileId}/${fileName}`;
+const publicApiBase = () => env.API_PUBLIC_BASE.replace(/\/$/, "");
 
 export const attachmentService = {
   createUploadSession(actorId: string, input: { workspaceId: string; channelId?: string | undefined; fileName: string; contentType: string; sizeBytes: number; encrypted: boolean }) {
@@ -24,7 +26,7 @@ export const attachmentService = {
       createdAt: nowIso()
     });
     store.files.set(file.id, file);
-    const uploadSession = { id: createId(), fileId: file.id, userId: actorId, uploadUrl: `http://localhost:4000/dev-upload/${file.id}`, expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString() };
+    const uploadSession = { id: createId(), fileId: file.id, userId: actorId, uploadUrl: `${publicApiBase()}/dev-upload/${file.id}`, expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString() };
     store.uploadSessions.set(uploadSession.id, uploadSession);
     return { uploadSession, file };
   },
@@ -43,7 +45,7 @@ export const attachmentService = {
     const file = this.getFile(actorId, fileId);
     if ("ok" in file) return file;
     store.auditLogs.push({ id: createId(), actorUserId: actorId, workspaceId: file.workspaceId, action: "attachment.download_url_issued", metadata: { fileId }, createdAt: nowIso() });
-    return { url: `http://localhost:4000/dev-download/${fileId}?token=${createId()}`, expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() };
+    return { url: `${publicApiBase()}/dev-download/${fileId}?token=${createId()}`, expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() };
   },
   associateAttachments(messageId: string, attachments: AttachmentRef[]): void {
     const existing = store.messageAttachments.get(messageId) ?? new Set<string>();

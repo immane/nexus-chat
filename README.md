@@ -137,7 +137,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-The server starts on `http://localhost:4000`, the web client on `http://localhost:5173`.
+The server starts on `http://127.0.0.1:4000`, the web client on `http://localhost:5173`.
 
 **Seed credentials:**
 
@@ -259,7 +259,7 @@ Bots connect to a dedicated `/bots` Socket.IO namespace with bot-specific token 
 import { NexusBotClient } from "@nexus-chat/bot-sdk";
 
 const bot = new NexusBotClient({
-  baseUrl: "http://localhost:4000",
+  baseUrl: "http://127.0.0.1:4000",
   token: "nxbot_v1_...",
   manifest: {
     id: "my-bot",
@@ -540,8 +540,9 @@ Copy `.env.example` to `.env`. All variables:
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `NODE_ENV` | `development` | Runtime environment |
+| `HOST` | `127.0.0.1` | Server bind address; use `0.0.0.0` for Docker/LAN/public host access |
 | `PORT` | `4000` | HTTP + WebSocket server port |
-| `WEB_ORIGIN` | `http://localhost:5173` | CORS allowed origin |
+| `WEB_ORIGIN` | `http://localhost` | CORS/WebSocket allowed browser origin; use `*` only for temporary local/LAN testing |
 | `DATABASE_URL` | `postgres://nexus:nexus@localhost:5432/nexus_chat` | PostgreSQL connection |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection |
 | `SESSION_STORE` | `memory` | `memory` or `redis` |
@@ -551,7 +552,8 @@ Copy `.env.example` to `.env`. All variables:
 | `JWT_PRIVATE_KEY_PEM` | *(auto-generated)* | RS256 signing key |
 | `JWT_PUBLIC_KEY_PEM` | *(auto-generated)* | RS256 verification key |
 | `LOG_LEVEL` | `info` | Pino log level |
-| `VITE_API_BASE` | `http://localhost:4000` | Web client API URL |
+| `API_PUBLIC_BASE` | `http://127.0.0.1:4000` | Public API URL embedded in dev upload/download URLs |
+| `VITE_API_BASE` | `http://127.0.0.1:4000` | Web client API URL |
 | `OBJECT_STORAGE_ENDPOINT` | `http://localhost:9000` | S3-compatible endpoint |
 | `OBJECT_STORAGE_BUCKET` | `nexus-chat-local` | Storage bucket name |
 | `NEXUS_STUN_SERVERS` | `stun:stun.l.google.com:19302` | WebRTC STUN servers (comma-separated) |
@@ -560,6 +562,17 @@ Copy `.env.example` to `.env`. All variables:
 | `NEXUS_TURN_CREDENTIAL` | *(empty)* | TURN authentication credential |
 | `NEXUS_P2P_CONNECTION_TIMEOUT_MS` | `5000` | WebRTC connection timeout in ms |
 | `NEXUS_P2P_RELAY_COOLDOWN_MS` | `30000` | Cooldown after failed P2P attempt in ms |
+
+For host or LAN access, set all externally visible URLs to the same host name or IP:
+
+```env
+HOST=0.0.0.0
+WEB_ORIGIN=http://192.168.1.20:5173
+VITE_API_BASE=http://192.168.1.20:4000
+API_PUBLIC_BASE=http://192.168.1.20:4000
+```
+
+TUI clients can connect to that host with `NEXUS_API_BASE=http://192.168.1.20:4000`. Desktop uses the same Web renderer, so build it with `VITE_API_BASE` set to the host API URL.
 
 ---
 

@@ -2,7 +2,9 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  HOST: z.string().default("127.0.0.1"),
   PORT: z.coerce.number().int().positive().default(4000),
+  API_PUBLIC_BASE: z.string().default("http://127.0.0.1:4000"),
   WEB_ORIGIN: z.string().default("http://localhost"),
   DATABASE_URL: z.string().default("postgres://nexus:nexus@localhost:5432/nexus_chat"),
   REDIS_URL: z.string().default("redis://localhost:6379"),

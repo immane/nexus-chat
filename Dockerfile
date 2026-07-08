@@ -25,7 +25,8 @@ COPY apps/server/ apps/server/
 
 RUN pnpm turbo build --filter=@nexus-chat/server
 
-RUN pnpm --filter @nexus-chat/server deploy --prod /deploy
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm --filter @nexus-chat/server deploy --prod /deploy
 
 FROM node:22-alpine AS runner
 RUN apk add --no-cache tini

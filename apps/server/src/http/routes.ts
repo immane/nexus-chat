@@ -46,6 +46,7 @@ const isError = (value: unknown): value is ReturnType<typeof apiFail> => typeof 
 const toResponse = (value: unknown) => (isError(value) ? value : apiOk(value));
 const requiredParam = (value: string | undefined) => value ?? "";
 const isAllowedOrigin = (origin: string) => {
+  if (env.WEB_ORIGIN === "*") return true;
   try {
     const requestOrigin = new URL(origin);
     const allowedOrigin = new URL(env.WEB_ORIGIN);
@@ -60,7 +61,7 @@ export const createHttpApp = () => {
 
   app.use("*", requestContext);
   app.use("*", securityHeaders);
-  app.use("*", cors({ origin: (origin) => (isAllowedOrigin(origin) ? origin : env.WEB_ORIGIN), credentials: true }));
+  app.use("*", cors({ origin: (origin) => (isAllowedOrigin(origin) ? origin : env.WEB_ORIGIN === "*" ? origin : env.WEB_ORIGIN), credentials: true }));
 
   app.get("/healthz", (c) => c.json(apiOk({ status: "ok" })));
   app.get("/metrics", async (c) => c.text(await registry.metrics(), 200, { "content-type": registry.contentType }));
