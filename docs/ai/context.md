@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-08 (Phase 1 — TUI chat redesign planned, new task #25)
-> Current status: Phase 1 complete (24/24 tasks done), 25 tasks defined (1 pending: TUI redesign), coverage 100% statements/functions/lines, 92.62% branches, 89 tests. Electron desktop launched successfully. README screenshots added.
+> Last updated: 2026-07-08 (Phase 1 — TUI chat redesign completed, task #25 done)
+> Current status: Phase 1 complete (25/25 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests. TUI two-pane chat implemented. README screenshots for Web + TUI.
 
 ## 1. Project Overview
 
@@ -218,7 +218,7 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 22 | Web Presence, Channel Info & Notifications | Done |
 | 23 | Server Message Reply & Pin Backend | Done |
 | 24 | Server Channel Mute & Description Backend | Done |
-| 25 | TUI Chat Interface Redesign | Pending |
+| 25 | TUI Chat Interface Redesign | Done |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -359,13 +359,19 @@ The Web chat route was refactored in small, verified steps to reduce `ChatRoute.
 - Fixed `.gitignore` exception pattern from `!docs/images/` to `!docs/images/*.jpg` so the global `*.jpg` ignore rule is properly re-included.
 - Electron desktop verified running with 4 processes (Main, GPU, Network, Renderer).
 
-### 8.3 TUI Chat Redesign Plan (2026-07-08)
+### 8.3 TUI Chat Redesign Implementation (2026-07-08)
 
-A comprehensive redesign was planned to upgrade the TUI interactive chat from a single-column stack into a two-pane layout mirroring the Web client architecture. The design references OpenCode's file-tree + editor TUI style.
+The TUI chat was redesigned and implemented with a two-pane layout featuring a dark semi-transparent background:
 
-- **Design doc**: `docs/design/08_TUI_Chat_Redesign.md` — full layout spec, component tree, data flow, keyboard shortcuts.
-- **Task**: `docs/tasks/25-phase-1-tui-chat-redesign.md` — 6 implementation steps covering base layout, channel sidebar enhancements, message area rewrite, WS event expansion, message actions (reply/edit/delete/react/forward), and composer enhancement.
-- Key changes: two-pane layout with Sidebar (28 columns) + MainPanel, TopBar, BottomBar, per-panel keyboard focus, message scrolling with pagination, and 9 WebSocket events instead of only `message.created`.
+- **16 files changed** (+1204/-189): 8 components, 4 hooks, format utilities, WS event expansion, `app.tsx` rewrite.
+- **Components**: `TopBar`, `BottomBar`, `Sidebar` (Chat/Members/Settings tabs), `ChatHeader`, `MessageArea` (with date separators, relative timestamps, message focus), `Composer` (with edit/reply modes, IME-safe input), `Overlay` (forward/delete/react modals).
+- **Hooks**: `useTerminalSize`, `useChannelData` (members, sender names, online tracking), `useMessages` (send/edit/delete/react/forward via REST, WS event handling), `useFocus` (panel/message index management).
+- **WS events**: Extended `ws-client.ts` to handle 9 server events (`message.created/updated/deleted`, `message.reaction`, `message.read`, `typing.updated`, `presence.updated`, `channel.created`, `dm.created`).
+- **Layout**: Single outer frame with vertical sidebar divider, tab bar with top border, TopBar/BottomBar outside frame, fullscreen with `useTerminalSize`.
+- **Background**: Dark semi-transparent via `\x1b]Ph` OSC sequence for macOS Terminal.app.
+- **IME fix**: `isPrintable()` filter strips ANSI escape sequences and control characters to prevent CoreText crashes during CJK input.
+- **Screenshots**: Added TUI sample to README alongside Web login/chat screenshots (3 images, 30% each).
+- Verification: `pnpm --filter @nexus-chat/tui lint`, `pnpm --filter @nexus-chat/tui typecheck`, `pnpm --filter @nexus-chat/tui test`, `pnpm --filter @nexus-chat/tui build`, `pnpm build`, `pnpm test` all passed.
 
 ---
 
