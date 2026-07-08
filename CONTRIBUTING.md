@@ -52,7 +52,7 @@ pnpm build
 
 ### PR Checklist
 
-- [ ] Branch is based on `main` and rebased
+- [ ] Branch is up-to-date with main
 - [ ] Commits follow conventional commit format
 - [ ] `pnpm typecheck` passes
 - [ ] `pnpm lint` passes
@@ -102,6 +102,10 @@ pnpm --filter @nexus-chat/web test
 # Run smoke tests (requires a running server)
 PORT=4010 NEXUS_API_BASE=http://127.0.0.1:4010 pnpm smoke:tui:ci
 ```
+
+## Documentation
+
+Significant architectural or behavioral changes should include corresponding updates under `docs/` where appropriate.
 
 ## Reporting Issues
 
