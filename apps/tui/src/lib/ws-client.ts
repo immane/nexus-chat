@@ -1,8 +1,23 @@
 import { io, type Socket } from "socket.io-client";
-import type { Message, SendMessageInput } from "@nexus-chat/shared";
+import type { Message, SendMessageInput, Channel } from "@nexus-chat/shared";
 import { getAccessToken, apiBase } from "./api.js";
 
 type WsEvent = { type: string; payload: unknown; timestamp: string };
+
+export type WsEventHandlers = {
+  onMessageCreated?: (message: Message) => void;
+  onMessageUpdated?: (message: Message) => void;
+  onMessageDeleted?: (message: Message) => void;
+  onReaction?: (payload: { messageId: string; emoji: string; count: number; reacted: boolean; actorUserId?: string }) => void;
+  onRead?: (payload: { messageId: string; readCount: number }) => void;
+  onTyping?: (payload: { userId: string; channelId: string; typing: boolean }) => void;
+  onPresence?: (payload: { userId: string; status: string }) => void;
+  onChannelCreated?: (channel: Channel) => void;
+  onDmCreated?: (channel: Channel) => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  onConnectError?: (err: Error) => void;
+};
 
 export const createSocket = (): Socket => {
   const socket = io(apiBase, {
@@ -29,6 +44,17 @@ export const sendMessage = (socket: Socket, input: SendMessageInput): Promise<{ 
     );
   });
 
+export const sendTypingEvent = (socket: Socket, workspaceId: string, channelId: string, typing: boolean) => {
+  if (!socket.connected) return;
+  socket.emit("event", {
+    type: typing ? "typing.start" : "typing.stop",
+    workspaceId,
+    channelId,
+    payload: { workspaceId, channelId },
+    timestamp: new Date().toISOString()
+  });
+};
+
 export const sendBotCommand = (
   socket: Socket,
   workspaceId: string,
@@ -51,10 +77,63 @@ export const sendBotCommand = (
     );
   });
 
-export const listenForMessages = (socket: Socket, onMessage: (message: Message) => void) => {
+export const listenForAllEvents = (socket: Socket, handlers: WsEventHandlers) => {
   socket.on("event", (event: WsEvent) => {
-    if (event.type === "message.created" && event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
-      onMessage(event.payload as Message);
+    switch (event.type) {
+      case "message.created":
+        if (event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
+          handlers.onMessageCreated?.(event.payload as Message);
+        }
+        break;
+      case "message.updated":
+        if (event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
+          handlers.onMessageUpdated?.(event.payload as Message);
+        }
+        break;
+      case "message.deleted":
+        if (event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
+          handlers.onMessageDeleted?.(event.payload as Message);
+        }
+        break;
+      case "message.reaction":
+        handlers.onReaction?.(event.payload as { messageId: string; emoji: string; count: number; reacted: boolean; actorUserId?: string });
+        break;
+      case "message.read":
+        handlers.onRead?.(event.payload as { messageId: string; readCount: number });
+        break;
+      case "typing.updated":
+        handlers.onTyping?.(event.payload as { userId: string; channelId: string; typing: boolean });
+        break;
+      case "presence.updated":
+        handlers.onPresence?.(event.payload as { userId: string; status: string });
+        break;
+      case "channel.created":
+        if (event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
+          handlers.onChannelCreated?.(event.payload as Channel);
+        }
+        break;
+      case "dm.created":
+        if (event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
+          handlers.onDmCreated?.(event.payload as Channel);
+        }
+        break;
     }
+  });
+
+  socket.on("connect", () => handlers.onConnect?.());
+  socket.on("disconnect", () => handlers.onDisconnect?.());
+  socket.on("connect_error", (err) => handlers.onConnectError?.(err));
+};
+
+export const listenForMessages = (socket: Socket, onMessage: (message: Message) => void) => {
+  listenForAllEvents(socket, { onMessageCreated: onMessage });
+};
+
+export const sendPresenceUpdate = (socket: Socket, status: "online" | "away" | "offline") => {
+  if (!socket.connected) return;
+  socket.emit("event", {
+    type: "presence.update",
+    payload: { status },
+    timestamp: new Date().toISOString()
   });
 };

@@ -1,225 +1,398 @@
-import { useState, useEffect } from "react";
-import { render, Box, Text, useInput, useApp } from "ink";
-import type { Channel, Message, Workspace } from "@nexus-chat/shared";
-import { getAccessToken, request } from "./lib/api.js";
-import { createSocket, sendMessage, listenForMessages } from "./lib/ws-client.js";
+import { useState, useEffect, useCallback } from "react";
+import { Box, Text, useInput, useApp, useStdout } from "ink";
+import type { Channel } from "@nexus-chat/shared";
+import { getAccessToken } from "./lib/api.js";
+import { createSocket, listenForAllEvents, sendTypingEvent, sendPresenceUpdate } from "./lib/ws-client.js";
 import type { Socket } from "socket.io-client";
+import { useTerminalSize } from "./hooks/useTerminalSize.js";
+import { useChannelData } from "./hooks/useChannelData.js";
+import { useMessages } from "./hooks/useMessages.js";
+import { TopBar } from "./components/TopBar.js";
+import { BottomBar } from "./components/BottomBar.js";
+import { Sidebar } from "./components/Sidebar.js";
+import { ChatHeader } from "./components/ChatHeader.js";
+import { MessageArea } from "./components/MessageArea.js";
+import { Composer } from "./components/Composer.js";
+import { Overlay } from "./components/Overlay.js";
 
-type ChatView = "loading" | "workspaces" | "channels" | "chat";
+type Tab = "chat" | "members" | "settings";
+type FocusPanel = "sidebar" | "messages" | "composer";
 
-const ChannelList = ({
-  channels,
-  onSelect,
-  onBack
-}: {
-  channels: Channel[];
-  onSelect: (channel: Channel) => void;
-  onBack: () => void;
-}) => {
-  useInput((input, key) => {
-    if (key.escape) onBack();
-    const num = Number(input);
-    if (num >= 1 && num <= channels.length) onSelect(channels[num - 1]!);
-  });
-
-  return (
-    <Box flexDirection="column" padding={1}>
-      <Text bold color="cyan">Channels (press ESC to go back)</Text>
-      {channels.map((ch, i) => (
-        <Box key={ch.id}>
-          <Text dimColor>{i + 1}. </Text>
-          <Text color={ch.mode === "e2e" ? "yellow" : "green"}>
-            {ch.kind === "dm" ? "@" : "#"}{ch.name}
-          </Text>
-          {ch.mode === "e2e" ? <Text color="yellow" dimColor> [E2E]</Text> : null}
-        </Box>
-      ))}
-    </Box>
-  );
-};
-
-const MessageList = ({ messages }: { messages: Message[] }) => (
-  <Box flexDirection="column" flexGrow={1} overflow="hidden">
-    {messages.slice(-20).map((msg) => (
-      <Box key={msg.id} flexDirection="column" marginBottom={1}>
-        {msg.content.type === "tombstone" ? (
-          <Text color="gray" dimColor>
-            ~ {msg.content.reason === "expired" ? "Message expired" : msg.content.reason === "read_once_consumed" ? "Read-once consumed" : "Message deleted"} ~
-          </Text>
-        ) : (
-          <>
-            <Text>
-              <Text color="blue" bold>{msg.senderId}</Text>
-              <Text dimColor> {new Date(msg.createdAt).toLocaleTimeString()}</Text>
-              {msg.content.type === "ciphertext" && msg.content.readOnce ? <Text color="yellow"> [read-once]</Text> : null}
-              {msg.content.type === "ciphertext" && msg.content.expiresAt ? <Text color="yellow"> [ttl]</Text> : null}
-            </Text>
-            <Text>{msg.content.type === "text" ? msg.content.text : msg.content.type === "ciphertext" ? "[encrypted]" : "[unknown]"}</Text>
-          </>
-        )}
-      </Box>
-    ))}
-  </Box>
-);
-
-const InputBar = ({ onSubmit, channel }: { onSubmit: (text: string) => void; channel: Channel | undefined }) => {
-  const [value, setValue] = useState("");
-
-  useInput((input, key) => {
-    if (key.return) {
-      if (value.trim()) {
-        onSubmit(value.trim());
-        setValue("");
-      }
-    } else if (key.backspace || key.delete) {
-      setValue((prev) => prev.slice(0, -1));
-    } else if (input && input.length === 1 && !key.ctrl) {
-      setValue((prev) => prev + input);
-    }
-  });
-
-  return (
-    <Box borderStyle="single" borderColor="gray" padding={1}>
-      <Text color="gray">{channel?.mode === "e2e" ? "[E2E] " : ""}{">"} </Text>
-      <Text>{value}</Text>
-      <Text color="gray" dimColor>{value.length === 0 ? " (type a message, Enter to send)" : ""}</Text>
-    </Box>
-  );
-};
-
-const ChatApp = ({ workspaceId, channelId }: { workspaceId: string; channelId: string }) => {
+const ChatShell = () => {
   const { exit } = useApp();
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const [activeChannel, setActiveChannel] = useState<Channel | undefined>();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [view, setView] = useState<ChatView>("loading");
-  const [socket, setSocket] = useState<Socket | undefined>();
-  const [error, setError] = useState("");
+  const { columns, rows } = useTerminalSize();
+  const sidebarWidth = Math.min(30, Math.floor(columns * 0.25));
+  const accessToken = getAccessToken();
+  const { stdout } = useStdout();
 
   useEffect(() => {
-    (async () => {
-      try {
-        const wsList = await request<Workspace[]>("/api/v1/workspaces");
-        if (wsList.length === 0) {
-          setError("No workspaces found. Create one first with: nexus workspace-create");
-          return;
-        }
-        const wid = workspaceId || wsList[0]!.id;
-        const chList = await request<Channel[]>(`/api/v1/workspaces/${wid}/channels`);
-        setChannels(chList);
-
-        if (channelId) {
-          const ch = chList.find((c: Channel) => c.id === channelId);
-          if (ch) {
-            setActiveChannel(ch);
-            setView("chat");
-            const msgs = await request<{ messages: Message[] }>(`/api/v1/channels/${ch.id}/messages`);
-            setMessages(msgs.messages ?? []);
-          }
-        } else {
-          setView("channels");
-        }
-
-        const sock = createSocket();
-        listenForMessages(sock, (msg: Message) => setMessages((prev) => [...prev, msg]));
-        sock.on("connect_error", () => setError("WebSocket connection failed"));
-        sock.connect();
-        setSocket(sock);
-      } catch (err) {
-        setError(String(err));
-      }
-    })();
-    return () => { socket?.disconnect(); };
+    stdout.write("\x1b]Ph0a0a14\x1b\\");
+    stdout.write("\x1b[2J");
+    return () => { stdout.write("\x1b]Ph\x1b\\"); };
   }, []);
 
-  useInput((_, key) => {
-    if (key.escape && view === "chat") {
-      setView("channels");
+  const {
+    channels,
+    createChannel,
+    error: dataError,
+    loading,
+    members,
+    onlineUserIds,
+    senderNames,
+    setOnline,
+    addChannel
+  } = useChannelData();
+
+  const [socket, setSocket] = useState<Socket | undefined>();
+  const [wsConnected, setWsConnected] = useState(false);
+
+  const {
+    editMode,
+    fetchMessages,
+    handleDeleteMessage,
+    handleEditMessage,
+    handleForwardMessage,
+    handleSend,
+    loadMoreMessages,
+    messages,
+    overlay,
+    overlayData,
+    readReceipts,
+    replyMode,
+    setEditMode,
+    setMessages,
+    setOverlay,
+    setOverlayData,
+    setReplyMode,
+    typingUsers,
+    wsHandlers
+  } = useMessages(accessToken, socket);
+
+  const [activeChannel, setActiveChannel] = useState<Channel | undefined>();
+  const [activePanel, setActivePanel] = useState<FocusPanel>("sidebar");
+  const [sidebarIndex, setSidebarIndex] = useState(0);
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [selectedTab, setSelectedTab] = useState<Tab>("chat");
+  const [unreadCounts] = useState<Record<string, number>>({});
+
+  // Connect WebSocket
+  useEffect(() => {
+    const sock = createSocket();
+    setSocket(sock);
+
+    listenForAllEvents(sock, {
+      ...wsHandlers,
+      onConnect: () => {
+        setWsConnected(true);
+        sendPresenceUpdate(sock, "online");
+      },
+      onDisconnect: () => setWsConnected(false),
+      onConnectError: () => {},
+      onPresence: (payload) => {
+        if (payload.userId) setOnline(payload.userId, payload.status === "online");
+      },
+      onChannelCreated: (ch) => { addChannel(ch); },
+      onDmCreated: (dm) => { addChannel(dm); }
+    });
+
+    sock.connect();
+
+    return () => { sock.disconnect(); };
+  }, []);
+
+  // Enter a channel
+  const enterChannel = useCallback(async (ch: Channel) => {
+    setActiveChannel(ch);
+    setActivePanel("messages");
+    setMessageIndex(0);
+    try {
+      const msgs = await fetchMessages(ch.id);
+      setMessages(msgs);
+    } catch {
+      // keep existing
+    }
+  }, [fetchMessages, setMessages]);
+
+  // Global keyboard shortcuts
+  useInput((input, key) => {
+    // Global: panel switching
+    if (key.tab) {
+      const panels: FocusPanel[] = ["sidebar", "messages", "composer"];
+      const idx = panels.indexOf(activePanel);
+      setActivePanel(panels[(idx + 1) % 3]!);
+      return;
+    }
+
+    if (input === "q" && key.ctrl) {
+      socket?.disconnect();
+      exit();
+      return;
+    }
+
+    // Escape: back to sidebar from messages, or close overlay
+    if (key.escape) {
+      if (overlay) {
+        setOverlay(null);
+        setOverlayData(null);
+        return;
+      }
+      if (activePanel === "messages") {
+        setActivePanel("sidebar");
+        return;
+      }
+      if (editMode) {
+        setEditMode(null);
+        return;
+      }
+      if (replyMode) {
+        setReplyMode(null);
+        return;
+      }
+      return;
+    }
+
+    // Sidebar navigation
+    if (activePanel === "sidebar") {
+      if (key.downArrow) {
+        setSidebarIndex((prev) => Math.min(prev + 1, channels.length - 1));
+        return;
+      }
+      if (key.upArrow) {
+        setSidebarIndex((prev) => Math.max(prev - 1, 0));
+        return;
+      }
+      if (key.return && channels[sidebarIndex]) {
+        void enterChannel(channels[sidebarIndex]!);
+        return;
+      }
+      if (input === "n") {
+        void (async () => {
+          const name = `channel-${Date.now().toString(36)}`;
+          const ch = await createChannel(name);
+          if (ch) void enterChannel(ch);
+        })();
+        return;
+      }
+      if (input === "1" && key.ctrl) { setSelectedTab("chat"); return; }
+      if (input === "2" && key.ctrl) { setSelectedTab("members"); return; }
+      if (input === "3" && key.ctrl) { setSelectedTab("settings"); return; }
+    }
+
+    // Message area: focus movement + actions
+    if (activePanel === "messages" && activeChannel) {
+      if (key.upArrow) {
+        setMessageIndex((prev) => Math.max(prev - 1, 0));
+        return;
+      }
+      if (key.downArrow) {
+        setMessageIndex((prev) => Math.min(prev + 1, messages.length - 1));
+        return;
+      }
+      if (key.pageDown) {
+        setMessageIndex((prev) => Math.min(prev + 10, messages.length - 1));
+        return;
+      }
+      if (key.pageUp) {
+        setMessageIndex((prev) => Math.max(prev - 10, 0));
+        return;
+      }
+      if (key.home) {
+        setMessageIndex(0);
+        void loadMoreMessages(activeChannel.id);
+        return;
+      }
+      if (key.end) {
+        setMessageIndex(messages.length - 1);
+        return;
+      }
+
+      // Message actions (only when overlay is not open)
+      if (!overlay && !editMode) {
+        const focusedMsg = messages[messageIndex];
+        if (!focusedMsg) return;
+
+        if (input === "r") {
+          const snippet = focusedMsg.content.type === "text" ? focusedMsg.content.text.slice(0, 60) : "message";
+          setReplyMode({ messageId: focusedMsg.id, snippet, senderId: focusedMsg.senderId });
+          setActivePanel("composer");
+          return;
+        }
+        if (input === "c") {
+          const text = focusedMsg.content.type === "text" ? focusedMsg.content.text : "[encrypted]";
+          process.stdout.write(`\n${text}\n`);
+          return;
+        }
+        if (input === "f") {
+          setOverlay("forward");
+          setOverlayData(null);
+          return;
+        }
+        if (input === "d") {
+          setOverlay("delete");
+          setOverlayData(focusedMsg.id);
+          return;
+        }
+        if (input === "+") {
+          setOverlay("react");
+          setOverlayData(focusedMsg.id);
+          return;
+        }
+        if (input === "e" && focusedMsg.content.type === "text") {
+          setEditMode({ messageId: focusedMsg.id, text: focusedMsg.content.text });
+          setActivePanel("composer");
+          return;
+        }
+      }
+
+      // Overlay actions
+      if (overlay === "delete" && key.return) {
+        void handleDeleteMessage(overlayData as string);
+        return;
+      }
+      if (overlay === "forward") {
+        const num = Number(input);
+        if (num >= 1 && num <= channels.length) {
+          const ch = channels[num - 1];
+          if (ch && typeof overlayData === "string") {
+            void handleForwardMessage(overlayData, ch.id);
+          }
+        }
+        return;
+      }
+    }
+
+    // Composer actions
+    if (activePanel === "composer") {
+      if (input === "l" && key.ctrl) {
+        setActivePanel("sidebar");
+        return;
+      }
+      if (input === "m" && key.ctrl) {
+        setActivePanel("messages");
+        return;
+      }
     }
   });
 
-  const handleChannelSelect = async (ch: Channel) => {
-    setActiveChannel(ch);
-    setView("chat");
-    try {
-      const result = await request<{ messages: Message[] }>(`/api/v1/channels/${ch.id}/messages`);
-      setMessages(result.messages ?? []);
-    } catch {
-      // keep existing messages
-    }
-  };
-
-  const handleSend = async (text: string) => {
+  // Typing indicator emission
+  const emitTyping = useCallback((typing: boolean) => {
     if (!socket?.connected || !activeChannel) return;
-    const input = {
-      workspaceId: activeChannel.workspaceId,
-      channelId: activeChannel.id,
-      clientMsgId: `tui-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      content: { type: "text" as const, text, attachments: [] }
-    };
-    const result = await sendMessage(socket, input);
-    if (!result.ok) setError(`Send failed: ${result.error?.message ?? "unknown"}`);
-  };
+    sendTypingEvent(socket, activeChannel.workspaceId, activeChannel.id, typing);
+  }, [socket, activeChannel]);
 
-  if (error) return <Box padding={1}><Text color="red">{error}</Text></Box>;
+  const handleComposerSubmit = useCallback((text: string) => {
+    if (editMode) {
+      void handleEditMessage(editMode.messageId, text);
+      setActivePanel("messages");
+      return;
+    }
+    if (activeChannel) {
+      void handleSend(text, activeChannel);
+      emitTyping(false);
+    }
+  }, [editMode, activeChannel, handleEditMessage, handleSend, emitTyping]);
 
-  if (view === "loading") return <Box padding={1}><Text>Loading...</Text></Box>;
+  const shortcutHints = activePanel === "sidebar"
+    ? "↑↓=Nav Enter=Sel n=New Tab=Cycle"
+    : activePanel === "messages"
+      ? "↑↓=Msg r=Reply e=Edit d=Del c=Copy f=Fwd +=React"
+      : "Enter=Send Esc=Cancel Tab=Switch";
 
-  if (view === "channels") {
-    return <ChannelList channels={channels} onSelect={handleChannelSelect} onBack={() => exit()} />;
-  }
+  if (loading) return <Box padding={1}><Text>Loading...</Text></Box>;
+  if (dataError && channels.length === 0) return <Box padding={1}><Text color="red">{dataError}</Text></Box>;
 
   return (
-    <Box flexDirection="column" height="100%" padding={1}>
-      <Box marginBottom={1}>
-        <Text bold color="cyan">
-          {activeChannel?.kind === "dm" ? "@" : "#"}{activeChannel?.name}
-        </Text>
-        {activeChannel?.mode === "e2e" ? <Text color="yellow"> [E2E - no bots/search]</Text> : null}
-        <Text dimColor> (ESC for channel list)</Text>
+    <Box flexDirection="column" height={rows}>
+      <TopBar connected={wsConnected} />
+
+      <Box flexDirection="row" flexGrow={1} borderStyle="single" borderColor="gray">
+        <Box width={sidebarWidth} flexDirection="column" borderStyle="single" borderColor="gray" borderTop={false} borderBottom={false} borderLeft={false}>
+          <Sidebar
+            activeIndex={sidebarIndex}
+            channels={channels}
+            members={members}
+            onlineUserIds={onlineUserIds}
+            senderNames={senderNames}
+            selectedTab={selectedTab}
+            unreadCounts={unreadCounts}
+          />
+          <Box borderStyle="single" borderColor="gray" borderBottom={false} borderLeft={false} borderRight={false} paddingX={1} gap={1}>
+            <Text color={selectedTab === "chat" ? "cyan" : "white"}>[Chat]</Text>
+            <Text color={selectedTab === "members" ? "cyan" : "white"}>[Members]</Text>
+            <Text color={selectedTab === "settings" ? "cyan" : "white"}>[Settings]</Text>
+          </Box>
+        </Box>
+
+        <Box flexDirection="column" flexGrow={1}>
+          {activeChannel ? (
+            <>
+              <ChatHeader
+                activeChannel={activeChannel}
+                onlineCount={onlineUserIds.size}
+                senderNames={senderNames}
+                typingUsers={typingUsers}
+              />
+              <MessageArea
+                focusedIndex={messageIndex}
+                messages={messages}
+                readReceipts={readReceipts}
+                reactions={{}}
+                senderNames={senderNames}
+              />
+              <Composer
+                channel={activeChannel}
+                editMode={editMode}
+                onCancelEdit={() => { setEditMode(null); setActivePanel("messages"); }}
+                onCancelReply={() => { setReplyMode(null); }}
+                onSubmit={handleComposerSubmit}
+                replyMode={replyMode}
+                senderNames={senderNames}
+              />
+              {overlay ? (
+                <Box>
+                  <Overlay
+                    channels={channels}
+                    kind={overlay}
+                  />
+                </Box>
+              ) : null}
+            </>
+          ) : (
+            <Box padding={2} flexDirection="column">
+              <Text bold color="cyan">Welcome to Nexus Chat TUI</Text>
+              <Text dimColor>Select a channel from the sidebar (↑↓ to navigate, Enter to select).</Text>
+              <Text dimColor>Or press n to create a new channel.</Text>
+            </Box>
+          )}
+        </Box>
       </Box>
-      <MessageList messages={messages} />
-      <InputBar onSubmit={handleSend} channel={activeChannel} />
+
+      <BottomBar
+        channelName={activeChannel ? `${activeChannel.kind === "dm" ? "@" : "#"}${activeChannel.name}` : ""}
+        status={Object.keys(typingUsers).length > 0 ? "Someone is typing..." : ""}
+        shortcuts={shortcutHints}
+      />
     </Box>
   );
 };
 
-export const startInteractiveChat = async (workspaceId?: string, channelId?: string) => {
+export const startInteractiveChat = async () => {
   const token = getAccessToken();
   if (!token) {
     console.error("Not authenticated. Run 'nexus login' first.");
     process.exit(1);
   }
 
-  let wid = workspaceId ?? "";
-  let cid = channelId ?? "";
+  const { render } = await import("ink");
 
-  if (!wid) {
-    try {
-      const wsList = await request<Workspace[]>("/api/v1/workspaces");
-      if (wsList.length === 0) {
-        console.error("No workspaces found. Create one first with: workspace-create -n <name>");
-        process.exit(1);
-      }
-      if (wsList.length > 1 && !workspaceId) {
-        console.log("Available workspaces:");
-        wsList.forEach((w) => console.log(`  ${w.id}  ${w.name}`));
-        console.log(`Using first workspace: ${wsList[0]!.name} (${wsList[0]!.id})`);
-        console.log("(Use -w <id> to select a different one)\n");
-      }
-      wid = wsList[0]!.id;
-    } catch (err) {
-      console.error("Failed to list workspaces:", String(err));
-      process.exit(1);
-    }
-  }
-
-  const { unmount } = render(<ChatApp workspaceId={wid} channelId={cid} />);
+  const { unmount } = render(<ChatShell />);
 
   await new Promise<void>((resolve) => {
-    process.on("SIGINT", () => {
+    const cleanup = () => {
       unmount();
       resolve();
-    });
+      process.off("SIGINT", cleanup);
+    };
+    process.on("SIGINT", cleanup);
   });
 };
