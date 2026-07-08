@@ -13,6 +13,7 @@ import { setIO } from "./broadcast.js";
 
 const isAllowedOrigin = (origin: string | undefined) => {
   if (!origin) return false;
+  if (env.WEB_ORIGIN === "*") return true;
   try {
     const requestOrigin = new URL(origin);
     const allowedOrigin = new URL(env.WEB_ORIGIN);

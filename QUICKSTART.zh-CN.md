@@ -35,12 +35,14 @@ cp .env.example .env
 默认配置适合本地开发：
 
 ```env
+HOST=127.0.0.1
 PORT=4000
 WEB_ORIGIN=http://localhost
 DATABASE_URL=postgres://nexus:nexus@localhost:5432/nexus_chat
 REDIS_URL=redis://localhost:6379
 SESSION_STORE=memory
-VITE_API_BASE=http://localhost:4000
+API_PUBLIC_BASE=http://127.0.0.1:4000
+VITE_API_BASE=http://127.0.0.1:4000
 ```
 
 如果希望本地测试 refresh session 存到 Redis，可以设置 `SESSION_STORE=redis`。
@@ -56,10 +58,22 @@ docker compose up -d
 
 ```bash
 docker compose ps
-curl http://localhost:4000/healthz
+curl http://127.0.0.1:4000/healthz
 ```
 
 Phase 1 运行时服务使用内存 domain stores。`docker-compose.yml` 里的 PostgreSQL 和 Redis 目前故意保持注释，直到持久化接入后再启用。
+
+如果要同时用 Docker 启动 server 和 web：
+
+```bash
+docker compose up -d --build server web
+```
+
+Web 容器会在 `http://127.0.0.1:5173` 提供构建后的页面。`VITE_API_BASE` 会在构建 web 镜像时写入静态资源。如果要局域网访问，需要用宿主机 API URL 重新构建：
+
+```bash
+VITE_API_BASE=http://192.168.1.20:4000 docker compose up -d --build web
+```
 
 ## 5. 写入内存开发数据
 
@@ -94,10 +108,21 @@ pnpm dev
 打开：
 
 - Web client: Web dev server 输出的 Vite URL，通常是 `http://localhost:5173` 或 `http://localhost:5174`
-- API health check: `http://localhost:4000/healthz`
-- Metrics: `http://localhost:4000/metrics`
+- API health check: `http://127.0.0.1:4000/healthz`
+- Metrics: `http://127.0.0.1:4000/metrics`
 
 Web app 支持 demo 模式和真实服务端模式。真实服务端模式可以使用上面的开发账号，也可以通过 API/UI 注册新用户。
+
+如果要从局域网或宿主机地址访问，请统一使用宿主机 IP：
+
+```env
+HOST=0.0.0.0
+WEB_ORIGIN=http://192.168.1.20:5173
+VITE_API_BASE=http://192.168.1.20:4000
+API_PUBLIC_BASE=http://192.168.1.20:4000
+```
+
+把 `192.168.1.20` 替换成你的宿主机 IP 或域名。TUI 客户端可以使用 `NEXUS_API_BASE=http://192.168.1.20:4000`；Desktop 构建使用和 Web client 相同的 `VITE_API_BASE`。
 
 ## 7. 运行快速验证
 
@@ -209,7 +234,9 @@ pnpm --filter @nexus-chat/tui dev logout
 
 如果 `pnpm db:migrate` 失败，请注意默认 Docker 流程不会启动 PostgreSQL。只有在验证 migrations 时，才需要先取消注释 `docker-compose.yml` 里的 PostgreSQL。
 
-如果 WebSocket 命令失败，确认 server 可通过 `VITE_API_BASE` 访问。默认 `WEB_ORIGIN=http://localhost` 会允许 browser client 使用任意 localhost 端口。
+如果 WebSocket 命令失败，确认 server 可通过 `VITE_API_BASE` 访问。本地客户端默认使用 `127.0.0.1` 以避免 localhost 的 IPv4/IPv6 歧义。浏览器客户端需要把 `WEB_ORIGIN` 设置为实际 Web origin，例如 `http://localhost`、`http://127.0.0.1` 或 `http://192.168.x.x:5173`。
+
+仅在临时本地/局域网测试时，可以设置 `WEB_ORIGIN=*` 来关闭 CORS/WebSocket origin 过滤。不要在公网部署中使用。
 
 ## 下一步
 

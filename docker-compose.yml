@@ -34,8 +34,28 @@ services:
       - "4000:4000"
     environment:
       NODE_ENV: production
+      # HOST — interface to bind to:
+      #   "127.0.0.1" (default local dev) — only local access
+      #   "0.0.0.0"                       — all IPv4 interfaces (required for Docker port publishing)
+      #   "::"                     — all IPv6 interfaces
+      #   "your-domain.com"        — specific hostname / domain
+      #   "192.168.x.x"            — specific IP
+      HOST: "0.0.0.0"
       PORT: "4000"
-      WEB_ORIGIN: http://localhost
+      # API_PUBLIC_BASE — URL returned to browser/TUI clients for dev upload/download endpoints.
+      #   For same-machine Docker usage, prefer 127.0.0.1 to avoid localhost IPv4/IPv6 ambiguity.
+      #   For LAN/production usage, set this to the LAN IP or public HTTPS API URL.
+      API_PUBLIC_BASE: ${API_PUBLIC_BASE:-http://127.0.0.1:4000}
+      # WEB_ORIGIN — CORS allowed origin (HTTP and WebSocket).
+      #   Must match the URL where the web client / Electron / TUI runs:
+      #     "http://localhost"           — default dev     (allows any localhost port)
+      #     "http://127.0.0.1:5173"     — same-machine Web dev server
+      #     "http://192.168.x.x:4000"    — LAN access
+      #     "https://your-domain.com"    — production domain
+      #     "*"                          — temporary local/LAN testing only; allows all origins
+      #   The server checks request Origin against this value (protocol + hostname match).
+      #   Browsers on different origins will be rejected unless this is updated.
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost}
       SESSION_STORE: memory
       JWT_ISSUER: nexus-chat
       JWT_AUDIENCE: nexus-chat-clients
@@ -47,3 +67,16 @@ services:
       NEXUS_P2P_CONNECTION_TIMEOUT_MS: "5000"
       NEXUS_P2P_RELAY_COOLDOWN_MS: "30000"
     # depends_on: [postgres, redis]  # uncomment when Phase 2 adds DB/Redis persistence
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        # VITE_API_BASE is baked into the static web build.
+        # For LAN/production usage, set this to the host IP or public HTTPS API URL before building.
+        VITE_API_BASE: ${VITE_API_BASE:-http://127.0.0.1:4000}
+    ports:
+      - "5173:80"
+    depends_on:
+      - server

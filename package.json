@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=@nexus-chat/server --filter=@nexus-chat/web --filter=@nexus-chat/desktop",
     "build": "turbo build",
     "test": "turbo test",
     "coverage": "vitest run --coverage",

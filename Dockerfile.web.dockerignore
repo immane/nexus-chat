@@ -1,0 +1,60 @@
+node_modules/
+.pnpm-store/
+dist/
+.turbo/
+coverage/
+.git/
+.gitignore
+.obsidian/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Apps not needed for web image
+apps/desktop/
+apps/server/
+apps/tui/
+
+# Packages not needed for web image
+packages/bot-sdk/
+packages/bots/
+
+# Docs and generated reports
+docs/
+docs-zh/
+site/
+mkdocs-en.yml
+mkdocs-zh.yml
+AGENTS.md
+*.md
+test-results/
+playwright-report/
+.playwright-mcp/
+
+# Media / misc
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.webm
+.github/
+scripts/
+*.log
+logs/
+out/
+release/
+*.dmg
+*.exe
+*.AppImage

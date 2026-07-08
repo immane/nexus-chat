@@ -25,3 +25,6 @@
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`)
 - Branch naming: `feat/xxx`, `fix/xxx`, `docs/xxx`
 - No secrets committed
+- **Do NOT commit or create commits unless the user explicitly requests it.**
+- **Do NOT push unless the user explicitly approves it.**
+- **Do NOT force-push unless the user explicitly asks for it.**

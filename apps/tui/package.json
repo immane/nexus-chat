@@ -7,7 +7,7 @@
     "nexus": "dist/index.js"
   },
   "scripts": {
-    "dev": "tsx src/index.ts",
+    "dev": "tsx src/index.ts chat",
     "build": "tsc -p tsconfig.json",
     "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "tsc -p tsconfig.json --noEmit",

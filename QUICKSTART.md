@@ -35,12 +35,14 @@ cp .env.example .env
 The defaults are suitable for local development:
 
 ```env
+HOST=127.0.0.1
 PORT=4000
 WEB_ORIGIN=http://localhost
 DATABASE_URL=postgres://nexus:nexus@localhost:5432/nexus_chat
 REDIS_URL=redis://localhost:6379
 SESSION_STORE=memory
-VITE_API_BASE=http://localhost:4000
+API_PUBLIC_BASE=http://127.0.0.1:4000
+VITE_API_BASE=http://127.0.0.1:4000
 ```
 
 Use `SESSION_STORE=redis` if you want refresh sessions stored in Redis during local testing.
@@ -56,10 +58,22 @@ Confirm the server is running:
 
 ```bash
 docker compose ps
-curl http://localhost:4000/healthz
+curl http://127.0.0.1:4000/healthz
 ```
 
 Phase 1 runtime services use in-memory domain stores. PostgreSQL and Redis are intentionally commented out in `docker-compose.yml` until persistence is wired.
+
+To run both server and web with Docker:
+
+```bash
+docker compose up -d --build server web
+```
+
+The web container serves the built app on `http://127.0.0.1:5173`. `VITE_API_BASE` is baked into the web image at build time. For LAN access, rebuild with the host API URL:
+
+```bash
+VITE_API_BASE=http://192.168.1.20:4000 docker compose up -d --build web
+```
 
 ## 5. Seed In-Memory Dev Data
 
@@ -94,10 +108,21 @@ pnpm dev
 Open:
 
 - Web client: the Vite URL printed by the web dev server, usually `http://localhost:5173` or `http://localhost:5174`
-- API health check: `http://localhost:4000/healthz`
-- Metrics: `http://localhost:4000/metrics`
+- API health check: `http://127.0.0.1:4000/healthz`
+- Metrics: `http://127.0.0.1:4000/metrics`
 
 The web app supports demo mode and real-server mode. In real-server mode, use the dev credentials above or register another user through the API/UI.
+
+For LAN or host-machine access, use the host IP consistently:
+
+```env
+HOST=0.0.0.0
+WEB_ORIGIN=http://192.168.1.20:5173
+VITE_API_BASE=http://192.168.1.20:4000
+API_PUBLIC_BASE=http://192.168.1.20:4000
+```
+
+Replace `192.168.1.20` with your host IP or domain. TUI clients can use `NEXUS_API_BASE=http://192.168.1.20:4000`; Desktop builds use the same `VITE_API_BASE` value as the Web client.
 
 ## 7. Run A Fast Validation Pass
 
@@ -209,7 +234,9 @@ If login fails in the TUI, confirm the server is running and the runtime has the
 
 If `pnpm db:migrate` fails, remember that the default Docker flow does not start PostgreSQL. Uncomment PostgreSQL in `docker-compose.yml` first if you are validating migrations.
 
-If WebSocket commands fail, confirm the server is reachable at `VITE_API_BASE`. The default `WEB_ORIGIN=http://localhost` allows any localhost port for browser clients.
+If WebSocket commands fail, confirm the server is reachable at `VITE_API_BASE`. Local clients default to `127.0.0.1` to avoid IPv4/IPv6 localhost ambiguity. For browser clients, set `WEB_ORIGIN` to the actual Web origin, for example `http://localhost`, `http://127.0.0.1`, or `http://192.168.x.x:5173`.
+
+For temporary local/LAN testing only, set `WEB_ORIGIN=*` to disable CORS/WebSocket origin filtering. Do not use this for public deployments.
 
 ## Next Steps
 
