@@ -14,8 +14,9 @@ A Slack-like workspace chat system with **hybrid encryption**: normal channels t
 Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, Signal-style E2E service boundaries, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. The test suite covers 18 files, 87 tests, with 100% statement, function, and line coverage.
 
 <p align="center">
-  <img src="docs/images/login-sample.jpg" alt="Login Screen" width="45%">
-  <img src="docs/images/chat-sample.jpg" alt="Chat Screen" width="45%">
+  <img src="docs/images/login-sample.jpg" alt="Login Screen" width="30%">
+  <img src="docs/images/chat-sample.jpg" alt="Chat Screen" width="30%">
+  <img src="docs/images/tui-sample.jpg" alt="TUI Chat" width="30%">
 </p>
 
 ---
