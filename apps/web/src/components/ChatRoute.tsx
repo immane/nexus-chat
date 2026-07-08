@@ -666,7 +666,7 @@ const ChatRoute = () => {
           </section>
         )}
         </div>
-        <div className={`${themeBorder} pt-1 px-3 pb-3 pb-[env(safe-area-inset-bottom,8px)]`}>
+        <div className={`${themeBorder} p-3`}>
           <div className="flex items-center gap-1">
             <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "chat" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("chat")} title="Chat">💬</button>
             <button className={`flex-1 rounded-lg px-3 py-2 text-center text-base transition ${leftTab === "member" ? themeTabActive : themeTabInactive}`} type="button" onClick={() => setLeftTab("member")} title="Members">👥</button>

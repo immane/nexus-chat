@@ -59,7 +59,7 @@ export const ChatComposer = ({
   themeBtn: string;
   uploading: Array<{ name: string; progress: number; cancel: () => void }>;
 }) => (
-  <form className="m-0 pb-[env(safe-area-inset-bottom,0px)]" onSubmit={onSubmit}>
+  <form className="m-0" onSubmit={onSubmit}>
     {pendingReply ? (
       <div className={`mx-4 mb-1 flex items-center gap-2 rounded-t-xl border-l-4 border-sky-400 px-4 py-2 ${isLight ? "bg-sky-50" : "bg-sky-500/10"}`}>
         <span className="text-xs text-sky-400">Replying to</span>
