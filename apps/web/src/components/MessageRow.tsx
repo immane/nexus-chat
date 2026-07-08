@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { Message } from "@nexus-chat/shared";
 import { Badge } from "@nexus-chat/ui";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu.js";
@@ -46,6 +46,32 @@ export const MessageRow = ({
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState("");
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const clearLongPress = useCallback(() => {
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+  }, []);
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    longPressStart.current = { x: touch.clientX, y: touch.clientY };
+    longPressTimer.current = setTimeout(() => {
+      longPressTimer.current = null;
+      setMenuPos({ x: touch.clientX, y: touch.clientY });
+    }, 500);
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dx = Math.abs(touch.clientX - longPressStart.current.x);
+    const dy = Math.abs(touch.clientY - longPressStart.current.y);
+    if (dx > 10 || dy > 10) clearLongPress();
+  }, [clearLongPress]);
+
+  const onTouchEnd = useCallback(() => { clearLongPress(); }, [clearLongPress]);
 
   const [enlargedImg, setEnlargedImg] = useState<string | null>(null);
   const [attachmentUrls, setAttachmentUrls] = useState<Record<string, string>>({});
@@ -160,7 +186,7 @@ export const MessageRow = ({
 
   return (
     <>
-      <article className="group" onContextMenu={handleContextMenu}>
+      <article className="group" onContextMenu={handleContextMenu} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
         <div className={compactMsg}>
         <div className={`mb-2 flex items-center gap-2 text-xs ${metaStyle}`}>
           <span className={`font-bold ${senderStyle}`}>{senderName ?? message.senderId.slice(0, 12)}</span>

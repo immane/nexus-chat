@@ -1,6 +1,7 @@
 import { Badge } from "@nexus-chat/ui";
 import type { Channel } from "@nexus-chat/shared";
 import type { DmTransportMode } from "../stores/domain.js";
+import { useUiStore } from "../stores/domain.js";
 
 export const ChatHeader = ({
   activeChannel,
@@ -39,11 +40,18 @@ export const ChatHeader = ({
   wsConnected: boolean;
   wsVisible: boolean;
 }) => {
+  const sidebarOpen = useUiStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
   const typingUserIds = activeChannelId ? Object.entries(typingUsers).filter(([, chId]) => chId === activeChannelId).map(([uid]) => uid) : [];
 
   return (
     <header className={`border-b ${themeHeader} ${compact}`}>
       <div className="flex flex-wrap items-center gap-3">
+        <button className="md:hidden flex flex-col gap-1 p-1" type="button" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">
+          <span className="block h-0.5 w-5 bg-current rounded" />
+          <span className="block h-0.5 w-5 bg-current rounded" />
+          <span className="block h-0.5 w-5 bg-current rounded" />
+        </button>
         <h2 className="text-lg font-semibold">{activeChannel?.name ?? "Select a channel"}</h2>
         {isE2e ? <Badge tone="warning">Encrypted DM</Badge> : <Badge tone="success">Bots enabled</Badge>}
         {isDm ? (

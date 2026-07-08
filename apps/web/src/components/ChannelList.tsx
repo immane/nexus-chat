@@ -36,14 +36,14 @@ export const ChannelList = ({
       return (
       <button
         key={channel.id}
-        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${
+        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 min-h-[44px] text-left transition ${
           channel.id === activeChannelId ? themeSideActive : themeSideBtn
         }`}
         type="button"
         onClick={() => onSelect(channel.id)}
         title={dm ? channel.name : undefined}
       >
-        <span>
+        <span className="truncate">
           {channel.kind === "dm" ? "@" : "#"}
           {dm ? dm.display : channel.name}
         </span>

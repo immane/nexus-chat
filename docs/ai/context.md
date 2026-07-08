@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-08 (Phase 1 — TUI chat redesign completed, task #25 done)
-> Current status: Phase 1 complete (25/25 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests. TUI two-pane chat implemented. README screenshots for Web + TUI.
+> Last updated: 2026-07-09 (Phase 1 — Docker Web client added, task #26 created, address config cleaned up, documentation hub reorganized)
+> Current status: Phase 1 complete (25/25 tasks done, task #26 Web Mobile Adaptation defined but not started). Docker Compose runs server + nginx web. `HOST` / `WEB_ORIGIN=*` / `API_PUBLIC_BASE` / `VITE_API_BASE` config cleaned up. mkdocs nav updated, docs/README.md task index extended, AGENTS.md git rules added.
 
 ## 1. Project Overview
 
@@ -382,6 +382,57 @@ Added explicit server binding and CORS documentation to support LAN / production
 - `docker-compose.yml`: Added `HOST` with extensive comments covering `localhost`, `0.0.0.0`, `::`, domain, and IP scenarios. Added `WEB_ORIGIN` CORS documentation.
 - `.env.example`: Added `HOST`, `WEB_ORIGIN`, and `VITE_API_BASE` with deployment scenario comments.
 
+### 8.5 Docker Web Client (2026-07-08)
+
+Added a Dockerized web client served by nginx:
+
+- `Dockerfile.web`: multi-stage build (pnpm install → turbo build → nginx runner). `VITE_API_BASE` injected as build arg.
+- `Dockerfile.web.dockerignore`: web-specific exclusions.
+- `docker/nginx-web.conf`: nginx config serving built Vite output, `try_files $uri /index.html` for SPA routing.
+- `docker-compose.yml`: added `web` service (port `5173:80`, depends on server). Removed `# syntax=docker/dockerfile:1` from both Dockerfiles to fix Ubuntu IPv6 network timeout.
+- README and Quickstart updated with Docker web usage instructions and LAN deployment examples.
+
+### 8.6 Address Configuration Cleanup (2026-07-08)
+
+Standardized network address defaults across the stack:
+
+- `HOST` default: `127.0.0.1` (avoids IPv4/IPv6 localhost ambiguity on Linux).
+- Docker Compose server binds `HOST=0.0.0.0`.
+- `VITE_API_BASE` default: `http://127.0.0.1:4000`.
+- `NEXUS_API_BASE` default (TUI): `http://127.0.0.1:4000`.
+- Added `API_PUBLIC_BASE` env var: server-embedded upload/download URLs use this instead of hardcoded `localhost:4000`.
+- Added `WEB_ORIGIN=*` wildcard support in HTTP CORS and Socket.IO origin checks for temporary local/LAN testing.
+- Docker Compose `WEB_ORIGIN` and `API_PUBLIC_BASE` changed from hardcoded values to `${VAR:-default}` so `.env` overrides work.
+- `pnpm dev` (root) filtered to `server, web, desktop` only — TUI CLI excluded to prevent turbo from being killed by help-and-exit.
+- TUI `dev` script changed from `tsx src/index.ts` to `tsx src/index.ts chat`.
+
+### 8.7 Documentation Hub Reorganization (2026-07-09)
+
+- `docs/design/07_P2P_DM_Direct_Connection.md`: P2P WebRTC DataChannel design doc.
+- `docs/design/08_TUI_Chat_Redesign.md`: TUI two-pane chat redesign doc.
+- `docs/design/09_Web_Client_UI_Design.md`: full Web client component architecture, Zustand store map, and mobile adaptation plan (P0/P1/P2).
+- `docs/tasks/26-phase-1-web-mobile-adaptation.md`: mobile adaptation task with acceptance criteria.
+- `docs/README.md`: extended Design Documents (07/08/09), Implementation Tasks (18–26), Bot SDK docs, and Meta Documents.
+- `mkdocs.yml`: removed "Implementation Tasks" nav section, added TUI Chat Redesign and Web Client UI Design entries, added copyright + MIT license footer, footer CSS override for left/right split layout.
+- Symlinks: `docs/README.project.md → ../README.md`, `docs/QUICKSTART.md → ../QUICKSTART.md`.
+- `AGENTS.md`: added rules prohibiting automatic commits, pushes, and force-pushes without explicit user approval.
+
+### 8.8 Web Mobile Adaptation Plan (2026-07-09)
+
+Design and task documents created for making the Web client usable on phones (<768px):
+
+- **P0 (broken without)**: viewport meta tag, sidebar as overlay drawer (uses existing `useUiStore.sidebarOpen`), hamburger button in ChatHeader, long-press context menu replacing right-click on touch devices.
+- **P1 (degraded UX)**: responsive modal widths, emoji picker grid/width, login bottom padding.
+- **P2 (polish)**: right panel as bottom sheet, 44px touch targets, safe area insets, composer keyboard avoidance.
+
+### 8.9 AGENTS.md Git Rules (2026-07-09)
+
+Added to `AGENTS.md`:
+
+- **Do NOT commit or create commits unless the user explicitly requests it.**
+- **Do NOT push unless the user explicitly approves it.**
+- **Do NOT force-push unless the user explicitly asks for it.**
+
 ---
 
 ## 9. Open Questions / Next Steps
@@ -405,3 +456,7 @@ Added explicit server binding and CORS documentation to support LAN / production
 9. **CI/CD pipeline**: Complete pipeline design including dependency security scanning (Snyk, Socket.dev), E2E testing with Playwright, Electron packaging/signing/notarization, and auto-update publishing flow.
 
 10. **Type sharing strategy**: Partially resolved. The `@nexus-chat/shared` package already defines 40+ canonical Zod schemas for message events, Socket.IO event contracts, Bot SDK types, and E2EE protocol messages. The remaining gap is end-to-end type propagation from schemas through service interfaces into client-side state management — the schemas exist but are not yet enforced at every compile-time boundary.
+
+11. **Web mobile adaptation**: Task #26 defined (11 sub-items across P0/P1/P2). Viewport meta, overlay drawer sidebar, long-press context menu, responsive modals, safe area insets, and 44px touch targets are the immediate scope. Desktop layout must remain regressed-free.
+
+12. **Docker production deployment**: `WEB_ORIGIN` and `API_PUBLIC_BASE` now read from `.env`, but the Docker web build arg `VITE_API_BASE` is baked at image build time — changing the API URL requires a rebuild. Consider reverse-proxy approach for production.
