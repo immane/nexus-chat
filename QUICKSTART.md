@@ -63,6 +63,18 @@ curl http://127.0.0.1:4000/healthz
 
 Phase 1 runtime services use in-memory domain stores. PostgreSQL and Redis are intentionally commented out in `docker-compose.yml` until persistence is wired.
 
+To run both server and web with Docker:
+
+```bash
+docker compose up -d --build server web
+```
+
+The web container serves the built app on `http://127.0.0.1:5173`. `VITE_API_BASE` is baked into the web image at build time. For LAN access, rebuild with the host API URL:
+
+```bash
+VITE_API_BASE=http://192.168.1.20:4000 docker compose up -d --build web
+```
+
 ## 5. Seed In-Memory Dev Data
 
 ```bash

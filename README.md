@@ -139,6 +139,18 @@ pnpm dev
 
 The server starts on `http://127.0.0.1:4000`, the web client on `http://localhost:5173`.
 
+Docker can also run both the API server and built web client:
+
+```bash
+docker compose up -d --build server web
+```
+
+The web container listens on `http://127.0.0.1:5173`. For LAN access, rebuild the web image with the API URL that browsers can reach:
+
+```bash
+VITE_API_BASE=http://192.168.1.20:4000 docker compose up -d --build web
+```
+
 **Seed credentials:**
 
 | Email | Password |

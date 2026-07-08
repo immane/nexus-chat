@@ -63,6 +63,18 @@ curl http://127.0.0.1:4000/healthz
 
 Phase 1 运行时服务使用内存 domain stores。`docker-compose.yml` 里的 PostgreSQL 和 Redis 目前故意保持注释，直到持久化接入后再启用。
 
+如果要同时用 Docker 启动 server 和 web：
+
+```bash
+docker compose up -d --build server web
+```
+
+Web 容器会在 `http://127.0.0.1:5173` 提供构建后的页面。`VITE_API_BASE` 会在构建 web 镜像时写入静态资源。如果要局域网访问，需要用宿主机 API URL 重新构建：
+
+```bash
+VITE_API_BASE=http://192.168.1.20:4000 docker compose up -d --build web
+```
+
 ## 5. 写入内存开发数据
 
 ```bash

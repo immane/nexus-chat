@@ -139,6 +139,18 @@ pnpm dev
 
 服务端启动在 `http://127.0.0.1:4000`，Web 客户端在 `http://localhost:5173`。
 
+也可以用 Docker 同时运行 API server 和构建后的 Web client：
+
+```bash
+docker compose up -d --build server web
+```
+
+Web 容器监听 `http://127.0.0.1:5173`。如果要局域网访问，需要用浏览器可访问的 API URL 重新构建 Web 镜像：
+
+```bash
+VITE_API_BASE=http://192.168.1.20:4000 docker compose up -d --build web
+```
+
 **Seed 测试账号：**
 
 | Email | Password |
