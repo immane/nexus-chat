@@ -38,7 +38,11 @@ export const RightMemberPanel = ({
   themeMuted: string;
   themeSectionTitle: string;
 }) => (
-  <aside className={`border-l ${themeAside} max-md:hidden overflow-y-auto`}>
+  <aside className={`md:border-l ${themeAside} md:relative max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-50 max-md:max-h-[55vh] max-md:rounded-t-2xl max-md:shadow-2xl overflow-y-auto`}>
+    {/* Drag handle - mobile only */}
+    <div className="md:hidden sticky top-0 flex justify-center pt-2 pb-1 bg-inherit">
+      <div className="w-10 h-1 rounded-full bg-slate-500" />
+    </div>
     <div className={`${compact}`}>
       <div className="mb-3 flex items-center justify-between">
         <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Group Members ({channelMembers.length})</h2>

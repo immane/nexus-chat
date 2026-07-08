@@ -95,37 +95,37 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                    Client Shell (Electron)                        │
+│                    Client Shell (Electron)                       │
 │  ┌────────────────────────────────────────────────────────────┐  │
 │  │              UI Rendering (React 19 + Vite 7)              │  │
 │  │    React components → Zustand stores → IndexedDB cache     │  │
 │  └────────────────────────────────────────────────────────────┘  │
 │  ┌────────────────────────────────────────────────────────────┐  │
-│  │         Main Process (Node.js)                              │  │
+│  │         Main Process (Node.js)                             │  │
 │  │    Window Manager · System Tray · Notifications · Updater  │  │
 │  └────────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────┘
                               │ HTTPS / WSS
 ┌─────────────────────────────┴────────────────────────────────────┐
-│               Long Connection & Core Gateway                      │
-│     Hono HTTP Server (REST)  ·  Socket.IO Server (WebSocket)      │
+│               Long Connection & Core Gateway                     │
+│     Hono HTTP Server (REST)  ·  Socket.IO Server (WebSocket)     │
 │     JWT Auth · Rate Limiting · CORS/Helmet.js · Zod Validation   │
 └─────────────────────────────┬────────────────────────────────────┘
                               │
 ┌─────────────────────────────┴────────────────────────────────────┐
-│            Business Logic & Persistence Backend                    │
+│            Business Logic & Persistence Backend                  │
 │     Auth · Workspace · Channel · Message · File · Signal Key     │
 │     PostgreSQL · Redis (Cache + Pub/Sub + Rate Limit)            │
 └─────────────────────────────┬────────────────────────────────────┘
                               │
 ┌─────────────────────────────┴────────────────────────────────────┐
-│           Async Bot Engine & Event Dispatch                       │
+│           Async Bot Engine & Event Dispatch                      │
 │     Redis Streams Consumer · Bot Command Router · BullMQ Queues  │
 │     Bot WebSocket Manager · Webhook Delivery Tracker             │
 └─────────────────────────────┬────────────────────────────────────┘
                               │
 ┌─────────────────────────────┴────────────────────────────────────┐
-│           AI Agent & Streaming Engine                              │
+│           AI Agent & Streaming Engine                            │
 │     Command Parser → Agent Router → LLM Provider Abstraction     │
 │     Tool Executor · Memory Manager · Stream Manager (100ms)      │
 └──────────────────────────────────────────────────────────────────┘
@@ -250,6 +250,9 @@ nexus-chat/
 | 04 | [Async Bot Engine & Event Dispatch](design/04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) | Event pipeline, connection lifecycle, Bot SDK design, slash command framework, BullMQ queues, streaming protocol extension, base bot catalog |
 | 05 | [AI Agent Orchestration & Streaming](design/05_AI_Agent_Orchestration_and_Streaming.md) | Streaming protocol, engine architecture (5 subsystems), command router, LLM provider abstraction, tool system, memory, Phase 3 RAG, prompt engineering, privacy |
 | 06 | [Phase Roadmap & Milestone Plan](design/06_Phase_Roadmap.md) | Consolidated Phase 1/2/3 goals, week-by-week breakdown, bot catalog rollout, AI implementation sequence, package delivery matrix, infrastructure evolution |
+| 07 | [P2P DM Direct Connection](design/07_P2P_DM_Direct_Connection.md) | WebRTC DataChannel for 1:1 E2EE DMs, peer discovery, relay fallback, signal server integration |
+| 08 | [TUI Chat Redesign](design/08_TUI_Chat_Redesign.md) | Two-pane terminal UI layout, Ink components, WS event handling, IME-safe CJK input |
+| 09 | [Web Client UI Design](design/09_Web_Client_UI_Design.md) | Desktop layout, Zustand store architecture, component tree, mobile adaptation plan (P0/P1/P2) |
 
 ### 6.2 Research Documents
 
@@ -284,6 +287,15 @@ nexus-chat/
 | 15 | [Observability & Hardening](tasks/15-phase-1-observability-security-hardening.md) | Pino logs, audit events, metrics, rate-limit metrics, security checks |
 | 16 | [Local Dev, CI & Release](tasks/16-phase-1-local-dev-ci-release.md) | Docker Compose, CI jobs, docs build, preview deploy, closed beta checklist |
 | 17 | [TUI Command-Line Client](tasks/17-phase-1-tui-cli.md) | Terminal client for auth, workspace/channel navigation, messaging, and E2E smoke tests |
+| 18 | [P2P DM Direct Connection](tasks/18-phase-1-p2p-dm-direct.md) | WebRTC DataChannel, peer signaling, relay fallback, P2P/Signal transport mode |
+| 19 | [Web Message Actions & Context Menu](tasks/19-phase-1-web-message-actions.md) | Right-click context menu, reply/forward/copy/edit/delete/react, inline emoji picker |
+| 20 | [Web Message Display & Formatting](tasks/20-phase-1-web-message-display.md) | Markdown rendering, relative timestamps, date separators, link previews |
+| 21 | [Web Rich Media & Emoji Picker](tasks/21-phase-1-web-rich-media.md) | Emoji picker popover, file upload with progress, clipboard image paste, inline attachment rendering |
+| 22 | [Web Presence, Channel Info & Notifications](tasks/22-phase-1-web-presence-notifications.md) | Online status dots, toast notifications, browser notifications, channel info panel |
+| 23 | [Server Message Reply & Pin](tasks/23-phase-1-server-message-reply-pin.md) | replyToMessageId in send schema, pin store, REST API, WS events |
+| 24 | [Server Channel Mute & Description](tasks/24-phase-1-server-channel-mute-description.md) | Channel description field, mute store, REST endpoints |
+| 25 | [TUI Chat Redesign](tasks/25-phase-1-tui-chat-redesign.md) | Two-pane terminal layout, WS event hooks, format utilities, IME-safe CJK input |
+| 26 | [Web Mobile Adaptation](tasks/26-phase-1-web-mobile-adaptation.md) | Viewport meta, overlay drawer sidebar, long-press context menu, responsive modals, safe area |
 
 ### 6.4 Bot SDK Documentation (Multi-Language)
 

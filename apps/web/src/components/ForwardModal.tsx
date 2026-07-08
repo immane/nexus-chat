@@ -22,7 +22,7 @@ export const ForwardModal = ({
   themeInput: string;
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onCancel}>
-    <div className={`w-80 rounded-2xl border ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"} p-4 shadow-2xl`} onClick={(event) => event.stopPropagation()}>
+    <div className={`w-[calc(100vw-2rem)] max-w-80 max-h-[80vh] overflow-y-auto rounded-2xl border ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"} p-4 shadow-2xl`} onClick={(event) => event.stopPropagation()}>
       <h3 className="mb-2 text-sm font-semibold">Forward message</h3>
       <input className={`mb-2 w-full rounded-lg ${themeInput} px-3 py-2 text-sm outline-none`} placeholder="Search channels..." value={forwardSearch} onChange={(event) => setForwardSearch(event.target.value)} autoFocus />
       <div className="max-h-48 space-y-0.5 overflow-y-auto">

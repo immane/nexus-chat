@@ -115,7 +115,7 @@ export const ChatComposer = ({
         <div className="relative">
           <button className="rounded-full p-1 text-slate-400 hover:text-slate-200" type="button" onClick={() => setEmojiPickerOpen(!emojiPickerOpen)} title="Emoji">😀</button>
           {emojiPickerOpen ? (
-            <div className={`absolute bottom-full right-0 z-30 mb-1 grid w-72 grid-cols-8 gap-1 rounded-xl border p-2 shadow-xl ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}>
+            <div className={`absolute bottom-full right-0 z-30 mb-1 grid w-[18rem] max-sm:w-[calc(100vw-1rem)] grid-cols-8 max-sm:grid-cols-6 gap-1 rounded-xl border p-2 shadow-xl ${isLight ? "border-slate-200 bg-white" : "border-slate-700 bg-slate-900"}`}>
               {MESSAGE_EMOJIS.map((emoji) => (
                 <button key={emoji} className="rounded-lg p-1 text-lg hover:bg-slate-700" type="button" onClick={() => { insertEmoji(emoji); setEmojiPickerOpen(false); }}>{emoji}</button>
               ))}

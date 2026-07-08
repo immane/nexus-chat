@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useRef, useState, type FormEvent } from "react";
+import { useDeferredValue, useEffect, useRef, useState, useCallback, type FormEvent } from "react";
 import { io, type Socket } from "socket.io-client";
 import type { Channel, Message } from "@nexus-chat/shared";
 import {
@@ -65,6 +65,8 @@ const ChatRoute = () => {
   const setPolicy = useUiStore((state) => state.setDisappearingPolicy);
   const dmTransportMode = useUiStore((state) => state.dmTransportMode);
   const setDmTransportMode = useUiStore((state) => state.setDmTransportMode);
+  const sidebarOpen = useUiStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
   const onlineUserIds = usePresenceStore((state) => state.onlineUserIds);
   const setOnline = usePresenceStore((state) => state.setOnline);
   const deferredDraft = useDeferredValue(draft);
@@ -103,6 +105,7 @@ const ChatRoute = () => {
     stopTyping();
     setActiveChannel(id);
     setUnread(id, 0);
+    setSidebarOpen(false);
     if (accessToken) {
       void fetch(`${API_BASE}/api/v1/channels/${id}/mark-read`, {
         method: "POST",
@@ -147,6 +150,15 @@ const ChatRoute = () => {
       body: JSON.stringify(bundle)
     }).catch(() => {});
   }, [accessToken, user]);
+
+  const closeSidebarOnEsc = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") setSidebarOpen(false);
+  }, [setSidebarOpen]);
+
+  useEffect(() => {
+    document.addEventListener("keydown", closeSidebarOnEsc);
+    return () => document.removeEventListener("keydown", closeSidebarOnEsc);
+  }, [closeSidebarOnEsc]);
 
   useEffect(() => {
     if (!accessToken || !user) return;
@@ -505,8 +517,10 @@ const ChatRoute = () => {
   const p2pBlocked = dmTransportMode === "p2p" && !peerOnline;
 
   return (
-    <main className={`grid h-screen grid-cols-[280px_1fr] ${themeBg} max-md:grid-cols-1`} style={rightSidebarOpen ? { gridTemplateColumns: "280px 1fr 260px" } : undefined}>
-      <aside className={`flex flex-col h-screen overflow-hidden border-r ${themeAside} max-md:border-b max-md:border-r-0`}>
+    <main className={`grid h-screen grid-cols-[280px_1fr] ${rightSidebarOpen ? "md:grid-cols-[280px_1fr_260px]" : ""} ${themeBg} max-md:grid-cols-[1fr]`}>
+      {/* Mobile backdrop overlay */}
+      {sidebarOpen ? <div className="md:hidden fixed inset-0 z-30 bg-black/50" onClick={() => setSidebarOpen(false)} /> : null}
+      <aside className={`flex flex-col h-screen overflow-hidden border-r ${themeAside} md:relative max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:w-[85vw] max-md:max-w-[320px] max-md:z-40 max-md:shadow-2xl max-md:transition-transform max-md:duration-200 ${sidebarOpen ? "max-md:translate-x-0" : "max-md:-translate-x-full"}`}>
         <div className={`${compact}`}>
           <h1 className="text-xl font-semibold">Nexus Chat</h1>
           <section className="mt-6">
