@@ -47,7 +47,7 @@ markdown_extensions:
 
 nav:
   - Home: README.md
-  - 中文首页: README.zh-CN.md
+  - Readme: README.project.md
   - Quick Start: QUICKSTART.md
   - Design Documents:
       - System High-Level Architecture: design/00_System_High_Level_Architecture.md
