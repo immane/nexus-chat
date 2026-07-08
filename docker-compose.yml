@@ -45,7 +45,7 @@ services:
       # API_PUBLIC_BASE — URL returned to browser/TUI clients for dev upload/download endpoints.
       #   For same-machine Docker usage, prefer 127.0.0.1 to avoid localhost IPv4/IPv6 ambiguity.
       #   For LAN/production usage, set this to the LAN IP or public HTTPS API URL.
-      API_PUBLIC_BASE: ${API_PUBLIC_BASE:-http://127.0.0.1:4000}
+      API_PUBLIC_BASE: http://127.0.0.1:4000
       # WEB_ORIGIN — CORS allowed origin (HTTP and WebSocket).
       #   Must match the URL where the web client / Electron / TUI runs:
       #     "http://localhost"           — default dev     (allows any localhost port)
@@ -55,7 +55,7 @@ services:
       #     "*"                          — temporary local/LAN testing only; allows all origins
       #   The server checks request Origin against this value (protocol + hostname match).
       #   Browsers on different origins will be rejected unless this is updated.
-      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost}
+      WEB_ORIGIN: http://localhost
       SESSION_STORE: memory
       JWT_ISSUER: nexus-chat
       JWT_AUDIENCE: nexus-chat-clients
