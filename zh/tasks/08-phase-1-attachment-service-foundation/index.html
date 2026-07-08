@@ -1110,10 +1110,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-decision" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Decision
+        关键决策
       
     </span>
   </a>
@@ -1121,7 +1121,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         范围
@@ -1132,7 +1132,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         非目标
@@ -1154,21 +1154,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#e2e-attachment-flow" class="md-nav__link">
+  <a href="#e2e" class="md-nav__link">
     <span class="md-ellipsis">
       
-        E2E Attachment Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        安全要求
+        E2E附件流程
       
     </span>
   </a>
@@ -1179,7 +1168,7 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        安全要求
       
     </span>
   </a>
@@ -1190,7 +1179,7 @@
   <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        测试计划
+        验收标准
       
     </span>
   </a>
@@ -1199,6 +1188,17 @@
       
         <li class="md-nav__item">
   <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试计划
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         依赖关系
@@ -2548,10 +2548,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-decision" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Decision
+        关键决策
       
     </span>
   </a>
@@ -2559,7 +2559,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         范围
@@ -2570,7 +2570,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         非目标
@@ -2592,21 +2592,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#e2e-attachment-flow" class="md-nav__link">
+  <a href="#e2e" class="md-nav__link">
     <span class="md-ellipsis">
       
-        E2E Attachment Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        安全要求
+        E2E附件流程
       
     </span>
   </a>
@@ -2617,7 +2606,7 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        安全要求
       
     </span>
   </a>
@@ -2628,7 +2617,7 @@
   <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        测试计划
+        验收标准
       
     </span>
   </a>
@@ -2637,6 +2626,17 @@
       
         <li class="md-nav__item">
   <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试计划
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         依赖关系
@@ -2668,21 +2668,21 @@
 
 <h1 id="08-1">08 — 第 1 阶段 — 附件服务基础和端到端安全文件边界<a class="headerlink" href="#08-1" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>Build the core attachment lifecycle foundation so Phase 2 file features and E2E attachments can be implemented without redesign.</p>
-<h2 id="key-decision">Key Decision<a class="headerlink" href="#key-decision" title="Permanent link">&para;</a></h2>
-<p>文件存储<strong>不</strong>归<code>@FileBot</code>所有。 Core Attachment Service owns upload sessions, object keys, scan status, signed URL issuance, authorization, retention, and E2E opaque blobs. <code>@FileBot</code> 只是此服务上的用户体验/工作流程机器人。</p>
-<h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>构建核心附件生命周期基础，以便无需重新设计即可实施第 2 阶段文件功能和 E2E 附件。</p>
+<h2 id="_2">关键决策<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>文件存储<strong>不</strong>归<code>@FileBot</code>所有。核心附件服务拥有上传会话、对象密钥、扫描状态、签名 URL 发布、授权、保留和 E2E 不透明 blob。 <code>@FileBot</code> 只是此服务上的用户体验/工作流程机器人。</p>
+<h2 id="_3">范围<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>实施附件数据库表。</li>
 <li>实现上传会话创建。</li>
 <li>实现签名上传 URL 生成。</li>
-<li>Implement file record finalization after upload.</li>
+<li>实现上传后的文件记录终结。</li>
 <li>实现签名下载 URL 生成。</li>
 <li>实施扫描状态占位符。</li>
 <li>实施消息附件引用。</li>
 <li>定义E2E附件元数据边界。</li>
 </ul>
-<h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="_4">非目标<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>除非测试需要，否则第一阶段没有完整的文件 UI。</li>
 <li>没有生产病毒扫描程序集成。</li>
@@ -2721,7 +2721,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="e2e-attachment-flow">E2E Attachment Flow<a class="headerlink" href="#e2e-attachment-flow" title="Permanent link">&para;</a></h2>
+<h2 id="e2e">E2E附件流程<a class="headerlink" href="#e2e" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Client encrypts file locally
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  → upload encrypted blob through Attachment Service
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  → server stores opaque blob and metadata
@@ -2729,7 +2729,7 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  → recipient downloads opaque blob
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  → recipient decrypts locally
 </code></pre></div>
-<h2 id="_4">安全要求<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h2 id="_5">安全要求<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>消息负载中没有客户端提供的公共 URL。</li>
 <li>下载 URL 是短暂的，并在 authz 后发布。</li>
@@ -2737,7 +2737,7 @@
 <li>可以在服务器端扫描普通模式文件。</li>
 <li>E2E 文件只能扫描为不透明 blob，除非添加客户端扫描。</li>
 </ul>
-<h2 id="_5">验收标准<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
 <li>上传会话可由授权频道成员创建。</li>
 <li>上传完成会创建一条 <code>files</code> 记录。</li>
@@ -2745,7 +2745,7 @@
 <li>未经授权的用户无法获取签名的下载 URL。</li>
 <li>E2E文件上传路径存储<code>encryption = 'e2e'</code>并且从不暴露明文。</li>
 </ul>
-<h2 id="_6">测试计划<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h2 id="_7">测试计划<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
 <li>上传会话创建测试。</li>
 <li>上传完成测试。</li>
@@ -2753,7 +2753,7 @@
 <li>E2E不透明文件元数据测试。</li>
 <li>消息附件关联测试。</li>
 </ul>
-<h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h2 id="_8">依赖关系<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../03-phase-1-database-schema/">03 — Database Schema</a></li>
 <li><a href="../06-phase-1-workspace-channel-service/">06 — Workspace &amp; Channel Service</a></li>

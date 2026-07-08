@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#10-phase-1-bot-engine-core-event-dispatch-command-invocation" class="md-skip">
+        <a href="#10-1" class="md-skip">
           跳转至
         </a>
       
@@ -2644,34 +2644,34 @@
   
 
 
-<h1 id="10-phase-1-bot-engine-core-event-dispatch-command-invocation">10 — Phase 1 — Bot Engine Core, Event Dispatch &amp; Command Invocation<a class="headerlink" href="#10-phase-1-bot-engine-core-event-dispatch-command-invocation" title="Permanent link">&para;</a></h1>
+<h1 id="10-1">10 — 第 1 阶段 — 机器人引擎核心、事件调度和命令调用<a class="headerlink" href="#10-1" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>实现通用机器人引擎，用于处理机器人身份、安装、命令调用、事件分派、排队和响应验证，而无需了解特定于功能的机器人逻辑。</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>机器人注册。</li>
-<li>Opaque bot token generation and hash storage.</li>
-<li>Bot token validation for WebSocket connections.</li>
-<li>Bot channel membership.</li>
+<li>不透明的机器人令牌生成和哈希存储。</li>
+<li>WebSocket 连接的机器人令牌验证。</li>
+<li>机器人频道会员资格。</li>
 <li>机器人事件订阅。</li>
 <li><code>bot.command.invoke</code>路由。</li>
-<li>Redis Streams event publication.</li>
+<li>Redis Streams 事件发布。</li>
 <li>BullMQ 每个机器人队列。</li>
-<li>Bot WebSocket namespace.</li>
-<li>Bot response validation and injection into normal channels.</li>
+<li>Bot WebSocket 命名空间。</li>
+<li>机器人响应验证并注入正常渠道。</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
-<li>No poll/reminder/kudos implementation in the engine.</li>
+<li>引擎中没有民意调查/提醒/荣誉实现。</li>
 <li>没有人工智能模型调用。</li>
-<li>No file storage authority.</li>
+<li>没有文件存储权限。</li>
 <li>没有市场。</li>
 </ul>
 <h2 id="_4">边界规则<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Bot Engine owns extensibility infrastructure.</li>
-<li>Individual bots own workflow behavior.</li>
-<li>Core services own data integrity and authorization.</li>
+<li>Bot Engine 拥有可扩展性基础设施。</li>
+<li>各个机器人拥有自己的工作流程行为。</li>
+<li>核心服务拥有数据完整性和授权。</li>
 <li>E2E 通道从不发出机器人事件。</li>
 </ul>
 <h2 id="_5">代币模型<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
@@ -2679,8 +2679,8 @@
 </code></pre></div>
 <ul>
 <li>仅存储<code>SHA256(token)</code>。</li>
-<li>DB lookup resolves bot ID, workspace, scopes, revocation state, and installation policy.</li>
-<li>No self-validating HMAC token in Phase 1.</li>
+<li>数据库查找解析机器人 ID、工作空间、范围、吊销状态和安装策略。</li>
+<li>第一阶段没有自我验证 HMAC 令牌。</li>
 </ul>
 <h2 id="_6">命令调用流程<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Client → bot.command.invoke
@@ -2694,22 +2694,22 @@
 </code></pre></div>
 <h2 id="_7">验收标准<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Bot can register and receive token once.</li>
-<li>Bot can connect to <code>/bots</code> WebSocket namespace.</li>
-<li>Bot can be added to a normal channel.</li>
+<li>机器人可以注册并接收令牌一次。</li>
+<li>Bot 可以连接到 <code>/bots</code> WebSocket 命名空间。</li>
+<li>机器人可以添加到普通频道。</li>
 <li>机器人无法添加到E2E渠道。</li>
-<li><code>bot.command.invoke</code> reaches installed bot.</li>
+<li><code>bot.command.invoke</code> 到达已安装的机器人。</li>
 <li>机器人响应显示为机器人编写的消息。</li>
-<li>Queue isolation prevents one slow bot from blocking others.</li>
+<li>队列隔离可防止一个缓慢的机器人阻塞其他机器人。</li>
 </ul>
 <h2 id="_8">测试计划<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
 <li>令牌生成/哈希查找测试。</li>
-<li>Bot WebSocket auth test.</li>
-<li>Bot channel membership test.</li>
+<li>Bot WebSocket 身份验证测试。</li>
+<li>机器人频道会员测试。</li>
 <li>E2E信道抑制测试。</li>
-<li>Command invocation integration test.</li>
-<li>Queue retry/dead letter test.</li>
+<li>命令调用集成测试。</li>
+<li>队列重试/死信测试。</li>
 </ul>
 <h2 id="_9">依赖关系<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
 <ul>

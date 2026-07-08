@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#03-business-logic-persistence-backend-design" class="md-skip">
+        <a href="#03" class="md-skip">
           跳转至
         </a>
       
@@ -850,10 +850,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#45-e2ee-channel-key-rotation-on-member-change" class="md-nav__link">
+  <a href="#45-e2ee" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.5 E2EE Channel Key Rotation on Member Change
+        4.5 成员变更时的 E2EE 通道密钥轮换
       
     </span>
   </a>
@@ -1188,10 +1188,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#83-audit-logging" class="md-nav__link">
+  <a href="#83" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8.3 Audit Logging
+        8.3 审核日志记录
       
     </span>
   </a>
@@ -3329,10 +3329,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#45-e2ee-channel-key-rotation-on-member-change" class="md-nav__link">
+  <a href="#45-e2ee" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.5 E2EE Channel Key Rotation on Member Change
+        4.5 成员变更时的 E2EE 通道密钥轮换
       
     </span>
   </a>
@@ -3667,10 +3667,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#83-audit-logging" class="md-nav__link">
+  <a href="#83" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8.3 Audit Logging
+        8.3 审核日志记录
       
     </span>
   </a>
@@ -3735,7 +3735,7 @@
   
 
 
-<h1 id="03-business-logic-persistence-backend-design">03 — Business Logic &amp; Persistence Backend Design<a class="headerlink" href="#03-business-logic-persistence-backend-design" title="Permanent link">&para;</a></h1>
+<h1 id="03">03 — 业务逻辑和持久性后端设计<a class="headerlink" href="#03" title="Permanent link">&para;</a></h1>
 <blockquote>
 <p>版本：v1.0 |最后更新：2026-06-24 |状态：设计阶段<br />
 依赖关系：<a href="../../research/backend-im-state-machine/">backend-im-state-machine</a>、<a href="../../research/security-defense-e2ee-roadmap/">security-defense-e2ee-roadmap</a></p>
@@ -3746,15 +3746,15 @@
 <li><a href="#1-business-logic-module-breakdown">Business Logic Module Breakdown</a>
 2.<a href="#2-data-model--drizzle-orm-schema">Data Model — Drizzle ORM Schema</a></li>
 <li><a href="#3-message-state-machine">Message State Machine</a>
-4.<a href="#4-channel-state-machine">Channel State Machine</a></li>
-<li><a href="#5-signal-protocol-key-server">Signal Protocol Key Server</a></li>
-<li><a href="#6-redis-caching-architecture">Redis Caching Architecture</a>
+4.<a href="#4-channel-state-machine">Channel State Machine</a>
+5.<a href="#5-signal-protocol-key-server">Signal Protocol Key Server</a>
+6.<a href="#6-redis-caching-architecture">Redis Caching Architecture</a>
 7.<a href="#7-bot-integration-module">Bot Integration Module</a>
 8.<a href="#8-security-implementation">Security Implementation</a></li>
 </ol>
 <hr />
 <h2 id="1">1. 业务逻辑模块分解<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
-<p>The backend domain logic is organized into eight self-contained modules. Each module owns its routes, service layer, and persistence concerns.</p>
+<p>后端域逻辑被组织成八个独立的模块。每个模块都有自己的路由、服务层和持久性关注点。</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>server/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── modules/
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── auth/          # Registration, login, JWT, token refresh, password reset
@@ -3778,60 +3778,60 @@
 <tbody>
 <tr>
 <td><code>auth</code></td>
-<td>User identity lifecycle — register, login, JWT issuance, refresh token rotation, password reset flow</td>
+<td>用户身份生命周期——注册、登录、JWT 发行、刷新令牌轮换、密码重置流程</td>
 <td>Redis（代币黑名单）、Argon2id</td>
 </tr>
 <tr>
 <td><code>workspace</code></td>
-<td>Workspace CRUD, join/leave, role promotion/demotion, ownership transfer</td>
+<td>工作空间CRUD、加入/离开、角色提升/降级、所有权转移</td>
 <td><code>auth</code>（JWT 中间件）</td>
 </tr>
 <tr>
 <td><code>channel</code></td>
-<td>Channel lifecycle, DM auto-creation, member add/remove, E2EE mode toggle</td>
-<td><code>workspace</code> (membership check), <code>signal</code> (key rotation)</td>
+<td>频道生命周期、DM自动创建、成员添加/删除、E2EE模式切换</td>
+<td><code>workspace</code>（成员资格检查），<code>signal</code>（密钥轮换）</td>
 </tr>
 <tr>
 <td><code>message</code></td>
-<td>Message send/receive, cursor pagination, edit/delete, encryption metadata passthrough</td>
-<td><code>channel</code> (membership), Redis (hot cache), Socket.IO</td>
+<td>消息发送/接收、光标分页、编辑/删除、加密元数据透传</td>
+<td><code>channel</code>（成员资格）、Redis（热缓存）、Socket.IO</td>
 </tr>
 <tr>
 <td><code>attachment</code></td>
-<td>File upload sessions, object metadata, scan status, thumbnail references, signed download URLs, E2E opaque blob lifecycle</td>
+<td>文件上传会话、对象元数据、扫描状态、缩略图引用、签名下载 URL、E2E 不透明 Blob 生命周期</td>
 <td><code>message</code>、对象存储、病毒扫描程序</td>
 </tr>
 <tr>
 <td><code>signal</code></td>
-<td>Public-key store — PreKeyBundle upload/fetch, one-time prekey consumption, exhaustion detection</td>
+<td>公钥存储 — PreKeyBundle 上传/获取、一次性预密钥消耗、耗尽检测</td>
 <td>PostgreSQL（事务性预密钥操作）</td>
 </tr>
 <tr>
 <td><code>bot</code></td>
-<td>Bot user creation, opaque token issuance (DB hash for revocation), permission scoping, webhook delivery</td>
+<td>机器人用户创建、不透明令牌发行（用于撤销的数据库哈希）、权限范围界定、Webhook 传递</td>
 <td><code>workspace</code>、<code>channel</code></td>
 </tr>
 <tr>
 <td><code>presence</code></td>
-<td>WebSocket-backed online/offline state, typing indicators, last-seen timestamp</td>
+<td>WebSocket 支持的在线/离线状态、输入指示器、上次查看时间戳</td>
 <td>Redis（基于 TTL）、Socket.IO</td>
 </tr>
 </tbody>
 </table>
 <h3 id="12">1.2 模块间通信<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Synchronous (in-process)</strong>: Modules call each other's service functions directly. TypeScript ensures compile-time interface contracts.</li>
-<li><strong>Asynchronous (Pub/Sub)</strong>: Redis Pub/Sub channels propagate cross-cutting events (<code>message:new</code>, <code>presence:update</code>, <code>channel:member_change</code>) to all server instances.</li>
-<li><strong>Socket.IO rooms</strong>: Each user joins <code>user:{userId}</code> (personal notification pipe) and <code>channel:{channelId}</code> (message fan-out). <code>message</code>模块发送到房间； <code>presence</code> 向工作空间范围的房间广播。</li>
+<li><strong>同步（进程内）</strong>：模块直接调用彼此的服务函数。 TypeScript 确保编译时接口契约。</li>
+<li><strong>异步（Pub/Sub）</strong>：Redis Pub/Sub 通道将横切事件（<code>message:new</code>、<code>presence:update</code>、<code>channel:member_change</code>）传播到所有服务器实例。</li>
+<li><strong>Socket.IO rooms</strong>：每个用户加入<code>user:{userId}</code>（个人通知管道）和<code>channel:{channelId}</code>（消息扇出）。 <code>message</code>模块发送到房间； <code>presence</code> 向工作空间范围的房间广播。</li>
 </ul>
 <hr />
 <h2 id="2-drizzle-orm">2. 数据模型 — Drizzle ORM 架构<a class="headerlink" href="#2-drizzle-orm" title="Permanent link">&para;</a></h2>
 <h3 id="21">2.1 设计原理<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>UUID v7</strong> for all primary keys: time-ordered, sortable, enables single-column cursor pagination without <code>(created_at, id)</code> compound keys.</li>
-<li><strong>JSONB</strong> for polymorphic or loosely-structured data (message content, channel metadata, notification settings). Strictly avoid JSONB for indexed fields, foreign keys, or range-query columns.</li>
-<li><strong>Soft delete</strong> (<code>deleted_at</code>) for messages and channels: preserves referential integrity and enables undo.</li>
-<li><strong>Composite primary keys</strong> for join tables (no surrogate PKs on M:N tables).</li>
+<li><strong>UUID v7</strong> 适用于所有主键：按时间排序、可排序、无需 <code>(created_at, id)</code> 复合键即可实现单列光标分页。</li>
+<li><strong>JSONB</strong> 用于多态或松散结构的数据（消息内容、通道元数据、通知设置）。严格避免对索引字段、外键或范围查询列使用 JSONB。</li>
+<li>消息和通道的<strong>软删除</strong> (<code>deleted_at</code>)：保留引用完整性并启用撤消。</li>
+<li><strong>连接表的复合主键</strong>（M:N 表上没有代理 PK）。</li>
 </ul>
 <h3 id="22">2.2 核心表定义<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span>
@@ -4256,7 +4256,7 @@
 <tbody>
 <tr>
 <td><code>channels.metadata</code></td>
-<td>Variable schema: DM participant lists, pinned message IDs, custom emoji — evolves without migrations</td>
+<td>可变模式：DM 参与者列表、固定消息 ID、自定义表情符号 — 无需迁移即可发展</td>
 </tr>
 <tr>
 <td><code>channel_members.notification_settings</code></td>
@@ -4268,11 +4268,11 @@
 </tr>
 <tr>
 <td><code>messages.encryption_metadata</code></td>
-<td>Optional E2EE metadata (ratchet step, device ID);缺少非 E2EE 消息</td>
+<td>可选的E2EE元数据（棘轮步骤、设备ID）；缺少非 E2EE 消息</td>
 </tr>
 <tr>
 <td><code>bot_integrations.permissions</code></td>
-<td>每个机器人的权限集各不相同； JSONB allows adding new permissions without ALTER TABLE</td>
+<td>每个机器人的权限集各不相同； JSONB 允许添加新权限而无需 ALTER TABLE</td>
 </tr>
 <tr>
 <td><code>audit_logs.metadata</code></td>
@@ -4361,7 +4361,7 @@
 <td>发送</td>
 <td>失败</td>
 <td>ACK 超时且重试已用完</td>
-<td>3 retries at 1s/2s/4s exponential backoff with ±30% jitter</td>
+<td>以 1s/2s/4s 指数退避进行 3 次重试，抖动为 ±30%</td>
 </tr>
 <tr>
 <td>失败</td>
@@ -4420,13 +4420,13 @@
 <a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>       │ ←── message:read ─────────│                             │
 </code></pre></div>
 <p><strong>乐观更新流程：</strong>
-1. Client creates message locally with <code>clientMsgId</code>, status = <code>SENDING</code>, renders immediately in UI.
+1. 客户端使用 <code>clientMsgId</code> 在本地创建消息，status = <code>SENDING</code>，立即在 UI 中呈现。
 2. 客户端发送<code>message:send</code>到服务器。
-3. Server validates, inserts into PostgreSQL, sets dedup key in Redis (<code>dedup:{clientMsgId}</code> → <code>messageId</code>, TTL 24h).
-4. Server emits <code>message:ack</code> back to sender with assigned <code>messageId</code> and server <code>createdAt</code>.
-5. Sender updates local message: replaces temporary <code>clientMsgId</code> with server <code>messageId</code>, status → <code>SENT</code>.
-6. Server emits <code>message:new</code> to all channel members (excluding sender via <code>socket.to(room)</code>).</p>
-<p><strong>Idempotency guarantee</strong>: Server checks <code>redis.get("dedup:{clientMsgId}")</code> before insert. If found, returns existing <code>messageId</code> with <code>status: "duplicate"</code> — prevents double-posting on network retry.</p>
+3. 服务器验证，插入 PostgreSQL，在 Redis 中设置重复数据删除密钥（<code>dedup:{clientMsgId}</code> → <code>messageId</code>，TTL 24h）。
+4. 服务器将 <code>message:ack</code> 发送回发送者，并指定 <code>messageId</code> 和服务器 <code>createdAt</code>。
+5. 发送方更新本地消息：用服务器<code>messageId</code>替换临时<code>clientMsgId</code>，状态→<code>SENT</code>。
+6. 服务器向所有通道成员发出<code>message:new</code>（不包括通过<code>socket.to(room)</code>发送的发送者）。</p>
+<p><strong>幂等性保证</strong>：服务器在插入之前检查<code>redis.get("dedup:{clientMsgId}")</code>。如果找到，则返回现有的 <code>messageId</code> 和 <code>status: "duplicate"</code> — 防止网络重试时重复发布。</p>
 <h3 id="35">3.5 重试策略<a class="headerlink" href="#35" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">RETRY_POLICY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nx">maxRetries</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="p">,</span>
@@ -4443,13 +4443,13 @@
 <a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="36">3.6 编辑和删除<a class="headerlink" href="#36" title="Permanent link">&para;</a></h3>
-<p><strong>Edit</strong>: Sender updates <code>content</code>, sets <code>editedAt</code>, and status → <code>EDITED</code>.服务器向通道广播<code>message:edited</code>。保留原始的<code>id</code>和<code>createdAt</code>。</p>
-<p><strong>Delete</strong> (soft): Sender or channel admin sets <code>deletedAt</code>, status → <code>DELETED</code>, and content to <code>{ type: "deleted" }</code>.服务器广播 <code>message:deleted</code> 和 <code>messageId</code>。 Soft-deleted messages are excluded from pagination queries via <code>WHERE deleted_at IS NULL</code>.</p>
+<p><strong>编辑</strong>：发件人更新 <code>content</code>、设置 <code>editedAt</code> 和状态 → <code>EDITED</code>。服务器向频道广播<code>message:edited</code>。保留原始的<code>id</code>和<code>createdAt</code>。</p>
+<p><strong>删除</strong>（软）：发件人或频道管理员将 <code>deletedAt</code>、状态 → <code>DELETED</code> 和内容设置为 <code>{ type: "deleted" }</code>。服务器广播 <code>message:deleted</code> 和 <code>messageId</code>。软删除消息通过 <code>WHERE deleted_at IS NULL</code> 排除在分页查询之外。</p>
 <p><strong>权限</strong>：
-- Edit: sender only, within 24 hours of creation (configurable), message not deleted.
+- 编辑：仅限发件人，创建后 24 小时内（可配置），消息不会删除。
 - 删除：发件人或频道管理员，随时删除。</p>
 <h3 id="37">3.7 已读回执聚合<a class="headerlink" href="#37" title="Permanent link">&para;</a></h3>
-<p>Read receipts are the highest-frequency write in IM.它们通过 Redis 缓冲区进行批处理：</p>
+<p>读回执是 IM 中频率最高的写入。它们通过 Redis 缓冲区进行批处理：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">class</span><span class="w"> </span><span class="nx">ReadReceiptAggregator</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nx">buffer</span><span class="o">:</span><span class="w"> </span><span class="kt">Map</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">channelId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nx">lastReadAt</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">;</span><span class="w"> </span><span class="nx">messageId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">();</span>
@@ -4562,7 +4562,7 @@
 <a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>   │                         │ ── channel:created ──────────→│
 <a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>   │                         │   (via user:B room)           │
 </code></pre></div>
-<p>DM channels are identified by their ordered list of participants stored in <code>metadata.dmParticipants</code>.查找现有 DM 的查询：</p>
+<p>DM 通道由存储在 <code>metadata.dmParticipants</code> 中的有序参与者列表来标识。查找现有 DM 的查询：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">channels</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">WHERE</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;dm&#39;</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">workspace_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">$</span><span class="mi">1</span>
@@ -4570,24 +4570,24 @@
 </code></pre></div>
 <h3 id="44">4.4 会员加入/离开事件<a class="headerlink" href="#44" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Join</strong>: <code>POST /channels/:id/members</code> → insert <code>channel_members</code> → invalidate Redis <code>channel:{id}:members</code> → publish <code>channel:member_change</code> on Redis Pub/Sub → emit <code>member:joined</code> to channel room.</li>
-<li><strong>Leave</strong>: <code>DELETE /channels/:id/members/@me</code> → delete row → invalidate caches → emit <code>member:left</code>.</li>
-<li><strong>Kick</strong>: Admin/owner removes another member — same mechanics, with role-based authorization check.</li>
+<li><strong>加入</strong>： <code>POST /channels/:id/members</code> → 插入 <code>channel_members</code> → 使 Redis <code>channel:{id}:members</code> 无效 → 在 Redis Pub/Sub 上发布 <code>channel:member_change</code> → 将 <code>member:joined</code> 发送到通道 room。</li>
+<li><strong>离开</strong>：<code>DELETE /channels/:id/members/@me</code>→删除行→使缓存无效→发出<code>member:left</code>。</li>
+<li><strong>踢</strong>：管理员/所有者删除另一个成员 - 相同的机制，具有基于角色的授权检查。</li>
 </ul>
-<h3 id="45-e2ee-channel-key-rotation-on-member-change">4.5 E2EE Channel Key Rotation on Member Change<a class="headerlink" href="#45-e2ee-channel-key-rotation-on-member-change" title="Permanent link">&para;</a></h3>
-<p>When a channel's <code>mode = "e2e"</code> and a member joins or leaves:</p>
+<h3 id="45-e2ee">4.5 成员变更时的 E2EE 通道密钥轮换<a class="headerlink" href="#45-e2ee" title="Permanent link">&para;</a></h3>
+<p>当频道的<code>mode = "e2e"</code>和成员加入或离开时：</p>
 <ol>
-<li><strong>Member joins</strong>: All existing members rotate their Sender Keys. New member cannot decrypt messages sent before joining (Pending Join). Server distributes encrypted new Sender Keys to all members.</li>
-<li><strong>Member leaves</strong>: All surviving members rotate their Sender Keys.已离开的成员无法解密新消息。历史消息仍然可以由离职成员解密（这是设计使然——前向保密不会追溯性地撤销对过去密文的访问）。</li>
+<li><strong>成员加入</strong>：所有现有成员轮换其发件人密钥。新成员无法解密加入前发送的消息（待加入）。服务器将加密的新发送者密钥分发给所有成员。</li>
+<li><strong>成员离开</strong>：所有幸存成员轮换其发送者密钥。已离开的成员无法解密新消息。历史消息仍然可以由离职成员解密（这是设计使然——前向保密不会追溯性地撤销对过去密文的访问）。</li>
 </ol>
 <p>服务器的角色仅限于：
-- Storing encrypted Sender Key distribution blobs in <code>group_sender_keys</code> table (Phase 2).
-- Broadcasting <code>channel:key_rotation</code> events to trigger client-side rotation.
-- The server never possesses any private key material.</p>
+- 将加密的发件人密钥分发 blob 存储在 <code>group_sender_keys</code> 表中（第 2 阶段）。
+- 广播 <code>channel:key_rotation</code> 事件以触发客户端轮换。
+- 服务器从不拥有任何私钥材料。</p>
 <hr />
 <h2 id="5">5. 信号协议密钥服务器<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
 <h3 id="51">5.1 设计原则：零知识服务器<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
-<p>The server stores only <strong>public keys</strong> and forwards only <strong>ciphertext</strong>. It never generates, possesses, or needs to know any private key. All cryptographic operations occur on the client.</p>
+<p>服务器仅存储<strong>公钥</strong>并仅转发<strong>密文</strong>。它从不生成、拥有或需要知道任何私钥。所有加密操作都发生在客户端上。</p>
 <h3 id="52-prekeybundle">5.2 PreKeyBundle 上传<a class="headerlink" href="#52-prekeybundle" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>POST /api/signal/prekeys/bundle
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
@@ -4633,7 +4633,7 @@
 <a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>  &quot;oneTimePreKey&quot;: { &quot;keyId&quot;: 5, &quot;publicKey&quot;: &quot;&lt;base64&gt;&quot; } | null
 <a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>}
 </code></pre></div>
-<p><strong>原子消耗保证</strong>：PostgreSQL 事务中的 <code>SELECT ... FOR UPDATE SKIP LOCKED</code> + <code>UPDATE</code> 确保两个并发的获取器永远不会收到相同的一次性预密钥。 If no unused OPK exists, <code>oneTimePreKey</code> returns <code>null</code> — X3DH falls back to 3 DH computations (slightly weaker but still secure).</p>
+<p><strong>原子消耗保证</strong>：PostgreSQL 事务中的 <code>SELECT ... FOR UPDATE SKIP LOCKED</code> + <code>UPDATE</code> 确保两个并发的获取器永远不会收到相同的一次性预密钥。如果不存在未使用的 OPK，则 <code>oneTimePreKey</code> 返回 <code>null</code> — X3DH 回退到 3 DH 计算（稍弱但仍然安全）。</p>
 <h3 id="54-prekey">5.4 PreKey 耗尽检测<a class="headerlink" href="#54-prekey" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">// After consuming a prekey, check remaining count</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">remaining</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">db</span>
@@ -4677,7 +4677,7 @@
 <td>旧 SPK 过期 7 天后停用（cron 作业）</td>
 </tr>
 <tr>
-<td>One-Time PreKey</td>
+<td>一次性预密钥</td>
 <td>一次性使用</td>
 <td>剩余&lt;20时客户补至100</td>
 <td>使用过的 OPK 会在 7 天后删除（cron 作业）</td>
@@ -4904,7 +4904,7 @@
 <td>频道重命名、存档、删除</td>
 </tr>
 <tr>
-<td>Recent messages</td>
+<td>最近留言</td>
 <td>LRU容量+TTL</td>
 <td>1小时</td>
 <td>新消息取代最旧消息</td>
@@ -5002,7 +5002,7 @@
 <tbody>
 <tr>
 <td><code>messages:read</code></td>
-<td>Channel-scoped</td>
+<td>渠道范围</td>
 <td>读取机器人已添加到的频道中的消息</td>
 </tr>
 <tr>
@@ -5100,7 +5100,7 @@
 </code></pre></div>
 <p><strong>通过重播检测刷新令牌轮换：</strong> 每次刷新时，在 Redis 中将旧令牌标记为已使用 (<code>used_token:{jti}</code>)。如果再次出现已使用的令牌，则撤销整个令牌系列 (<code>revoked_family:{familyId}</code>) — 这表明令牌被盗。</p>
 <p><strong>密钥轮换：</strong> 使用 JWT <code>kid</code> （密钥 ID）标头。在轮换期间，旧公钥将保留 7 天以验证现有令牌，同时使用新密钥对新令牌进行签名。</p>
-<h3 id="83-audit-logging">8.3 Audit Logging<a class="headerlink" href="#83-audit-logging" title="Permanent link">&para;</a></h3>
+<h3 id="83">8.3 审核日志记录<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">auditLog</span><span class="p">(</span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">  </span><span class="nx">userId?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">  </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -5123,7 +5123,7 @@
 - <code>user.login</code> / <code>user.logout</code> / <code>user.password_change</code>
 - <code>workspace.create</code> / <code>workspace.delete</code> / <code>workspace.transfer_ownership</code>
 - <code>channel.create</code> / <code>channel.delete</code> / <code>channel.member_add</code> / <code>channel.member_remove</code>
-- <code>message.delete</code> (by admin)
+- <code>message.delete</code>（由管理员）
 - <code>bot.create</code> / <code>bot.token_regenerate</code> / <code>bot.delete</code>
 - <code>signal.prekey_upload</code> / <code>signal.prekey_fetch</code></p>
 <p>审核日志仅可附加。不允许更新或删除。保存：热存储90天，然后归档至冷存储。</p>
@@ -5256,7 +5256,7 @@
 <tr>
 <td><code>socket.io</code></td>
 <td>^4.8</td>
-<td>WebSocket framework</td>
+<td>WebSocket 框架</td>
 </tr>
 <tr>
 <td><code>@socket.io/redis-adapter</code></td>
@@ -5266,12 +5266,12 @@
 <tr>
 <td><code>redis</code> (ioredis)</td>
 <td>^4.7</td>
-<td>Redis client</td>
+<td>Redis 客户端</td>
 </tr>
 <tr>
 <td><code>argon2</code></td>
 <td>^0.41</td>
-<td>Password hashing</td>
+<td>密码哈希</td>
 </tr>
 <tr>
 <td><code>jose</code></td>
@@ -5281,17 +5281,17 @@
 <tr>
 <td><code>hono-rate-limiter</code></td>
 <td>^0.4</td>
-<td>API rate limiting</td>
+<td>API 速率限制</td>
 </tr>
 <tr>
 <td><code>pino</code></td>
 <td>^9.5</td>
-<td>Structured logging</td>
+<td>结构化日志记录</td>
 </tr>
 <tr>
 <td><code>uuid</code></td>
 <td>^10</td>
-<td>UUID v7 generation</td>
+<td>UUID v7 一代</td>
 </tr>
 <tr>
 <td><code>node-cron</code></td>

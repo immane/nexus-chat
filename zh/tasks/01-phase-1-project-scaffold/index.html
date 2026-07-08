@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#01-phase-1-project-scaffold-developer-workflow" class="md-skip">
+        <a href="#01-1" class="md-skip">
           跳转至
         </a>
       
@@ -2710,7 +2710,7 @@
   
 
 
-<h1 id="01-phase-1-project-scaffold-developer-workflow">01 — Phase 1 — Project Scaffold &amp; Developer Workflow<a class="headerlink" href="#01-phase-1-project-scaffold-developer-workflow" title="Permanent link">&para;</a></h1>
+<h1 id="01-1">01 — 第 1 阶段 — 项目支架和开发人员工作流程<a class="headerlink" href="#01-1" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>创建所有第 1 阶段工作所依赖的 monorepo 基础：包布局、TypeScript 配置、格式化、linting、测试、本地开发脚本和 CI 约定。</p>
 <h2 id="_2">所有权<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
@@ -2745,12 +2745,12 @@
 <li>添加 ESLint 和 Prettier。</li>
 <li>添加 Vitest 基线。</li>
 <li>添加<code>dotenv</code>约定和<code>.env.example</code>。</li>
-<li>Add root scripts for build/test/lint/typecheck/dev.</li>
+<li>添加构建/测试/lint/typecheck/dev 的根脚本。</li>
 </ul>
 <h2 id="_4">非目标<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>没有应用程序功能。</li>
-<li>No database schema beyond empty migration folder.</li>
+<li>除了空迁移文件夹之外没有数据库架构。</li>
 <li>没有生产部署管道。</li>
 <li>还没有 Electron 封装。</li>
 </ul>
@@ -2806,7 +2806,7 @@
 </tr>
 <tr>
 <td><code>packages/*/package.json</code></td>
-<td>Empty shared packages with build/typecheck scripts</td>
+<td>带有构建/类型检查脚本的清空共享包</td>
 </tr>
 <tr>
 <td><code>.env.example</code></td>
@@ -2842,8 +2842,8 @@
 <li><code>pnpm typecheck</code> 使用占位符包成功。</li>
 <li><code>pnpm lint</code> 成功。</li>
 <li><code>pnpm test</code> 成功。</li>
-<li><code>pnpm build</code> succeeds or no-ops cleanly for placeholder packages.</li>
-<li>New packages can import from <code>@nexus-chat/shared</code> using workspace protocol.</li>
+<li>对于占位符包，<code>pnpm build</code> 成功或完全无操作。</li>
+<li>新包可以使用工作区协议从 <code>@nexus-chat/shared</code> 导入。</li>
 </ul>
 <h2 id="_9">测试计划<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2854,7 +2854,7 @@
 <li>运行<code>pnpm build</code>。</li>
 </ul>
 <h2 id="_10">依赖关系<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
-<p>没有。 This is the root prerequisite for all other Phase 1 tasks.</p>
+<p>没有。这是所有其他第一阶段任务的根本先决条件。</p>
 <h2 id="_11">后续任务<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../02-phase-1-shared-contracts/">02 — Shared Contracts</a></li>

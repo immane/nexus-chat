@@ -2643,19 +2643,19 @@
 </blockquote>
 <h2 id="_2">验证流程<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[x] Email/password registration with Argon2id hashing</li>
-<li>[x] Login returns JWT access + refresh tokens (RS256)</li>
-<li>[x] Token refresh endpoint reissues valid tokens</li>
+<li>[x] 使用 Argon2id 哈希注册电子邮件/密码</li>
+<li>[x] 登录返回 JWT 访问 + 刷新令牌 (RS256)</li>
+<li>[x] 令牌刷新端点重新颁发有效令牌</li>
 <li>[x] 无效/过期的令牌被 401 拒绝</li>
-<li>[x] Rate limiting on auth endpoints (10 requests / 15 min per IP)</li>
-<li>[x] Sessions persisted in Redis (production) or memory (development)</li>
+<li>[x] 身份验证端点的速率限制（每个 IP 10 个请求/15 分钟）</li>
+<li>[x] 会话保留在 Redis（生产）或内存（开发）中</li>
 </ul>
 <h2 id="_3">普通频道<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>[x] 具有所有者/成员角色的工作区创建</li>
-<li>[x] Public and private channels with membership management</li>
+<li>[x] 具有会员管理功能的公共和私人频道</li>
 <li>[x] 频道创建、重命名、存档</li>
-<li>[x] Text message delivery with state machine (Draft → Sent → Delivered → Read)</li>
+<li>[x] 使用状态机发送短信（草稿 → 已发送 → 已发送 → 已读）</li>
 <li>[x] 消息分页（基于光标）</li>
 <li>[x] 消息中的表情符号反应</li>
 <li>[x] 消息中的 Markdown 渲染</li>
@@ -2663,61 +2663,61 @@
 <h2 id="_4">直接消息<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>[x] 两个用户之间创建的 DM 通道</li>
-<li>[x] DM message delivery and pagination</li>
+<li>[x] DM 消息传递和分页</li>
 <li>[x] DM 频道默认标记为私有</li>
 </ul>
 <h2 id="e2e-dm">E2E 加密 DM<a class="headerlink" href="#e2e-dm" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[x] Signal Protocol X3DH key exchange for 1:1 DMs</li>
+<li>[x] 1:1 DM 的信号协议 X3DH 密钥交换</li>
 <li>[x] 双棘轮前向保密</li>
 <li>[x] PreKeyBundle上传和检索流程</li>
-<li>[x] Server stores ciphertext only (no plaintext access)</li>
+<li>[x] 服务器仅存储密文（无明文访问）</li>
 <li>[x] 机器人被排除在端到端渠道之外</li>
-<li>[x] Slash commands rejected in E2E channels</li>
-<li>[x] Read-once / disappearing message policy support</li>
+<li>[x] 斜线命令在 E2E 通道中被拒绝</li>
+<li>[x] 只读/消失消息策略支持</li>
 </ul>
 <h2 id="_5">机器人命令<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>[x] 使用不透明令牌注册机器人</li>
 <li>[x] 普通通道中的斜线命令路由</li>
-<li>[x] Redis Streams event bus for bot dispatch</li>
-<li>[x] BullMQ task queues with per-bot isolation</li>
+<li>[x] 用于机器人调度的 Redis Streams 事件总线</li>
+<li>[x] BullMQ 任务队列与每个机器人隔离</li>
 <li>[x] 捆绑机器人：欢迎、帮助、通知</li>
 </ul>
 <h2 id="tui">TUI 烟雾命令<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[x] Login/logout via TUI</li>
+<li>[x] 通过 TUI 登录/注销</li>
 <li>[x] 工作区列表并选择</li>
 <li>[x] 频道列表并选择</li>
-<li>[x] Send and read messages</li>
-<li>[x] E2E DM message send and verify</li>
-<li>[x] Slash command invocation</li>
+<li>[x] 发送和阅读消息</li>
+<li>[x] E2E DM消息发送和验证</li>
+<li>[x] 斜杠命令调用</li>
 </ul>
 <h2 id="_6">日志和审核事件<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[x] Structured Pino JSON logs with log levels</li>
-<li>[x] Audit event recording for auth, channel, message operations</li>
-<li>[x] Audit events include actor, action, resource, timestamp</li>
+<li>[x] 具有日志级别的结构化 Pino JSON 日志</li>
+<li>[x] 验证、通道、消息操作的审核事件记录</li>
+<li>[x] 审核事件包括参与者、操作、资源、时间戳</li>
 <li>[x] 用于监控的 Prometheus 指标端点</li>
 </ul>
 <h2 id="_7">备份/恢复<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[x] Backup/restore procedure documented (see <a href="../backup-restore/">backup-restore.md</a>)</li>
-<li>[x] PostgreSQL pg_dump / pg_restore recipe</li>
-<li>[x] Redis RDB snapshot backup</li>
-<li>[x] File storage backup outline (future)</li>
+<li>[x] 记录备份/恢复过程（参见<a href="../backup-restore/">backup-restore.md</a>）</li>
+<li>[x] PostgreSQL pg_dump / pg_restore 配方</li>
+<li>[x] Redis RDB快照备份</li>
+<li>[x] 文件存储备份概要（未来）</li>
 </ul>
 <h2 id="_8">已知限制<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[x] Known limitations documented (see <a href="../known-limitations/">known-limitations.md</a>)</li>
+<li>[x] 记录已知限制（参见 <a href="../known-limitations/">known-limitations.md</a>）</li>
 <li>[x] 仅限单设备 E2EE</li>
 <li>[x] 用于开发的内存存储</li>
-<li>[x] No Redis WebSocket adapter in dev</li>
-<li>[x] No full-text search</li>
-<li>[x] No file upload in UI</li>
+<li>[x] 开发中没有 Redis WebSocket 适配器</li>
+<li>[x] 没有全文搜索</li>
+<li>[x] UI 中没有文件上传</li>
 <li>[x] 注意到电子限制</li>
 <li>[x] TUI 限制</li>
-<li>[x] AGPL-3.0 concern for @signalapp/libsignal-client noted</li>
+<li>[x] AGPL-3.0 对 @signalapp/libsignal-client 的关注</li>
 </ul>
 
 

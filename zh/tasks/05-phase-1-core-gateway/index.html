@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#05-phase-1-core-gateway-rest-websocket-rate-limits-protocol" class="md-skip">
+        <a href="#05-1-restwebsocket" class="md-skip">
           跳转至
         </a>
       
@@ -2622,7 +2622,7 @@
   
 
 
-<h1 id="05-phase-1-core-gateway-rest-websocket-rate-limits-protocol">05 — Phase 1 — Core Gateway: REST, WebSocket, Rate Limits &amp; Protocol<a class="headerlink" href="#05-phase-1-core-gateway-rest-websocket-rate-limits-protocol" title="Permanent link">&para;</a></h1>
+<h1 id="05-1-restwebsocket">05 — 第 1 阶段 — 核心网关：REST、WebSocket、速率限制和协议<a class="headerlink" href="#05-1-restwebsocket" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>实现核心 Hono + Socket.IO 网关，用于验证客户端、验证协议事件、管理 WebSocket 生命周期以及路由通用 IM 和 Bot 流量。</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
@@ -2644,7 +2644,7 @@
 <li>没有特定于功能的机器人命令解析。</li>
 <li>没有民意调查/提醒/荣誉逻辑。</li>
 <li>没有人工智能特定的逻辑。</li>
-<li>No raw file upload handling beyond forwarding to Attachment Service APIs.</li>
+<li>除了转发到附件服务 API 之外，没有原始文件上传处理。</li>
 </ul>
 <h2 id="_4">协议边界<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <p>斜杠命令不是普通的消息。它们是交互事件：</p>
@@ -2658,29 +2658,29 @@
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nx">triggerId?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
 </code></pre></div>
-<p>The gateway may create an audit/system message after acceptance, but it must not persist the command as a user text message by default.</p>
+<p>网关可以在接受后创建审核/系统消息，但默认情况下不得将命令保留为用户文本消息。</p>
 <h2 id="_5">端到端规则<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>不要信任客户端提供的 <code>encryption</code> 标志。</li>
 <li>从数据库解析通道模式。</li>
-<li>If channel mode is <code>e2e</code>, skip bot dispatch and treat payload as opaque ciphertext.</li>
+<li>如果通道模式为<code>e2e</code>，则跳过机器人调度并将有效负载视为不透明密文。</li>
 <li>拒绝端到端渠道中的机器人命令。</li>
 </ul>
 <h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>REST server starts and exposes health endpoint.</li>
+<li>REST 服务器启动并公开运行状况端点。</li>
 <li>WebSocket 连接使用 JWT 进行身份验证。</li>
-<li>Client joins user room and channel rooms after authorization.</li>
-<li>Invalid event payloads are rejected with typed errors.</li>
-<li>WebSocket rate limits apply per user/connection.</li>
-<li><code>bot.command.invoke</code> is routed to Bot Engine only for normal channels.</li>
+<li>客户端授权后加入用户房间和频道房间。</li>
+<li>无效的事件有效负载会因键入错误而被拒绝。</li>
+<li>WebSocket 速率限制适用于每个用户/连接。</li>
+<li><code>bot.command.invoke</code> 仅针对普通通道路由至 Bot Engine。</li>
 <li>E2E 通道从不发出机器人事件。</li>
 </ul>
 <h2 id="_7">测试计划<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
 <li>使用有效/无效 JWT 的 WebSocket 握手。</li>
 <li>消息在正常通道中发送。</li>
-<li>Message send in E2E channel bypasses bot event.</li>
+<li>E2E 通道中发送的消息绕过机器人事件。</li>
 <li>正常通道中的机器人命令成功。</li>
 <li>E2E 通道中的 Bot 命令失败并显示 <code>e2e_bots_disabled</code>。</li>
 <li>消息泛滥​​的速率限制测试。</li>

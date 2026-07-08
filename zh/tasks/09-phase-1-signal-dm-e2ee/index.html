@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#09-phase-1-signal-protocol-11-dm-e2ee" class="md-skip">
+        <a href="#09-1-11-dm-e2ee" class="md-skip">
           跳转至
         </a>
       
@@ -1167,32 +1167,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#server-responsibilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Server Responsibilities
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#client-responsibilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Client Responsibilities
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        服务器职责
       
     </span>
   </a>
@@ -1203,7 +1181,7 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        测试计划
+        客户的责任
       
     </span>
   </a>
@@ -1212,6 +1190,28 @@
       
         <li class="md-nav__item">
   <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试计划
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         依赖关系
@@ -2548,32 +2548,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#server-responsibilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Server Responsibilities
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#client-responsibilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Client Responsibilities
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        服务器职责
       
     </span>
   </a>
@@ -2584,7 +2562,7 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        测试计划
+        客户的责任
       
     </span>
   </a>
@@ -2593,6 +2571,28 @@
       
         <li class="md-nav__item">
   <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试计划
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         依赖关系
@@ -2622,59 +2622,59 @@
   
 
 
-<h1 id="09-phase-1-signal-protocol-11-dm-e2ee">09 — Phase 1 — Signal Protocol 1:1 DM E2EE<a class="headerlink" href="#09-phase-1-signal-protocol-11-dm-e2ee" title="Permanent link">&para;</a></h1>
+<h1 id="09-1-11-dm-e2ee">09 — 第 1 阶段 — 信号协议 1:1 DM E2EE<a class="headerlink" href="#09-1-11-dm-e2ee" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>Implement 1:1 DM end-to-end encryption using Signal Protocol primitives while keeping the server as an opaque relay.</p>
+<p>使用信号协议原语实施 1:1 DM 端到端加密，同时保持服务器作为不透明中继。</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>packages/signal</code> 包装器。</li>
-<li>Client identity key generation.</li>
-<li>Signed prekey generation.</li>
-<li>One-time prekey generation.</li>
+<li>客户端身份密钥生成。</li>
+<li>签名的预密钥生成。</li>
+<li>一次性预密钥生成。</li>
 <li>PreKeyBundle 上传/获取。</li>
 <li>X3DH 会话建立。</li>
-<li>Double Ratchet message encryption/decryption.</li>
-<li>E2E message send/receive in 1:1 DM.</li>
-<li>Read-once and timer-based disappearing message policy for 1:1 E2E DMs.</li>
-<li>Local session storage strategy.</li>
+<li>双棘轮消息加密/解密。</li>
+<li>以 1:1 DM 方式发送/接收 E2E 消息。</li>
+<li>针对 1:1 E2E DM 的一次性读取和基于计时器的消失消息策略。</li>
+<li>本地会话存储策略。</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>第一阶段没有 E2E 小组。</li>
 <li>没有多设备E2E。</li>
 <li>没有安全号码用户界面。</li>
-<li>No group disappearing messages or advanced retention policy UI.</li>
+<li>没有群组消失消息或高级保留策略 UI。</li>
 <li>没有密封的发件人。</li>
 </ul>
-<h2 id="server-responsibilities">Server Responsibilities<a class="headerlink" href="#server-responsibilities" title="Permanent link">&para;</a></h2>
+<h2 id="_4">服务器职责<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Store public PreKeyBundles.</li>
-<li>Consume one-time prekeys transactionally.</li>
+<li>存储公共 PreKeyBundles。</li>
+<li>以事务方式使用一次性预密钥。</li>
 <li>存储和转发密文消息。</li>
-<li>Never store private keys.</li>
-<li>Never decrypt message content.</li>
-<li>Enforce disappearing-message expiry using only metadata, read acknowledgments, and tombstone state.</li>
+<li>切勿存储私钥。</li>
+<li>切勿解密消息内容。</li>
+<li>仅使用元数据、读取确认和逻辑删除状态强制消失消息过期。</li>
 </ul>
-<h2 id="client-responsibilities">Client Responsibilities<a class="headerlink" href="#client-responsibilities" title="Permanent link">&para;</a></h2>
+<h2 id="_5">客户的责任<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>生成并保护私钥。</li>
 <li>建立会议。</li>
-<li>Encrypt before send.</li>
+<li>发送前加密。</li>
 <li>接收后解密。</li>
-<li>Delete local plaintext for read-once or expired messages immediately after policy conditions are met.</li>
+<li>满足策略条件后立即删除只读或过期消息的本地明文。</li>
 <li>处理棘轮状态。</li>
 </ul>
-<h2 id="_4">验收标准<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>User A can create encrypted DM session with User B.</li>
-<li>Server stores ciphertext only.</li>
-<li>Recipient can decrypt message locally.</li>
-<li>Bot events are not emitted for E2E DM.</li>
+<li>用户 A 可以与用户 B 创建加密的 DM 会话。</li>
+<li>服务器仅存储密文。</li>
+<li>收件人可以在本地解密消息。</li>
+<li>不会为 E2E DM 发出机器人事件。</li>
 <li>E2E DM 禁用服务器端搜索。</li>
-<li>Read-once E2E messages can be decrypted once by the recipient, then only an expired/tombstone state is available.</li>
-<li>Timer-based E2E messages expire without server-side plaintext access.</li>
+<li>一次读取的 E2E 消息可以由接收者解密一次，然后只有过期/逻辑删除状态可用。</li>
+<li>基于计时器的 E2E 消息在没有服务器端明文访问的情况下过期。</li>
 </ul>
-<h2 id="_5">测试计划<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="_7">测试计划<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
 <li>密钥包序列化的单元测试。</li>
 <li>会话建立的集成测试。</li>
@@ -2684,7 +2684,7 @@
 <li>一次读取E2E消息测试。</li>
 <li>基于计时器的消失消息过期测试。</li>
 </ul>
-<h2 id="_6">依赖关系<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h2 id="_8">依赖关系<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../02-phase-1-shared-contracts/">02 — Shared Contracts</a></li>
 <li><a href="../03-phase-1-database-schema/">03 — Database Schema</a></li>

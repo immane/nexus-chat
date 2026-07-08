@@ -2662,7 +2662,7 @@
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <h3 id="markdown">Markdown 渲染（消息）<a class="headerlink" href="#markdown" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Integrate <code>markdown-it</code> with SafeLink plugin for XSS-resistant rendering.</li>
+<li>将 <code>markdown-it</code> 与 SafeLink 插件集成以实现 XSS 抵抗渲染。</li>
 <li>支持：<strong>粗体</strong>、<em>斜体</em>、<code>inline code</code>、<code>code blocks</code>、&gt; 块引号、~~删除线~~、项目符号/编号列表。</li>
 <li>代码块以等宽背景渲染，可选语法通过 Shiki 突出显示（如果重则推迟）。</li>
 <li>自动检测链接并呈现为可点击的 <code>&lt;a&gt;</code> 和 <code>target="_blank" rel="noopener noreferrer"</code>。</li>
@@ -2672,30 +2672,30 @@
 <h3 id="_3">降价输入<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>将 <code>&lt;input&gt;</code> 替换为支持多行输入的 <code>&lt;textarea&gt;</code>（Shift+Enter 换行，Enter 发送）。</li>
-<li>Add formatting toolbar above/below the textarea: Bold, Italic, Code, Link, Quote buttons that insert/wrap markdown syntax.</li>
+<li>在文本区域上方/下方添加格式工具栏：插入/换行 Markdown 语法的粗体、斜体、代码、链接、引用按钮。</li>
 <li>实时预览切换 - 预览面板在发送前显示渲染的 Markdown。</li>
-<li>Slash command detection preserved (messages starting with <code>/</code> routed to bot).</li>
-<li>Keyboard shortcuts: <code>Ctrl+B</code> bold, <code>Ctrl+I</code> italic, <code>Ctrl+K</code> link.</li>
+<li>保留斜杠命令检测（以 <code>/</code> 开头的消息路由到机器人）。</li>
+<li>键盘快捷键：<code>Ctrl+B</code> 粗体、<code>Ctrl+I</code> 斜体、<code>Ctrl+K</code> 链接。</li>
 </ul>
 <h3 id="_4">链接预览<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>发送消息时，检测消息文本中的 URL。</li>
-<li>Fetch Open Graph metadata from URL (title, description, image).</li>
-<li>Render a compact link preview card below the message text.</li>
-<li>Thumbnail image, title, domain, and truncated description.</li>
+<li>从 URL 获取 Open Graph 元数据（标题、描述、图像）。</li>
+<li>在消息文本下方呈现紧凑链接预览卡。</li>
+<li>缩略图、标题、域和截断的描述。</li>
 <li>反跳/缓存以避免过多的获取。</li>
-<li>Handle fetch failures gracefully (no preview card shown).</li>
+<li>优雅地处理获取失败（不显示预览卡）。</li>
 </ul>
 <h3 id="_5">相对时间戳<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Display message time as relative: "Just now", "2m ago", "1h ago", "Yesterday", "Jan 5".</li>
+<li>以相对方式显示消息时间：“刚刚”、“2 分钟前”、“1 小时前”、“昨天”、“1 月 5 日”。</li>
 <li>悬停时的工具提示显示绝对时间戳。</li>
-<li>Date separators between messages on different days ("Monday, Jan 5, 2026").</li>
-<li>Update relative timestamps periodically (every 60s for recent messages).</li>
+<li>不同日期的消息之间的日期分隔符（“2026 年 1 月 5 日星期一”）。</li>
+<li>定期更新相对时间戳（最近消息每 60 秒更新一次）。</li>
 </ul>
 <h2 id="_6">非目标<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>No Shiki syntax highlighting (heavy dependency; defer to Phase 2 if needed).</li>
+<li>没有 Shiki 语法突出显示（严重依赖；如果需要，请推迟到第 2 阶段）。</li>
 <li>没有剧透文本（特定于 Telegram）。</li>
 <li>没有动画表情符号/消息效果。</li>
 <li>无富媒体相册渲染（第 2 阶段）。</li>
@@ -2704,19 +2704,19 @@
 <h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>markdown-it</code>（添加到<code>apps/web/package.json</code>）。</li>
-<li>Link preview: use <code>open-graph-scraper</code> or simple <code>fetch</code> + <code>cheerio</code>-based OG extraction, or use a server-side proxy endpoint to avoid CORS.</li>
-<li>No new backend dependencies — link preview fetch can be done from Web directly or via a lightweight server proxy endpoint.</li>
+<li>链接预览：使用<code>open-graph-scraper</code>或简单的基于<code>fetch</code> + <code>cheerio</code>的OG提取，或使用服务器端代理端点以避免CORS。</li>
+<li>没有新的后端依赖项 - 可以直接从 Web 或通过轻量级服务器代理端点获取链接预览。</li>
 </ul>
 <h2 id="_8">验收标准<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[ ] Messages render Markdown: bold, italic, code, code blocks, blockquotes, lists.</li>
-<li>[ ] Links in messages are clickable and open in new tab.</li>
-<li>[ ] Message input is multiline textarea with Shift+Enter newline, Enter send.</li>
-<li>[ ] Formatting toolbar with Bold, Italic, Code, Quote buttons.</li>
-<li>[ ] URLs in messages auto-generate link preview cards (title, description, thumbnail).</li>
-<li>[ ] Timestamps shown as relative ("5m ago") with absolute tooltip.</li>
-<li>[ ] Date separator dividers between different days.</li>
-<li>[ ] Slash commands still work correctly after input upgrade.</li>
+<li>[ ] 消息呈现 Markdown：粗体、斜体、代码、代码块、块引用、列表。</li>
+<li>[ ] 消息中的链接可单击并在新选项卡中打开。</li>
+<li>[ ] 消息输入是多行文本区域，使用 Shift+Enter 换行符，输入 send。</li>
+<li>[ ] 带有粗体、斜体、代码、引用按钮的格式工具栏。</li>
+<li>消息中的 [ ] URL 自动生成链接预览卡（标题、描述、缩略图）。</li>
+<li>[ ] 时间戳显示为相对时间戳（“5m 前”），带有绝对工具提示。</li>
+<li>[ ] 日期分隔符 不同日期之间的分隔符。</li>
+<li>[ ] 输入升级后斜线命令仍然可以正常工作。</li>
 </ul>
 
 

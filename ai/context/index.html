@@ -2876,6 +2876,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#84-server-host-cors-configuration-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Server Host &amp; CORS Configuration (2026-07-08)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3419,6 +3430,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#84-server-host-cors-configuration-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Server Host &amp; CORS Configuration (2026-07-08)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3851,7 +3873,7 @@ Current status: Phase 1 complete (25/25 tasks done), coverage 100% statements/fu
 <li><strong>CI validation</strong>: <code>pnpm lint</code>, <code>pnpm typecheck</code>, <code>pnpm test</code>, <code>pnpm coverage</code>, <code>pnpm build</code> all passing. Latest Web refactor verification passed <code>pnpm --filter @nexus-chat/web lint</code>, <code>pnpm --filter @nexus-chat/web typecheck</code>, <code>pnpm --filter @nexus-chat/web test</code>, <code>pnpm build</code>, and <code>pnpm test</code>.</li>
 <li><strong>Coverage</strong>: 100.00% statements/lines/functions, 92.62% branches across core domain + shared packages</li>
 <li><strong>Tests</strong>: 89 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI</li>
-<li><strong>Phase 1 tasks</strong>: 24/24 done — Phase 1 complete</li>
+<li><strong>Phase 1 tasks</strong>: 25/25 done — Phase 1 complete</li>
 <li><strong>Shared contracts</strong>: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper</li>
 <li><strong>DB schema</strong>: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)</li>
 <li><strong>Session store</strong>: Dual backend: <code>InMemoryRefreshSessionStore</code> (default dev) and <code>RedisRefreshSessionStore</code> (activated via <code>SESSION_STORE=redis</code>), both with full test coverage</li>
@@ -3998,6 +4020,14 @@ Current status: Phase 1 complete (25/25 tasks done), coverage 100% statements/fu
 <li><strong>IME fix</strong>: <code>isPrintable()</code> filter strips ANSI escape sequences and control characters to prevent CoreText crashes during CJK input.</li>
 <li><strong>Screenshots</strong>: Added TUI sample to README alongside Web login/chat screenshots (3 images, 30% each).</li>
 <li>Verification: <code>pnpm --filter @nexus-chat/tui lint</code>, <code>pnpm --filter @nexus-chat/tui typecheck</code>, <code>pnpm --filter @nexus-chat/tui test</code>, <code>pnpm --filter @nexus-chat/tui build</code>, <code>pnpm build</code>, <code>pnpm test</code> all passed.</li>
+</ul>
+<h3 id="84-server-host-cors-configuration-2026-07-08">8.4 Server Host &amp; CORS Configuration (2026-07-08)<a class="headerlink" href="#84-server-host-cors-configuration-2026-07-08" title="Permanent link">&para;</a></h3>
+<p>Added explicit server binding and CORS documentation to support LAN / production deployment:</p>
+<ul>
+<li><code>apps/server/src/config/env.ts</code>: Added <code>HOST</code> env var (default <code>"127.0.0.1"</code> after CI IPv4/IPv6 fix).</li>
+<li><code>apps/server/src/index.ts</code>: <code>serve()</code> now passes <code>hostname: env.HOST</code> for binding control.</li>
+<li><code>docker-compose.yml</code>: Added <code>HOST</code> with extensive comments covering <code>localhost</code>, <code>0.0.0.0</code>, <code>::</code>, domain, and IP scenarios. Added <code>WEB_ORIGIN</code> CORS documentation.</li>
+<li><code>.env.example</code>: Added <code>HOST</code>, <code>WEB_ORIGIN</code>, and <code>VITE_API_BASE</code> with deployment scenario comments.</li>
 </ul>
 <hr />
 <h2 id="9-open-questions-next-steps">9. Open Questions / Next Steps<a class="headerlink" href="#9-open-questions-next-steps" title="Permanent link">&para;</a></h2>

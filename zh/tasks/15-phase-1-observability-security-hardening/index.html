@@ -2633,16 +2633,16 @@
 <li>关键操作的审核日志。</li>
 <li>基本普罗米修斯指标端点。</li>
 <li>集中错误代码。</li>
-<li>Rate-limit metrics.</li>
+<li>速率限制指标。</li>
 <li>安全标头验证。</li>
-<li>Secret redaction.</li>
+<li>秘密编辑。</li>
 <li>依赖漏洞扫描工作流程。</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>没有完整的 OpenTelemetry 跟踪。</li>
 <li>除非快速添加，否则没有 Grafana 仪表板。</li>
-<li>No SIEM integration.</li>
+<li>没有 SIEM 集成。</li>
 </ul>
 <h2 id="_4">审计事件<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <table>
@@ -2655,23 +2655,23 @@
 <tbody>
 <tr>
 <td><code>auth.login</code></td>
-<td>Account access</td>
+<td>帐户访问</td>
 </tr>
 <tr>
 <td><code>auth.refresh_reuse_detected</code></td>
-<td>Session attack signal</td>
+<td>会话攻击信号</td>
 </tr>
 <tr>
 <td><code>workspace.member_added</code></td>
-<td>Access change</td>
+<td>访问变更</td>
 </tr>
 <tr>
 <td><code>channel.member_added</code></td>
-<td>Access change</td>
+<td>访问变更</td>
 </tr>
 <tr>
 <td><code>channel.mode_created_e2e</code></td>
-<td>Encryption boundary</td>
+<td>加密边界</td>
 </tr>
 <tr>
 <td><code>bot.installed</code></td>
@@ -2679,11 +2679,11 @@
 </tr>
 <tr>
 <td><code>bot.token_rotated</code></td>
-<td>Credential lifecycle</td>
+<td>凭证生命周期</td>
 </tr>
 <tr>
 <td><code>attachment.download_url_issued</code></td>
-<td>File access</td>
+<td>文件访问</td>
 </tr>
 </tbody>
 </table>
@@ -2692,9 +2692,9 @@
 <li>HTTP 请求计数/延迟。</li>
 <li>WebSocket 活动连接。</li>
 <li>消息发送计数/延迟。</li>
-<li>Bot event queue depth.</li>
+<li>机器人事件队列深度。</li>
 <li>Redis操作错误。</li>
-<li>Auth failure count.</li>
+<li>验证失败计数。</li>
 </ul>
 <h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2710,7 +2710,7 @@
 <li>审核事件集成测试。</li>
 <li>指标端点冒烟测试。</li>
 <li>安全标头测试。</li>
-<li>Rate-limit test.</li>
+<li>速率限制测试。</li>
 </ul>
 <h2 id="_8">依赖关系<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>

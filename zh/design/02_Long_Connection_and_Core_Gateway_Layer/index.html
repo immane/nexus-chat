@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#nexus-chat-long-connection-core-gateway-layer-design" class="md-skip">
+        <a href="#nexus-chat" class="md-skip">
           跳转至
         </a>
       
@@ -3437,7 +3437,7 @@
   
 
 
-<h1 id="nexus-chat-long-connection-core-gateway-layer-design">Nexus Chat — Long Connection &amp; Core Gateway Layer Design<a class="headerlink" href="#nexus-chat-long-connection-core-gateway-layer-design" title="Permanent link">&para;</a></h1>
+<h1 id="nexus-chat">Nexus Chat — 长连接和核心网关层设计<a class="headerlink" href="#nexus-chat" title="Permanent link">&para;</a></h1>
 <blockquote>
 <p>版本：v1.0 |最后更新：2026-06-24 |状态：草案<br />
 参考文献：<a href="../../research/backend-im-state-machine/">Backend IM State Machine Research</a>、<a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>、<a href="../../research/bot-engine-microservices/">Bot Engine &amp; Microservices</a></p>
@@ -3446,15 +3446,15 @@
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>1.<a href="#1-gateway-layer-responsibilities">Gateway Layer Responsibilities</a>
 2. <a href="#2-websocket-protocol-design">WebSocket Protocol Design</a>
-3. <a href="#3-connection-management">Connection Management</a>
+3.<a href="#3-connection-management">Connection Management</a>
 4. <a href="#4-rest-api-architecture">REST API Architecture</a>
-5. <a href="#5-authentication-flow">Authentication Flow</a>
+5.<a href="#5-authentication-flow">Authentication Flow</a>
 6. <a href="#6-rate-limiting">Rate Limiting</a>
 7.<a href="#7-message-relay-pipeline">Message Relay Pipeline</a>
 8.<a href="#8-security-headers--cors">Security Headers &amp; CORS</a></p>
 <hr />
 <h2 id="1">1. 网关层职责<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
-<p>The Gateway Layer is the single entry point for all client-server communication.它负责：</p>
+<p>网关层是所有客户端-服务器通信的单一入口点。它负责：</p>
 <h3 id="11">1.1 责任矩阵<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -3468,17 +3468,17 @@
 <tr>
 <td>WebSocket 连接生命周期</td>
 <td>Socket.IO v4 服务器</td>
-<td>Connection, disconnection, heartbeat, reconnection</td>
+<td>连接、断开、心跳、重连</td>
 </tr>
 <tr>
 <td>REST API 路由和中间件</td>
 <td>荣耀 v4.12</td>
-<td>Trie-tree routing with per-route middleware groups</td>
+<td>具有每路由中间件组的 Trie 树路由</td>
 </tr>
 <tr>
 <td>边缘身份验证和授权</td>
-<td>JWT validation middleware + Socket.IO auth middleware</td>
-<td>Reject unauthorized traffic before it reaches internal services</td>
+<td>JWT 验证中间件 + Socket.IO 身份验证中间件</td>
+<td>在未经授权的流量到达内部服务之前拒绝其</td>
 </tr>
 <tr>
 <td>速率限制</td>
@@ -3524,15 +3524,15 @@
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                            │ + Redis       │
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>                            └───────────────┘
 </code></pre></div>
-<p>In Phase 1 (monolith), the Gateway Layer and internal services share a single process.在阶段 2+ 中，网关层被提取为独立的无状态服务，通过 Redis Streams 或 NATS JetStream 与后端微服务通信（请参阅 <a href="../../research/bot-engine-microservices/#33-database-strategy">Bot Engine &amp; Microservices Research</a>）。</p>
+<p>在阶段 1（单体）中，网关层和内部服务共享单个进程。在阶段 2+ 中，网关层被提取为独立的无状态服务，通过 Redis Streams 或 NATS JetStream 与后端微服务通信（请参阅 <a href="../../research/bot-engine-microservices/#33-database-strategy">Bot Engine &amp; Microservices Research</a>）。</p>
 <hr />
 <h2 id="2websocket">2.WebSocket协议设计<a class="headerlink" href="#2websocket" title="Permanent link">&para;</a></h2>
 <h3 id="21">2.1 连接网址<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>wss://gateway.nexus.chat/ws?token=&lt;jwt_access_token&gt;
 </code></pre></div>
-<p>The JWT is passed as a query parameter during the WebSocket handshake. Socket.IO's <code>auth</code> middleware extracts and validates it before the connection is established.</p>
+<p>JWT 在 WebSocket 握手期间作为查询参数传递。 Socket.IO 的 <code>auth</code> 中间件在建立连接之前提取并验证它。</p>
 <h3 id="22">2.2 消息信封<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
-<p>All messages over the WebSocket follow a unified JSON envelope format:</p>
+<p>WebSocket 上的所有消息都遵循统一的 JSON 信封格式：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">GatewayMessage</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">                          </span><span class="c1">// message type identifier (see §2.3–2.4)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nx">seq?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">                          </span><span class="c1">// client sequence number for ACK tracking</span>
@@ -3561,17 +3561,17 @@
 <tr>
 <td><code>seq</code></td>
 <td>没有</td>
-<td>客户端单调序列号。 Server echoes it in ACK responses for out-of-order detection.</td>
+<td>客户端单调序列号。服务器在 ACK 响应中回显它以进行乱序检测。</td>
 </tr>
 <tr>
 <td><code>ack</code></td>
 <td>没有</td>
-<td>When the client acknowledges receipt of a server-pushed message, it sets this to the server's message <code>seq</code>.</td>
+<td>当客户端确认收到服务器推送的消息时，它将其设置为服务器的消息<code>seq</code>。</td>
 </tr>
 <tr>
 <td><code>channelId</code></td>
 <td>是的</td>
-<td>UUID of the target channel (or <code>system</code> for non-channel events).</td>
+<td>目标通道的 UUID（或对于非通道事件为 <code>system</code>）。</td>
 </tr>
 <tr>
 <td><code>workspaceId</code></td>
@@ -3586,7 +3586,7 @@
 <tr>
 <td><code>timestamp</code></td>
 <td>是的</td>
-<td>Client-generated timestamp in milliseconds since Unix epoch.</td>
+<td>自 Unix 纪元以来客户端生成的时间戳（以毫秒为单位）。</td>
 </tr>
 <tr>
 <td><code>encryption</code></td>
@@ -3636,7 +3636,7 @@
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">});</span>
 </code></pre></div>
 <ul>
-<li><strong>pingInterval (30s)</strong>: Must be less than the load balancer's idle timeout. AWS ALB 默认为 60 秒； setting 30s ensures ALB does not prematurely close the connection.</li>
+<li><strong>pingInterval (30s)</strong>：必须小于负载均衡器的空闲超时。 AWS ALB 默认为 60 秒；设置 30 秒可确保 ALB 不会过早关闭连接。</li>
 <li><strong>pingTimeout (10s)</strong>：略小于 pingInterval，以避免因瞬态网络抖动而导致误连接。</li>
 <li><strong>传输</strong>：服务器端，仅启用<code>websocket</code>。客户端，<code>socket.io-client</code> 还应该配置 <code>transports: ["websocket"]</code> 以跳过 HTTP 长轮询升级往返。</li>
 </ul>
@@ -4604,13 +4604,13 @@
 <tbody>
 <tr>
 <td>CSRF</td>
-<td>SameSite=Strict cookies + CORS origin whitelist + CSRF token header</td>
+<td>SameSite=严格 cookies + CORS 来源白名单 + CSRF 令牌标头</td>
 <td>头盔+CORS中间件</td>
 </tr>
 <tr>
 <td>跨站脚本攻击</td>
-<td>CSP headers + input escaping + <code>textContent</code> rendering on frontend</td>
-<td><code>secureHeaders</code> CSP + Zod schema max-length constraints</td>
+<td>CSP headers + 输入转义 + <code>textContent</code> 在前端渲染</td>
+<td><code>secureHeaders</code> CSP + Zod 架构最大长度约束</td>
 </tr>
 <tr>
 <td>点击劫持</td>
@@ -4629,12 +4629,12 @@
 </tr>
 <tr>
 <td>智威汤逊泄漏</td>
-<td>Short-lived access tokens (15 min) + refresh rotation + <code>httpOnly</code> cookies</td>
+<td>短期访问令牌（15 分钟）+ 刷新轮换 + <code>httpOnly</code> cookies</td>
 <td>JWT 中间件 + 刷新流程（§5.1）</td>
 </tr>
 <tr>
 <td>DDoS/暴力破解</td>
-<td>Dual user + IP rate limiting at API and WS layers</td>
+<td>双用户+API、WS层IP限速</td>
 <td><code>hono-rate-limiter</code> + WS 速率限制器 (§6)</td>
 </tr>
 <tr>
@@ -4644,12 +4644,12 @@
 </tr>
 <tr>
 <td>令牌重播</td>
-<td>Token family tracking + one-time-use refresh tokens</td>
+<td>代币家族追踪+一次性刷新代币</td>
 <td>Redis 支持的刷新令牌轮换（第 5.1 节）</td>
 </tr>
 </tbody>
 </table>
-<p>See <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a> for the full threat model and E2EE integration plan.</p>
+<p>完整的威胁模型和E2EE集成方案请参见<a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>。</p>
 <hr />
 <h2 id="_2">附录：技术决策<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <table>
@@ -4664,17 +4664,17 @@
 <tr>
 <td>HTTP框架</td>
 <td>荣耀 v4.12</td>
-<td>14KB, built-in middleware, cross-runtime, &lt;50ms cold start</td>
+<td>14KB，内置中间件，跨运行时，&lt;50ms冷启动</td>
 </tr>
 <tr>
 <td>WebSocket 引擎</td>
 <td>Socket.IO v4</td>
-<td>Built-in rooms, heartbeat, reconnect, Redis Adapter</td>
+<td>内置房间、心跳、重新连接、Redis Adapter</td>
 </tr>
 <tr>
 <td>水平缩放</td>
 <td><code>@socket.io/redis-adapter</code></td>
-<td>Transparent cross-pod broadcasting via Redis Pub/Sub</td>
+<td>通过 Redis Pub/Sub 进行透明跨 Pod 广播</td>
 </tr>
 <tr>
 <td>速率限制 (REST)</td>
@@ -4689,12 +4689,12 @@
 <tr>
 <td>授权</td>
 <td>JWT（访问+刷新轮换）</td>
-<td>Stateless validation, standard, client-agnostic</td>
+<td>无状态验证、标准、与客户端无关</td>
 </tr>
 <tr>
 <td>验证</td>
 <td>佐德</td>
-<td>TypeScript-first, composable, shareable with client</td>
+<td>TypeScript-first、可组合、可与客户端共享</td>
 </tr>
 <tr>
 <td>安全标头</td>
