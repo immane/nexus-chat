@@ -1,5 +1,5 @@
 site_name: Nexus Chat
-site_description: A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 24/24 tasks, 100% coverage, 89 tests.
+site_description: A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 25/25 tasks.
 repo_url: https://github.com/immane/nexus-chat
 edit_uri: edit/main/docs/
 site_dir: site
@@ -47,7 +47,7 @@ markdown_extensions:
 
 nav:
   - Home: README.md
-  - 中文首页: README.zh-CN.md
+  - Readme: README.project.md
   - Quick Start: QUICKSTART.md
   - Design Documents:
       - System High-Level Architecture: design/00_System_High_Level_Architecture.md
@@ -58,31 +58,8 @@ nav:
       - AI Agent Orchestration & Streaming: design/05_AI_Agent_Orchestration_and_Streaming.md
       - Phase Roadmap: design/06_Phase_Roadmap.md
       - P2P DM Direct Connection: design/07_P2P_DM_Direct_Connection.md
-  - Implementation Tasks:
-      - Phase 1 — Project Scaffold: tasks/01-phase-1-project-scaffold.md
-      - Phase 1 — Shared Contracts: tasks/02-phase-1-shared-contracts.md
-      - Phase 1 — Database Schema: tasks/03-phase-1-database-schema.md
-      - Phase 1 — Auth & Security: tasks/04-phase-1-auth-session-security.md
-      - Phase 1 — Core Gateway: tasks/05-phase-1-core-gateway.md
-      - Phase 1 — Workspace & Channel: tasks/06-phase-1-workspace-channel-service.md
-      - Phase 1 — Message Service: tasks/07-phase-1-message-service.md
-      - Phase 1 — Attachment Foundation: tasks/08-phase-1-attachment-service-foundation.md
-      - Phase 1 — Signal DM E2EE: tasks/09-phase-1-signal-dm-e2ee.md
-      - Phase 1 — Bot Engine Core: tasks/10-phase-1-bot-engine-core.md
-      - Phase 1 — Node Bot SDK: tasks/11-phase-1-bot-sdk-node-reference.md
-      - Phase 1 — Minimal Base Bots: tasks/12-phase-1-base-bots-minimal.md
-      - Phase 1 — Web Client Shell: tasks/13-phase-1-web-client-shell.md
-      - Phase 1 — Electron Shell: tasks/14-phase-1-electron-shell.md
-      - Phase 1 — Observability & Hardening: tasks/15-phase-1-observability-security-hardening.md
-      - Phase 1 — Local Dev, CI & Release: tasks/16-phase-1-local-dev-ci-release.md
-      - Phase 1 — TUI CLI: tasks/17-phase-1-tui-cli.md
-      - Phase 1 — P2P DM Direct Connection: tasks/18-phase-1-p2p-dm-direct.md
-      - Phase 1 — Web Message Actions & Context Menu: tasks/19-phase-1-web-message-actions.md
-      - Phase 1 — Web Message Display & Formatting: tasks/20-phase-1-web-message-display.md
-      - Phase 1 — Web Rich Media & Emoji Picker: tasks/21-phase-1-web-rich-media.md
-      - Phase 1 — Web Presence, Channel Info & Notifications: tasks/22-phase-1-web-presence-notifications.md
-      - Phase 1 — Server Message Reply & Pin: tasks/23-phase-1-server-message-reply-pin.md
-      - Phase 1 — Server Channel Mute & Description: tasks/24-phase-1-server-channel-mute-description.md
+      - TUI Chat Redesign: design/08_TUI_Chat_Redesign.md
+      - Web Client UI Design: design/09_Web_Client_UI_Design.md
   - Research:
       - Frontend Architecture: research/frontend-architecture.md
       - Backend IM & State Machine: research/backend-im-state-machine.md
