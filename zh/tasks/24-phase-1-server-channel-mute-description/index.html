@@ -2665,8 +2665,8 @@
 <li>在<code>Channel</code>类型中添加可选的<code>description?: string</code>字段，在<code>packages/shared/src/index.ts</code>中添加<code>channelSchema</code>。</li>
 <li>存储在 <code>InMemoryStore.channels</code> 中（已存储 <code>Channel</code> 对象）。</li>
 <li><code>PATCH /api/v1/channels/:id</code> — 更新通道<code>name</code>和/或<code>description</code>。需要 <code>canManageChannel</code> 权限。</li>
-<li>在频道列表和获取频道响应中包含 <code>description</code>。</li>
-<li>审核日志条目：<code>channel.updated</code> 当名称或描述更改时。</li>
+<li>Include <code>description</code> in channel list and get-channel responses.</li>
+<li>Audit log entry: <code>channel.updated</code> when name or description changes.</li>
 </ul>
 <h3 id="_4">频道静音<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2689,32 +2689,32 @@
 </ul>
 <h3 id="_6">静音范围决策<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
 <ul>
-<li>静音是针对每个用户每个通道的（不是每个工作空间，不是全局）。</li>
+<li>Mute is per-user per-channel (not per-workspace, not global).</li>
 <li>静音在会话之间持续存在（在阶段 1 中存储在内存中；在数据库阶段 2 中持续存在）。</li>
-<li>服务器不会在消息传递级别强制执行静音 - 静音是客户端使用的建议标志。</li>
-<li>服务器在频道列表和获取频道响应中包含 <code>muted</code>，以便客户端可以过滤通知。</li>
+<li>Server does not enforce mute at message delivery level — mute is an advisory flag consumed by clients.</li>
+<li>Server includes <code>muted</code> in channel list and get-channel responses so clients can filter notifications.</li>
 </ul>
 <h2 id="_7">非目标<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
-<li>无通道级通知覆盖（每个通道的自定义声音 - 第 2 阶段）。</li>
-<li>无静音持续时间预设（静音 1 小时/8 小时/永远 - 静音在第 1 阶段是二进制的）。</li>
+<li>No channel-level notification overrides (custom sounds per channel — Phase 2).</li>
+<li>No mute duration presets (mute for 1h/8h/forever — mute is binary in Phase 1).</li>
 <li>没有工作区级别的静音。</li>
 <li>无频道主题富文本（仅限纯文本）。</li>
 </ul>
 <h2 id="_8">依赖关系<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>channelSchema</code>在<code>packages/shared/src/index.ts</code>中更新（添加<code>description</code>）。</li>
-<li><code>Channel</code> 类型必须在所有消费者（服务器、共享、Web、TUI）之间更新。</li>
-<li>现有测试验证 <code>Channel</code> 形状 - 更新测试装置以包含 <code>description</code>。</li>
+<li><code>Channel</code> type must be updated across all consumers (server, shared, web, TUI).</li>
+<li>Existing tests validate <code>Channel</code> shape — update test fixtures to include <code>description</code>.</li>
 </ul>
 <h2 id="_9">验收标准<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[ ] <code>Channel</code> 类型包括可选的 <code>description</code> 字段（最多 500 个字符）。</li>
-<li>[ ] <code>PATCH /api/v1/channels/:id</code> 通过权限检查更新名称和/或描述。</li>
+<li>[ ] <code>Channel</code> type includes optional <code>description</code> field (max 500 chars).</li>
+<li>[ ] <code>PATCH /api/v1/channels/:id</code> updates name and/or description with permission check.</li>
 <li>[ ] <code>POST /api/v1/channels/:id/mute</code> / <code>DELETE</code> 使端点静音工作。</li>
 <li>[ ] <code>GET /api/v1/channels/:id/mute-status</code> 返回<code>{ muted: boolean }</code>。</li>
-<li>[ ] 频道列表响应包括<code>muted</code>和<code>description</code>字段。</li>
-<li>[ ] 现有频道创建/列表测试继续通过。</li>
+<li>[ ] Channel list responses include <code>muted</code> and <code>description</code> fields.</li>
+<li>[ ] Existing channel creation / listing tests continue passing.</li>
 <li>[ ] 审核日志记录<code>channel.updated</code>事件。</li>
 </ul>
 

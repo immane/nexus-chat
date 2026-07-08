@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="zh" class="no-js">
+<html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
@@ -10,13 +10,9 @@
       
       
       
-        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/18-phase-1-p2p-dm-direct/">
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/design/08_TUI_Chat_Redesign/">
       
       
-        <link rel="prev" href="../17-phase-1-tui-cli/">
-      
-      
-        <link rel="next" href="../19-phase-1-web-message-actions/">
       
       
         
@@ -31,7 +27,7 @@
     
     
       
-        <title>第一阶段——P2P DM直连 - Nexus Chat</title>
+        <title>08 — TUI Chat Redesign - Nexus Chat</title>
       
     
     
@@ -82,8 +78,8 @@
     <div data-md-component="skip">
       
         
-        <a href="#18-1-11-e2ee-dm-p2p" class="md-skip">
-          跳转至
+        <a href="#08-tui-chat-redesign" class="md-skip">
+          Skip to content
         </a>
       
     </div>
@@ -97,7 +93,7 @@
   
 
 <header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="页眉">
+  <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
   
@@ -118,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              第一阶段——P2P DM直连
+              08 — TUI Chat Redesign
             
           </span>
         </div>
@@ -158,7 +154,7 @@
       <div class="md-header__option">
   <div class="md-select">
     
-    <button class="md-header__button md-icon" aria-label="选择当前语言">
+    <button class="md-header__button md-icon" aria-label="Select language">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
     </button>
     <div class="md-select__inner">
@@ -192,16 +188,16 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="查找">
+      <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -214,7 +210,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            正在初始化搜索引擎
+            Initializing search
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -226,7 +222,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -260,7 +256,7 @@
 
 
 
-<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
@@ -272,7 +268,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -299,7 +295,7 @@
   <span class="md-ellipsis">
     
   
-    首页
+    Home
   
 
     
@@ -353,7 +349,7 @@
   <span class="md-ellipsis">
     
   
-    快速入门
+    Quick Start
   
 
     
@@ -416,7 +412,7 @@
   <span class="md-ellipsis">
     
   
-    设计文档
+    Design Documents
   
 
     
@@ -432,7 +428,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    设计文档
+    Design Documents
   
 
           </label>
@@ -445,14 +441,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/00_System_High_Level_Architecture/" class="md-nav__link">
+      <a href="../00_System_High_Level_Architecture/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    系统总体架构
+    System High-Level Architecture
   
 
     
@@ -473,14 +469,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+      <a href="../01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    客户端外壳与 UI 渲染层
+    Client Shell & UI Rendering
   
 
     
@@ -501,14 +497,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+      <a href="../02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    长连接与核心网关层
+    Long Connection & Core Gateway
   
 
     
@@ -529,14 +525,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+      <a href="../03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    业务逻辑与持久化后端
+    Business Logic & Persistence
   
 
     
@@ -557,14 +553,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+      <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与事件分发层
+    Async Bot Engine & Event Dispatch
   
 
     
@@ -585,14 +581,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+      <a href="../05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式引擎
+    AI Agent Orchestration & Streaming
   
 
     
@@ -613,14 +609,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/06_Phase_Roadmap/" class="md-nav__link">
+      <a href="../06_Phase_Roadmap/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    阶段路线图
+    Phase Roadmap
   
 
     
@@ -641,14 +637,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../design/07_P2P_DM_Direct_Connection/" class="md-nav__link">
+      <a href="../07_P2P_DM_Direct_Connection/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    P2P DM 直连
+    P2P DM Direct Connection
   
 
     
@@ -673,10 +669,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -737,11 +731,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -751,7 +747,7 @@
   <span class="md-ellipsis">
     
   
-    实施任务
+    Implementation Tasks
   
 
     
@@ -762,12 +758,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    实施任务
+    Implementation Tasks
   
 
           </label>
@@ -780,14 +776,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-phase-1-project-scaffold/" class="md-nav__link">
+      <a href="../../tasks/01-phase-1-project-scaffold/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 项目脚手架
+    Phase 1 — Project Scaffold
   
 
     
@@ -815,14 +811,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-phase-1-shared-contracts/" class="md-nav__link">
+      <a href="../../tasks/02-phase-1-shared-contracts/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 共享契约
+    Phase 1 — Shared Contracts
   
 
     
@@ -850,14 +846,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-phase-1-database-schema/" class="md-nav__link">
+      <a href="../../tasks/03-phase-1-database-schema/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 数据库模型
+    Phase 1 — Database Schema
   
 
     
@@ -885,14 +881,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-phase-1-auth-session-security/" class="md-nav__link">
+      <a href="../../tasks/04-phase-1-auth-session-security/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 认证与安全
+    Phase 1 — Auth & Security
   
 
     
@@ -920,14 +916,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-phase-1-core-gateway/" class="md-nav__link">
+      <a href="../../tasks/05-phase-1-core-gateway/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 核心网关
+    Phase 1 — Core Gateway
   
 
     
@@ -955,14 +951,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../06-phase-1-workspace-channel-service/" class="md-nav__link">
+      <a href="../../tasks/06-phase-1-workspace-channel-service/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 工作区与频道
+    Phase 1 — Workspace & Channel
   
 
     
@@ -990,14 +986,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-phase-1-message-service/" class="md-nav__link">
+      <a href="../../tasks/07-phase-1-message-service/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 消息服务
+    Phase 1 — Message Service
   
 
     
@@ -1025,14 +1021,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-phase-1-attachment-service-foundation/" class="md-nav__link">
+      <a href="../../tasks/08-phase-1-attachment-service-foundation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 附件基础设施
+    Phase 1 — Attachment Foundation
   
 
     
@@ -1060,14 +1056,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../09-phase-1-signal-dm-e2ee/" class="md-nav__link">
+      <a href="../../tasks/09-phase-1-signal-dm-e2ee/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — Signal DM 端到端加密
+    Phase 1 — Signal DM E2EE
   
 
     
@@ -1095,14 +1091,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../10-phase-1-bot-engine-core/" class="md-nav__link">
+      <a href="../../tasks/10-phase-1-bot-engine-core/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — Bot 引擎核心
+    Phase 1 — Bot Engine Core
   
 
     
@@ -1130,7 +1126,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-phase-1-bot-sdk-node-reference/" class="md-nav__link">
+      <a href="../../tasks/11-phase-1-bot-sdk-node-reference/" class="md-nav__link">
         
   
   
@@ -1165,14 +1161,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../12-phase-1-base-bots-minimal/" class="md-nav__link">
+      <a href="../../tasks/12-phase-1-base-bots-minimal/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 最小基础 Bot
+    Phase 1 — Minimal Base Bots
   
 
     
@@ -1200,14 +1196,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../13-phase-1-web-client-shell/" class="md-nav__link">
+      <a href="../../tasks/13-phase-1-web-client-shell/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — Web 客户端外壳
+    Phase 1 — Web Client Shell
   
 
     
@@ -1235,14 +1231,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../14-phase-1-electron-shell/" class="md-nav__link">
+      <a href="../../tasks/14-phase-1-electron-shell/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — Electron 外壳
+    Phase 1 — Electron Shell
   
 
     
@@ -1270,14 +1266,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../15-phase-1-observability-security-hardening/" class="md-nav__link">
+      <a href="../../tasks/15-phase-1-observability-security-hardening/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 可观测性与加固
+    Phase 1 — Observability & Hardening
   
 
     
@@ -1305,14 +1301,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../16-phase-1-local-dev-ci-release/" class="md-nav__link">
+      <a href="../../tasks/16-phase-1-local-dev-ci-release/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — 本地开发、CI 与发布
+    Phase 1 — Local Dev, CI & Release
   
 
     
@@ -1340,342 +1336,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../17-phase-1-tui-cli/" class="md-nav__link">
+      <a href="../../tasks/17-phase-1-tui-cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    第一阶段——TUI CLI
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--done"></span>
-  
-
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    第一阶段——P2P DM直连
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--done"></span>
-  
-
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    第一阶段——P2P DM直连
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--done"></span>
-  
-
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        范围
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        非目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        子任务
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="子任务">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#181" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.1 共享模式
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#182" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.2 服务器信令中继
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#183-ice" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.3 ICE 服务器配置
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#184-p2p" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.4 P2P连接池
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#185" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.5 信令处理程序
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#186" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.6 混合交通
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#187-websocket" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.7 与 WebSocket 客户端集成
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#188" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.8 冒烟测试
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#189" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.9 集成测试（浏览器）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#1810" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.10 文档和配置
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        验收标准
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        依赖关系
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        预计工作量
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        验证命令
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../19-phase-1-web-message-actions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    第 1 阶段 — Web 消息操作和上下文菜单
+    Phase 1 — TUI CLI
   
 
     
@@ -1703,14 +1371,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../20-phase-1-web-message-display/" class="md-nav__link">
+      <a href="../../tasks/18-phase-1-p2p-dm-direct/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — Web 消息显示和格式化
+    Phase 1 — P2P DM Direct Connection
   
 
     
@@ -1738,14 +1406,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../21-phase-1-web-rich-media/" class="md-nav__link">
+      <a href="../../tasks/19-phase-1-web-message-actions/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 网络富媒体和表情符号选择器
+    Phase 1 — Web Message Actions & Context Menu
   
 
     
@@ -1773,14 +1441,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../22-phase-1-web-presence-notifications/" class="md-nav__link">
+      <a href="../../tasks/20-phase-1-web-message-display/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 网络呈现、渠道信息和通知
+    Phase 1 — Web Message Display & Formatting
   
 
     
@@ -1808,14 +1476,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../23-phase-1-server-message-reply-pin/" class="md-nav__link">
+      <a href="../../tasks/21-phase-1-web-rich-media/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 服务器消息回复和 Pin 图
+    Phase 1 — Web Rich Media & Emoji Picker
   
 
     
@@ -1843,14 +1511,84 @@
   
   
     <li class="md-nav__item">
-      <a href="../24-phase-1-server-channel-mute-description/" class="md-nav__link">
+      <a href="../../tasks/22-phase-1-web-presence-notifications/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 服务器通道静音和描述
+    Phase 1 — Web Presence, Channel Info & Notifications
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/23-phase-1-server-message-reply-pin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Server Message Reply & Pin
+  
+
+    
+  </span>
+  
+  
+    
+  
+  
+    <span class="md-status md-status--done"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/24-phase-1-server-channel-mute-description/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 — Server Channel Mute & Description
   
 
     
@@ -1928,7 +1666,7 @@
   <span class="md-ellipsis">
     
   
-    技术调研
+    Research
   
 
     
@@ -1944,7 +1682,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    技术调研
+    Research
   
 
           </label>
@@ -1964,7 +1702,7 @@
   <span class="md-ellipsis">
     
   
-    前端架构与性能优化
+    Frontend Architecture
   
 
     
@@ -1992,7 +1730,7 @@
   <span class="md-ellipsis">
     
   
-    Node.js 核心 IM 与状态机设计
+    Backend IM & State Machine
   
 
     
@@ -2020,7 +1758,7 @@
   <span class="md-ellipsis">
     
   
-    组件化 UI 与插件生态协议
+    UI Components & Plugin Protocol
   
 
     
@@ -2048,7 +1786,7 @@
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与微服务解耦
+    Bot Engine & Microservices
   
 
     
@@ -2076,7 +1814,7 @@
   <span class="md-ellipsis">
     
   
-    低成本防御方案与未来 E2EE 路线
+    Security Defense & E2EE
   
 
     
@@ -2104,7 +1842,7 @@
   <span class="md-ellipsis">
     
   
-    基础 Bot 目录
+    Base Bot Catalog
   
 
     
@@ -2132,7 +1870,7 @@
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式交互设计
+    AI Agent Orchestration
   
 
     
@@ -2160,7 +1898,7 @@
   <span class="md-ellipsis">
     
   
-    Telegram 接口分析
+    Telegram Interface Analysis
   
 
     
@@ -2500,7 +2238,7 @@
   <span class="md-ellipsis">
     
   
-    备份与恢复
+    Backup & Restore
   
 
     
@@ -2528,7 +2266,7 @@
   <span class="md-ellipsis">
     
   
-    测试版清单
+    Beta Checklist
   
 
     
@@ -2556,7 +2294,7 @@
   <span class="md-ellipsis">
     
   
-    已知限制
+    Known Limitations
   
 
     
@@ -2591,7 +2329,7 @@
   <span class="md-ellipsis">
     
   
-    AI 会话上下文
+    AI Context
   
 
     
@@ -2617,7 +2355,7 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="目录">
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
   
@@ -2626,15 +2364,15 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      目录
+      Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#1-goal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        目标
+        1. Goal
       
     </span>
   </a>
@@ -2642,10 +2380,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#2-target-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
-        范围
+        2. Target Layout
       
     </span>
   </a>
@@ -2653,10 +2391,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#3-component-tree" class="md-nav__link">
     <span class="md-ellipsis">
       
-        非目标
+        3. Component Tree
       
     </span>
   </a>
@@ -2664,22 +2402,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#4-pane-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        子任务
+        4. Pane Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="子任务">
+    <nav class="md-nav" aria-label="4. Pane Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#181" class="md-nav__link">
+  <a href="#41-topbar" class="md-nav__link">
     <span class="md-ellipsis">
       
-        18.1 共享模式
+        4.1 TopBar
       
     </span>
   </a>
@@ -2687,10 +2425,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#182" class="md-nav__link">
+  <a href="#42-sidebar-left-pane" class="md-nav__link">
     <span class="md-ellipsis">
       
-        18.2 服务器信令中继
+        4.2 Sidebar (Left Pane)
       
     </span>
   </a>
@@ -2698,10 +2436,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#183-ice" class="md-nav__link">
+  <a href="#43-chatheader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        18.3 ICE 服务器配置
+        4.3 ChatHeader
       
     </span>
   </a>
@@ -2709,10 +2447,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#184-p2p" class="md-nav__link">
+  <a href="#44-messagearea" class="md-nav__link">
     <span class="md-ellipsis">
       
-        18.4 P2P连接池
+        4.4 MessageArea
       
     </span>
   </a>
@@ -2720,10 +2458,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#185" class="md-nav__link">
+  <a href="#45-composer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        18.5 信令处理程序
+        4.5 Composer
       
     </span>
   </a>
@@ -2731,10 +2469,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#186" class="md-nav__link">
+  <a href="#46-bottombar" class="md-nav__link">
     <span class="md-ellipsis">
       
-        18.6 混合交通
+        4.6 BottomBar
       
     </span>
   </a>
@@ -2742,43 +2480,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#187-websocket" class="md-nav__link">
+  <a href="#47-overlay" class="md-nav__link">
     <span class="md-ellipsis">
       
-        18.7 与 WebSocket 客户端集成
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#188" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.8 冒烟测试
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#189" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.9 集成测试（浏览器）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#1810" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        18.10 文档和配置
+        4.7 Overlay
       
     </span>
   </a>
@@ -2791,10 +2496,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
+  <a href="#5-data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        5. Data Flow
       
     </span>
   </a>
@@ -2802,10 +2507,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
+  <a href="#6-websocket-events" class="md-nav__link">
     <span class="md-ellipsis">
       
-        依赖关系
+        6. WebSocket Events
       
     </span>
   </a>
@@ -2813,10 +2518,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
+  <a href="#7-keyboard-shortcuts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        预计工作量
+        7. Keyboard Shortcuts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Keyboard Shortcuts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sidebar-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sidebar (focused)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#messagearea-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MessageArea (focused)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#composer-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Composer (focused)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-file-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. File Changes
       
     </span>
   </a>
@@ -2824,10 +2590,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
+  <a href="#9-implementation-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验证命令
+        9. Implementation Steps
       
     </span>
   </a>
@@ -2854,287 +2620,445 @@
   
 
 
-<h1 id="18-1-11-e2ee-dm-p2p">18 — 第 1 阶段 — 1:1 E2EE DM 的 P2P 直接连接<a class="headerlink" href="#18-1-11-e2ee-dm-p2p" title="Permanent link">&para;</a></h1>
-<h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>为 1:1 E2EE DM 添加机会性 WebRTC 数据通道直接连接。当 P2P 路径成功时，消息将完全绕过服务器。当它失败（NAT/防火墙）时，系统会透明地回退到现有的服务器中继的 WebSocket 路径。</p>
-<h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h1 id="08-tui-chat-redesign">08 — TUI Chat Redesign<a class="headerlink" href="#08-tui-chat-redesign" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Based on: Web client architecture and OpenCode TUI layout reference.
+Created: 2026-07-08</p>
+</blockquote>
+<h2 id="1-goal">1. Goal<a class="headerlink" href="#1-goal" title="Permanent link">&para;</a></h2>
+<p>Redesign the TUI interactive chat (<code>apps/tui/src/app.tsx</code>) from a single-column stack into a fixed two-pane layout with a status bar, mirroring the Web client's sidebar + message area split. The visual style references OpenCode's file-tree + editor layout.</p>
+<hr />
+<h2 id="2-target-layout">2. Target Layout<a class="headerlink" href="#2-target-layout" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌──────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│  Nexus Chat                    WS: connected   alice@t   │  ← TopBar
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├──────────────┬───────────────────────────────────────────┤
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│ Channels (5) │  # general                    [3 online]  │  ← ChatHeader
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│ [Search...]  │                                           │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│              │  Alice  10:30                             │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│ # general (3)│  Hello world!                             │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│ # random     │  👍 2                                     │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│ @ Bob   [E2E]│                                           │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│ @ Carol [E2E]│  Bob  10:31                               │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│              │  Hey!                                     │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│              │                                           │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│              │  ──── Yesterday ────                      │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│              │                                           │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│ [Chat] [Mbr] │                                           │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>├──────────────┴───────────────────────────────────────────┤
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│ &gt; Type a message...                          Enter send  │  ← Composer
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>└──────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│ #general │ Alice typing... │ r=Reply e=Edit d=Delete     │  ← BottomBar
+</code></pre></div>
+<hr />
+<h2 id="3-component-tree">3. Component Tree<a class="headerlink" href="#3-component-tree" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&lt;ChatShell&gt;                              // Full-screen container (flexDirection=&quot;column&quot;)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── &lt;TopBar /&gt;                           // Title + WS status + username
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── &lt;Box flexDirection=&quot;row&quot; flexGrow={1}&gt;  // Main area (row layout)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── &lt;Sidebar width={28}&gt;             // Left pane
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   │   ├── &lt;SidebarHeader /&gt;            // &quot;Channels (N)&quot; + search input
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   │   ├── &lt;ChannelList /&gt;              // Scrollable list with focus
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   │   └── &lt;SidebarTabs /&gt;              // [Chat] [Members] [Settings]
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   └── &lt;MainPanel flexGrow={1}&gt;         // Right pane
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│       ├── &lt;ChatHeader /&gt;               // #channel + typing + online count
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│       ├── &lt;MessageArea /&gt;              // Scrollable messages with focus
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│       └── &lt;Composer /&gt;                 // Input bar with mode awareness
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── &lt;BottomBar /&gt;                        // Status: shortcuts / typing / current channel
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>└── &lt;Overlay /&gt;                          // Modal layer: forward picker, delete confirm, reaction input
+</code></pre></div>
+<hr />
+<h2 id="4-pane-details">4. Pane Details<a class="headerlink" href="#4-pane-details" title="Permanent link">&para;</a></h2>
+<h3 id="41-topbar">4.1 TopBar<a class="headerlink" href="#41-topbar" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>┌──────────────────────────────────────────────────────────┐
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>│  Nexus Chat                    WS: connected   alice@t   │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>└──────────────────────────────────────────────────────────┘
+</code></pre></div>
 <ul>
-<li>用于 1:1 E2EE DM 消息传输的 WebRTC 数据通道。</li>
-<li>基于服务器的信令中继，用于 SDP 提供/应答和 ICE 候选交换。</li>
-<li><code>P2pConnectionPool</code> for managing WebRTC peer connections.</li>
-<li><code>HybridTransport</code> 发送/接收抽象：首先尝试 P2P，然后回退到中继。</li>
-<li>P2P 消息帧（通过数据通道的 JSON），使用 <code>clientMsgId</code> 进行重复数据删除。</li>
-<li>通过数据通道的 P2P 确认，具有用于多设备同步的轻量级服务器确认。</li>
-<li>连接拆卸+清理（挂断信号、池删除）。</li>
-<li>P2P 尝试失败后的冷却计时器（30 秒），以避免重复失败。</li>
-<li>每个对等连接缓存（重用已建立的连接）。</li>
-<li>ICE candidate trickling.</li>
-<li>所有 P2P 信令事件的新共享模式。</li>
-<li>WebSocket 网关中的服务器端 P2P 事件中继。</li>
-<li>单元测试、集成测试和 <code>p2p-smoke</code> TUI 命令。</li>
-<li>通过环境变量（STUN/TURN）配置ICE服务器。</li>
+<li>Left: project name (cyan bold).</li>
+<li>Right: WebSocket connection indicator (green <code>● connected</code> / red <code>● disconnected</code>) + current user email.</li>
+<li>Bottom border via <code>borderStyle="single"</code>.</li>
+<li>Height: 1 row.</li>
 </ul>
-<h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="42-sidebar-left-pane">4.2 Sidebar (Left Pane)<a class="headerlink" href="#42-sidebar-left-pane" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>┌──────────────┐
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>│ Channels (5) │  ← Header with count
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>│ [Search...]  │  ← Filter (Ctrl+F to focus)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>│              │
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>│ # general (3)│  ← Green prefix, unread count, bold if active
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>│ # random     │
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>│ @ Bob   [E2E]│  ← Cyan prefix for DM, yellow [E2E] tag
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>│ @ Carol [E2E]│
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>│              │
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>│ [💬 Chat   ] │  ← Tab bar
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>│ [👥 Members] │
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>│ [⚙ Settings] │
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>└──────────────┘
+</code></pre></div>
 <ul>
-<li>无群组通道 P2P（信号发送器密钥/MLS 是一个单独的问题）。</li>
-<li>此任务中没有 TURN 服务器配置（仅文档配置）。</li>
-<li>正常模式（非 E2EE）通道没有 P2P — 服务器中继适用于此。</li>
-<li>没有 TUI 或 CLI P2P 支持（Node.js 缺乏本机 WebRTC；<code>wrtc</code> 包存在维护问题）。</li>
-<li>没有 P2P 状态指示器的 UI（绿色/黄色/灰色锁图标）——推迟到 UI 润色任务。</li>
-<li>没有超出<code>deviceId</code>意识的多设备P2P协调。</li>
-<li>没有通过 P2P 的文件传输（附件仍然通过服务器）。</li>
+<li><strong>Width</strong>: <code>Math.min(30, Math.floor(termColumns * 0.25))</code>.</li>
+<li><strong>Channel list</strong>:</li>
+<li><code>#</code> green for normal channels, <code>@</code> cyan for DMs.</li>
+<li>E2E tag in yellow.</li>
+<li>Unread count in green <code>(N)</code>.</li>
+<li>Active channel highlighted (bold + background).</li>
+<li><code>↑</code>/<code>↓</code> to navigate, <code>Enter</code> to select.</li>
+<li><strong>Tab bar</strong> (<code>Ctrl+1/2/3</code>):</li>
+<li><code>Chat</code>: channel list (default).</li>
+<li><code>Members</code>: workspace member list with online status dots (<code>●</code>/<code>○</code>).</li>
+<li><code>Settings</code>: theme, notifications, token info.</li>
+<li>Right border via <code>borderStyle="single"</code>.</li>
 </ul>
-<h2 id="_4">子任务<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<h3 id="181">18.1 共享模式<a class="headerlink" href="#181" title="Permanent link">&para;</a></h3>
-<p><strong>文件</strong>：<code>packages/shared/src/index.ts</code></p>
+<h3 id="43-chatheader">4.3 ChatHeader<a class="headerlink" href="#43-chatheader" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>│  # general                    [3 online] │
+</code></pre></div>
 <ul>
-<li>[ ] 18.1.1 Add <code>p2pTargetSchema</code> (<code>targetUserId</code>, <code>targetDeviceId?</code>).</li>
-<li>[ ] 18.1.2 添加<code>p2pOfferSchema</code>（<code>targetUserId</code>、<code>targetDeviceId?</code>、<code>sdp</code>）。</li>
-<li>[ ] 18.1.3 添加<code>p2pAnswerSchema</code>（与offer形状相同）。</li>
-<li>[ ] 18.1.4 添加<code>p2pIceCandidateSchema</code>（<code>targetUserId</code>、<code>candidate</code>对象与<code>candidate</code>、<code>sdpMid</code>、<code>sdpMLineIndex</code>）。</li>
-<li>[ ] 18.1.5 Add <code>p2pHangupSchema</code> (just <code>p2pTargetSchema</code>).</li>
-<li>[ ] 18.1.6 添加<code>p2pStatusSchema</code>（<code>targetUserId</code>、<code>status</code>：“已连接”|“已断开连接”|“失败”、<code>reason?</code>）。</li>
-<li>[ ] 18.1.7 添加 <code>WsP2pOfferEnvelopeSchema</code> 等（wsEnvelope + 类型文字 + 负载模式）。</li>
-<li>[ ] 18.1.8 将P2P类型添加到<code>WsClientEvent</code>和<code>WsServerEvent</code>可区分联合中。</li>
-<li>[ ] 18.1.9 为所有新模式添加 zod 单元测试。</li>
-<li>[ ] 18.1.10 Run <code>pnpm --filter @nexus-chat/shared typecheck &amp;&amp; pnpm --filter @nexus-chat/shared test</code>.</li>
+<li>Left: <code># channelName</code> (or <code>@ DMName</code>) with optional yellow <code>[E2E]</code> tag.</li>
+<li>Right: online member count <code>[N online]</code>.</li>
+<li>When someone is typing: <code>Alice is typing...</code> replaces the right section.</li>
+<li>Height: 1 row.</li>
 </ul>
-<h3 id="182">18.2 服务器信令中继<a class="headerlink" href="#182" title="Permanent link">&para;</a></h3>
-<p><strong>文件</strong>：<code>apps/server/src/ws/gateway.ts</code></p>
+<h3 id="44-messagearea">4.4 MessageArea<a class="headerlink" href="#44-messagearea" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>│  Alice  10:30                             │
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>│  Hello world!                             │
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│  👍 2                                     │
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│                                           │
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│  ──── Yesterday ────                      │
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│                                           │
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│  Alice  Yesterday 15:22                   │
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│  Old Message...              (edited)     │
+</code></pre></div>
 <ul>
-<li>[ ] 18.2.1 定义<code>P2P_FORWARD_EVENTS</code>集合（<code>p2p.offer</code>、<code>p2p.answer</code>、<code>p2p.ice-candidate</code>、<code>p2p.hangup</code>）。</li>
-<li>[ ] 18.2.2 实现<code>relayP2pEvent(io, socket, envelope)</code>：通过<code>payload.targetUserId</code>找到目标socket，通过<code>_senderUserId</code>发出转发的信封。</li>
-<li>[ ] 18.2.3 在速率限制器应用于正常事件之前将<code>relayP2pEvent</code>连接到<code>handleClientEnvelope</code>。</li>
-<li>[ ] 18.2.4 处理<code>p2p.status</code>事件：记录可观察性，无中继。</li>
-<li>[ ] 18.2.5 添加网关单元测试：验证<code>p2p.offer</code>是否中继到目标套接字；验证 <code>p2p.hangup</code> 是否已转发； verify <code>p2p.status</code> is NOT relayed;验证不存在的目标是否已被静默删除。</li>
-<li>[ ] 18.2.6 运行<code>pnpm --filter @nexus-chat/server typecheck &amp;&amp; pnpm --filter @nexus-chat/server test</code>。</li>
+<li><strong>Sender</strong>: blue bold (self: yellow).</li>
+<li><strong>Timestamp</strong>: gray, relative ("3m ago").</li>
+<li><strong>Body</strong>: white.</li>
+<li><strong>Edited marker</strong>: gray <code>(edited)</code>.</li>
+<li><strong>Reactions</strong>: emoji + count in the row below the body (<code>👍 2 ❤️ 1</code>). User's own reactions shown in cyan.</li>
+<li><strong>Date separator</strong>: centered <code>──── Yesterday ────</code>.</li>
+<li><strong>Tombstone</strong>: gray <code>~ Message deleted ~</code>.</li>
+<li><strong>Attachments</strong>: <code>📎 report.pdf (2.3MB)</code> text marker.</li>
+<li><strong>Scrolling</strong>:</li>
+<li><code>↓</code>/<code>↑</code>: move focus one message.</li>
+<li><code>PgDn</code>/<code>PgUp</code>: page up/down.</li>
+<li><code>Home</code>/<code>End</code>: jump to newest/oldest.</li>
+<li>Scroll to top triggers <code>GET /api/v1/channels/:id/messages?cursor=...</code> for pagination.</li>
+<li>New incoming messages auto-scroll to bottom.</li>
+<li><strong>Message focus</strong>: a highlighted row prefixed with <code>&gt;</code>. When a message is focused the bottom bar shows available actions.</li>
 </ul>
-<h3 id="183-ice">18.3 ICE 服务器配置<a class="headerlink" href="#183-ice" title="Permanent link">&para;</a></h3>
+<h3 id="45-composer">4.5 Composer<a class="headerlink" href="#45-composer" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>├───────────────────────────────────────────┤
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>│ &gt; Type a message...              Enter ⏎  │
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>└───────────────────────────────────────────┘
+</code></pre></div>
 <ul>
-<li>[ ] 18.3.1 在<code>.env.example</code>中添加<code>NEXUS_STUN_SERVERS</code>、<code>NEXUS_TURN_SERVERS</code>、<code>NEXUS_TURN_USERNAME</code>、<code>NEXUS_TURN_CREDENTIAL</code>。</li>
-<li>[ ] 18.3.2 在<code>.env.example</code>中添加<code>NEXUS_P2P_CONNECTION_TIMEOUT_MS</code>（默认5000）和<code>NEXUS_P2P_RELAY_COOLDOWN_MS</code>（默认30000）。</li>
-<li>[ ] 18.3.3 创建 <code>apps/web/src/lib/p2p/config.ts</code>：从 env 解析 ICE 服务器配置或使用默认值。</li>
+<li>Prompt <code>&gt;</code> then the input text.</li>
+<li>Placeholder when empty (gray).</li>
+<li>Right hint: <code>Enter ⏎</code> (or <code>Ctrl+Enter</code> for newline).</li>
+<li>E2E channels: <code>[E2E]</code> prefix before the prompt.</li>
+<li>Edit mode: pre-filled with original text, placeholder <code>Editing...</code>.</li>
+<li>Reply mode: <code>Replying to {sender}: {snippet}</code> row above the input.</li>
+<li>Multi-line: <code>Ctrl+Enter</code> for newline; height grows up to 5 rows.</li>
+<li>Top border separator.</li>
 </ul>
-<h3 id="184-p2p">18.4 P2P连接池<a class="headerlink" href="#184-p2p" title="Permanent link">&para;</a></h3>
-<p><strong>新文件</strong>：<code>apps/web/src/lib/p2p/pool.ts</code>、<code>apps/web/src/lib/p2p/types.ts</code></p>
+<h3 id="46-bottombar">4.6 BottomBar<a class="headerlink" href="#46-bottombar" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>│ #general │ Alice typing... │ r=Reply e=Edit d=Delete  │
+</code></pre></div>
 <ul>
-<li>[ ] 18.4.1 定义<code>P2pConnectionState</code>类型和<code>PeerTransportState</code>（mode、p2pFailedAt、cooldownUntil）。</li>
-<li>[ ] 18.4.2 实现<code>P2pConnectionPool</code>类：</li>
-<li><code>Map&lt;userId, RTCPeerConnection&gt;</code> 用于连接存储。</li>
-<li><code>Map&lt;userId, RTCDataChannel&gt;</code> 用于数据通道参考。</li>
-<li><code>Set&lt;userId&gt;</code> 用于正在进行的连接 (<code>connecting</code>)。</li>
-<li><code>has(userId)</code>、<code>getChannel(userId)</code>。</li>
-<li><code>createOffer(peerUserId): Promise&lt;RTCSessionDescription&gt;</code>。</li>
-<li><code>handleAnswer(peerUserId, sdp)</code>。</li>
-<li><code>handleIceCandidate(peerUserId, candidate)</code>。</li>
-<li><code>close(userId)</code>、<code>closeAll()</code>。</li>
-<li>冷却跟踪：<code>isInCooldown(userId)</code>、<code>markFailed(userId)</code>。</li>
-<li>ICE候选滴流：<code>onicecandidate</code>→信令发送。</li>
-<li>[ ] 18.4.3 为 onopen、onclose、onmessage、onerror 实现 <code>setupDataChannelHandlers(dc, peerUserId)</code>。</li>
-<li>[ ] 18.4.4 编写单元测试：池生命周期、提供/应答流程、ICE 候选处理、冷却逻辑、closeAll 清理。</li>
-<li>[ ] 18.4.5 运行<code>pnpm --filter @nexus-chat/web typecheck &amp;&amp; pnpm --filter @nexus-chat/web test</code>。</li>
+<li>Left: current channel name.</li>
+<li>Center: dynamic status or typing indicator.</li>
+<li>Right: keyboard shortcut hints (context-dependent on the focused panel):</li>
+<li>Message area focused: <code>r=Reply e=Edit d=Delete c=Copy f=Forward +=React</code></li>
+<li>Sidebar focused: <code>↑↓=Nav Enter=Select n=NewChannel Esc=Back</code></li>
+<li>Top border separator.</li>
 </ul>
-<h3 id="185">18.5 信令处理程序<a class="headerlink" href="#185" title="Permanent link">&para;</a></h3>
-<p><strong>新文件</strong>：<code>apps/web/src/lib/p2p/signaling.ts</code></p>
+<h3 id="47-overlay">4.7 Overlay<a class="headerlink" href="#47-overlay" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] 18.5.1 实现<code>P2pSignalingHandler</code>：</li>
-<li>侦听现有 WebSocket 的 <code>p2p.offer</code>、<code>p2p.answer</code>、<code>p2p.ice-candidate</code>、<code>p2p.hangup</code> 事件。</li>
-<li>路由到适当的<code>P2pConnectionPool</code>方法。</li>
-<li>验证 <code>_senderUserId</code> 与预期的对等点匹配。</li>
-<li>[ ] 18.5.2 实现 <code>sendSignaling(wsSend, eventType, payload)</code> 帮助器：包装在 <code>wsEnvelope</code> 中并通过 WebSocket 发出。</li>
-<li>[ ] 18.5.3 编写单元测试：模拟 WebSocket、验证提供触发器 <code>createOffer</code> 流程、验证应答触发器 <code>handleAnswer</code>、验证 ICE 候选路由是否正确、验证挂断触发器 <code>close</code>。</li>
-<li>[ ] 18.5.4 运行<code>pnpm --filter @nexus-chat/web typecheck &amp;&amp; pnpm --filter @nexus-chat/web test</code>。</li>
+<li><strong>Forward modal</strong>: centered channel list with search; <code>Enter</code> to confirm, <code>Esc</code> to cancel.</li>
+<li><strong>Delete confirm</strong>: <code>Delete this message? [Y/n]</code>.</li>
+<li><strong>Reaction input</strong>: <code>Enter emoji: _</code>.</li>
+<li><strong>Member panel</strong>: replaces sidebar content when the Members tab is active.</li>
 </ul>
-<h3 id="186">18.6 混合交通<a class="headerlink" href="#186" title="Permanent link">&para;</a></h3>
-<p><strong>新文件</strong>：<code>apps/web/src/lib/p2p/transport.ts</code></p>
-<ul>
-<li>[ ] 18.6.1 实现<code>HybridTransport</code>类：</li>
-<li><code>constructor(session: SignalSession, pool: P2pConnectionPool, wsSend, signalingSend)</code>。</li>
-<li><code>async sendMessage(input: SendMessageInput): Promise&lt;SendResult&gt;</code>：<ol>
-<li>拨打<code>encryptForSession(session, plaintext)</code>。</li>
-<li>勾选<code>pool.has(targetUserId)</code>→通过数据通道P2P发送。</li>
-<li>如果没有连接且未处于冷却时间 → 启动 WebRTC，超时时间为 5 秒。</li>
-<li>如果连接成功→P2P发送。</li>
-<li>如果超时/失败 → 服务器 WebSocket 中继回退。</li>
-</ol>
-</li>
-<li><code>onMessage(handler)</code>：同时监听数据通道和WebSocket；通过 <code>clientMsgId</code> 进行重复数据删除；解密并交付。</li>
-<li><code>destroy()</code>：关闭池并删除侦听器。</li>
-<li>[ ] 18.6.2 实施<code>sendP2pFrame(dataChannel, frame)</code>和<code>sendP2pAck(dataChannel, clientMsgId)</code>。</li>
-<li>[ ] 18.6.3 实现客户端<code>clientMsgId</code> dedup（最后1000的LRU集）。</li>
-<li>[ ] 18.6.4 实施后备：<code>sendViaRelay(wsSend, input)</code> → 现有的 socket.emit 流。</li>
-<li>[ ] 18.6.5 编写单元测试：</li>
-<li>P2P 可用：消息通过数据通道传输，返回<code>{ path: "p2p" }</code>。</li>
-<li>P2P 不可用：退回到中继，返回<code>{ path: "relay" }</code>。</li>
-<li>冷却激活：跳过 P2P 尝试，直接进入中继。</li>
-<li>Dedup：两个路径上的 <code>clientMsgId</code> 相同，仅处理第一个路径。</li>
-<li>多条消息：全部通过相同的缓存数据通道。</li>
-<li>数据通道关闭：下一条消息回退到中继。</li>
-<li>[ ] 18.6.6 运行<code>pnpm --filter @nexus-chat/web typecheck &amp;&amp; pnpm --filter @nexus-chat/web test</code>。</li>
-</ul>
-<h3 id="187-websocket">18.7 与 WebSocket 客户端集成<a class="headerlink" href="#187-websocket" title="Permanent link">&para;</a></h3>
-<p><strong>文件</strong>：<code>apps/web/src/lib/ws-client.ts</code></p>
-<ul>
-<li>[ ] 18.7.1 在<code>createSocket</code>或单独的<code>setupP2pSignaling</code>函数中添加P2P信令事件监听器。</li>
-<li>[ ] 18.7.2 确保 <code>p2p.*</code> 事件订阅对于经过身份验证的会话处于活动状态。</li>
-<li>[ ] 18.7.3 运行现有的 Web 测试以确保不出现回归。</li>
-</ul>
-<h3 id="188">18.8 冒烟测试<a class="headerlink" href="#188" title="Permanent link">&para;</a></h3>
-<p><strong>文件</strong>：<code>apps/tui/src/commands/smoke.ts</code></p>
-<ul>
-<li>[ ] 18.8.1 增加<code>runP2pSmoke</code>功能：</li>
-<li>验证所有 P2P 共享模式是否可导入并解析有效数据。</li>
-<li>连接WebSocket，发送<code>p2p.status</code>事件到服务器，验证<code>ok</code>响应。</li>
-<li>验证服务器接受 <code>p2p.offer</code> 有效负载（即使没有目标 - 服务器静默丢弃）。</li>
-<li>验证 <code>P2pConnectionPool</code> 是否可导入并实例化（仅限浏览器环境）。</li>
-<li>[ ] 18.8.2 在<code>apps/tui/src/cli.ts</code>中注册<code>p2p-smoke</code>命令。</li>
-<li>[ ] 18.8.3 从<code>apps/tui/src/index.ts</code>导出<code>runP2pSmoke</code>。</li>
-<li>[ ] 18.8.4 更新 <code>apps/tui/src/index.test.ts</code> 以断言 <code>p2p-smoke</code> 命令存在。</li>
-<li>[ ] 18.8.5 将<code>p2p-smoke</code>添加到<code>apps/tui/package.json</code>中的TUI烟链中。</li>
-<li>[ ] 18.8.6 运行<code>pnpm --filter @nexus-chat/tui typecheck &amp;&amp; pnpm --filter @nexus-chat/tui test</code>。</li>
-</ul>
-<h3 id="189">18.9 集成测试（浏览器）<a class="headerlink" href="#189" title="Permanent link">&para;</a></h3>
-<p><strong>新文件</strong>：<code>apps/web/src/lib/p2p/transport.integration.test.ts</code>（或在现有测试设置中）</p>
-<ul>
-<li>[ ] 18.9.1 两个带有模拟 WebSocket + 真实 RTCPeerConnection 的客户端实例（Alice 和 Bob）。</li>
-<li>[ ] 18.9.2 完整的 WebRTC 握手：Alice 通过模拟信令发送报价，Bob 应答，ICE 交换，数据通道打开。</li>
-<li>[ ] 18.9.3 Alice发送P2P密文消息；鲍勃接收并解密。</li>
-<li>[ ] 18.9.4 当相同的消息通过两个路径到达时验证 <code>clientMsgId</code> 去重（模拟）。</li>
-<li>[ ] 18.9.5 验证回退：模拟WebRTC故障（不调用<code>pc.setLocalDescription</code>），消息通过中继到达。</li>
-<li>[ ] 18.9.6 验证冷却时间：尝试失败后，下一条消息将跳过 WebRTC 并进行中继。</li>
-</ul>
-<h3 id="1810">18.10 文档和配置<a class="headerlink" href="#1810" title="Permanent link">&para;</a></h3>
-<ul>
-<li>[ ] 18.10.1 更新<code>README.md</code>第一阶段功能表：添加“P2P直连1:1 E2EE DM”。</li>
-<li>[ ] 18.10.2 更新<code>docs/ai/context.md</code> P2P 实施状态。</li>
-<li>[ ] 18.10.3 更新<code>mkdocs.yml</code> nav：添加P2P设计文档和任务文档。</li>
-<li>[ ] 18.10.4 使用所有新代码验证 <code>pnpm build</code> 是否成功。</li>
-<li>[ ] 18.10.5 验证<code>pnpm lint</code>通过。</li>
-<li>[ ] 18.10.6 验证<code>pnpm typecheck</code>通过。</li>
-<li>[ ] 18.10.7 验证 <code>pnpm coverage</code> 保持 90% 以上的分支覆盖率。</li>
-</ul>
-<h2 id="_5">验收标准<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
-<ul>
-<li>[ ] 两个Web客户端可以建立WebRTC数据通道并直接发送E2EE密文消息，无需服务器数据路径参与。</li>
-<li>[ ] SDP Offer/answer 和 ICE 候选者通过服务器 WebSocket 信令路径成功中继。</li>
-<li>[ ] 如果 WebRTC 失败（模拟：阻止 STUN），则消息将通过现有服务器 WebSocket 中继路径传递，不会出现用户可见的错误。</li>
-<li>[ ] <code>clientMsgId</code> 重复数据删除有效：到达 P2P 和中继路径的消息仅被处理一次。</li>
-<li>[ ] 所有 P2P 模式均由 Zod 在客户端和服务器边界进行验证。</li>
-<li>[ ] 服务器网关仅将 P2P 事件中继给经过身份验证的目标用户；未知的目标被悄然丢弃。</li>
-<li>[ ] 连接池正确管理生命周期：每个对等点的创建、重用、拆卸。</li>
-<li>[ ] 冷却计时器可防止 30 秒内重复失败的 WebRTC 尝试。</li>
-<li>TUI 中的 [ ] <code>p2p-smoke</code> 命令验证模式和服务器信令接受情况。</li>
-<li>[ ] 所有现有测试（72 个测试）将继续通过，无需修改。</li>
-<li>[ ] 未添加新的 npm 运行时依赖项（WebRTC 是浏览器原生的）。</li>
-<li>[ ] ESLint、TypeScript 严格模式、Vitest 单元测试和 Vitest 覆盖率全部通过。</li>
-</ul>
-<h2 id="_6">依赖关系<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../09-phase-1-signal-dm-e2ee/">09 — Signal DM E2EE</a> — Signal session establishment and encrypt/decrypt are prerequisites.</li>
-<li><a href="../05-phase-1-core-gateway/">05 — Core Gateway</a> — WebSocket relay infrastructure is reused for signaling.</li>
-<li><a href="../07-phase-1-message-service/">07 — Message Service</a> — Server relay fallback for ciphertext messages.</li>
-<li><a href="../13-phase-1-web-client-shell/">13 — Web Client Shell</a> — P2P 代码位于 Web 客户端中。</li>
-<li><a href="../16-phase-1-local-dev-ci-release/">16 — Local Dev, CI &amp; Release</a> — ICE 服务器环境配置。</li>
-</ul>
-<h2 id="_7">预计工作量<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="5-data-flow">5. Data Flow<a class="headerlink" href="#5-data-flow" title="Permanent link">&para;</a></h2>
+<p>Single orchestrator (<code>ChatShell</code>), analogous to Web <code>ChatRoute</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ChatShell
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  ├── useTerminalSize()      → { columns, rows }
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  ├── useChannelData()       → { channels, members, activeChannel, senderNames }
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  ├── useMessages()          → { messages, send, edit, delete, react, forward }
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  ├── useKeyboard()          → global shortcuts + panel dispatch
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  ├── useFocus()             → { activePanel, focusedIndex }
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  │
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>  ├──→ Sidebar:       channels, activeChannel, onSelect, focusState
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  ├──→ ChatHeader:    activeChannel, typingUsers, onlineCount
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  ├──→ MessageArea:   messages, focusedIndex, onAction(r/e/d/c/f/+)
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>  ├──→ Composer:      draft, onSubmit, editMode, replyTo
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>  ├──→ TopBar:        wsStatus, currentUser
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>  ├──→ BottomBar:     activeChannel, shortcutHints
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>  └──→ Overlay:       modalType, modalData
+</code></pre></div>
+<hr />
+<h2 id="6-websocket-events">6. WebSocket Events<a class="headerlink" href="#6-websocket-events" title="Permanent link">&para;</a></h2>
+<p>Extend <code>ws-client.ts</code> to listen for all server events instead of only <code>message.created</code>:</p>
 <table>
 <thead>
 <tr>
-<th>子任务</th>
-<th>营业时间</th>
-<th>风险</th>
+<th>Event</th>
+<th>Handler</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>18.1 共享模式</td>
-<td>2小时</td>
-<td>低</td>
+<td><code>message.created</code></td>
+<td>Append / deduplicate in message list</td>
 </tr>
 <tr>
-<td>18.2 服务器信令中继</td>
-<td>3小时</td>
-<td>低</td>
+<td><code>message.updated</code></td>
+<td>Replace message in list</td>
 </tr>
 <tr>
-<td>18.3 ICE 服务器配置</td>
-<td>0.5 小时</td>
-<td>低</td>
+<td><code>message.deleted</code></td>
+<td>Replace with tombstone</td>
 </tr>
 <tr>
-<td>18.4 P2P 连接池</td>
-<td>6小时</td>
-<td>中等</td>
+<td><code>message.reaction</code></td>
+<td>Update reaction map</td>
 </tr>
 <tr>
-<td>18.5 信令处理程序</td>
-<td>3小时</td>
-<td>低</td>
+<td><code>message.read</code></td>
+<td>Update read receipt counts</td>
 </tr>
 <tr>
-<td>18.6 混合运输</td>
-<td>6小时</td>
-<td>中等</td>
+<td><code>typing.updated</code></td>
+<td>Update typing users map</td>
 </tr>
 <tr>
-<td>18.7 WS 客户端集成</td>
-<td>2小时</td>
-<td>低</td>
+<td><code>presence.updated</code></td>
+<td>Update online status set</td>
 </tr>
 <tr>
-<td>18.8 冒烟测试</td>
-<td>2小时</td>
-<td>低</td>
+<td><code>channel.created</code></td>
+<td>Append channel to sidebar</td>
 </tr>
 <tr>
-<td>18.9 集成测试</td>
-<td>4小时</td>
-<td>中等</td>
-</tr>
-<tr>
-<td>18.10 文档和配置</td>
-<td>1.5 小时</td>
-<td>低</td>
-</tr>
-<tr>
-<td><strong>总计</strong></td>
-<td><strong>~30小时</strong></td>
-<td></td>
+<td><code>dm.created</code></td>
+<td>Append DM to sidebar</td>
 </tr>
 </tbody>
 </table>
-<p>Key risk: WebRTC API behavior differences across browsers. Mitigated by using standard APIs and limiting initially to Chrome/Electron (Chromium-based).</p>
-<h2 id="_8">验证命令<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Unit tests</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/shared<span class="w"> </span><span class="nb">test</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/server<span class="w"> </span><span class="nb">test</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/web<span class="w"> </span><span class="nb">test</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/tui<span class="w"> </span><span class="nb">test</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># TypeScript</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>pnpm<span class="w"> </span>typecheck
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Lint</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>pnpm<span class="w"> </span>lint
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># Full build</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>pnpm<span class="w"> </span>build
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># Smoke (requires running server)</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>pnpm<span class="w"> </span>smoke:tui:ci
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># Coverage</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>pnpm<span class="w"> </span>coverage
+<hr />
+<h2 id="7-keyboard-shortcuts">7. Keyboard Shortcuts<a class="headerlink" href="#7-keyboard-shortcuts" title="Permanent link">&para;</a></h2>
+<h3 id="global">Global<a class="headerlink" href="#global" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctrl+Q</code></td>
+<td>Quit</td>
+</tr>
+<tr>
+<td><code>Ctrl+L</code></td>
+<td>Focus left sidebar</td>
+</tr>
+<tr>
+<td><code>Ctrl+M</code></td>
+<td>Focus message area</td>
+</tr>
+<tr>
+<td><code>Ctrl+I</code></td>
+<td>Focus composer</td>
+</tr>
+<tr>
+<td><code>Tab</code></td>
+<td>Cycle focus panels</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Go back / close overlay</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sidebar-focused">Sidebar (focused)<a class="headerlink" href="#sidebar-focused" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>↑</code>/<code>↓</code></td>
+<td>Navigate channels</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>Enter channel</td>
+</tr>
+<tr>
+<td><code>n</code></td>
+<td>New channel</td>
+</tr>
+<tr>
+<td><code>Ctrl+F</code></td>
+<td>Search channels</td>
+</tr>
+<tr>
+<td><code>Ctrl+1/2/3</code></td>
+<td>Switch tab (Chat / Members / Settings)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="messagearea-focused">MessageArea (focused)<a class="headerlink" href="#messagearea-focused" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>↑</code>/<code>↓</code></td>
+<td>Move message focus</td>
+</tr>
+<tr>
+<td><code>PgDn</code>/<code>PgUp</code></td>
+<td>Page up/down</td>
+</tr>
+<tr>
+<td><code>Home</code>/<code>End</code></td>
+<td>Jump newest/oldest</td>
+</tr>
+<tr>
+<td><code>r</code></td>
+<td>Reply</td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>Edit (own text-type only)</td>
+</tr>
+<tr>
+<td><code>d</code></td>
+<td>Delete (own only, confirms)</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>Copy text</td>
+</tr>
+<tr>
+<td><code>f</code></td>
+<td>Forward</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>Add reaction</td>
+</tr>
+</tbody>
+</table>
+<h3 id="composer-focused">Composer (focused)<a class="headerlink" href="#composer-focused" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enter</code></td>
+<td>Send</td>
+</tr>
+<tr>
+<td><code>Ctrl+Enter</code></td>
+<td>Newline</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Cancel edit/reply mode</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-file-changes">8. File Changes<a class="headerlink" href="#8-file-changes" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>apps/tui/src/
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>├── app.tsx              → Rewritten as &lt;ChatShell&gt; orchestrator
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>├── components/          ← New directory
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│   ├── TopBar.tsx
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>│   ├── BottomBar.tsx
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>│   ├── Sidebar.tsx
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>│   ├── ChatHeader.tsx
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>│   ├── MessageArea.tsx
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>│   ├── MessageRow.tsx
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>│   ├── Composer.tsx
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>│   ├── Overlay.tsx
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>│   └── StatusBar.tsx
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>├── hooks/               ← New directory
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>│   ├── useTerminalSize.ts
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>│   ├── useChannelData.ts
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>│   ├── useMessages.ts
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>│   ├── useKeyboard.ts
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>│   └── useFocus.ts
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>├── lib/
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>│   ├── api.ts           ← Unchanged
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>│   ├── ws-client.ts     ← Extended: listen for all server WS events
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>│   └── format.ts        ← New: relative time, display names, date separators
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>├── cli.ts               ← Unchanged
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>├── index.ts             ← Unchanged
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>└── commands/smoke.ts    ← Unchanged
 </code></pre></div>
+<hr />
+<h2 id="9-implementation-steps">9. Implementation Steps<a class="headerlink" href="#9-implementation-steps" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Description</th>
+<th>Est. Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Base layout: <code>ChatShell</code> with TopBar, Sidebar, MainPanel, BottomBar; <code>useTerminalSize</code></td>
+<td>30 min</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enhanced channel list: display names, unread counts, tab bar framework, highlighted row</td>
+<td>30 min</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Message area rewrite: focus system, relative times, date separators, scroll + pagination</td>
+<td>45 min</td>
+</tr>
+<tr>
+<td>4</td>
+<td>WebSocket event expansion: listen for all server events in <code>ws-client.ts</code></td>
+<td>20 min</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Message actions: reply, edit, delete, react, forward via REST API; overlay modals</td>
+<td>45 min</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Composer enhancement: multi-line, typing indicators, bot command detection</td>
+<td>30 min</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total</strong>: ~3 hours</p>
 
 
 
 
 
 
-
-  
-  
 
 
 
@@ -3152,7 +3076,7 @@
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  回到页面顶部
+  Back to top
 </button>
         
       </main>
@@ -3184,7 +3108,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>

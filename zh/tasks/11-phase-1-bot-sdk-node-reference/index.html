@@ -2602,25 +2602,25 @@
 
 <h1 id="11-1-nodejs-bot-sdk">11 — 第 1 阶段 — Node.js Bot SDK 参考实现<a class="headerlink" href="#11-1-nodejs-bot-sdk" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>在 TypeScript/Node.js 中构建第一个公共 Bot SDK 实现。其他语言的 SDK 稍后也会遵循此合同。</p>
+<p>在 TypeScript/Node.js 中构建第一个公共 Bot SDK 实现。 Other language SDKs follow this contract later.</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>@nexus-chat/bot-sdk</code> 包。</li>
 <li>WebSocket 传输。</li>
-<li>机器人令牌身份验证。</li>
+<li>Bot token authentication.</li>
 <li>事件监听器API。</li>
-<li>命令处理程序 API。</li>
+<li>Command handler API.</li>
 <li>消息API客户端。</li>
-<li>频道信息 API 客户端。</li>
-<li>使用指数退避重新连接。</li>
-<li>客户端速率限制处理。</li>
+<li>Channel info API client.</li>
+<li>Reconnect with exponential backoff.</li>
+<li>Client-side rate limit handling.</li>
 <li>中间件管道。</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>第 1 阶段没有 Java/Python/PHP/Go/Rust SDK 实现。</li>
 <li>除非第一方机器人需要，否则没有 webhook 适配器。</li>
-<li>无市场包装。</li>
+<li>No marketplace packaging.</li>
 </ul>
 <h2 id="api">公共 API 草图<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">bot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">NexusBot</span><span class="p">({</span>
@@ -2638,19 +2638,19 @@
 </code></pre></div>
 <h2 id="_4">验收标准<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
-<li>SDK可以连接到Bot Engine。</li>
-<li>SDK自动重新连接。</li>
-<li>SDK可以接收<code>slash_command</code>事件。</li>
-<li>SDK可以发送消息。</li>
+<li>SDK can connect to Bot Engine.</li>
+<li>SDK automatically reconnects.</li>
+<li>SDK can receive <code>slash_command</code> event.</li>
+<li>SDK can send a message.</li>
 <li>SDK 尊重<code>429 Retry-After</code>。</li>
-<li>SDK 从日志中编辑令牌。</li>
+<li>SDK redacts token from logs.</li>
 </ul>
 <h2 id="_5">测试计划<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
-<li>重新连接管理器的单元测试。</li>
-<li>速率限制器的单元测试。</li>
-<li>与本地机器人引擎的集成测试。</li>
-<li>示例 echo 机器人在本地运行。</li>
+<li>Unit tests for reconnect manager.</li>
+<li>Unit tests for rate limiter.</li>
+<li>Integration test with local Bot Engine.</li>
+<li>Example echo bot runs locally.</li>
 </ul>
 <h2 id="_6">依赖关系<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>

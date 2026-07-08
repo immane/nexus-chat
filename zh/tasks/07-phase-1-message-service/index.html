@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#07-1-im" class="md-skip">
+        <a href="#07-phase-1-message-service-state-machine-core-im-actions" class="md-skip">
           跳转至
         </a>
       
@@ -2622,9 +2622,9 @@
   
 
 
-<h1 id="07-1-im">07 — 第 1 阶段 — 消息服务、状态机和核心 IM 操作<a class="headerlink" href="#07-1-im" title="Permanent link">&para;</a></h1>
+<h1 id="07-phase-1-message-service-state-machine-core-im-actions">07 — Phase 1 — Message Service, State Machine &amp; Core IM Actions<a class="headerlink" href="#07-phase-1-message-service-state-machine-core-im-actions" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>实现核心消息持久性、传递状态、分页、编辑/删除、反应、已读回执以及核心 IM 操作（例如转发和保存项目）。</p>
+<p>Implement core message persistence, delivery state, pagination, edits/deletes, reactions, read receipts, and core IM actions such as forward and saved items.</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>message.send</code> 适用于普通通道和 E2E 通道。</li>
@@ -2635,22 +2635,22 @@
 <li>软删除消息。</li>
 <li>表情符号反应。</li>
 <li>阅读收据聚合。</li>
-<li>E2E 消失消息生命周期元数据（<code>read_once</code>、<code>ttl</code>、逻辑删除/过期状态）。</li>
+<li>E2E disappearing-message lifecycle metadata (<code>read_once</code>, <code>ttl</code>, tombstone/expired state).</li>
 <li>转发消息作为核心 IM 操作。</li>
 <li>将消息保存/添加为书签作为核心 IM 操作。</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>没有民意调查/提醒/荣誉/待办事项。</li>
-<li>除了附件引用之外，没有附件上传实现。</li>
-<li>除了编写可搜索文本之外，没有服务器端搜索索引。</li>
+<li>No attachment upload implementation beyond attachment references.</li>
+<li>No server-side search indexing beyond writing searchable text.</li>
 </ul>
 <h2 id="_4">状态机<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>DRAFT → SENDING → SENT → DELIVERED → READ
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                  ↓
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                FAILED
 </code></pre></div>
-<p>服务器仅保留稳定状态（<code>sent</code>、<code>delivered</code>、<code>read</code>、<code>deleted</code>）。 <code>draft</code>、<code>sending</code> 和 <code>failed</code> 主要是客户端状态。</p>
+<p>Server persists only stable states (<code>sent</code>, <code>delivered</code>, <code>read</code>, <code>deleted</code>). <code>draft</code>, <code>sending</code>, and <code>failed</code> are primarily client-side states.</p>
 <h2 id="_5">核心行动<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2705,14 +2705,14 @@
 </table>
 <h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>发送消息返回服务器消息 ID 和时间戳。</li>
-<li>重复<code>clientMsgId</code>返回现有消息或幂等成功。</li>
+<li>Send message returns server message ID and timestamp.</li>
+<li>Duplicate <code>clientMsgId</code> returns existing message or idempotent success.</li>
 <li>分页使用光标返回稳定的结果。</li>
 <li>编辑/删除向频道成员发出事件。</li>
-<li>已读回执被批量缓冲和刷新。</li>
-<li>E2E 一次读取消息在第一个成功的收件人读取确认后过期，然后作为逻辑删除返回。</li>
-<li>E2E TTL 消息通过服务器端元数据清理而过期，无需解密内容。</li>
-<li>转发保留原始归属元数据。</li>
+<li>Read receipts are buffered and flushed in batches.</li>
+<li>E2E read-once messages expire after the first successful recipient read acknowledgment and are returned as tombstones afterward.</li>
+<li>E2E TTL messages expire through server-side metadata cleanup without decrypting content.</li>
+<li>Forward preserves original attribution metadata.</li>
 <li>保存的消息是用户私有的。</li>
 </ul>
 <h2 id="_7">测试计划<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>

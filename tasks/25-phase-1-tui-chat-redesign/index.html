@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="zh" class="no-js">
+<html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
@@ -10,13 +10,9 @@
       
       
       
-        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/10-phase-1-bot-engine-core/">
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/tasks/25-phase-1-tui-chat-redesign/">
       
       
-        <link rel="prev" href="../09-phase-1-signal-dm-e2ee/">
-      
-      
-        <link rel="next" href="../11-phase-1-bot-sdk-node-reference/">
       
       
         
@@ -31,7 +27,7 @@
     
     
       
-        <title>Phase 1 — Bot 引擎核心 - Nexus Chat</title>
+        <title>25 — Phase 1 — TUI Chat Interface Redesign - Nexus Chat</title>
       
     
     
@@ -82,8 +78,8 @@
     <div data-md-component="skip">
       
         
-        <a href="#10-phase-1-bot-engine-core-event-dispatch-command-invocation" class="md-skip">
-          跳转至
+        <a href="#25-phase-1-tui-chat-interface-redesign" class="md-skip">
+          Skip to content
         </a>
       
     </div>
@@ -97,7 +93,7 @@
   
 
 <header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="页眉">
+  <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
   
@@ -118,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Phase 1 — Bot 引擎核心
+              25 — Phase 1 — TUI Chat Interface Redesign
             
           </span>
         </div>
@@ -158,7 +154,7 @@
       <div class="md-header__option">
   <div class="md-select">
     
-    <button class="md-header__button md-icon" aria-label="选择当前语言">
+    <button class="md-header__button md-icon" aria-label="Select language">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
     </button>
     <div class="md-select__inner">
@@ -192,16 +188,16 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="查找">
+      <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -214,7 +210,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            正在初始化搜索引擎
+            Initializing search
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -226,7 +222,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -260,7 +256,7 @@
 
 
 
-<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
@@ -272,7 +268,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -299,7 +295,7 @@
   <span class="md-ellipsis">
     
   
-    首页
+    Home
   
 
     
@@ -353,7 +349,7 @@
   <span class="md-ellipsis">
     
   
-    快速入门
+    Quick Start
   
 
     
@@ -416,7 +412,7 @@
   <span class="md-ellipsis">
     
   
-    设计文档
+    Design Documents
   
 
     
@@ -432,7 +428,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    设计文档
+    Design Documents
   
 
           </label>
@@ -452,7 +448,7 @@
   <span class="md-ellipsis">
     
   
-    系统总体架构
+    System High-Level Architecture
   
 
     
@@ -480,7 +476,7 @@
   <span class="md-ellipsis">
     
   
-    客户端外壳与 UI 渲染层
+    Client Shell & UI Rendering
   
 
     
@@ -508,7 +504,7 @@
   <span class="md-ellipsis">
     
   
-    长连接与核心网关层
+    Long Connection & Core Gateway
   
 
     
@@ -536,7 +532,7 @@
   <span class="md-ellipsis">
     
   
-    业务逻辑与持久化后端
+    Business Logic & Persistence
   
 
     
@@ -564,7 +560,7 @@
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与事件分发层
+    Async Bot Engine & Event Dispatch
   
 
     
@@ -592,7 +588,7 @@
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式引擎
+    AI Agent Orchestration & Streaming
   
 
     
@@ -620,7 +616,7 @@
   <span class="md-ellipsis">
     
   
-    阶段路线图
+    Phase Roadmap
   
 
     
@@ -648,7 +644,7 @@
   <span class="md-ellipsis">
     
   
-    P2P DM 直连
+    P2P DM Direct Connection
   
 
     
@@ -673,10 +669,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -737,11 +731,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -751,7 +747,7 @@
   <span class="md-ellipsis">
     
   
-    实施任务
+    Implementation Tasks
   
 
     
@@ -762,12 +758,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    实施任务
+    Implementation Tasks
   
 
           </label>
@@ -787,7 +783,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 项目脚手架
+    Phase 1 — Project Scaffold
   
 
     
@@ -822,7 +818,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 共享契约
+    Phase 1 — Shared Contracts
   
 
     
@@ -857,7 +853,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 数据库模型
+    Phase 1 — Database Schema
   
 
     
@@ -892,7 +888,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 认证与安全
+    Phase 1 — Auth & Security
   
 
     
@@ -927,7 +923,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 核心网关
+    Phase 1 — Core Gateway
   
 
     
@@ -962,7 +958,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 工作区与频道
+    Phase 1 — Workspace & Channel
   
 
     
@@ -997,7 +993,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 消息服务
+    Phase 1 — Message Service
   
 
     
@@ -1032,7 +1028,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 附件基础设施
+    Phase 1 — Attachment Foundation
   
 
     
@@ -1067,7 +1063,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — Signal DM 端到端加密
+    Phase 1 — Signal DM E2EE
   
 
     
@@ -1092,51 +1088,17 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Phase 1 — Bot 引擎核心
-  
-
-    
-  </span>
-  
-  
-    
-  
-  
-    <span class="md-status md-status--done"></span>
-  
-
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../10-phase-1-bot-engine-core/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Phase 1 — Bot 引擎核心
+    Phase 1 — Bot Engine Core
   
 
     
@@ -1152,125 +1114,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        范围
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        非目标
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        边界规则
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        代币模型
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        命令调用流程
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        验收标准
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        测试计划
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        依赖关系
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1325,7 +1168,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 最小基础 Bot
+    Phase 1 — Minimal Base Bots
   
 
     
@@ -1360,7 +1203,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — Web 客户端外壳
+    Phase 1 — Web Client Shell
   
 
     
@@ -1395,7 +1238,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — Electron 外壳
+    Phase 1 — Electron Shell
   
 
     
@@ -1430,7 +1273,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 可观测性与加固
+    Phase 1 — Observability & Hardening
   
 
     
@@ -1465,7 +1308,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 1 — 本地开发、CI 与发布
+    Phase 1 — Local Dev, CI & Release
   
 
     
@@ -1500,7 +1343,7 @@
   <span class="md-ellipsis">
     
   
-    第一阶段——TUI CLI
+    Phase 1 — TUI CLI
   
 
     
@@ -1535,7 +1378,7 @@
   <span class="md-ellipsis">
     
   
-    第一阶段——P2P DM直连
+    Phase 1 — P2P DM Direct Connection
   
 
     
@@ -1570,7 +1413,7 @@
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — Web 消息操作和上下文菜单
+    Phase 1 — Web Message Actions & Context Menu
   
 
     
@@ -1605,7 +1448,7 @@
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — Web 消息显示和格式化
+    Phase 1 — Web Message Display & Formatting
   
 
     
@@ -1640,7 +1483,7 @@
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 网络富媒体和表情符号选择器
+    Phase 1 — Web Rich Media & Emoji Picker
   
 
     
@@ -1675,7 +1518,7 @@
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 网络呈现、渠道信息和通知
+    Phase 1 — Web Presence, Channel Info & Notifications
   
 
     
@@ -1710,7 +1553,7 @@
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 服务器消息回复和 Pin 图
+    Phase 1 — Server Message Reply & Pin
   
 
     
@@ -1745,7 +1588,7 @@
   <span class="md-ellipsis">
     
   
-    第 1 阶段 — 服务器通道静音和描述
+    Phase 1 — Server Channel Mute & Description
   
 
     
@@ -1823,7 +1666,7 @@
   <span class="md-ellipsis">
     
   
-    技术调研
+    Research
   
 
     
@@ -1839,7 +1682,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    技术调研
+    Research
   
 
           </label>
@@ -1859,7 +1702,7 @@
   <span class="md-ellipsis">
     
   
-    前端架构与性能优化
+    Frontend Architecture
   
 
     
@@ -1887,7 +1730,7 @@
   <span class="md-ellipsis">
     
   
-    Node.js 核心 IM 与状态机设计
+    Backend IM & State Machine
   
 
     
@@ -1915,7 +1758,7 @@
   <span class="md-ellipsis">
     
   
-    组件化 UI 与插件生态协议
+    UI Components & Plugin Protocol
   
 
     
@@ -1943,7 +1786,7 @@
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与微服务解耦
+    Bot Engine & Microservices
   
 
     
@@ -1971,7 +1814,7 @@
   <span class="md-ellipsis">
     
   
-    低成本防御方案与未来 E2EE 路线
+    Security Defense & E2EE
   
 
     
@@ -1999,7 +1842,7 @@
   <span class="md-ellipsis">
     
   
-    基础 Bot 目录
+    Base Bot Catalog
   
 
     
@@ -2027,7 +1870,7 @@
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式交互设计
+    AI Agent Orchestration
   
 
     
@@ -2055,7 +1898,7 @@
   <span class="md-ellipsis">
     
   
-    Telegram 接口分析
+    Telegram Interface Analysis
   
 
     
@@ -2395,7 +2238,7 @@
   <span class="md-ellipsis">
     
   
-    备份与恢复
+    Backup & Restore
   
 
     
@@ -2423,7 +2266,7 @@
   <span class="md-ellipsis">
     
   
-    测试版清单
+    Beta Checklist
   
 
     
@@ -2451,7 +2294,7 @@
   <span class="md-ellipsis">
     
   
-    已知限制
+    Known Limitations
   
 
     
@@ -2486,7 +2329,7 @@
   <span class="md-ellipsis">
     
   
-    AI 会话上下文
+    AI Context
   
 
     
@@ -2512,7 +2355,7 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="目录">
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
   
@@ -2521,15 +2364,15 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      目录
+      Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#goal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        目标
+        Goal
       
     </span>
   </a>
@@ -2537,10 +2380,176 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        范围
+        Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layout-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout &amp; Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channel-sidebar-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Channel Sidebar Enhancements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-display" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Display
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-actions-keyboard-driven" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Actions (Keyboard-Driven)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#composer-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Composer Enhancements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-event-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSocket Event Expansion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-scrolling-pagination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Scrolling &amp; Pagination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overlay-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overlay System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keyboard-shortcuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard Shortcuts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyboard Shortcuts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sidebar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sidebar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#messagearea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MessageArea
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#composer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Composer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Goals
       
     </span>
   </a>
@@ -2548,10 +2557,49 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#deliverables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        非目标
+        Deliverables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deliverables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification
       
     </span>
   </a>
@@ -2559,65 +2607,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        边界规则
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        代币模型
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        命令调用流程
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        验收标准
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        测试计划
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        依赖关系
+        References
       
     </span>
   </a>
@@ -2644,77 +2637,302 @@
   
 
 
-<h1 id="10-phase-1-bot-engine-core-event-dispatch-command-invocation">10 — Phase 1 — Bot Engine Core, Event Dispatch &amp; Command Invocation<a class="headerlink" href="#10-phase-1-bot-engine-core-event-dispatch-command-invocation" title="Permanent link">&para;</a></h1>
-<h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>实现通用机器人引擎，用于处理机器人身份、安装、命令调用、事件分派、排队和响应验证，而无需了解特定于功能的机器人逻辑。</p>
-<h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h1 id="25-phase-1-tui-chat-interface-redesign">25 — Phase 1 — TUI Chat Interface Redesign<a class="headerlink" href="#25-phase-1-tui-chat-interface-redesign" title="Permanent link">&para;</a></h1>
+<h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
+<p>Redesign the TUI interactive chat from a single-column stack into a two-pane layout with a status bar, mirroring the Web client architecture. Improve message display with relative timestamps, date separators, sender display names, and keyboard-driven message actions. Add real-time WebSocket responsiveness for edits, deletes, reactions, typing indicators, and presence.</p>
+<h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
+<h3 id="layout-navigation">Layout &amp; Navigation<a class="headerlink" href="#layout-navigation" title="Permanent link">&para;</a></h3>
 <ul>
-<li>机器人注册。</li>
-<li>Opaque bot token generation and hash storage.</li>
-<li>Bot token validation for WebSocket connections.</li>
-<li>Bot channel membership.</li>
-<li>机器人事件订阅。</li>
-<li><code>bot.command.invoke</code>路由。</li>
-<li>Redis Streams event publication.</li>
-<li>BullMQ 每个机器人队列。</li>
-<li>Bot WebSocket namespace.</li>
-<li>Bot response validation and injection into normal channels.</li>
+<li>Replace the current single-column app with a <code>ChatShell</code> orchestrator using a fixed two-pane layout:</li>
+<li><strong>Left pane</strong> (Sidebar, ~25–30 columns): channel/DM list, search, tab bar (Chat / Members / Settings).</li>
+<li><strong>Right pane</strong> (MainPanel): ChatHeader + scrollable MessageArea + Composer.</li>
+<li><strong>TopBar</strong>: project name, WebSocket connection status, current user.</li>
+<li><strong>BottomBar</strong>: current channel, dynamic status, context-dependent keyboard shortcut hints.</li>
+<li>Implement <code>useTerminalSize</code> hook to calculate pane widths from terminal columns.</li>
+<li>Add <code>useFocus</code> hook to track which panel is active and enable per-panel keyboard dispatch.</li>
 </ul>
-<h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="channel-sidebar-enhancements">Channel Sidebar Enhancements<a class="headerlink" href="#channel-sidebar-enhancements" title="Permanent link">&para;</a></h3>
 <ul>
-<li>No poll/reminder/kudos implementation in the engine.</li>
-<li>没有人工智能模型调用。</li>
-<li>No file storage authority.</li>
-<li>没有市场。</li>
+<li>Resolve sender display names by fetching <code>GET /api/v1/workspaces/:id/members</code> and caching <code>Map&lt;userId, name&gt;</code>.</li>
+<li>Show unread counts per channel from <code>useChannelStore</code> or a local map.</li>
+<li>Add a tab bar (Chat / Members / Settings) with <code>Ctrl+1/2/3</code> shortcuts, matching the Web client's left sidebar tabs.</li>
+<li>Members tab: list workspace members with online/offline status dots (<code>●</code>/<code>○</code>).</li>
+<li>Settings tab: basic user info and token status.</li>
 </ul>
-<h2 id="_4">边界规则<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="message-display">Message Display<a class="headerlink" href="#message-display" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Bot Engine owns extensibility infrastructure.</li>
-<li>Individual bots own workflow behavior.</li>
-<li>Core services own data integrity and authorization.</li>
-<li>E2E 通道从不发出机器人事件。</li>
+<li>Render sender name rather than raw <code>userId</code>.</li>
+<li>Show relative timestamps ("3m ago", "2h ago", "Yesterday") with a full timestamp on hover/focus.</li>
+<li>Insert date separators (<code>──── Yesterday ────</code>) when messages cross calendar day boundaries.</li>
+<li>Show <code>(edited)</code> marker when <code>message.editedAt</code> is set.</li>
+<li>Render reaction emoji + count below the message body; highlight the current user's reactions in cyan.</li>
+<li>Render tombstone messages with contextual reason text.</li>
+<li>Display attachment metadata as <code>📎 filename (size)</code>.</li>
+<li>Support message focus via <code>↑</code>/<code>↓</code> movement; focused row is highlighted with a <code>&gt;</code> prefix.</li>
 </ul>
-<h2 id="_5">代币模型<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nxbot_v1_&lt;base64url(random_32_bytes)&gt;
+<h3 id="message-actions-keyboard-driven">Message Actions (Keyboard-Driven)<a class="headerlink" href="#message-actions-keyboard-driven" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Reply</strong> (<code>r</code>): show reply preview above composer; attach <code>replyToMessageId</code> on send.</li>
+<li><strong>Edit</strong> (<code>e</code>): only own text-type messages; enter edit mode with original text pre-filled.</li>
+<li><strong>Delete</strong> (<code>d</code>): own messages only; overlay confirmation.</li>
+<li><strong>Copy</strong> (<code>c</code>): write message text to clipboard / stdout.</li>
+<li><strong>Forward</strong> (<code>f</code>): overlay channel picker; POST forward API.</li>
+<li><strong>React</strong> (<code>+</code>): prompt for emoji; POST/DELETE reaction API.</li>
+<li>All actions integrated with <code>useMessageActions</code>-style hook for REST calls.</li>
+</ul>
+<h3 id="composer-enhancements">Composer Enhancements<a class="headerlink" href="#composer-enhancements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Multi-line input: <code>Enter</code> to send, <code>Ctrl+Enter</code> for newline; height grows up to 5 rows.</li>
+<li>E2E channel indicator (<code>[E2E]</code> prefix) in the prompt.</li>
+<li>Edit mode: pre-filled text, <code>Esc</code> to cancel.</li>
+<li>Reply mode: reply preview row above the input.</li>
+<li>Send <code>typing.start</code> / <code>typing.stop</code> WS events on input activity.</li>
+<li>Detect <code>/</code> prefix for bot command invocation.</li>
+</ul>
+<h3 id="websocket-event-expansion">WebSocket Event Expansion<a class="headerlink" href="#websocket-event-expansion" title="Permanent link">&para;</a></h3>
+<p>Extend <code>lib/ws-client.ts</code> to listen for all server WS events beyond <code>message.created</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>message.created</code></td>
+<td>Append to message list (existing).</td>
+</tr>
+<tr>
+<td><code>message.updated</code></td>
+<td>Replace matching message in list.</td>
+</tr>
+<tr>
+<td><code>message.deleted</code></td>
+<td>Replace with tombstone.</td>
+</tr>
+<tr>
+<td><code>message.reaction</code></td>
+<td>Update local reaction map.</td>
+</tr>
+<tr>
+<td><code>message.read</code></td>
+<td>Update read receipt counts.</td>
+</tr>
+<tr>
+<td><code>typing.updated</code></td>
+<td>Update typing users map; show in ChatHeader/BottomBar.</td>
+</tr>
+<tr>
+<td><code>presence.updated</code></td>
+<td>Update online user set.</td>
+</tr>
+<tr>
+<td><code>channel.created</code></td>
+<td>Append channel to sidebar.</td>
+</tr>
+<tr>
+<td><code>dm.created</code></td>
+<td>Append DM to sidebar.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="message-scrolling-pagination">Message Scrolling &amp; Pagination<a class="headerlink" href="#message-scrolling-pagination" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>PgDn</code>/<code>PgUp</code> for page navigation.</li>
+<li><code>Home</code>/<code>End</code> to jump to newest/oldest message.</li>
+<li>Scroll to top triggers <code>GET /api/v1/channels/:id/messages?cursor=...</code> for loading earlier history (50 messages per page).</li>
+<li>New incoming messages auto-scroll to bottom.</li>
+</ul>
+<h3 id="overlay-system">Overlay System<a class="headerlink" href="#overlay-system" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Forward channel picker: list channels with search filter; <code>Enter</code> to confirm.</li>
+<li>Delete confirmation: <code>Delete this message? [Y/n]</code>.</li>
+<li>Reaction input: <code>Enter emoji: _</code>.</li>
+<li>All overlays dismissed with <code>Esc</code>.</li>
+</ul>
+<h3 id="keyboard-shortcuts">Keyboard Shortcuts<a class="headerlink" href="#keyboard-shortcuts" title="Permanent link">&para;</a></h3>
+<h4 id="global">Global<a class="headerlink" href="#global" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctrl+Q</code></td>
+<td>Quit</td>
+</tr>
+<tr>
+<td><code>Ctrl+L</code></td>
+<td>Focus sidebar</td>
+</tr>
+<tr>
+<td><code>Ctrl+M</code></td>
+<td>Focus message area</td>
+</tr>
+<tr>
+<td><code>Ctrl+I</code></td>
+<td>Focus composer</td>
+</tr>
+<tr>
+<td><code>Tab</code></td>
+<td>Cycle focus</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Go back / close overlay</td>
+</tr>
+</tbody>
+</table>
+<h4 id="sidebar">Sidebar<a class="headerlink" href="#sidebar" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>↑</code>/<code>↓</code></td>
+<td>Navigate channels</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>Enter channel</td>
+</tr>
+<tr>
+<td><code>n</code></td>
+<td>New channel</td>
+</tr>
+<tr>
+<td><code>Ctrl+F</code></td>
+<td>Search channels</td>
+</tr>
+</tbody>
+</table>
+<h4 id="messagearea">MessageArea<a class="headerlink" href="#messagearea" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>↑</code>/<code>↓</code></td>
+<td>Move message focus</td>
+</tr>
+<tr>
+<td><code>PgDn</code>/<code>PgUp</code></td>
+<td>Page up/down</td>
+</tr>
+<tr>
+<td><code>Home</code>/<code>End</code></td>
+<td>Jump newest/oldest</td>
+</tr>
+<tr>
+<td><code>r</code></td>
+<td>Reply</td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>Edit</td>
+</tr>
+<tr>
+<td><code>d</code></td>
+<td>Delete</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>Copy</td>
+</tr>
+<tr>
+<td><code>f</code></td>
+<td>Forward</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>Add reaction</td>
+</tr>
+</tbody>
+</table>
+<h4 id="composer">Composer<a class="headerlink" href="#composer" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enter</code></td>
+<td>Send</td>
+</tr>
+<tr>
+<td><code>Ctrl+Enter</code></td>
+<td>Newline</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Cancel edit/reply mode</td>
+</tr>
+</tbody>
+</table>
+<h2 id="non-goals">Non-Goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li>No file upload or image rendering (terminal limitation).</li>
+<li>No right-click context menu (keyboard shortcuts instead).</li>
+<li>No virtual scrolling (Ink limitation; use pagination instead).</li>
+<li>No E2E encryption integration in interactive chat (deferred; Signal facade already available but send path currently sends plaintext).</li>
+<li>No desktop notifications (terminal bell <code>\a</code> could be a future addition).</li>
+</ul>
+<h2 id="deliverables">Deliverables<a class="headerlink" href="#deliverables" title="Permanent link">&para;</a></h2>
+<h3 id="new-files">New Files<a class="headerlink" href="#new-files" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>apps/tui/src/components/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── TopBar.tsx
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── BottomBar.tsx
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── Sidebar.tsx
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── ChatHeader.tsx
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── MessageArea.tsx
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── MessageRow.tsx
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── Composer.tsx
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>├── Overlay.tsx
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>└── StatusBar.tsx
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>apps/tui/src/hooks/
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── useTerminalSize.ts
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>├── useChannelData.ts
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>├── useMessages.ts
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>├── useKeyboard.ts
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>└── useFocus.ts
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>apps/tui/src/lib/
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>└── format.ts
 </code></pre></div>
-<ul>
-<li>仅存储<code>SHA256(token)</code>。</li>
-<li>DB lookup resolves bot ID, workspace, scopes, revocation state, and installation policy.</li>
-<li>No self-validating HMAC token in Phase 1.</li>
-</ul>
-<h2 id="_6">命令调用流程<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Client → bot.command.invoke
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  → Gateway auth + channel mode check
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  → Bot Engine command lookup
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  → BullMQ bot queue
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  → Bot WebSocket event
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  → Bot response
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  → Validate scopes + membership
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  → Insert bot message into channel
+<h3 id="changed-files">Changed Files<a class="headerlink" href="#changed-files" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>apps/tui/src/app.tsx             ← Rewrite as ChatShell orchestrator
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>apps/tui/src/lib/ws-client.ts    ← Extend to listen for all server WS events
 </code></pre></div>
-<h2 id="_7">验收标准<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Bot can register and receive token once.</li>
-<li>Bot can connect to <code>/bots</code> WebSocket namespace.</li>
-<li>Bot can be added to a normal channel.</li>
-<li>机器人无法添加到E2E渠道。</li>
-<li><code>bot.command.invoke</code> reaches installed bot.</li>
-<li>机器人响应显示为机器人编写的消息。</li>
-<li>Queue isolation prevents one slow bot from blocking others.</li>
+<li><code>pnpm --filter @nexus-chat/tui lint</code></li>
+<li><code>pnpm --filter @nexus-chat/tui typecheck</code></li>
+<li><code>pnpm --filter @nexus-chat/tui test</code></li>
+<li><code>pnpm --filter @nexus-chat/tui build</code></li>
+<li>Manual smoke: <code>nexus chat</code> to verify layout rendering, channel navigation, message send/receive.</li>
+<li>Existing CLI smoke tests (<code>nexus api-smoke</code>, <code>nexus ws-smoke</code>) must continue to pass.</li>
 </ul>
-<h2 id="_8">测试计划<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
-<li>令牌生成/哈希查找测试。</li>
-<li>Bot WebSocket auth test.</li>
-<li>Bot channel membership test.</li>
-<li>E2E信道抑制测试。</li>
-<li>Command invocation integration test.</li>
-<li>Queue retry/dead letter test.</li>
-</ul>
-<h2 id="_9">依赖关系<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../03-phase-1-database-schema/">03 — Database Schema</a></li>
-<li><a href="../05-phase-1-core-gateway/">05 — Core Gateway</a></li>
+<li>Design doc: <code>docs/design/08_TUI_Chat_Redesign.md</code></li>
+<li>Web implementation: <code>apps/web/src/components/ChatRoute.tsx</code>, <code>apps/web/src/hooks/</code></li>
+<li>Current TUI: <code>apps/tui/src/app.tsx</code></li>
 </ul>
 
 
@@ -2742,7 +2960,7 @@
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  回到页面顶部
+  Back to top
 </button>
         
       </main>
@@ -2774,7 +2992,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>

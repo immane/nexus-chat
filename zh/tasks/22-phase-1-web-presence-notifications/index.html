@@ -2711,7 +2711,7 @@
 <li>将成员列表中的角色色点替换为在线状态点：</li>
 <li>绿点=在线。</li>
 <li>灰点 = 离线。</li>
-<li>保留现有的 DM/禁止悬停操作。</li>
+<li>Keep the existing DM/ban hover actions.</li>
 <li>在会员姓名旁边显示“在线”/“上次查看 X”文本。</li>
 <li>DM 标头显示对等点的在线状态。</li>
 <li>在 WebSocket 连接上发出 <code>presence.update</code>（使用 <code>status: "online"</code>）。</li>
@@ -2724,66 +2724,66 @@
 <li>会员数量。</li>
 <li>创建日期。</li>
 <li>通道模式徽章（正常/E2E）。</li>
-<li>对于 E2E 通道：安全信息部分（加密状态、设备数量）。</li>
+<li>For E2E channels: security info section (encryption status, device count).</li>
 <li>面板中的选项卡或部分：信息/成员。</li>
 <li>关闭按钮以关闭面板。</li>
 </ul>
 <h3 id="toast">通知 Toast<a class="headerlink" href="#toast" title="Permanent link">&para;</a></h3>
 <ul>
-<li>集成 <code>sonner</code> 用于 toast 通知（轻量级、Tailwind 兼容）。</li>
-<li>当新消息到达非活动频道时进行提示：“{sender}: {preview} in #{channel}”。</li>
+<li>Integrate <code>sonner</code> for toast notifications (lightweight, Tailwind-compatible).</li>
+<li>Toast when a new message arrives in a non-active channel: "{sender}: {preview} in #{channel}".</li>
 <li>单击 toast → 导航至该频道。</li>
-<li>后台选项卡的浏览器通知 API 后备：</li>
+<li>Browser Notification API fallback for background tabs:</li>
 <li>请求登录时的通知权限。</li>
 <li><code>new Notification("Nexus Chat", { body, icon })</code> 传入消息。</li>
-<li>限制：每秒最多 1 个 toast，以避免通知风暴。</li>
+<li>Throttle: max 1 toast per second to avoid notification storms.</li>
 </ul>
 <h3 id="_5">加载状态<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>初始加载期间消息列表上的骨架屏幕（脉冲占位符行）。</li>
 <li>工作区获取期间通道列表上的骨架。</li>
-<li>刷新期间进行身份验证验证的微调器。</li>
+<li>Spinner on auth verification during refresh.</li>
 </ul>
 <h3 id="_6">空状态<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
 <ul>
-<li>“还没有消息——打个招呼！”在空通道中带有友好的插图。</li>
+<li>"No messages yet — say hello!" with friendly illustration in empty channels.</li>
 <li>“没有加入频道。请向管理员请求邀请。”在空的工作空间中。</li>
 <li>空会员/频道搜索“无结果”。</li>
-<li>当没有频道处于活动状态时，“选择一个频道开始聊天”。</li>
+<li>"Select a channel to start chatting" when no channel is active.</li>
 </ul>
 <h3 id="_7">连接状态<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
 <ul>
-<li>改进标头中现有的 WS 断开连接徽章：</li>
-<li>重新连接期间“正在连接...”（黄色）。</li>
-<li>“已连接”（绿色）— 2 秒后自动关闭。</li>
-<li>“已断开连接”（红色），点击重试。</li>
+<li>Improve existing WS disconnected badge in header:</li>
+<li>"Connecting…" (yellow) during reconnect.</li>
+<li>"Connected" (green) — auto-dismiss after 2s.</li>
+<li>"Disconnected" (red) with click to retry.</li>
 </ul>
 <h2 id="_8">非目标<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
-<li>没有打字指示器返工（已经实施）。</li>
-<li>没有已读回执返工（已实施）。</li>
-<li>无通道静音 UI（需要后端 - 任务 24）。</li>
-<li>每次聊天没有自定义通知声音。</li>
-<li>没有通知例外设置。</li>
-<li>没有“请勿打扰”模式。</li>
+<li>No typing indicator rework (already implemented).</li>
+<li>No read receipt rework (already implemented).</li>
+<li>No channel muting UI (requires backend — task 24).</li>
+<li>No custom notification sounds per chat.</li>
+<li>No notification exception settings.</li>
+<li>No "Do Not Disturb" mode.</li>
 </ul>
 <h2 id="_9">后端依赖<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
 <p>已支持的状态事件：
 - <code>presence.update</code> 客户端事件
 - <code>presence.updated</code>服务器事件
-- <code>usePresenceStore</code> 已定义 <code>onlineUserIds</code></p>
-<p>部分存在频道信息字段——<code>Channel</code>类型包括<code>name</code>、<code>createdAt</code>、<code>mode</code>、<code>isPrivate</code>。描述字段需要后端添加 - 请参阅任务 24。</p>
+- <code>usePresenceStore</code> with <code>onlineUserIds</code> already defined</p>
+<p>Channel info fields partially exist — <code>Channel</code> type includes <code>name</code>, <code>createdAt</code>, <code>mode</code>, <code>isPrivate</code>. Description field requires backend addition — see task 24.</p>
 <h2 id="_10">验收标准<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[ ] 成员列表项目上的绿色/灰色在线状态点。</li>
-<li>[ ] 在 DM 标头中显示对等用户的在线状态。</li>
-<li>[ ] 频道信息面板显示名称、模式、成员数量、创建日期。</li>
-<li>[ ] 当消息到达非活动频道时，会出现 Toast 通知。</li>
-<li>[ ] 单击 Toast 导航至频道。</li>
-<li>[ ] 为后台选项卡发送浏览器通知（授予权限后）。</li>
-<li>[ ] 在初始数据获取期间骨架加载占位符。</li>
-<li>[ ] 频道、工作区和搜索结果的友好空状态。</li>
-<li>[ ] 连接状态横幅以颜色显示正在连接/已连接/已断开连接。</li>
+<li>[ ] Green/gray online status dots on member list items.</li>
+<li>[ ] Online status shown in DM header for the peer user.</li>
+<li>[ ] Channel info panel shows name, mode, member count, created date.</li>
+<li>[ ] Toast notification appears when message arrives in non-active channel.</li>
+<li>[ ] Click toast navigates to the channel.</li>
+<li>[ ] Browser notification sent for background tab (after permission grant).</li>
+<li>[ ] Skeleton loading placeholders during initial data fetch.</li>
+<li>[ ] Friendly empty states for channels, workspaces, and search results.</li>
+<li>[ ] Connection status banner shows Connecting / Connected / Disconnected with color.</li>
 </ul>
 
 

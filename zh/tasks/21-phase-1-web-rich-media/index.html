@@ -2664,36 +2664,36 @@
 <ul>
 <li>集成<code>emoji-mart</code>或<code>emoji-picker-react</code>进行表情符号选择。</li>
 <li>消息输入旁边的表情符号按钮会打开弹出框选择器。</li>
-<li>选定的表情符号插入到文本区域中的光标位置。</li>
+<li>Selected emoji inserted at cursor position in the textarea.</li>
 <li>最近/常用的表情符号部分。</li>
 <li>按表情符号名称或关键字搜索。</li>
-<li>原生表情符号渲染（第一阶段不需要自定义精灵表）。</li>
+<li>Native emoji rendering (no custom sprite sheets needed at Phase 1).</li>
 </ul>
 <h3 id="_4">文件上传按钮<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <ul>
-<li>消息输入旁边的附件按钮 (📎)。</li>
+<li>Attachment button (📎) next to message input.</li>
 <li>单击时，打开本机文件选择器 (<code>&lt;input type="file"&gt;</code>)。</li>
-<li>支持：图像、文档、档案（常见 MIME 类型）。</li>
-<li>选定的文件通过 <code>attachmentService.createUploadSession</code> → 预签名 URL → <code>fetch</code> PUT 触发上传。</li>
+<li>Supports: images, documents, archives (common MIME types).</li>
+<li>Selected file triggers upload via <code>attachmentService.createUploadSession</code> → presigned URL → <code>fetch</code> PUT.</li>
 <li>上传完成后，调用<code>attachmentService.completeUpload</code>。</li>
 <li>使用<code>attachments: [{ fileId, name, mimeType, size, scanStatus }]</code>发送消息。</li>
-<li>上传进度指示器（撰写附件上的进度条）。</li>
+<li>Upload progress indicator (progress bar on the composing attachment).</li>
 <li>取消上传按钮。</li>
-<li>文件大小验证（&gt;10MB 时发出警告，但允许达到服务器限制）。</li>
+<li>File size validation (warn on &gt;10MB, but allow up to server limits).</li>
 </ul>
 <h3 id="_5">剪贴板粘贴<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>消息文本区域的 <code>onPaste</code> 处理程序。</li>
 <li>检测剪贴板中的图像数据（<code>event.clipboardData.files</code>）。</li>
-<li>如果存在图像，请通过附件管道上传并作为 <code>[image]</code> 占位符或内联缩略图插入。</li>
+<li>If image present, upload via attachment pipeline and insert as <code>[image]</code> placeholder or inline thumbnail.</li>
 <li>粘贴多张图片→批量上传。</li>
 <li>文本粘贴行为不变。</li>
 </ul>
 <h3 id="_6">内联附件渲染<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
 <ul>
-<li>图像附件在消息列表中内联呈现缩略图（可单击以查看完整视图）。</li>
-<li>非图像文件呈现为带有图标+文件名+大小的文件卡。</li>
-<li>文件卡上的下载按钮调用 <code>attachmentService.createDownloadUrl</code> → 触发下载。</li>
+<li>Image attachments render thumbnails inline in the message list (clickable for full view).</li>
+<li>Non-image files render as file cards with icon + filename + size.</li>
+<li>Download button on file cards calls <code>attachmentService.createDownloadUrl</code> → triggers download.</li>
 </ul>
 <h2 id="_7">非目标<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2701,9 +2701,9 @@
 <li>没有视频消息录制。</li>
 <li>没有贴纸支持。</li>
 <li>没有 GIF 搜索集成。</li>
-<li>无法将文件拖放到聊天区域（可以稍后添加）。</li>
+<li>No drag-and-drop file upload into chat area (can add later).</li>
 <li>发送前无需编辑/裁剪图像。</li>
-<li>无端到端加密文件上传（上传前客户端加密 - 第 2 阶段）。</li>
+<li>No E2E encrypted file upload (client-side encryption before upload — Phase 2).</li>
 </ul>
 <h2 id="_8">后端依赖<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <p>附件服务已完全实施和测试：
@@ -2718,12 +2718,12 @@
 - <code>GET /api/v1/files/:fileId/download-url</code></p>
 <h2 id="_9">验收标准<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[ ] 表情符号选择器弹出窗口从输入旁边的按钮打开。</li>
+<li>[ ] Emoji picker popover opens from button next to input.</li>
 <li>[ ] 在光标位置插入选定的表情符号。</li>
-<li>[ ] 文件上传按钮触发本机文件选择器。</li>
+<li>[ ] File upload button triggers native file picker.</li>
 <li>[ ] 上传的文件在传输过程中显示进度条。</li>
 <li>[ ] 已发送带有附件参考的消息；图像呈现内联，文件呈现为卡片。</li>
-<li>[ ] 剪贴板粘贴将粘贴的图像作为附件上传。</li>
+<li>[ ] Clipboard paste uploads pasted images as attachments.</li>
 <li>文件卡上的[ ]下载按钮触发文件下载。</li>
 <li>[ ] 取消按钮中止正在进行的上传。</li>
 </ul>

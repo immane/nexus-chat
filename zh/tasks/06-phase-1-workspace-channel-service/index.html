@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#06-1-dm" class="md-skip">
+        <a href="#06-phase-1-workspace-channel-dm-membership-services" class="md-skip">
           跳转至
         </a>
       
@@ -2622,9 +2622,9 @@
   
 
 
-<h1 id="06-1-dm">06 — 第 1 阶段 — 工作空间、渠道、DM 和会员服务<a class="headerlink" href="#06-1-dm" title="Permanent link">&para;</a></h1>
+<h1 id="06-phase-1-workspace-channel-dm-membership-services">06 — Phase 1 — Workspace, Channel, DM &amp; Membership Services<a class="headerlink" href="#06-phase-1-workspace-channel-dm-membership-services" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>实现每个 IM、Bot 和 E2E 功能所依赖的核心工作区/渠道域模型。</p>
+<p>Implement the core workspace/channel domain model that every IM, Bot, and E2E feature depends on.</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>工作区创建/读取/更新。</li>
@@ -2635,7 +2635,7 @@
 <li>频道存档/删除。</li>
 <li>DM 创建和查找。</li>
 <li>通道模式：<code>normal</code>或<code>e2e</code>。</li>
-<li>网关、消息服务、机器人引擎、信号服务和附件服务使用的授权助手。</li>
+<li>Authorization helpers used by Gateway, Message Service, Bot Engine, Signal Service, and Attachment Service.</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2709,9 +2709,9 @@
 <h2 id="_4">授权规则<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>工作区所有者可以转让所有权。</li>
-<li>工作区管理员可以邀请/删除除所有者之外的成员。</li>
+<li>Workspace admin can invite/remove members except owner.</li>
 <li>频道创建者/管理员可以存档频道。</li>
-<li>读/写需要私人频道会员资格。</li>
+<li>Private channel membership required for read/write.</li>
 <li>DM 仅对参与者可见。</li>
 <li>机器人不能添加到E2E渠道。</li>
 </ul>
@@ -2721,14 +2721,14 @@
 <li>用户可以邀请其他用户。</li>
 <li>用户可以创建公共/私人频道。</li>
 <li>用户可以创建或检索 1:1 DM。</li>
-<li>授权助手可由其他模块重用。</li>
+<li>Authorization helpers are reusable by other modules.</li>
 <li>E2E通道模式在第一阶段创建后是不可变的，除非另有明确设计。</li>
 </ul>
 <h2 id="_6">测试计划<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
 <li>用于角色检查的单元测试。</li>
 <li>工作区/通道 CRUD 的集成测试。</li>
-<li>DM幂等性测试：相同的两个用户产生相同的DM。</li>
+<li>DM idempotency test: same two users produce same DM.</li>
 <li>Bot 到 E2E 会员资格拒绝。</li>
 </ul>
 <h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>

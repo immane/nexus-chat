@@ -639,10 +639,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#14" class="md-nav__link">
+  <a href="#14-renderer-process" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.4 渲染器流程
+        1.4 Renderer Process
       
     </span>
   </a>
@@ -700,10 +700,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22" class="md-nav__link">
+  <a href="#22-route-table" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 路由表
+        2.2 Route Table
       
     </span>
   </a>
@@ -947,7 +947,7 @@
   <a href="#54" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.4 机器人斜线命令
+        5.4 机器人斜杠命令
       
     </span>
   </a>
@@ -3147,10 +3147,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#14" class="md-nav__link">
+  <a href="#14-renderer-process" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.4 渲染器流程
+        1.4 Renderer Process
       
     </span>
   </a>
@@ -3208,10 +3208,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22" class="md-nav__link">
+  <a href="#22-route-table" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 路由表
+        2.2 Route Table
       
     </span>
   </a>
@@ -3455,7 +3455,7 @@
   <a href="#54" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.4 机器人斜线命令
+        5.4 机器人斜杠命令
       
     </span>
   </a>
@@ -3689,31 +3689,33 @@
 </blockquote>
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>1.<a href="#1-electron-shell-architecture">Electron Shell Architecture</a>
-   - 1.1 <a href="#11-process-model">Process Model</a>
-   - 1.2 <a href="#12-main-process-responsibilities">Main Process Responsibilities</a>
-   - 1.3 <a href="#13-preload-script--ipc-bridge">Preload Script &amp; IPC Bridge</a>
-   - 1.4 <a href="#14-renderer-process">Renderer Process</a>
-   - 1.5 <a href="#15-vite-plugin-electron-integration">Vite Plugin Electron Integration</a>
-   - 1.6 <a href="#16-multi-window-strategy">Multi-Window Strategy</a>
-2.<a href="#2-react-application-structure">React Application Structure</a>
-   - 2.1 <a href="#21-entry-point-hierarchy">Entry Point Hierarchy</a>
-   - 2.2 <a href="#22-route-table">Route Table</a>
-   - 2.3 <a href="#23-layout-components">Layout Components</a>
-   - 2.4 <a href="#24-code-splitting-strategy">Code-Splitting Strategy</a>
-3. <a href="#3-zustand-state-management-architecture">Zustand State Management Architecture</a>
-   - 3.1 <a href="#31-store-breakdown">Store Breakdown</a>
-   - 3.2 <a href="#32-selective-re-render-via-selector-hooks">Selective Re-render via Selector Hooks</a>
-   - 3.3 <a href="#33-websocket-middleware-pattern">WebSocket Middleware Pattern</a>
-4.<a href="#4-component-tree">Component Tree</a>
-5. <a href="#5-key-interaction-flows">Key Interaction Flows</a>
-   - 5.1 <a href="#51-sending-a-message">Sending a Message</a>
-   - 5.2 <a href="#52-receiving-a-message">Receiving a Message</a>
-   - 5.3 <a href="#53-e2e-key-exchange-on-first-dm">E2E Key Exchange on First DM</a>
-   - 5.4 <a href="#54-bot-slash-command">Bot Slash Command</a>
-6. <a href="#6-performance-strategy">Performance Strategy</a>
-7.<a href="#7-asset--theme-system">Asset &amp; Theme System</a>
-8.<a href="#8-phase-1-tui-command-line-client">Phase 1 TUI Command-Line Client</a></p>
+<ol>
+<li><a href="#1-electron-shell-architecture">Electron Shell Architecture</a></li>
+<li>1.1 <a href="#11-process-model">Process Model</a></li>
+<li>1.2 <a href="#12-main-process-responsibilities">Main Process Responsibilities</a></li>
+<li>1.3 <a href="#13-preload-script--ipc-bridge">Preload Script &amp; IPC Bridge</a></li>
+<li>1.4 <a href="#14-renderer-process">Renderer Process</a></li>
+<li>1.5 <a href="#15-vite-plugin-electron-integration">Vite Plugin Electron Integration</a></li>
+<li>1.6 <a href="#16-multi-window-strategy">Multi-Window Strategy</a></li>
+<li><a href="#2-react-application-structure">React Application Structure</a></li>
+<li>2.1 <a href="#21-entry-point-hierarchy">Entry Point Hierarchy</a></li>
+<li>2.2 <a href="#22-route-table">Route Table</a></li>
+<li>2.3 <a href="#23-layout-components">Layout Components</a></li>
+<li>2.4 <a href="#24-code-splitting-strategy">Code-Splitting Strategy</a></li>
+<li><a href="#3-zustand-state-management-architecture">Zustand State Management Architecture</a></li>
+<li>3.1 <a href="#31-store-breakdown">Store Breakdown</a></li>
+<li>3.2 <a href="#32-selective-re-render-via-selector-hooks">Selective Re-render via Selector Hooks</a></li>
+<li>3.3 <a href="#33-websocket-middleware-pattern">WebSocket Middleware Pattern</a>
+4.<a href="#4-component-tree">Component Tree</a></li>
+<li><a href="#5-key-interaction-flows">Key Interaction Flows</a></li>
+<li>5.1 <a href="#51-sending-a-message">Sending a Message</a></li>
+<li>5.2 <a href="#52-receiving-a-message">Receiving a Message</a></li>
+<li>5.3 <a href="#53-e2e-key-exchange-on-first-dm">E2E Key Exchange on First DM</a></li>
+<li>5.4 <a href="#54-bot-slash-command">Bot Slash Command</a></li>
+<li><a href="#6-performance-strategy">Performance Strategy</a>
+7.<a href="#7-asset--theme-system">Asset &amp; Theme System</a></li>
+<li><a href="#8-phase-1-tui-command-line-client">Phase 1 TUI Command-Line Client</a></li>
+</ol>
 <hr />
 <h2 id="1">1.电子壳架构<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <h3 id="11">1.1 流程模型<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
@@ -3833,8 +3835,8 @@
 <a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="nx">notification</span><span class="p">.</span><span class="nx">show</span><span class="p">()</span>
 <a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">}</span>
 </code></pre></div>
-<p>徽章策略：
-- <strong>macOS</strong>：<code>app.dock.setBadge(unreadCount &gt; 0 ? String(unreadCount) : '')</code>
+<p>Badge strategy:
+- <strong>macOS</strong>: <code>app.dock.setBadge(unreadCount &gt; 0 ? String(unreadCount) : '')</code>
 - <strong>Windows</strong>：<code>mainWindow.setOverlayIcon(icon, 'Unread messages')</code></p>
 <h4 id="_5">自动更新程序（电子更新程序）<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
 <p>更新程序采用用户同意的工作流程：自动检查、根据用户请求下载、退出时安装。</p>
@@ -3915,22 +3917,22 @@
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="p">}</span>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">}</span>
 </code></pre></div>
-<p><strong>IPC设计规则：</strong></p>
+<p><strong>IPC design rules:</strong></p>
 <table>
 <thead>
 <tr>
-<th>规则</th>
+<th>Rule</th>
 <th>理由</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>频道命名：<code>namespace:action</code></td>
+<td>Channel naming: <code>namespace:action</code></td>
 <td>可预测的、grep 友好的</td>
 </tr>
 <tr>
 <td>更喜欢 <code>invoke</code>/<code>handle</code> （基于 Promise）</td>
-<td>非阻塞；避免 <code>sendSync</code></td>
+<td>非阻塞； avoid <code>sendSync</code></td>
 </tr>
 <tr>
 <td>通过 <code>webContents.send</code> 的单向事件</td>
@@ -3942,7 +3944,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="14">1.4 渲染器流程<a class="headerlink" href="#14" title="Permanent link">&para;</a></h3>
+<h3 id="14-renderer-process">1.4 Renderer Process<a class="headerlink" href="#14-renderer-process" title="Permanent link">&para;</a></h3>
 <p>渲染器从<code>apps/web</code>加载Vite构建的React应用程序。在开发中，它连接到 Vite 开发服务器 <code>localhost:5173</code>。在生产中，它加载捆绑到 Electron 应用程序中的静态文件。</p>
 <p>React 应用程序拥有所有 UI 渲染、路由和客户端状态。它仅通过<code>window.electronAPI</code>与主进程通信。</p>
 <h3 id="15-vite-electron">1.5 Vite 插件 Electron 集成<a class="headerlink" href="#15-vite-electron" title="Permanent link">&para;</a></h3>
@@ -3992,23 +3994,23 @@
 <tr>
 <th>窗口</th>
 <th>触发</th>
-<th>行为</th>
+<th>Behavior</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>主聊天窗口</strong></td>
-<td>应用程序启动</td>
+<td><strong>Main chat window</strong></td>
+<td>App launch</td>
 <td>托管完整 React SPA 的单个 <code>BrowserWindow</code>；所有工作区/通道切换都通过 React Router 在窗口内进行</td>
 </tr>
 <tr>
-<td><strong>设置弹出窗口</strong></td>
-<td>用户打开“设置”</td>
+<td><strong>Settings popup</strong></td>
+<td>User opens Settings</td>
 <td>独立的 <code>BrowserWindow</code> (400×600)，父窗口为主窗口；加载专用路线</td>
 </tr>
 <tr>
 <td><strong>视频/语音通话</strong>（未来）</td>
-<td>用户发起呼叫</td>
+<td>User initiates call</td>
 <td>分离弹出窗口，以便在导航主窗口时调用仍然存在</td>
 </tr>
 </tbody>
@@ -4025,16 +4027,16 @@
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        └── Router  →  Route definitions (React Router v7)
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>              └── Pages  →  AuthPage | ChatPage | SettingsPage
 </code></pre></div>
-<p><strong><code>main.tsx</code></strong> 职责：
-- 将 React 树挂载到 <code>#root</code> 中。
+<p><strong><code>main.tsx</code></strong> responsibilities:
+- Mount the React tree into <code>#root</code>.
 - 用 <code>&lt;ThemeProvider&gt;</code> 包裹（在 <code>&lt;html&gt;</code> 上应用深色/浅色类别）。
 - 用 <code>&lt;QueryClientProvider&gt;</code> 包裹（服务器数据的 TanStack 查询，如果使用）。
-- 导入全局 CSS (<code>styles/theme.css</code>)。</p>
+- Import global CSS (<code>styles/theme.css</code>).</p>
 <p><strong><code>App.tsx</code></strong> 职责：
 - 使用路由表实例化 React Router。
 - 渲染顶级<code>&lt;ErrorBoundary&gt;</code>。
 - 可以选择在安装时初始化 WebSocket 连接。</p>
-<h3 id="22">2.2 路由表<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<h3 id="22-route-table">2.2 Route Table<a class="headerlink" href="#22-route-table" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -4137,7 +4139,7 @@
 <tr>
 <td><code>refreshToken</code></td>
 <td><code>string \| null</code></td>
-<td>JWT 刷新令牌</td>
+<td>JWT refresh token</td>
 </tr>
 <tr>
 <td><code>user</code></td>
@@ -4162,7 +4164,7 @@
 <tr>
 <td><code>refreshSession()</code></td>
 <td><code>async () =&gt; void</code></td>
-<td>通过refreshToken进行静默令牌刷新</td>
+<td>Silent token refresh via refreshToken</td>
 </tr>
 </tbody>
 </table>
@@ -4171,7 +4173,7 @@
 <table>
 <thead>
 <tr>
-<th>领域/行动</th>
+<th>Field / Action</th>
 <th>类型</th>
 <th>描述</th>
 </tr>
@@ -4185,22 +4187,22 @@
 <tr>
 <td><code>currentWorkspaceId</code></td>
 <td><code>string \| null</code></td>
-<td>当前活动工作区</td>
+<td>Currently active workspace</td>
 </tr>
 <tr>
 <td><code>members</code></td>
 <td><code>Record&lt;string, Member[]&gt;</code></td>
-<td>由workspaceId 键入的成员</td>
+<td>Members keyed by workspaceId</td>
 </tr>
 <tr>
 <td><code>setWorkspaces(ws)</code></td>
 <td><code>(ws: Workspace[]) =&gt; void</code></td>
-<td>设置工作区列表</td>
+<td>Set workspace list</td>
 </tr>
 <tr>
 <td><code>switchWorkspace(id)</code></td>
 <td><code>(id: string) =&gt; void</code></td>
-<td>切换活动工作区</td>
+<td>Switch active workspace</td>
 </tr>
 </tbody>
 </table>
@@ -4208,7 +4210,7 @@
 <table>
 <thead>
 <tr>
-<th>领域/行动</th>
+<th>Field / Action</th>
 <th>类型</th>
 <th>描述</th>
 </tr>
@@ -4217,32 +4219,32 @@
 <tr>
 <td><code>channels</code></td>
 <td><code>Map&lt;string, Channel&gt;</code></td>
-<td>由 id 键控的通道实体</td>
+<td>Channel entities keyed by id</td>
 </tr>
 <tr>
 <td><code>currentChannelId</code></td>
 <td><code>string \| null</code></td>
-<td>当前观看的频道</td>
+<td>Currently viewed channel</td>
 </tr>
 <tr>
 <td><code>unreadCounts</code></td>
 <td><code>Record&lt;string, number&gt;</code></td>
-<td>每个频道的未读计数</td>
+<td>Unread count per channel</td>
 </tr>
 <tr>
 <td><code>e2eFlags</code></td>
 <td><code>Record&lt;string, boolean&gt;</code></td>
-<td>通道是否建立端到端会话</td>
+<td>Whether channel has E2E session established</td>
 </tr>
 <tr>
 <td><code>switchChannel(id)</code></td>
 <td><code>(id: string) =&gt; void</code></td>
-<td>切换活动频道，清除未读</td>
+<td>Switch active channel, clear unread</td>
 </tr>
 <tr>
 <td><code>incrementUnread(channelId)</code></td>
 <td><code>(id: string) =&gt; void</code></td>
-<td>增加未读邮件数量</td>
+<td>Bump unread count</td>
 </tr>
 </tbody>
 </table>
@@ -4262,7 +4264,7 @@
 <p>关键设计决策：
 - <strong>地图 + 顺序数组</strong>（标准化）：通过 id 查找 O(1)，通过 ID 列表有序渲染。
 - <strong>基于光标的分页</strong>：<code>cursors[channelId]</code> 跟踪最旧/最新加载的消息 ID 以及是否存在更多消息。
-- <strong>upsert 上的重复数据删除</strong>：如果映射中已存在消息 ID，则合并字段（用于状态更新、编辑）；否则按时间戳顺序插入。</p>
+- <strong>upsert 上的重复数据删除</strong>：如果映射中已存在消息 ID，则合并字段（用于状态更新、编辑）； otherwise inserted in timestamp order.</p>
 <p>渲染选择器（从标准化存储中导出数组）：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">selectMessages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">channelId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nx">state</span><span class="o">:</span><span class="w"> </span><span class="kt">MessageStoreState</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Message</span><span class="p">[]</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">channelOrder</span><span class="p">[</span><span class="nx">channelId</span><span class="p">]</span>
@@ -4298,12 +4300,12 @@
 <tr>
 <td><code>setTyping(channelId, userId, isTyping)</code></td>
 <td><code>Function</code></td>
-<td>更新打字指示器</td>
+<td>Update typing indicator</td>
 </tr>
 </tbody>
 </table>
 <h4 id="signalstore"><code>signalStore</code><a class="headerlink" href="#signalstore" title="Permanent link">&para;</a></h4>
-<p>管理信号协议加密状态：</p>
+<p>Manages the Signal Protocol encryption state:</p>
 <table>
 <thead>
 <tr>
@@ -4316,7 +4318,7 @@
 <tr>
 <td><code>preKeyBundles</code></td>
 <td><code>Map&lt;string, PreKeyBundle&gt;</code></td>
-<td>由 userId 键控的缓存 PreKeyBundles</td>
+<td>Cached PreKeyBundles keyed by userId</td>
 </tr>
 <tr>
 <td><code>sessions</code></td>
@@ -4552,8 +4554,8 @@
 </tr>
 <tr>
 <td><code>MessageAvatar</code></td>
-<td><code>React.memo</code> 于 <code>userId</code></td>
-<td>纯视觉；仅当头像 URL 或状态点更改时才更改</td>
+<td><code>React.memo</code> on <code>userId</code></td>
+<td>Pure visual;仅当头像 URL 或状态点更改时才更改</td>
 </tr>
 <tr>
 <td><code>DateDivider</code></td>
@@ -4562,13 +4564,13 @@
 </tr>
 <tr>
 <td><code>MessageContent</code></td>
-<td><code>React.memo</code> 于 <code>text</code></td>
+<td><code>React.memo</code> on <code>text</code></td>
 <td>Markdown 渲染成本高昂；仅在文本更改时重新渲染</td>
 </tr>
 <tr>
 <td><code>WorkspaceSwitcher</code></td>
 <td><code>React.memo</code> 于 <code>workspaces</code>、<code>currentWorkspaceId</code></td>
-<td>很少改变</td>
+<td>Rarely changes</td>
 </tr>
 </tbody>
 </table>
@@ -4637,7 +4639,7 @@
 <a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>        │
 <a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>        └── E2EBanner dismisses; all subsequent messages encrypted via Signal session
 </code></pre></div>
-<h3 id="54">5.4 机器人斜线命令<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<h3 id="54">5.4 机器人斜杠命令<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>User types &quot;/&quot; in MessageInput
 <a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>        │
 <a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>        ▼
@@ -4691,7 +4693,7 @@
 <a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="w">  </span><span class="p">}}</span>
 <a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a><span class="err">/&gt;</span>
 </code></pre></div>
-<p>按键设置：
+<p>Key settings:
 - <strong>双向滚动</strong>：<code>startReached</code> 用于历史记录，<code>followOutput</code> 用于新消息。
 - <strong>ScrollSeekPlaceholder</strong>：在快速滚动期间显示占位符骨架以避免空白闪烁。
 - <strong>视口填充</strong> (200px)：在视口之外预渲染项目，因此可以立即滚动到其中。</p>

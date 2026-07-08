@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#13-1-react-web-shell-ui" class="md-skip">
+        <a href="#13-phase-1-react-web-client-shell-core-chat-ui" class="md-skip">
           跳转至
         </a>
       
@@ -2600,29 +2600,29 @@
   
 
 
-<h1 id="13-1-react-web-shell-ui">13 — 第 1 阶段 — React Web 客户端 Shell 和核心聊天 UI<a class="headerlink" href="#13-1-react-web-shell-ui" title="Permanent link">&para;</a></h1>
+<h1 id="13-phase-1-react-web-client-shell-core-chat-ui">13 — Phase 1 — React Web Client Shell &amp; Core Chat UI<a class="headerlink" href="#13-phase-1-react-web-client-shell-core-chat-ui" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>构建 Web 开发和 Electron 桌面使用的 React 渲染器。 UI 应仅公开通用 IM 和 Bot 扩展界面，而不是特定于功能的硬编码工作流程。</p>
+<p>Build the React renderer used by both web development and Electron desktop. The UI should expose only generic IM and Bot extension surfaces, not feature-specific hardcoded workflows.</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Vite + React 应用程序。</li>
-<li>用于身份验证和聊天的路由。</li>
+<li>Routing for auth and chat.</li>
 <li>Zustand 商店。</li>
-<li>工作区/侧边栏布局。</li>
-<li>频道列表和DM列表。</li>
-<li>带有<code>react-virtuoso</code>的消息列表。</li>
+<li>Workspace/sidebar layout.</li>
+<li>Channel list and DM list.</li>
+<li>Message list with <code>react-virtuoso</code>.</li>
 <li>消息输入。</li>
-<li>从已安装的机器人清单中自动完成斜杠命令。</li>
-<li>通用<code>InputActionBar</code>扩展槽。</li>
+<li>Slash command autocomplete from installed bot manifests.</li>
+<li>Generic <code>InputActionBar</code> extension slot.</li>
 <li>E2E 模式徽章/横幅。</li>
-<li>E2E 一次读取/消失消息控件和过期消息墓碑渲染。</li>
-<li>乐观的消息发送状态。</li>
+<li>E2E read-once/disappearing message controls and expired-message tombstone rendering.</li>
+<li>Optimistic send state for messages.</li>
 </ul>
 <h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
-<li>核心 UI 中没有硬编码文件上传按钮。</li>
-<li>没有投票/提醒/荣誉特定的用户界面。</li>
-<li>如果实现的话，除了通用流渲染器之外，没有特定于 AI 的 UI。</li>
+<li>No file upload button hardcoded in core UI.</li>
+<li>No poll/reminder/kudos-specific UI.</li>
+<li>No AI-specific UI beyond generic streaming renderer if implemented.</li>
 </ul>
 <h2 id="_4">商店边界<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <table>
@@ -2643,11 +2643,11 @@
 </tr>
 <tr>
 <td><code>channelStore</code></td>
-<td>频道、当前频道、未读计数</td>
+<td>Channels, current channel, unread counts</td>
 </tr>
 <tr>
 <td><code>messageStore</code></td>
-<td>规范化消息、游标、乐观状态</td>
+<td>Normalized messages, cursors, optimistic states</td>
 </tr>
 <tr>
 <td><code>presenceStore</code></td>
@@ -2659,7 +2659,7 @@
 </tr>
 <tr>
 <td><code>botStore</code></td>
-<td>安装的机器人、命令清单、输入操作</td>
+<td>Installed bots, command manifests, input actions</td>
 </tr>
 <tr>
 <td><code>uiStore</code></td>
@@ -2669,22 +2669,22 @@
 </table>
 <h2 id="_5">验收标准<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
-<li>用户可以登录并查看工作区 shell。</li>
+<li>User can log in and see workspace shell.</li>
 <li>用户可以切换频道。</li>
 <li>消息列表正确虚拟化。</li>
 <li>用户可以发送短信。</li>
-<li>斜杠命令建议是从机器人清单中生成的。</li>
-<li>输入操作栏接受机器人注册的操作。</li>
+<li>Slash command suggestions are generated from bot manifests.</li>
+<li>Input action bar accepts bot-registered actions.</li>
 <li>E2E 渠道显示清晰的无机器人警告。</li>
-<li>E2E 一次读取和 TTL 消息在发送前显示清晰的策略标签，在过期后显示逻辑删除。</li>
+<li>E2E read-once and TTL messages show clear policy labels before send and tombstones after expiry.</li>
 </ul>
 <h2 id="_6">测试计划<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>频道列表和消息列表的组件测试。</li>
+<li>Component tests for channel list and message list.</li>
 <li>存储消息标准化测试。</li>
-<li>从模拟机器人清单命令自动完成测试。</li>
+<li>Command autocomplete test from mock bot manifest.</li>
 <li>虚拟列表滚动测试。</li>
-<li>消失消息策略和墓碑渲染测试。</li>
+<li>Disappearing-message policy and tombstone rendering tests.</li>
 </ul>
 <h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>

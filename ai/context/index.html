@@ -2854,6 +2854,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#82-electron-desktop-launch-readme-screenshots-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Electron Desktop Launch &amp; README Screenshots (2026-07-08)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-tui-chat-redesign-implementation-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 TUI Chat Redesign Implementation (2026-07-08)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3375,6 +3397,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#82-electron-desktop-launch-readme-screenshots-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Electron Desktop Launch &amp; README Screenshots (2026-07-08)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-tui-chat-redesign-implementation-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 TUI Chat Redesign Implementation (2026-07-08)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3413,8 +3457,8 @@
 
 <h1 id="nexus-chat-session-context-document">Nexus Chat — Session Context Document<a class="headerlink" href="#nexus-chat-session-context-document" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>Last updated: 2026-07-08 (Phase 1 complete — Web ChatRoute refactor finalized)
-Current status: Phase 1 complete (24/24 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests, Web ChatRoute split into UI components and focused hooks</p>
+<p>Last updated: 2026-07-08 (Phase 1 — TUI chat redesign completed, task #25 done)
+Current status: Phase 1 complete (25/25 tasks done), coverage 100% statements/functions/lines, 92.62% branches, 89 tests. TUI two-pane chat implemented. README screenshots for Web + TUI.</p>
 </blockquote>
 <h2 id="1-project-overview">1. Project Overview<a class="headerlink" href="#1-project-overview" title="Permanent link">&para;</a></h2>
 <p><strong>Nexus Chat</strong> is a Slack-like instant messaging desktop application built on a hybrid architecture:</p>
@@ -3780,6 +3824,11 @@ Current status: Phase 1 complete (24/24 tasks done), coverage 100% statements/fu
 <td>Server Channel Mute &amp; Description Backend</td>
 <td>Done</td>
 </tr>
+<tr>
+<td>25</td>
+<td>TUI Chat Interface Redesign</td>
+<td>Done</td>
+</tr>
 </tbody>
 </table>
 <h3 id="later-phases">Later Phases<a class="headerlink" href="#later-phases" title="Permanent link">&para;</a></h3>
@@ -3929,6 +3978,26 @@ Current status: Phase 1 complete (24/24 tasks done), coverage 100% statements/fu
 <li><code>useReadReceipts</code>: visible-message ack batching and read receipt state.</li>
 <li><code>ChatRoute.tsx</code> intentionally still owns Signal identity/session refs, encrypted message decryption, WebSocket connection setup, P2P transport lifecycle, and final message-send orchestration. Those areas are tightly coupled and were left in place to avoid risky behavior changes.</li>
 <li>Verification after the final split passed: <code>pnpm --filter @nexus-chat/web lint</code>, <code>pnpm --filter @nexus-chat/web typecheck</code>, <code>pnpm --filter @nexus-chat/web test</code>, <code>pnpm build</code>, and <code>pnpm test</code>.</li>
+</ul>
+<h3 id="82-electron-desktop-launch-readme-screenshots-2026-07-08">8.2 Electron Desktop Launch &amp; README Screenshots (2026-07-08)<a class="headerlink" href="#82-electron-desktop-launch-readme-screenshots-2026-07-08" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fixed Vite <code>base: "./"</code> in <code>apps/web/vite.config.ts</code> so built assets use relative paths. Previously Electron rendered a blank page because <code>file://</code> protocol cannot resolve absolute <code>/assets/...</code> paths.</li>
+<li>Added login and chat sample screenshots side-by-side to <code>README.md</code> and <code>README.zh-CN.md</code>.</li>
+<li>Fixed <code>.gitignore</code> exception pattern from <code>!docs/images/</code> to <code>!docs/images/*.jpg</code> so the global <code>*.jpg</code> ignore rule is properly re-included.</li>
+<li>Electron desktop verified running with 4 processes (Main, GPU, Network, Renderer).</li>
+</ul>
+<h3 id="83-tui-chat-redesign-implementation-2026-07-08">8.3 TUI Chat Redesign Implementation (2026-07-08)<a class="headerlink" href="#83-tui-chat-redesign-implementation-2026-07-08" title="Permanent link">&para;</a></h3>
+<p>The TUI chat was redesigned and implemented with a two-pane layout featuring a dark semi-transparent background:</p>
+<ul>
+<li><strong>16 files changed</strong> (+1204/-189): 8 components, 4 hooks, format utilities, WS event expansion, <code>app.tsx</code> rewrite.</li>
+<li><strong>Components</strong>: <code>TopBar</code>, <code>BottomBar</code>, <code>Sidebar</code> (Chat/Members/Settings tabs), <code>ChatHeader</code>, <code>MessageArea</code> (with date separators, relative timestamps, message focus), <code>Composer</code> (with edit/reply modes, IME-safe input), <code>Overlay</code> (forward/delete/react modals).</li>
+<li><strong>Hooks</strong>: <code>useTerminalSize</code>, <code>useChannelData</code> (members, sender names, online tracking), <code>useMessages</code> (send/edit/delete/react/forward via REST, WS event handling), <code>useFocus</code> (panel/message index management).</li>
+<li><strong>WS events</strong>: Extended <code>ws-client.ts</code> to handle 9 server events (<code>message.created/updated/deleted</code>, <code>message.reaction</code>, <code>message.read</code>, <code>typing.updated</code>, <code>presence.updated</code>, <code>channel.created</code>, <code>dm.created</code>).</li>
+<li><strong>Layout</strong>: Single outer frame with vertical sidebar divider, tab bar with top border, TopBar/BottomBar outside frame, fullscreen with <code>useTerminalSize</code>.</li>
+<li><strong>Background</strong>: Dark semi-transparent via <code>\x1b]Ph</code> OSC sequence for macOS Terminal.app.</li>
+<li><strong>IME fix</strong>: <code>isPrintable()</code> filter strips ANSI escape sequences and control characters to prevent CoreText crashes during CJK input.</li>
+<li><strong>Screenshots</strong>: Added TUI sample to README alongside Web login/chat screenshots (3 images, 30% each).</li>
+<li>Verification: <code>pnpm --filter @nexus-chat/tui lint</code>, <code>pnpm --filter @nexus-chat/tui typecheck</code>, <code>pnpm --filter @nexus-chat/tui test</code>, <code>pnpm --filter @nexus-chat/tui build</code>, <code>pnpm build</code>, <code>pnpm test</code> all passed.</li>
 </ul>
 <hr />
 <h2 id="9-open-questions-next-steps">9. Open Questions / Next Steps<a class="headerlink" href="#9-open-questions-next-steps" title="Permanent link">&para;</a></h2>

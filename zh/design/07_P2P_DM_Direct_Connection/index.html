@@ -4444,7 +4444,7 @@
 </tbody>
 </table>
 <h3 id="72">7.2 接力优先冷却时间<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
-<p>如果 WebRTC 连接尝试失败，对等点将被标记为 30 秒冷却时间。在此期间，消息直接通过服务器中继，无需尝试 P2P。这可以防止在网络状况未改变时重复连接尝试。</p>
+<p>如果 WebRTC 连接尝试失败，对等点将被标记为 30 秒冷却时间。在此期间，消息直接通过服务器中继，无需尝试 P2P。这可以防止在网络状况未发生变化时重复连接尝试。</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">PeerTransportState</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nx">mode</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;p2p&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;relay&quot;</span><span class="p">;</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nx">p2pFailedAt?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">        </span><span class="c1">// timestamp of last failure</span>
@@ -4868,8 +4868,8 @@
 <h3 id="133">13.3 浏览器兼容性<a class="headerlink" href="#133" title="Permanent link">&para;</a></h3>
 <p>|浏览器 | RTCPeerConnection | RTCPeerConnection | RTC 数据通道 |笔记|
 |---|---|---|---|
-| Chrome 130+ | ✓ | ✓ |全力支持|
-|火狐 130+ | ✓ | ✓ |全力支持|
+| Chrome 130+ | ✓ | ✓ |全力支持 |
+|火狐 130+ | ✓ | ✓ |全力支持 |
 | Safari 18+ | ✓ | ✓ |某些操作需要用户手势 |
 |电子39+ | ✓ | ✓ |相当于 Chrome 130+ |</p>
 <hr />

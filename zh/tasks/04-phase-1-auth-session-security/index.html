@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#04-1" class="md-skip">
+        <a href="#04-phase-1-authentication-sessions-security-baseline" class="md-skip">
           跳转至
         </a>
       
@@ -2644,9 +2644,9 @@
   
 
 
-<h1 id="04-1">04 — 第 1 阶段 — 身份验证、会话和安全基线<a class="headerlink" href="#04-1" title="Permanent link">&para;</a></h1>
+<h1 id="04-phase-1-authentication-sessions-security-baseline">04 — Phase 1 — Authentication, Sessions &amp; Security Baseline<a class="headerlink" href="#04-phase-1-authentication-sessions-security-baseline" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>在公开任何 IM 或 Bot 功能之前，实施安全的用户身份验证和所需的最低安全基线。</p>
+<p>Implement secure user authentication and the minimum security baseline required before any IM or Bot feature is exposed.</p>
 <h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>电子邮件/密码注册。</li>
@@ -2716,37 +2716,37 @@
 <tr>
 <td>访问令牌</td>
 <td>15 分钟</td>
-<td>客户端内存； Electron 主进程中可选的安全持久性</td>
+<td>客户端内存； optional secure persistence in Electron main process</td>
 </tr>
 <tr>
 <td>刷新令牌</td>
 <td>7 天</td>
-<td>Redis 哈希/会话存储，每次刷新时轮换</td>
+<td>Redis hash/session store, rotation on every refresh</td>
 </tr>
 </tbody>
 </table>
 <h2 id="_5">安全要求<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
-<li>密码散列：Argon2id，内存 64 MB，迭代 3，并行度 4。</li>
+<li>Password hashing: Argon2id, memory 64 MB, iterations 3, parallelism 4.</li>
 <li>JWT 签名：带有 <code>kid</code> 标头的 RS256。</li>
 <li>刷新令牌轮换检测重播。</li>
-<li>限制每个 IP 和每个电子邮件的登录尝试次数。</li>
-<li>切勿记录密码、令牌、授权标头或 cookie。</li>
-<li>所有身份验证路由都会返回无效凭据的通用错误消息。</li>
+<li>Rate limit login attempts per IP and per email.</li>
+<li>Never log passwords, tokens, authorization headers, or cookies.</li>
+<li>All auth routes return generic error messages for invalid credentials.</li>
 </ul>
 <h2 id="_6">验收标准<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ul>
-<li>用户可以注册、登录、刷新、注销和获取<code>me</code>。</li>
-<li>刷新令牌轮换会使旧的刷新令牌失效。</li>
-<li>重复使用的刷新令牌会触发会话撤销。</li>
-<li>无效的凭据不会显示电子邮件是否存在。</li>
-<li>Auth 中间件可以保护 REST 路由和 WebSocket 握手。</li>
+<li>User can register, login, refresh, logout, and fetch <code>me</code>.</li>
+<li>Refresh token rotation invalidates old refresh token.</li>
+<li>Reused refresh token triggers session revocation.</li>
+<li>Invalid credentials do not reveal whether email exists.</li>
+<li>Auth middleware can guard REST routes and WebSocket handshake.</li>
 </ul>
 <h2 id="_7">测试计划<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
 <li>密码散列/验证的单元测试。</li>
 <li>令牌签名/验证的单元测试。</li>
-<li>注册/登录/刷新/注销的集成测试。</li>
+<li>Integration tests for register/login/refresh/logout.</li>
 <li>重复登录失败的速率限制测试。</li>
 <li>日志编辑测试。</li>
 </ul>
