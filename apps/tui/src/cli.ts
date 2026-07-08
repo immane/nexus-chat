@@ -124,9 +124,9 @@ export function createProgram(): Command {
     .description("Start interactive chat UI (Ink)")
     .option("-w, --workspace <id>", "Workspace ID")
     .option("-c, --channel <id>", "Channel ID")
-    .action(async (options: { workspace?: string; channel?: string }) => {
+    .action(async () => {
       const { startInteractiveChat } = await import("./app.js");
-      await startInteractiveChat(options.workspace, options.channel);
+      await startInteractiveChat();
     });
 
   program
