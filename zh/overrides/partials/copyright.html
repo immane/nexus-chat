@@ -1,0 +1,20 @@
+{#-
+  Override copyright partial to keep "Made with Material for MkDocs" on the right.
+-#}
+<div class="md-copyright md-copyright--split">
+  <div>
+    {% if config.copyright %}
+      <div class="md-copyright__highlight">
+        {{ config.copyright }}
+      </div>
+    {% endif %}
+  </div>
+  {% if not config.extra.generator == false %}
+    <div class="md-copyright__made-with">
+      Made with
+      <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        Material for MkDocs
+      </a>
+    </div>
+  {% endif %}
+</div>

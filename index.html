@@ -33,6 +33,7 @@
       
     
     
+  
       <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
       
         
@@ -42,6 +43,17 @@
 
 
     
+  <style>
+    .md-copyright--split {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      width: 100%;
+    }
+  </style>
+
     
       
     
@@ -2309,37 +2321,37 @@
 <h2 id="3-architecture-overview">3. Architecture Overview<a class="headerlink" href="#3-architecture-overview" title="Permanent link">&para;</a></h2>
 <h3 id="31-layer-diagram">3.1 Layer Diagram<a class="headerlink" href="#31-layer-diagram" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌──────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    Client Shell (Electron)                        │
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    Client Shell (Electron)                       │
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  ┌────────────────────────────────────────────────────────────┐  │
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  │              UI Rendering (React 19 + Vite 7)              │  │
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │    React components → Zustand stores → IndexedDB cache     │  │
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  └────────────────────────────────────────────────────────────┘  │
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  ┌────────────────────────────────────────────────────────────┐  │
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  │         Main Process (Node.js)                              │  │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  │         Main Process (Node.js)                             │  │
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  │    Window Manager · System Tray · Notifications · Updater  │  │
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  └────────────────────────────────────────────────────────────┘  │
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>└──────────────────────────────────────────────────────────────────┘
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                              │ HTTPS / WSS
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>┌─────────────────────────────┴────────────────────────────────────┐
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│               Long Connection &amp; Core Gateway                      │
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│     Hono HTTP Server (REST)  ·  Socket.IO Server (WebSocket)      │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│               Long Connection &amp; Core Gateway                     │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│     Hono HTTP Server (REST)  ·  Socket.IO Server (WebSocket)     │
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│     JWT Auth · Rate Limiting · CORS/Helmet.js · Zod Validation   │
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>└─────────────────────────────┬────────────────────────────────────┘
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                              │
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>┌─────────────────────────────┴────────────────────────────────────┐
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│            Business Logic &amp; Persistence Backend                    │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│            Business Logic &amp; Persistence Backend                  │
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│     Auth · Workspace · Channel · Message · File · Signal Key     │
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│     PostgreSQL · Redis (Cache + Pub/Sub + Rate Limit)            │
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>└─────────────────────────────┬────────────────────────────────────┘
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                              │
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>┌─────────────────────────────┴────────────────────────────────────┐
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│           Async Bot Engine &amp; Event Dispatch                       │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│           Async Bot Engine &amp; Event Dispatch                      │
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│     Redis Streams Consumer · Bot Command Router · BullMQ Queues  │
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│     Bot WebSocket Manager · Webhook Delivery Tracker             │
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>└─────────────────────────────┬────────────────────────────────────┘
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>                              │
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>┌─────────────────────────────┴────────────────────────────────────┐
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│           AI Agent &amp; Streaming Engine                              │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│           AI Agent &amp; Streaming Engine                            │
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│     Command Parser → Agent Router → LLM Provider Abstraction     │
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│     Tool Executor · Memory Manager · Stream Manager (100ms)      │
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>└──────────────────────────────────────────────────────────────────┘
@@ -2486,6 +2498,21 @@
 <td><a href="design/06_Phase_Roadmap/">Phase Roadmap &amp; Milestone Plan</a></td>
 <td>Consolidated Phase 1/2/3 goals, week-by-week breakdown, bot catalog rollout, AI implementation sequence, package delivery matrix, infrastructure evolution</td>
 </tr>
+<tr>
+<td>07</td>
+<td><a href="design/07_P2P_DM_Direct_Connection/">P2P DM Direct Connection</a></td>
+<td>WebRTC DataChannel for 1:1 E2EE DMs, peer discovery, relay fallback, signal server integration</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="design/08_TUI_Chat_Redesign/">TUI Chat Redesign</a></td>
+<td>Two-pane terminal UI layout, Ink components, WS event handling, IME-safe CJK input</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="design/09_Web_Client_UI_Design/">Web Client UI Design</a></td>
+<td>Desktop layout, Zustand store architecture, component tree, mobile adaptation plan (P0/P1/P2)</td>
+</tr>
 </tbody>
 </table>
 <h3 id="62-research-documents">6.2 Research Documents<a class="headerlink" href="#62-research-documents" title="Permanent link">&para;</a></h3>
@@ -2622,6 +2649,51 @@
 <td><a href="tasks/17-phase-1-tui-cli/">TUI Command-Line Client</a></td>
 <td>Terminal client for auth, workspace/channel navigation, messaging, and E2E smoke tests</td>
 </tr>
+<tr>
+<td>18</td>
+<td><a href="tasks/18-phase-1-p2p-dm-direct/">P2P DM Direct Connection</a></td>
+<td>WebRTC DataChannel, peer signaling, relay fallback, P2P/Signal transport mode</td>
+</tr>
+<tr>
+<td>19</td>
+<td><a href="tasks/19-phase-1-web-message-actions/">Web Message Actions &amp; Context Menu</a></td>
+<td>Right-click context menu, reply/forward/copy/edit/delete/react, inline emoji picker</td>
+</tr>
+<tr>
+<td>20</td>
+<td><a href="tasks/20-phase-1-web-message-display/">Web Message Display &amp; Formatting</a></td>
+<td>Markdown rendering, relative timestamps, date separators, link previews</td>
+</tr>
+<tr>
+<td>21</td>
+<td><a href="tasks/21-phase-1-web-rich-media/">Web Rich Media &amp; Emoji Picker</a></td>
+<td>Emoji picker popover, file upload with progress, clipboard image paste, inline attachment rendering</td>
+</tr>
+<tr>
+<td>22</td>
+<td><a href="tasks/22-phase-1-web-presence-notifications/">Web Presence, Channel Info &amp; Notifications</a></td>
+<td>Online status dots, toast notifications, browser notifications, channel info panel</td>
+</tr>
+<tr>
+<td>23</td>
+<td><a href="tasks/23-phase-1-server-message-reply-pin/">Server Message Reply &amp; Pin</a></td>
+<td>replyToMessageId in send schema, pin store, REST API, WS events</td>
+</tr>
+<tr>
+<td>24</td>
+<td><a href="tasks/24-phase-1-server-channel-mute-description/">Server Channel Mute &amp; Description</a></td>
+<td>Channel description field, mute store, REST endpoints</td>
+</tr>
+<tr>
+<td>25</td>
+<td><a href="tasks/25-phase-1-tui-chat-redesign/">TUI Chat Redesign</a></td>
+<td>Two-pane terminal layout, WS event hooks, format utilities, IME-safe CJK input</td>
+</tr>
+<tr>
+<td>26</td>
+<td><a href="tasks/26-phase-1-web-mobile-adaptation/">Web Mobile Adaptation</a></td>
+<td>Viewport meta, overlay drawer sidebar, long-press context menu, responsive modals, safe area</td>
+</tr>
 </tbody>
 </table>
 <h3 id="64-bot-sdk-documentation-multi-language">6.4 Bot SDK Documentation (Multi-Language)<a class="headerlink" href="#64-bot-sdk-documentation-multi-language" title="Permanent link">&para;</a></h3>
@@ -2725,13 +2797,21 @@
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+      <div class="md-copyright md-copyright--split">
+  <div>
+    
+      <div class="md-copyright__highlight">
+        Copyright &copy; 2026 Lam K. &mdash; <a href="https://github.com/immane/nexus-chat/blob/main/LICENSE">MIT License</a>
+      </div>
+    
+  </div>
   
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
+    <div class="md-copyright__made-with">
+      Made with
+      <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        Material for MkDocs
+      </a>
+    </div>
   
 </div>
       

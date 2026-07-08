@@ -35,6 +35,7 @@
       
     
     
+  
       <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
@@ -44,6 +45,17 @@
 
 
     
+  <style>
+    .md-copyright--split {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      width: 100%;
+    }
+  </style>
+
     
       
     
@@ -3226,16 +3238,16 @@
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-bot-engine-overview">Bot Engine Overview</a>
-2.<a href="#2-event-pipeline">Event Pipeline</a></li>
+<li><a href="#1-bot-engine-overview">Bot Engine Overview</a></li>
+<li><a href="#2-event-pipeline">Event Pipeline</a></li>
 <li><a href="#3-bot-connection-management">Bot Connection Management</a></li>
 <li><a href="#4-bot-sdk-design-typescript">Bot SDK Design (TypeScript)</a>
 5.<a href="#5-slash-command-framework">Slash Command Framework</a></li>
 <li><a href="#6-webhook-delivery-phase-15">Webhook Delivery (Phase 1.5)</a>
 7.<a href="#7-task-queue-design-bullmq">Task Queue Design (BullMQ)</a></li>
 <li><a href="#8-bot-permissions--security">Bot Permissions &amp; Security</a>
-9.<a href="#9-monitoring--observability">Monitoring &amp; Observability</a>
-10.<a href="#10-streaming-message-protocol-extension">Streaming Message Protocol Extension</a></li>
+9.<a href="#9-monitoring--observability">Monitoring &amp; Observability</a></li>
+<li><a href="#10-streaming-message-protocol-extension">Streaming Message Protocol Extension</a></li>
 <li><a href="#11-base-bot-catalog-integration">Base Bot Catalog Integration</a></li>
 </ol>
 <hr />
@@ -4441,7 +4453,7 @@
 <tr>
 <th>警报</th>
 <th>状况</th>
-<th>严重程度</th>
+<th>严重性</th>
 <th>行动</th>
 </tr>
 </thead>
@@ -4890,13 +4902,21 @@
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+      <div class="md-copyright md-copyright--split">
+  <div>
+    
+      <div class="md-copyright__highlight">
+        Copyright &copy; 2026 Lam K. &mdash; <a href="https://github.com/immane/nexus-chat/blob/main/LICENSE">MIT License</a>
+      </div>
+    
+  </div>
   
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
+    <div class="md-copyright__made-with">
+      Made with
+      <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        Material for MkDocs
+      </a>
+    </div>
   
 </div>
       

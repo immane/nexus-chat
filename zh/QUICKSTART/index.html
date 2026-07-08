@@ -35,6 +35,7 @@
       
     
     
+  
       <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
@@ -44,6 +45,17 @@
 
 
     
+  <style>
+    .md-copyright--split {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      width: 100%;
+    }
+  </style>
+
     
       
     
@@ -1881,7 +1893,7 @@
 </tr>
 </tbody>
 </table>
-<p>引导程序创建 <code>Dev Workspace</code>、默认 <code>#general</code> 通道以及 Bob 的工作区/通道成员资格。重新启动或重建服务器容器后重新运行它，因为存储位于内存中。</p>
+<p>引导程序创建 <code>Dev Workspace</code>、默认 <code>#general</code> 通道以及 Bob 的工作区/通道成员身份。重新启动或重建服务器容器后重新运行它，因为存储位于内存中。</p>
 <h2 id="6">6. 启动开发服务器<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
 <p>对于 Docker 服务器加 Web UI 流程，保持服务器容器运行并单独启动 Vite：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/web<span class="w"> </span>dev
@@ -2005,13 +2017,21 @@
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+      <div class="md-copyright md-copyright--split">
+  <div>
+    
+      <div class="md-copyright__highlight">
+        Copyright &copy; 2026 Lam K. &mdash; <a href="https://github.com/immane/nexus-chat/blob/main/LICENSE">MIT License</a>
+      </div>
+    
+  </div>
   
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
+    <div class="md-copyright__made-with">
+      Made with
+      <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        Material for MkDocs
+      </a>
+    </div>
   
 </div>
       
