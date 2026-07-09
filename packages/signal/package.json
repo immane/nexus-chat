@@ -12,6 +12,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@nexus-chat/shared": "workspace:*"
+    "@nexus-chat/shared": "workspace:*",
+    "@noble/ciphers": "^2.2.0",
+    "@noble/curves": "^2.2.0"
   }
 }

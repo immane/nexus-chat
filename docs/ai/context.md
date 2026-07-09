@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-09 (Phase 1 — Docker Web client added, task #26 created, address config cleaned up, documentation hub reorganized)
-> Current status: Phase 1 complete (25/25 tasks done, task #26 Web Mobile Adaptation defined but not started). Docker Compose runs server + nginx web. `HOST` / `WEB_ORIGIN=*` / `API_PUBLIC_BASE` / `VITE_API_BASE` config cleaned up. mkdocs nav updated, docs/README.md task index extended, AGENTS.md git rules added.
+> Last updated: 2026-07-10 (Phase 1 — E2EE real encryption implemented via IE2eeProvider + @noble/*, Task #27 complete, 119 tests, 100% coverage)
+> Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM encryption active for 1:1 E2EE DMs. IE2eeProvider interface with 3 swappable implementations (placeholder/noble/webcrypto). Signal Protocol (X3DH + Double Ratchet) deferred to Phase 3 AGPL-3.0 branch.
 
 ## 1. Project Overview
 
@@ -219,6 +219,8 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 23 | Server Message Reply & Pin Backend | Done |
 | 24 | Server Channel Mute & Description Backend | Done |
 | 25 | TUI Chat Interface Redesign | Done |
+| 26 | Web Mobile Adaptation | Done |
+| 27 | E2EE Real Encryption Implementation | Done |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -236,19 +238,19 @@ From `AGENTS.md`:
 
 ---
 
-## 6.5 Current Implementation Stats (as of 2026-07-08)
+## 6.5 Current Implementation Stats (as of 2026-07-10)
 
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
 - **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. Latest Web refactor verification passed `pnpm --filter @nexus-chat/web lint`, `pnpm --filter @nexus-chat/web typecheck`, `pnpm --filter @nexus-chat/web test`, `pnpm build`, and `pnpm test`.
-- **Coverage**: 100.00% statements/lines/functions, 92.62% branches across core domain + shared packages
-- **Tests**: 89 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
-- **Phase 1 tasks**: 25/25 done — Phase 1 complete
+- **Coverage**: 100.00% statements/lines/functions, 93.34% branches across core domain + shared packages (signal package: 100% across all metrics)
+- **Tests**: 119 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
+- **Phase 1 tasks**: 27/27 done — Phase 1 complete
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
 - **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)
 - **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage
 - **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface
 - **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce)
-- **Signal/E2E**: PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback
+- **Signal/E2E**: Real ECDH + AES-256-GCM encryption via IE2eeProvider interface with 3 implementations (placeholder/noble/webcrypto); @noble/* is default (HTTP-compatible, MIT); WebCrypto (HTTPS only); Placeholder (Phase 3 Signal Protocol stub, @deprecated). E2EE file attachments enabled (📎 button visible). E2EE attachment encryption/decryption helpers. PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback.
 - **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar. `ChatRoute.tsx` is now split into focused UI components plus hooks for channel members, attachments, message actions, bootstrap loading, read receipts, and typing state; Signal/P2P send orchestration and WebSocket connection ownership remain in the route.
 - **Server**: REST API with 60+ endpoints, WebSocket gateway with room-based broadcasting, channel description & mute support, message pinning, reply-to with validation, presence tracking with connection count, WS broadcast for reactions/edits/deletes/channel-created, in-memory dev file upload/download endpoints
 
@@ -433,6 +435,24 @@ Added to `AGENTS.md`:
 - **Do NOT push unless the user explicitly approves it.**
 - **Do NOT force-push unless the user explicitly asks for it.**
 
+### 8.10 E2EE Real Encryption Implementation (2026-07-10)
+
+Task #27 completed — replaced the placeholder Base64 "encryption" with real cryptographic operations:
+
+- **IE2eeProvider interface** (`packages/signal/src/types.ts`): 7-method abstraction with swappable backends.
+- **noble.ts**: ECDH P-256 key exchange + AES-256-GCM encryption via `@noble/curves` and `@noble/ciphers`. Pure JS, works over plain HTTP, MIT license. **Default provider.**
+- **webcrypto.ts**: SubtleCrypto-based ECDH + AES-256-GCM. Requires `localhost` / HTTPS.
+- **placeholder.ts**: Preserves original behavior (Base64 + random hex) marked `@deprecated`. Used when `E2EE_BACKEND=placeholder`.
+- **crypto.ts**: File encryption/decryption helpers (AES-256-GCM), shared by all providers.
+- **index.ts**: Provider selection via `E2EE_BACKEND` env var. IV embedded in ciphertext (`iv.base64ciphertext` format) for backward compatibility.
+- **E2EE file attachments**: Removed the `!isE2e` block hiding the 📎 button. Client-side file encryption/decryption through IE2eeProvider.
+- **Shared schema update**: `algorithm` field widened from `"signal-v1"` → `"signal-v1" | "aes-256-gcm-v1"`.
+- **P2P types**: `algorithm` widened from `"signal-v1"` → `string` in transport types.
+- **Downstream fixes**: `signal-helpers.ts`, `ChatRoute.tsx`, and `smoke.ts` updated for async API (key generation, session establishment now async).
+- **Tests**: 33 tests in `packages/signal/src/index.test.ts` covering all 3 providers, crypto helpers, session store, provider selection, and legacy helpers.
+- **Coverage**: Signal package 100% lines/statements/functions/branches. Coverage thresholds met project-wide.
+- **Verification**: `pnpm build` (11/11), `pnpm test` (15/15, 119 tests), `pnpm coverage` (100/93.34/100/100).
+
 ---
 
 ## 9. Open Questions / Next Steps
@@ -457,6 +477,6 @@ Added to `AGENTS.md`:
 
 10. **Type sharing strategy**: Partially resolved. The `@nexus-chat/shared` package already defines 40+ canonical Zod schemas for message events, Socket.IO event contracts, Bot SDK types, and E2EE protocol messages. The remaining gap is end-to-end type propagation from schemas through service interfaces into client-side state management — the schemas exist but are not yet enforced at every compile-time boundary.
 
-11. **Web mobile adaptation**: Task #26 defined (11 sub-items across P0/P1/P2). Viewport meta, overlay drawer sidebar, long-press context menu, responsive modals, safe area insets, and 44px touch targets are the immediate scope. Desktop layout must remain regressed-free.
+11. **Signal Protocol Phase 3**: Real ECDH + AES-256-GCM is active for 1:1 DM E2EE (Task #27). Full X3DH + Double Ratchet via `@signalapp/libsignal-client` is deferred to Phase 3 on a separate AGPL-3.0 distribution branch to avoid copyleft contamination of the MIT-licensed `main` branch.
 
-12. **Docker production deployment**: `WEB_ORIGIN` and `API_PUBLIC_BASE` now read from `.env`, but the Docker web build arg `VITE_API_BASE` is baked at image build time — changing the API URL requires a rebuild. Consider reverse-proxy approach for production.
+12. **Docker web VITE_API_BASE**: `VITE_API_BASE` is baked into the web Docker image at build time. Changing the API URL requires rebuilding the web image. A reverse-proxy approach should be considered for production deployments where the API URL may change without rebuilding.

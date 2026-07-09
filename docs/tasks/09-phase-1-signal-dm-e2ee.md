@@ -1,10 +1,12 @@
 ---
 lang: en
 phase: 1
-status: done
+status: partial
 ---
 
-# 09 — Phase 1 — Signal Protocol 1:1 DM E2EE
+# 09 — Phase 1 — Signal Protocol 1:1 DM E2EE (Placeholder)
+
+> **Note:** This task delivered the E2EE infrastructure (PreKey endpoints, session management, ciphertext protocol, read-once/tombstone lifecycle) but uses **placeholder encryption** (random hex keys + Base64 encoding). Real ECDH + AES-256-GCM encryption is deferred to [Task #27](27-phase-1-e2ee-real-encryption.md). Full Signal Protocol (X3DH + Double Ratchet) is planned for Phase 3 on a separate AGPL-3.0 distribution branch.
 
 ## Goal
 

@@ -279,7 +279,7 @@ nexus-chat/
 | 06 | [Workspace & Channel Service](tasks/06-phase-1-workspace-channel-service.md) | Workspaces, members, public/private channels, DMs, channel mode |
 | 07 | [Message Service](tasks/07-phase-1-message-service.md) | Message state machine, pagination, edit/delete, reactions, read receipts, forward/save |
 | 08 | [Attachment Service Foundation](tasks/08-phase-1-attachment-service-foundation.md) | Core upload sessions, file records, signed URLs, E2E-safe attachment boundary |
-| 09 | [Signal DM E2EE](tasks/09-phase-1-signal-dm-e2ee.md) | PreKeyBundle flow, X3DH, Double Ratchet, 1:1 encrypted DMs |
+| 09 | [Signal DM E2EE (Placeholder)](tasks/09-phase-1-signal-dm-e2ee.md) | PreKeyBundle infrastructure, session management, ciphertext protocol. Real ECDH + AES-256-GCM encryption deferred to Task #27. |
 | 10 | [Bot Engine Core](tasks/10-phase-1-bot-engine-core.md) | Bot registration, opaque tokens, event subscriptions, BullMQ queues, command routing |
 | 11 | [Node Bot SDK](tasks/11-phase-1-bot-sdk-node-reference.md) | First Bot SDK implementation, WebSocket transport, reconnect, event API |
 | 12 | [Minimal Base Bots](tasks/12-phase-1-base-bots-minimal.md) | Welcome, Help, Notification bots; optional Reminder/Poll/Webhook/Kudos stretch |
@@ -297,6 +297,7 @@ nexus-chat/
 | 24 | [Server Channel Mute & Description](tasks/24-phase-1-server-channel-mute-description.md) | Channel description field, mute store, REST endpoints |
 | 25 | [TUI Chat Redesign](tasks/25-phase-1-tui-chat-redesign.md) | Two-pane terminal layout, WS event hooks, format utilities, IME-safe CJK input |
 | 26 | [Web Mobile Adaptation](tasks/26-phase-1-web-mobile-adaptation.md) | Viewport meta, overlay drawer sidebar, long-press context menu, responsive modals, safe area |
+| 27 | [E2EE Real Encryption](tasks/27-phase-1-e2ee-real-encryption.md) | IE2eeProvider interface, @noble/* ECDH + AES-256-GCM, WebCrypto, file encryption helpers, 119 tests |
 
 ### 6.4 Bot SDK Documentation (Multi-Language)
 

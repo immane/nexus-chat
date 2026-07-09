@@ -141,14 +141,16 @@ const ChatRoute = () => {
 
   useEffect(() => {
     if (!user || !accessToken || accessToken === "demo-access-token") return;
-    if (!signalIdentityRef.current) signalIdentityRef.current = createLocalSignalIdentity(user.id, WEB_SIGNAL_DEVICE_ID, 5);
-    const identity = signalIdentityRef.current;
-    const bundle = { ...toPreKeyBundle(identity), oneTimePreKeys: extractOneTimePreKeys(identity) };
-    void fetch(`${API_BASE}/api/v1/signal/prekey-bundles`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
-      body: JSON.stringify(bundle)
-    }).catch(() => {});
+    void (async () => {
+      if (!signalIdentityRef.current) signalIdentityRef.current = await createLocalSignalIdentity(user.id, WEB_SIGNAL_DEVICE_ID, 5);
+      const identity = signalIdentityRef.current!;
+      const bundle = { ...toPreKeyBundle(identity), oneTimePreKeys: extractOneTimePreKeys(identity) };
+      void fetch(`${API_BASE}/api/v1/signal/prekey-bundles`, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify(bundle)
+      }).catch(() => {});
+    })();
   }, [accessToken, user]);
 
   const closeSidebarOnEsc = useCallback((e: KeyboardEvent) => {

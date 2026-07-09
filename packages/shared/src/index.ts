@@ -176,7 +176,7 @@ export const normalMessageContentSchema = z.object({
 export const e2eMessageContentSchema = z.object({
   type: z.literal("ciphertext"),
   ciphertext: z.string().min(1),
-  algorithm: z.literal("signal-v1"),
+  algorithm: z.enum(["signal-v1", "aes-256-gcm-v1"]),
   senderDeviceId: idSchema,
   readOnce: z.boolean().default(false),
   expiresAt: isoDateSchema.optional(),

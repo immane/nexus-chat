@@ -84,9 +84,7 @@ export const ChatComposer = ({
     >
       <input ref={fileInputRef} className="hidden" type="file" multiple onChange={(event) => { const files = event.target.files; if (files) for (let index = 0; index < files.length; index += 1) handleFileUpload(files[index]!); event.target.value = ""; }} />
       <div className={`flex flex-1 items-center gap-1 rounded-xl border px-2 transition ${isLight ? "bg-white border-slate-300 focus-within:ring-2 focus-within:ring-sky-400" : "bg-slate-800 border-slate-700 focus-within:ring-2 focus-within:ring-sky-400"}`}>
-        {!isE2e ? (
-          <button className="rounded-full p-1 text-slate-400 hover:text-slate-200" type="button" onClick={() => fileInputRef.current?.click()} title="Attach">📎</button>
-        ) : null}
+        <button className="rounded-full p-1 text-slate-400 hover:text-slate-200" type="button" onClick={() => fileInputRef.current?.click()} title="Attach">📎</button>
         <div className="relative flex-1">
           {suggestions.length ? (
             <div className={`absolute bottom-full left-0 z-10 mb-1 w-full max-w-lg overflow-hidden rounded-2xl border ${themeBorder} ${isLight ? "bg-white shadow-lg" : "bg-slate-900 shadow-xl"}`}>

@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-89%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-119%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 A Slack-like workspace chat system with **hybrid encryption**: normal channels that support bots, message history, and server-side workflows, alongside end-to-end encrypted DMs where the server sees only ciphertext. Built from the ground up in TypeScript with React, Electron, Hono, and Socket.IO.
 
-Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, client-side E2EE (ECDH + AES-256-GCM) for 1:1 DMs, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. The test suite covers 18 files, 87 tests, with 100% statement, function, and line coverage.
+Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, client-side E2EE (ECDH + AES-256-GCM) for 1:1 DMs, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. The test suite covers 18 files, 119 tests, with 100% statement, function, and line coverage.
 
 <p align="center">
   <img src="docs/images/login-sample.jpg" alt="Login Screen" width="30%">
@@ -216,7 +216,7 @@ nexus-chat/
 | **Desktop** | Electron | BrowserWindow, preload IPC, tray, notifications |
 | **CLI** | Commander, Ink (React 19) | TUI chat, smoke tests |
 | **Observability** | Pino, `prom-client` | Structured logs, request IDs, metrics |
-| **Testing** | Vitest + V8 coverage | 18 test files, 87 tests |
+| **Testing** | Vitest + V8 coverage | 18 test files, 119 tests |
 | **P2P** | WebRTC (browser-native, no npm deps) | 1:1 E2EE DM direct connection + server signaling relay |
 
 ---
@@ -518,7 +518,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | Functions | 100.00% |
 | Lines | 100.00% |
 
-**Test breakdown (18 files, 89 tests):**
+**Test breakdown (18 files, 119 tests):**
 
 | Package | Test file | Tests |
 | --- | --- | --- |

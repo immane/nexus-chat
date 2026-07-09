@@ -64,8 +64,8 @@ export const runE2eSmoke = async () => {
   }
 
   // Create identities using actual user IDs
-  const alice = createLocalSignalIdentity(aliceUserId, "device-01", 5);
-  const bob = createLocalSignalIdentity(bobUserId, "device-01", 5);
+  const alice = await createLocalSignalIdentity(aliceUserId, "device-01", 5);
+  const bob = await createLocalSignalIdentity(bobUserId, "device-01", 5);
 
   // Alice uploads her own prekey bundle
   const bundle = toPreKeyBundle(alice);
@@ -82,7 +82,7 @@ export const runE2eSmoke = async () => {
 
   // Establish session
   const sessionStore = createInMemorySignalSessionStore();
-  const session = establishSession(bob, { ...fetched, userId: alice.userId, deviceId: alice.deviceId } as never, sessionStore);
+  const session = await establishSession(bob, { ...fetched, userId: alice.userId, deviceId: alice.deviceId } as never, sessionStore);
 
   // Encrypt a read-once message
   const { ciphertext } = await encryptForSession(session, "secret e2e smoke message");
