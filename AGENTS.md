@@ -10,7 +10,7 @@
 - Frontend: Electron + React + Vite + Zustand + Tailwind CSS
 - Backend: Node.js (Hono / Fastify)
 - Database: PostgreSQL + Drizzle ORM + Redis
-- Encryption: Signal Protocol (@signalapp/libsignal)
+- Encryption: ECDH + AES-256-GCM (Phase 1-2, @noble/*) / Signal Protocol (Phase 3 branch, @signalapp/libsignal)
 - Monorepo: pnpm workspace + Turborepo
 
 ## Code Style
