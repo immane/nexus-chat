@@ -40,7 +40,8 @@ Nexus Chat uses a hybrid encryption architecture.
 
 ### End-to-End Encrypted Conversations
 
-- Uses the Signal Protocol (X3DH + Double Ratchet).
+- Uses ECDH key exchange + AES-256-GCM encryption (Phase 1-2, MIT-compatible).
+- Signal Protocol (X3DH + Double Ratchet) planned for Phase 3 on a separate AGPL-3.0 distribution branch.
 - Message contents are encrypted on the client.
 - The server acts only as an opaque relay and cannot decrypt message contents.
 
@@ -48,7 +49,7 @@ If your report involves cryptographic weaknesses, please specify whether the iss
 
 - TLS
 - JWT authentication
-- Signal Protocol implementation
+- E2EE implementation (ECDH + AES-256-GCM)
 - Cryptographic dependencies
 - Other security components
 

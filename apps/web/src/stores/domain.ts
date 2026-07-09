@@ -203,7 +203,7 @@ export const useUiStore = create<{
   updateSettings: (patch: Partial<AppSettings>) => void;
   setDmTransportMode: (mode: DmTransportMode) => void;
 }>((set) => ({
-  sidebarOpen: true,
+  sidebarOpen: false,
   messageDraft: "",
   disappearingPolicy: { mode: "none" },
   settings: { theme: "dark", compactMode: false, soundEnabled: false, notificationsEnabled: true },

@@ -527,7 +527,7 @@ const selectMessages = (channelId: string) => (state: MessageStoreState): Messag
 
 #### `signalStore`
 
-Manages the Signal Protocol encryption state:
+Manages the E2EE encryption state:
 
 | Field / Action | Type | Description |
 |---------------|------|-------------|

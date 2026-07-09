@@ -162,7 +162,7 @@ export_<userId>_<timestamp>.zip
 └── metadata.json          # Export timestamp, version, checksums
 ```
 
-> **Note on E2E data:** Messages in E2E-encrypted channels are stored as ciphertext on the server. The user must have access to their Signal Protocol private key on the client to decrypt exported E2E message history. The server cannot decrypt this data.
+> **Note on E2E data:** Messages in E2E-encrypted channels are stored as ciphertext on the server. The user must have access to their ECDH private key on the client to decrypt exported E2E message history. The server cannot decrypt this data.
 
 ## Disaster Recovery Checklist
 

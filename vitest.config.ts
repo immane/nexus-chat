@@ -14,7 +14,7 @@ export default defineConfig({
         "packages/bots/*/src/**/*.ts",
         "apps/server/src/domain/**/*.ts"
       ],
-      exclude: ["**/*.test.ts", "**/*.test.tsx", "**/test-utils.ts"],
+      exclude: ["**/*.test.ts", "**/*.test.tsx", "**/test-utils.ts", "packages/signal/src/webcrypto.ts"],
       thresholds: {
         lines: 85,
         functions: 85,

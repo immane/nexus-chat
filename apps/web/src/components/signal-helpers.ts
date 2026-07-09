@@ -39,7 +39,7 @@ export type SignalSessionContext = {
 };
 
 export const ensureSignalSession = async (ctx: SignalSessionContext, peerUserId: string, peerDeviceId = WEB_SIGNAL_DEVICE_ID): Promise<SignalSession> => {
-  if (!ctx.identityRef.current) ctx.identityRef.current = createLocalSignalIdentity(ctx.userId, WEB_SIGNAL_DEVICE_ID, 5);
+  if (!ctx.identityRef.current) ctx.identityRef.current = await createLocalSignalIdentity(ctx.userId, WEB_SIGNAL_DEVICE_ID, 5);
 
   const key = `${peerUserId}:${peerDeviceId}`;
   const existing = ctx.sessionsRef.current.get(key);
@@ -63,7 +63,7 @@ export const ensureSignalSession = async (ctx: SignalSessionContext, peerUserId:
     signedPreKeySignature: `${peerUserId}:signature`
   };
 
-  const session = establishSession(ctx.identityRef.current, peerBundle, ctx.sessionStoreRef.current);
+  const session = await establishSession(ctx.identityRef.current!, peerBundle, ctx.sessionStoreRef.current);
   ctx.sessionsRef.current.set(key, session);
   return session;
 };

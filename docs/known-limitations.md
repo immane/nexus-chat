@@ -6,8 +6,8 @@
 
 - **Single-device E2EE only.** Phase 1 supports one device per user for end-to-end encrypted DMs. Multi-device E2EE session relay is planned for Phase 3.
 - **No group E2EE.** Only 1:1 DM encryption is implemented. Group E2E via Sender Key is planned for Phase 2.
-- **No safety numbers UI.** Signal Protocol safety number verification is not surfaced in the UI yet (Phase 3).
-- **AGPL-3.0 concern for @signalapp/libsignal-client.** The native `@signalapp/libsignal-client` dependency is licensed under AGPL-3.0, which may impose copyleft obligations on the project. This project uses this dependency only for educational purposes during development. Evaluate license compatibility before production deployment.
+- **No safety numbers UI.** Key verification UI is not surfaced yet (Phase 3, Signal Protocol distribution branch).
+- **Signal Protocol deferred to Phase 3.** The `main` branch uses ECDH + AES-256-GCM (MIT-compatible) via `@noble/*`. Full X3DH + Double Ratchet forward secrecy via `@signalapp/libsignal-client` (AGPL-3.0) will ship on a separate distribution branch to avoid copyleft license contamination of the MIT codebase.
 
 ## Data Stores
 

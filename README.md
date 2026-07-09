@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-89%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-119%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 A Slack-like workspace chat system with **hybrid encryption**: normal channels that support bots, message history, and server-side workflows, alongside end-to-end encrypted DMs where the server sees only ciphertext. Built from the ground up in TypeScript with React, Electron, Hono, and Socket.IO.
 
-Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, Signal-style E2E service boundaries, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. The test suite covers 18 files, 87 tests, with 100% statement, function, and line coverage.
+Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, client-side E2EE (ECDH + AES-256-GCM) for 1:1 DMs, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. The test suite covers 18 files, 119 tests, with 100% statement, function, and line coverage.
 
 <p align="center">
   <img src="docs/images/login-sample.jpg" alt="Login Screen" width="30%">
@@ -183,7 +183,7 @@ nexus-chat/
 │   └── tui/              Commander CLI + Ink interactive UI
 ├── packages/
 │   ├── shared/           40+ Zod schemas, protocol types, API envelope helpers
-│   ├── signal/           Local Signal-style facade (pre-key, encrypt/decrypt)
+│   ├── signal/           E2EE abstraction layer (ECDH + AES-256-GCM)
 │   ├── bot-sdk/          NexusBotClient: WS connect, middleware, event dispatch
 │   ├── ui/               Shared React primitives and design tokens
 │   └── bots/
@@ -216,7 +216,7 @@ nexus-chat/
 | **Desktop** | Electron | BrowserWindow, preload IPC, tray, notifications |
 | **CLI** | Commander, Ink (React 19) | TUI chat, smoke tests |
 | **Observability** | Pino, `prom-client` | Structured logs, request IDs, metrics |
-| **Testing** | Vitest + V8 coverage | 18 test files, 87 tests |
+| **Testing** | Vitest + V8 coverage | 18 test files, 119 tests |
 | **P2P** | WebRTC (browser-native, no npm deps) | 1:1 E2EE DM direct connection + server signaling relay |
 
 ---
@@ -320,7 +320,7 @@ The `signalService` in `apps/server/src/domain/signal/service.ts` provides the s
 
 ### Client Facade
 
-`packages/signal` provides a local facade with `generateIdentity`, `generatePreKeyBundle`, `encryptMessage`, and `decryptMessage`. This is used in tests and smoke scripts. Production Signal Protocol integration (`@signalapp/libsignal-client`) is an AGPL-3.0 dependency evaluated for licensing impact.
+`packages/signal` provides the E2EE abstraction layer via the `IE2eeProvider` interface. **Phase 1-2 (main branch)** uses ECDH key exchange + AES-256-GCM encryption via `@noble/curves` and `@noble/ciphers` (pure JS, HTTP-compatible, MIT license). **Signal Protocol (X3DH + Double Ratchet) is planned for Phase 3** and will be implemented on a **separate branch or distribution version** — not in the `main` branch — because `@signalapp/libsignal-client` is AGPL-3.0 licensed and must not be linked into the MIT-licensed codebase.
 
 ### E2EE Channel Restrictions
 
@@ -350,7 +350,7 @@ Alice ═══ WebRTC Data Channel ═══► Bob     (preferred, DTLS + Sign
 **Key properties:**
 
 - No npm dependencies — WebRTC is browser-native (`RTCPeerConnection`, `RTCDataChannel`).
-- Double encryption: DTLS (transport) + Signal Protocol (application).
+- Double encryption: DTLS (transport) + AES-256-GCM (application).
 - Server never sees P2P message content, timestamps, or counts — only signaling metadata.
 - TUI/CLI clients stay relay-only (Node.js lacks native WebRTC).
 
@@ -518,7 +518,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | Functions | 100.00% |
 | Lines | 100.00% |
 
-**Test breakdown (18 files, 89 tests):**
+**Test breakdown (18 files, 119 tests):**
 
 | Package | Test file | Tests |
 | --- | --- | --- |
@@ -615,6 +615,7 @@ Phase 1 is a local-development and closed-beta milestone. Key limitations:
 - **Electron packaging:** No production code signing, notarization, or auto-update publishing.
 - **Attachment UX:** Server-side attachment primitives exist; web/desktop upload UI is not built.
 - **P2P client support:** WebRTC-based P2P direct connection is available in web (browser) and Electron clients. TUI/CLI remains server-relay-only (Node.js lacks native `RTCPeerConnection`).
+- **Signal Protocol (Phase 3):** Not included in the MIT-licensed `main` branch. Full X3DH + Double Ratchet forward secrecy will ship on a separate distribution branch to avoid AGPL-3.0 license contamination from `@signalapp/libsignal-client`.
 
 See [docs/known-limitations.md](docs/known-limitations.md) for the complete list.
 
@@ -634,4 +635,4 @@ See `AGENTS.md` for the full convention reference.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). The `main` branch contains only MIT-compatible code. Signal Protocol (AGPL-3.0) will be distributed separately in Phase 3.

@@ -5,7 +5,7 @@ lang: en
 # 06 — Phase Roadmap & Milestone Plan
 
 > nexus-chat · Slack-like IM application  
-> Design date: June 2026 · Status: Draft v1.0  
+> Design date: June 2026 · Status: Draft v1.1 (updated 2026-07-10)  
 > Target: SaaS multi-tenant cloud deployment
 
 ---
@@ -69,7 +69,7 @@ Deliver a working Slack-like IM that demonstrates the key differentiator: **per-
 | **Channels** | Public/private channels, DM conversations, channel creation, archive, member management, per-channel mode toggle (normal/e2e) | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Messages** | Text messages, message state machine (Draft → Sending → Sent → Delivered → Read), cursor-based pagination (UUID v7), edit/delete (soft), emoji reactions | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Rich Content** | Markdown rendering (markdown-it + Shiki for code), emoji picker (emoji-mart), @mention autocomplete | [01 - Client Shell](01_Client_Shell_and_UI_Rendering_Layer.md) |
-| **DM E2E** | Signal Protocol for 1:1 DMs, X3DH key negotiation, Double Ratchet, client-side encrypt/decrypt, server opaque relay, PreKeyBundle server | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
+| **DM E2E** | ECDH + AES-256-GCM (Phase 1-2, MIT-compatible, main branch). Signal Protocol with X3DH + Double Ratchet planned for Phase 3 on a **separate distribution branch** — not in `main` — to avoid AGPL-3.0 license contamination from `@signalapp/libsignal`. | [10 - E2EE Encryption Abstract Layer](10_E2EE_Encryption_Abstract_Layer.md) |
 | **E2E Disappearing Messages** | Read-once and timer-based expiration policy for 1:1 E2E DMs; server stores only policy metadata, ciphertext, tombstone state, and expiry timestamps | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Bot (basic)** | Bot registration + token issuance (`nxbot_v1_xxx`), `/slash` command parse + routing, bot WebSocket connection lifecycle, Redis Streams event bus | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
 | **Gateway** | Hono HTTP server + Socket.IO WebSocket, JWT auth middleware, rate limiting (sliding window), CORS/Helmet.js/CSP, Zod validation, heartbeat (30s) | [02 - Gateway](02_Long_Connection_and_Core_Gateway_Layer.md) |
@@ -95,7 +95,7 @@ Deliver a working Slack-like IM that demonstrates the key differentiator: **per-
 | Package | Path | Purpose |
 |---------|------|---------|
 | `shared` | `packages/shared/` | Shared types, Zod schemas, constants |
-| `signal` | `packages/signal/` | Signal Protocol wrapper (@signalapp/libsignal) |
+| `signal` | `packages/signal/` | E2EE abstraction layer (IE2eeProvider + @noble/* implementation); Signal Protocol via `@signalapp/libsignal` on separate Phase 3 branch only |
 | `bot-sdk` | `packages/bot-sdk/` | Public Bot SDK (TypeScript/Node.js) |
 | `ui` | `packages/ui/` | Shared React UI components |
 | `server` | `apps/server/` | Monolith backend |
@@ -111,7 +111,7 @@ Deliver a working Slack-like IM that demonstrates the key differentiator: **per-
 | 3–4 | Auth + Gateway skeleton | Registration/login, JWT, Hono routes, Socket.IO setup, middleware chain |
 | 5–6 | Workspace + Channel CRUD | Workspace management, channel create/join/archive, DM creation flow |
 | 7–8 | Message pipeline | Send/receive via WS, message state machine, cursor pagination, edit/delete |
-| 9–10 | Signal Protocol integration | PreKeyBundle server, X3DH + Double Ratchet, E2E DM flow, read-once/disappearing policy |
+| 9–10 | E2EE infrastructure | ECDH + AES-256-GCM message encryption, PreKeyBundle server endpoints, E2E DM flow, read-once/disappearing policy, IE2eeProvider interface (placeholder, Phase 3 Signal Protocol deferred to AGPL-3.0 branch) |
 | 11–12 | Bot engine + Base bots (3) | Bot registration, slash command routing, Redis Streams, Welcome/Help/Notification bots |
 | 13 | Remaining base bots (4) | Reminder, Poll, Webhook, Kudos bots |
 | 14 | Electron shell + TUI client | Window management, tray, notifications, dark/light theme, terminal login/chat flows |
@@ -186,7 +186,7 @@ Enterprise-grade platform with voice/video, multi-agent AI, SSO, and a public bo
 |-------------|-------------|------------------|
 | **Voice & Video** | 1:1 and group voice/video calls (WebRTC), screen sharing, call history, raise hand, push-to-talk | — |
 | **SSO & OAuth** | SAML/OIDC integration, Google/Microsoft/GitHub OAuth login, directory sync (SCIM), enterprise identity provider | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
-| **Advanced E2E** | Verified safety numbers (QR code compare), device management (list/revoke), sealed sender, transparency/audit UX, advanced retention policy controls | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
+| **Advanced E2E** | Signal Protocol (X3DH + Double Ratchet, separate AGPL-3.0 branch), verified safety numbers (QR code compare), device management (list/revoke), sealed sender, transparency/audit UX, advanced retention policy controls | [10 - E2EE Encryption Abstract Layer](10_E2EE_Encryption_Abstract_Layer.md) |
 | **Multi-Device Sync** | Per-device PreKeyBundle management, multi-device session relay, device enrollment/revocation | [03 - Business Logic](03_Business_Logic_and_Persistence_Backend.md) |
 | **Enterprise Admin** | Admin dashboard, workspace analytics, audit logs, data retention policies, compliance exports (GDPR/CCPA), custom data residency regions | — |
 | **Enterprise Bots** | AutoMod (content filtering, spam detection, rate limiting), Status Bot (service health monitoring), Scheduler Bot (meeting scheduling), Meeting Notes Bot | [04 - Bot Engine](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md) |
@@ -216,17 +216,17 @@ Enterprise-grade platform with voice/video, multi-agent AI, SSO, and a public bo
 Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 3: Microservices
 
 ┌────────────────────┐              ┌────────────────────┐              ┌────────────────────┐
-│  Single Process:    │              │  App Node × N:      │              │  Gateway Service   │
-│  Hono + Socket.IO   │              │  ├─ Hono REST       │              │  (stateless, N×)   │
-│  + Bot Engine       │              │  ├─ Socket.IO       │              ├────────────────────┤
-│  + AI Agent Engine  │              │  ├─ Bot Engine      │              │  Message Service   │
-└────────┬───────────┘              │  └─ AI Engine       │              │  (stateful, N×)    │
-         │                           └────────┬───────────┘              ├────────────────────┤
-    ┌────┴────┐                           ┌───┴────┐                    │  Bot Engine        │
-    │   PG    │                           │  Redis │                    │  (NATS consumer)   │
-    │  Redis  │                           │Cluster │                    ├────────────────────┤
-    └─────────┘                           └───┬────┘                    │  AI Agent Engine   │
-    Event bus:                               │                         │  (NATS consumer)   │
+│  Single Process:   │              │  App Node × N:     │              │  Gateway Service   │
+│  Hono + Socket.IO  │              │  ├─ Hono REST      │              │  (stateless, N×)   │
+│  + Bot Engine      │              │  ├─ Socket.IO      │              ├────────────────────┤
+│  + AI Agent Engine │              │  ├─ Bot Engine     │              │  Message Service   │
+└────────┬───────────┘              │  └─ AI Engine      │              │  (stateful, N×)    │
+         │                          └────────┬───────────┘              ├────────────────────┤
+    ┌────┴────┐                          ┌───┴────┐                     │  Bot Engine        │
+    │   PG    │                          │  Redis │                     │  (NATS consumer)   │
+    │  Redis  │                          │Cluster │                     ├────────────────────┤
+    └─────────┘                          └───┬────┘                     │  AI Agent Engine   │
+    Event bus:                               │                          │  (NATS consumer)   │
     Redis Streams                     ┌──────┴──────┐                   ├────────────────────┤
                                       │    PG       │                   │  File Service      │
                                       │  Primary +  │                   │  (stateless, N×)   │
@@ -237,10 +237,10 @@ Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 
                                                                             │ JetStream │
                                                                             └────┬──────┘
                                                                                  │
-                                                                          ┌──────┴──────┐
-                                                                          │  PG per svc │
-                                                                          │  Redis Cluster│
-                                                                          └─────────────┘
+                                                                          ┌──────┴─────-─┐
+                                                                          │ PG per svc   │
+                                                                          │ Redis Cluster│
+                                                                          └────────────-─┘
 ```
 
 ### Key Infrastructure Milestones
@@ -368,7 +368,7 @@ Week 11-12: M6 Search Tool + M7 Polish        M13: Custom Agents
 | Package | Phase 1 | Phase 2 | Phase 3 |
 |---------|---------|---------|---------|
 | `packages/shared` | Types, Zod schemas, constants | + Streaming events, AI types, MCP schemas | + Enterprise types |
-| `packages/signal` | X3DH + Double Ratchet | + Sender Key, group E2E | + Sealed sender, device mgmt |
+| `packages/signal` | ECDH + AES-256-GCM (IE2eeProvider + @noble/*), PreKey endpoints | + Sender Key, group E2E | + Signal Protocol (X3DH + Double Ratchet, AGPL-3.0 branch), sealed sender, device mgmt |
 | `packages/bot-sdk` | Core SDK (WS + events + messages) | + Interactive components, webhook, KV store, DB access, localization | + AI tool access, marketplace hooks |
 | `packages/ui` | Button, Input, Modal, Avatar, Layout | + StreamRenderer, ToolCallCard, ConfirmationDialog | + AgentBuilder, AdminDashboard |
 | `packages/ai-bot` | — | ProviderLayer, StreamManager, AgentRouter, Tools, Memory | + MultiAgent, CodeSandbox, SelfHosted |
@@ -386,5 +386,9 @@ Week 11-12: M6 Search Tool + M7 Polish        M13: Custom Agents
 > - [03 — Business Logic & Persistence](03_Business_Logic_and_Persistence_Backend.md)
 > - [04 — Async Bot Engine & Event Dispatch](04_Async_Bot_Engine_and_Event_Dispatch_Layer.md)
 > - [05 — AI Agent Orchestration & Streaming](05_AI_Agent_Orchestration_and_Streaming.md)
+> - [07 — P2P DM Direct Connection](07_P2P_DM_Direct_Connection.md)
+> - [08 — TUI Chat Redesign](08_TUI_Chat_Redesign.md)
+> - [09 — Web Client UI Design](09_Web_Client_UI_Design.md)
+> - [10 — E2EE Encryption Abstract Layer](10_E2EE_Encryption_Abstract_Layer.md)
 > - [Base Bot Catalog Research](../research/base-bot-catalog.md)
 > - [AI Agent Orchestration Research](../research/ai-agent-orchestration.md)

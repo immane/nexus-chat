@@ -1,63 +1,68 @@
+import { placeholderProvider } from "./placeholder.js";
+import { nobleProvider } from "./noble.js";
+import { webcryptoProvider } from "./webcrypto.js";
+import type { E2eeCiphertext, EncryptedFile, FileEncryptionKey, IE2eeProvider, LocalSignalIdentity, SignalSession, SignalSessionStore } from "./types.js";
+import { createInMemorySignalSessionStore } from "./types.js";
 import type { SignalPreKeyBundle } from "@nexus-chat/shared";
 
-export type LocalSignalIdentity = {
-  userId: string;
-  deviceId: string;
-  identityKeyPublic: string;
-  identityKeyPrivate: string;
-  signedPreKeyPublic: string;
-  signedPreKeyPrivate: string;
-  signedPreKeySignature: string;
-  oneTimePreKeys: Array<{ id: number; publicKey: string; privateKey: string }>;
+export type { LocalSignalIdentity, SignalSession, SignalSessionStore, E2eeCiphertext, EncryptedFile, FileEncryptionKey, IE2eeProvider };
+export { createInMemorySignalSessionStore };
+
+function selectProvider(): IE2eeProvider {
+  /* c8 ignore next */
+  const backend = typeof process !== "undefined" ? process.env.E2EE_BACKEND : undefined;
+
+  if (backend === "noble") return nobleProvider;
+
+  if (backend === "webcrypto") {
+    if (typeof window !== "undefined" && window.isSecureContext) return webcryptoProvider;
+    console.warn("[E2EE] Web Crypto requires secure context (HTTPS/localhost). Falling back.");
+  }
+
+  if (backend === "placeholder") return placeholderProvider;
+
+  return nobleProvider;
+}
+
+const provider: IE2eeProvider = selectProvider();
+
+export const createLocalSignalIdentity = (userId: string, deviceId: string, preKeyCount?: number): Promise<LocalSignalIdentity> =>
+  provider.createLocalIdentity(userId, deviceId, preKeyCount);
+
+export const toPreKeyBundle = (identity: LocalSignalIdentity): SignalPreKeyBundle =>
+  provider.toPreKeyBundle(identity);
+
+export const establishSession = (identity: LocalSignalIdentity, peerBundle: SignalPreKeyBundle, sessionStore?: SignalSessionStore): Promise<SignalSession> =>
+  provider.establishSession(identity, peerBundle, sessionStore);
+
+export const encryptForSession = async (session: SignalSession, plaintext: string): Promise<E2eeCiphertext> => {
+  const result = await provider.encryptForSession(session, plaintext);
+  return { type: "ciphertext", ciphertext: `${result.iv}.${result.ciphertext}`, algorithm: result.algorithm, iv: result.iv };
 };
 
-export type SignalSession = { sessionId: string; peerUserId: string; peerDeviceId: string; establishedAt: string };
-
-export type SignalSessionStore = {
-  get(sessionId: string): SignalSession | undefined;
-  set(sessionId: string, session: SignalSession): void;
-  listByPeer(userId: string, deviceId: string): SignalSession[];
-  delete(sessionId: string): void;
+export const decryptFromSession = async (session: SignalSession, ciphertext: string): Promise<string> => {
+  const dot = ciphertext.indexOf(".");
+  if (dot > 0) {
+    const iv = ciphertext.slice(0, dot);
+    const ct = ciphertext.slice(dot + 1);
+    return provider.decryptFromSession(session, ct, iv);
+  }
+  return provider.decryptFromSession(session, ciphertext, "");
 };
 
-export const createInMemorySignalSessionStore = (): SignalSessionStore => {
-  const sessions = new Map<string, SignalSession>();
-  return {
-    get(sessionId) { return sessions.get(sessionId); },
-    set(sessionId, session) { sessions.set(sessionId, session); },
-    listByPeer(userId, deviceId) {
-      return [...sessions.values()].filter((s) => s.peerUserId === userId && s.peerDeviceId === deviceId);
-    },
-    delete(sessionId) { sessions.delete(sessionId); }
-  };
+export const encryptFile = (file: Blob, key: FileEncryptionKey): Promise<EncryptedFile> =>
+  provider.encryptFile(file, key);
+
+export const decryptFile = (encrypted: EncryptedFile, key: FileEncryptionKey): Promise<Blob> =>
+  provider.decryptFile(encrypted, key);
+
+export const deriveFileKey = (session: SignalSession): Promise<FileEncryptionKey> =>
+  provider.deriveFileKey(session);
+
+export const extractOneTimePreKeys = (identity: LocalSignalIdentity): Array<{ keyId: number; publicKey: string }> => {
+  const hex = identity.oneTimePreKeys.map((pk) => ({ keyId: pk.id, publicKey: Array.from(pk.publicKey, (b) => b.toString(16).padStart(2, "0")).join("") }));
+  return hex;
 };
-
-const randomString = () => crypto.getRandomValues(new Uint8Array(32)).reduce((value, byte) => value + byte.toString(16).padStart(2, "0"), "");
-
-export const createLocalSignalIdentity = (userId: string, deviceId: string, oneTimePreKeyCount = 20): LocalSignalIdentity => ({
-  userId,
-  deviceId,
-  identityKeyPublic: randomString(),
-  identityKeyPrivate: randomString(),
-  signedPreKeyPublic: randomString(),
-  signedPreKeyPrivate: randomString(),
-  signedPreKeySignature: randomString(),
-  oneTimePreKeys: Array.from({ length: oneTimePreKeyCount }, (_, index) => ({ id: index + 1, publicKey: randomString(), privateKey: randomString() }))
-});
-
-export const toPreKeyBundle = (identity: LocalSignalIdentity): SignalPreKeyBundle => ({
-  userId: identity.userId,
-  deviceId: identity.deviceId,
-  identityKey: identity.identityKeyPublic,
-  signedPreKeyId: 1,
-  signedPreKey: identity.signedPreKeyPublic,
-  signedPreKeySignature: identity.signedPreKeySignature,
-  oneTimePreKeyId: identity.oneTimePreKeys[0]?.id,
-  oneTimePreKey: identity.oneTimePreKeys[0]?.publicKey
-});
-
-export const extractOneTimePreKeys = (identity: LocalSignalIdentity): Array<{ keyId: number; publicKey: string }> =>
-  identity.oneTimePreKeys.map((pk) => ({ keyId: pk.id, publicKey: pk.publicKey }));
 
 export const consumeOneTimePreKey = (identity: LocalSignalIdentity, keyId: number): boolean => {
   const index = identity.oneTimePreKeys.findIndex((pk) => pk.id === keyId);
@@ -65,22 +70,3 @@ export const consumeOneTimePreKey = (identity: LocalSignalIdentity, keyId: numbe
   identity.oneTimePreKeys.splice(index, 1);
   return true;
 };
-
-export const establishSession = (_identity: LocalSignalIdentity, peerBundle: SignalPreKeyBundle, sessionStore?: SignalSessionStore): SignalSession => {
-  const session: SignalSession = {
-    sessionId: `signal:${peerBundle.userId}:${peerBundle.deviceId}:${randomString()}`,
-    peerUserId: peerBundle.userId,
-    peerDeviceId: peerBundle.deviceId,
-    establishedAt: new Date().toISOString()
-  };
-  if (sessionStore) sessionStore.set(session.sessionId, session);
-  return session;
-};
-
-export const encryptForSession = async (_session: SignalSession, plaintext: string) => ({
-  type: "ciphertext" as const,
-  ciphertext: btoa(plaintext),
-  algorithm: "signal-v1" as const
-});
-
-export const decryptFromSession = async (_session: SignalSession, ciphertext: string) => atob(ciphertext);

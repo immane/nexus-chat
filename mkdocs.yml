@@ -61,6 +61,7 @@ nav:
       - P2P DM Direct Connection: design/07_P2P_DM_Direct_Connection.md
       - TUI Chat Redesign: design/08_TUI_Chat_Redesign.md
       - Web Client UI Design: design/09_Web_Client_UI_Design.md
+      - E2EE Encryption Abstract Layer: design/10_E2EE_Encryption_Abstract_Layer.md
   - Research:
       - Frontend Architecture: research/frontend-architecture.md
       - Backend IM & State Machine: research/backend-im-state-machine.md

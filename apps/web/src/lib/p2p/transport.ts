@@ -5,7 +5,7 @@ import type { P2pMessageFrame, P2pAckFrame } from "./types.js";
 import { P2P_CONNECTION_TIMEOUT_MS } from "./types.js";
 
 type WsSend = (event: string, payload: unknown) => Promise<unknown>;
-type E2eTransportContent = { type: "ciphertext"; ciphertext: string; algorithm: "signal-v1"; senderDeviceId: string; readOnce?: boolean; expiresAt?: string; attachments: Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }> };
+type E2eTransportContent = { type: "ciphertext"; ciphertext: string; algorithm: string; senderDeviceId: string; readOnce?: boolean; expiresAt?: string; attachments: Array<{ fileId: string; name: string; mimeType: string; size: number; scanStatus: string }> };
 type MessageHandler = (message: { content: E2eTransportContent; senderId: string; workspaceId: string; channelId: string; clientMsgId: string; id: string; timestamp: string }) => void;
 
 export class HybridTransport {

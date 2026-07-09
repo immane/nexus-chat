@@ -4,13 +4,14 @@ lang: en
 
 # Nexus Chat — System High-Level Architecture Design
 
-> **Document version**: v1.0  
-> **Last updated**: 2026-06-24  
-> **Status**: Draft  
+> **Document version**: v1.1
+> **Last updated**: 2026-07-10
+> **Status**: Draft
 > **References**:
 > - [Frontend Architecture Research](../research/frontend-architecture.md)
 > - [IM Backend Architecture Research](../research/backend-im-state-machine.md)
 > - [Security & E2EE Roadmap](../research/security-defense-e2ee-roadmap.md)
+> - [E2EE Encryption Abstract Layer](../design/10_E2EE_Encryption_Abstract_Layer.md)
 > - [Bot Engine & Microservices Research](../research/bot-engine-microservices.md)
 > - [Base Bot Catalog Research](../research/base-bot-catalog.md)
 > - [AI Agent Orchestration Research](../research/ai-agent-orchestration.md)
@@ -48,7 +49,7 @@ Every channel and DM in Nexus Chat operates in one of two encryption modes, sele
 Key design implications of the hybrid model:
 
 - **Normal channels** allow bots to participate in conversations, execute slash commands, and react to message events. The server processes and stores message content in plaintext (encrypted at rest via PostgreSQL TDE or filesystem encryption).
-- **E2E channels** use the [Signal Protocol](https://github.com/signalapp/libsignal) (`@signalapp/libsignal`). The server sees only ciphertext blobs, encrypted metadata, and lifecycle policy metadata for read-once/disappearing messages. Key exchange, ratchet advancement, and message decryption happen exclusively on clients. The server's role is reduced to store-and-forward relay plus tombstone/expiry enforcement without plaintext access.
+- **E2E channels** use client-side ECDH key exchange and AES-256-GCM encryption. The server sees only ciphertext blobs and encrypted metadata. Key exchange, encryption, and message decryption happen exclusively on clients. The server's role is reduced to store-and-forward relay plus tombstone/expiry enforcement without plaintext access.
 - A single workspace can contain both normal and E2E channels side-by-side. The mode badge is visible in the channel sidebar.
 
 For detailed E2EE threat modeling and Signal Protocol integration design, see [Security & E2EE Roadmap](../research/security-defense-e2ee-roadmap.md).
@@ -67,51 +68,51 @@ The platform follows a standard SaaS multi-tenant model:
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                    Client Shell (Electron)                        │
+│                    Client Shell (Electron)                       │
 │  ┌────────────────────────────────────────────────────────────┐  │
 │  │              UI Rendering (React 19 + Vite 7)              │  │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │  │
-│  │  │ Sidebar  │  │ Chat View│  │ Thread   │  │ Settings  │  │  │
-│  │  │ Panel    │  │ (Virtuoso│  │ Panel    │  │ Panel     │  │  │
-│  │  │          │  │  virtual)│  │          │  │           │  │  │
-│  │  └──────────┘  └──────────┘  └──────────┘  └───────────┘  │  │
-│  │                    Zustand State Layer                      │  │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │  │
-│  │  │ Message  │  │ Channel  │  │ User/    │  │ UI State  │  │  │
-│  │  │ Store    │  │ Store    │  │ Presence │  │ Store     │  │  │
-│  │  └──────────┘  └──────────┘  └──────────┘  └───────────┘  │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐   │  │
+│  │  │ Sidebar  │  │ Chat View│  │ Thread   │  │ Settings  │   │  │
+│  │  │ Panel    │  │ (Virtuoso│  │ Panel    │  │ Panel     │   │  │
+│  │  │          │  │  virtual)│  │          │  │           │   │  │
+│  │  └──────────┘  └──────────┘  └──────────┘  └───────────┘   │  │
+│  │                    Zustand State Layer                     │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐   │  │
+│  │  │ Message  │  │ Channel  │  │ User/    │  │ UI State  │   │  │
+│  │  │ Store    │  │ Store    │  │ Presence │  │ Store     │   │  │
+│  │  └──────────┘  └──────────┘  └──────────┘  └───────────┘   │  │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────────────────────┐  │  │
 │  │  │ Offline  │  │ Signal   │  │ IndexedDB / localStorage │  │  │
 │  │  │ Queue    │  │ Protocol │  │ (persistence)            │  │  │
 │  │  └──────────┘  │ Client   │  └──────────────────────────┘  │  │
-│  │                └──────────┘                                 │  │
+│  │                └──────────┘                                │  │
 │  └────────────────────────────────────────────────────────────┘  │
 │  ┌────────────────────────────────────────────────────────────┐  │
-│  │              Preload Bridge (contextBridge + IPC)           │  │
+│  │              Preload Bridge (contextBridge + IPC)          │  │
 │  └────────────────────────────────────────────────────────────┘  │
 │  ┌────────────────────────────────────────────────────────────┐  │
-│  │         Main Process (Node.js)                              │  │
+│  │         Main Process (Node.js)                             │  │
 │  │  ├── Window Manager  ├── Tray & Notifications              │  │
-│  │  ├── Auto Updater    ├── Network Monitor                    │  │
-│  │  └── Offline Cache (protocol.handle)                        │  │
+│  │  ├── Auto Updater    ├── Network Monitor                   │  │
+│  │  └── Offline Cache (protocol.handle)                       │  │
 │  └────────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────┘
                               │ HTTPS / WSS
                               │ (REST API + WebSocket)
 ┌─────────────────────────────┴────────────────────────────────────┐
-│               Long Connection & Core Gateway                      │
+│               Long Connection & Core Gateway                     │
 │  ┌──────────────────────────┐  ┌──────────────────────────────┐  │
-│  │   Hono HTTP Server        │  │   Socket.IO WebSocket Server │  │
-│  │  ├── Auth (JWT + Session) │  │  ├── Auth Middleware         │  │
-│  │  ├── REST API Routes      │  │  ├── Connection Manager     │  │
-│  │  ├── Rate Limiter         │  │  ├── Room/Channel Routing   │  │
-│  │  ├── CORS / Helmet / CSP  │  │  ├── Message ACK + Retry   │  │
-│  │  └── Zod Validation       │  │  └── Heartbeat (25s/20s)   │  │
+│  │   Hono HTTP Server       │  │   Socket.IO WebSocket Server │  │
+│  │  ├── Auth (JWT + Session)│  │  ├── Auth Middleware         │  │
+│  │  ├── REST API Routes     │  │  ├── Connection Manager      │  │
+│  │  ├── Rate Limiter        │  │  ├── Room/Channel Routing    │  │
+│  │  ├── CORS / Helmet / CSP │  │  ├── Message ACK + Retry     │  │
+│  │  └── Zod Validation      │  │  └── Heartbeat (25s/20s)     │  │
 │  └──────────────────────────┘  └──────────────────────────────┘  │
 └─────────────────────────────┬────────────────────────────────────┘
                               │
 ┌─────────────────────────────┴────────────────────────────────────┐
-│            Business Logic & Persistence Backend                    │
+│            Business Logic & Persistence Backend                  │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
 │  │ Auth     │  │ Workspace│  │ Channel  │  │ Message Service  │  │
 │  │ Service  │  │ Service  │  │ Service  │  │ ├── Send/Receive │  │
@@ -119,52 +120,52 @@ The platform follows a standard SaaS multi-tenant model:
 │  │          │  │          │  │          │  │ ├── Pagination   │  │
 │  │          │  │          │  │          │  │ └── Read Receipts│  │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────────────┘  │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────────────────────────┐ │
-│  │ Signal   │  │ Attach.  │  │ Bot Router + Event Bus           │ │
-│  │ Key      │  │ Service  │  │ (Redis Streams → NATS Phase 2)   │ │
-│  │ Service  │  │          │  │                                  │ │
-│  └──────────┘  └──────────┘  └──────────────────────────────────┘ │
-│                                                                   │
+│  ┌──────────┐  ┌──────────┐  ┌─────────────────────────────────┐ │
+│  │ Signal   │  │ Attach.  │  │ Bot Router + Event Bus          │ │
+│  │ Key      │  │ Service  │  │ (Redis Streams → NATS Phase 2)  │ │
+│  │ Service  │  │          │  │                                 │ │
+│  └──────────┘  └──────────┘  └─────────────────────────────────┘ │
+│                                                                  │
 │  ┌────────────────────────┐  ┌────────────────────────────────┐  │
-│  │  PostgreSQL             │  │  Redis                         │  │
-│  │  ├── Users              │  │  ├── Session / Auth Token      │  │
-│  │  ├── Workspaces         │  │  ├── Online Presence           │  │
-│  │  ├── Channels           │  │  ├── Channel Members (cache)   │  │
-│  │  ├── Messages (JSONB)   │  │  ├── Recent Messages (hot)     │  │
-│  │  ├── Attachments / Files│  │  ├── Read Cursors             │  │
-│  │  ├── Read Receipts      │  │  ├── Rate Limit Counters       │  │
-│  │  └── Signal Key Bundles │  │  └── Socket.IO Pub/Sub Adapter│  │
+│  │  PostgreSQL            │  │  Redis                         │  │
+│  │  ├── Users             │  │  ├── Session / Auth Token      │  │
+│  │  ├── Workspaces        │  │  ├── Online Presence           │  │
+│  │  ├── Channels          │  │  ├── Channel Members (cache)   │  │
+│  │  ├── Messages (JSONB)  │  │  ├── Recent Messages (hot)     │  │
+│  │  ├── Attachments/Files │  │  ├── Read Cursors              │  │
+│  │  ├── Read Receipts     │  │  ├── Rate Limit Counters       │  │
+│  │  └── Signal Key Bundles│  │  └── Socket.IO Pub/Sub Adapter │  │
 │  └────────────────────────┘  └────────────────────────────────┘  │
 └─────────────────────────────┬────────────────────────────────────┘
                               │
 ┌─────────────────────────────┴────────────────────────────────────┐
-│           Async Bot Engine & Event Dispatch                       │
+│           Async Bot Engine & Event Dispatch                      │
 │  ┌─────────────────────┐  ┌───────────────┐  ┌────────────────┐  │
 │  │ Event Listener      │  │ Bot SDK       │  │ Bot WebSocket  │  │
-│  │ (Redis Streams      │  │ (Multi-lang    │  │ Connection     │  │
-│  │  Consumer Group)    │  │  SDK for devs) │  │ (per-bot WS)   │  │
+│  │ (Redis Streams      │  │ (Multi-lang   │  │ Connection     │  │
+│  │  Consumer Group)    │  │  SDK for devs)│  │ (per-bot WS)   │  │
 │  └────────┬────────────┘  └───────────────┘  └────────────────┘  │
-│           │                                                       │
+│           │                                                      │
 │  ┌────────┴──────────────────────────────────────────────────┐   │
-│  │ Bot Command Router                                         │   │
-│  │ ├── /slash commands → per-bot BullMQ queues                │   │
-│  │ ├── @mentions → event dispatch                             │   │
-│  │ ├── Interactive (buttons, modals)                          │   │
-│  │ └── Streaming relay (stream_start/chunk/end/cancel)        │   │
-│  └────────────────────────────────────────────────────────────┘   │
-│                                                                   │
-│  ┌───────────────┐  ┌───────────────┐  ┌────────────────────┐   │
-│  │ Built-in Bots │  │ @AIBot        │  │ @FileBot           │   │
-│  │ (Welcome/Help │  │ (LLM/Agent/   │  │ (UX/workflow over  │   │
-│  │  Notify/Poll/ │  │  Tools)       │  │  Attachment Svc)   │   │
-│  │  Remind/Kudos)│  │               │  │                    │   │
-│  └───────────────┘  └───────────────┘  └────────────────────┘   │
-│                                                                   │
-│  ┌────────────────────────────────────────────────────────────┐   │
+│  │ Bot Command Router                                        │   │
+│  │ ├── /slash commands → per-bot BullMQ queues               │   │
+│  │ ├── @mentions → event dispatch                            │   │
+│  │ ├── Interactive (buttons, modals)                         │   │
+│  │ └── Streaming relay (stream_start/chunk/end/cancel)       │   │
+│  └───────────────────────────────────────────────────────────┘   │
+│                                                                  │
+│  ┌───────────────┐  ┌───────────────┐  ┌────────────────────┐    │
+│  │ Built-in Bots │  │ @AIBot        │  │ @FileBot           │    │
+│  │ (Welcome/Help │  │ (LLM/Agent/   │  │ (UX/workflow over  │    │
+│  │  Notify/Poll/ │  │  Tools)       │  │  Attachment Svc)   │    │
+│  │  Remind/Kudos)│  │               │  │                    │    │
+│  └───────────────┘  └───────────────┘  └────────────────────┘    │
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐   │
 │  │ 3rd-party Bots (any language — SDK: TS/Java/Py/PHP/Go/Rs) │   │
-│  │ ├── GitHub/GitLab Bot    ├── CI/CD Bot    ├── Standup Bot  │   │
-│  │ ├── Todo Bot             ├── Status Bot   └── ...          │   │
-│  └────────────────────────────────────────────────────────────┘   │
+│  │ ├── GitHub/GitLab Bot    ├── CI/CD Bot    ├── Standup Bot │   │
+│  │ ├── Todo Bot             ├── Status Bot   └── ...         │   │
+│  └───────────────────────────────────────────────────────────┘   │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -172,7 +173,7 @@ The platform follows a standard SaaS multi-tenant model:
 
 | Layer | Responsibility | Key Components |
 |-------|---------------|----------------|
-| **Client Shell** | Desktop runtime, native OS integration, offline persistence, Signal Protocol E2EE client | Electron main process, preload bridge, Zustand stores, IndexedDB |
+| **Client Shell** | Desktop runtime, native OS integration, offline persistence, E2EE client (ECDH + AES-256-GCM) | Electron main process, preload bridge, Zustand stores, IndexedDB |
 | **Core Gateway** | Authentication, request validation, WebSocket connection management, rate limiting, message routing | Hono HTTP server, Socket.IO server, Redis Adapter for horizontal WebSocket scaling |
 | **Business Logic Backend** | Domain logic for auth, workspaces, channels, messages, Signal key distribution, attachment lifecycle, and bot event routing. Bots may initiate workflows, but core owns persistence, authorization, indexing, encryption boundaries, and lifecycle-critical state. | Service modules, Drizzle ORM, PostgreSQL, Redis caching layers, Attachment Service |
 | **Async Bot Engine** | Decoupled bot lifecycle, event-driven message processing, multi-language Bot SDK, streaming relay, built-in bots (@AIBot, @FileBot, @WelcomeBot, etc.), third-party bot hosting | Redis Streams consumer groups, BullMQ per-bot queues, Bot WebSocket connections, slash-command router, chunk batcher |
@@ -240,12 +241,14 @@ nexus-chat/
 │   │   │   └── utils/          # Shared utility functions
 │   │   └── package.json
 │   │
-│   ├── signal/                 # @signalapp/libsignal abstraction layer
+│   ├── signal/                 # E2EE abstraction layer (interface + 3 implementations)
 │   │   ├── src/
-│   │   │   ├── protocol.ts     # Key generation, PreKey bundle management
-│   │   │   ├── session.ts      # Session cipher (encrypt/decrypt per session)
-│   │   │   ├── store.ts        # Signal Protocol Store implementation
-│   │   │   └── group.ts        # Group messaging (Sender Key distribution)
+│   │   │   ├── types.ts        # IE2eeProvider interface, shared types
+│   │   │   ├── index.ts        # Provider selection + re-export
+│   │   │   ├── noble.ts        # @noble/* implementation (ECDH + AES-256-GCM, production)
+│   │   │   ├── webcrypto.ts    # SubtleCrypto implementation (HTTPS/localhost only)
+│   │   │   ├── placeholder.ts  # Base64 placeholder (Phase 3 fallback, @deprecated)
+│   │   │   └── crypto.ts       # File encryption/decryption helpers
 │   │   └── package.json
 │   │
 │   ├── bot-sdk/                # Bot development SDK for third-party developers
@@ -311,7 +314,7 @@ apps/tui ───────→ packages/shared
 | **Cache / Pub/Sub** | Redis 7+ | — | Multi-layer caching (session, presence, hot messages, read cursors), Pub/Sub for Socket.IO horizontal scaling, rate limiting |
 | **Event Bus (Phase 1)** | Redis Streams | built-in via ioredis | Zero-cost event bus on existing Redis; consumer groups for bot engine |
 | **Event Bus (Phase 2+)** | NATS JetStream | latest | Subject-hierarchy routing, persistence, cross-cluster federation, <0.5ms p50 latency |
-| **Encryption** | @signalapp/libsignal | latest | Signal Protocol (X3DH key agreement + Double Ratchet), FOSS, audited |
+| **Encryption** | ECDH + AES-256-GCM (via @noble/curves + @noble/ciphers) | latest | Client-side E2EE: ECDH key exchange + AES-256-GCM per message; protocol-agnostic interface allows Phase 3 upgrade to @signalapp/libsignal (X3DH + Double Ratchet) |
 | **Validation** | Zod | ^3.23 | Runtime type validation at API boundaries, schema sharing between client and server |
 | **Logging** | Pino | ^9.5 | High-performance structured JSON logging, negligible overhead |
 | **File Storage** | Core Attachment Service + S3-compatible storage (R2 / MinIO) | — | Core owns upload sessions, authorization, scan status, object keys, signed URLs, and E2E opaque blobs; @FileBot only provides file-management UX/workflows |
@@ -338,8 +341,8 @@ Sender Client                  Gateway/Server                   Recipient Client
      │                              │ 4. Validate Content (Zod)        │
      │                              │ 5. INSERT INTO messages          │
      │                              │    (assign server ID, UUID v7)   │
-     │ 6. message:ack ─────────────│                                  │
-     │    {messageId, status:      │                                  │
+     │ 6. message:ack ────────────-─│                                  │
+     │    {messageId, status:       │                                  │
      │     "sent"}                  │                                  │
      │                              │ 7. Cache → Redis (ZADD hot)      │
      │                              │ 8. Publish Event → Redis Streams │
@@ -348,14 +351,14 @@ Sender Client                  Gateway/Server                   Recipient Client
      │                              │10. message:new ─────────────────→│
      │                              │    {full Message object}         │
      │                              │                                  │
-     │                              │11. ← message:delivered ─────────│
+     │                              │11. ← message:delivered ───────-──│
      │                              │    {messageId, userId}           │
-     │12. ← message:delivered ─────│                                  │
+     │12. ← message:delivered ───── │                                  │
      │                              │                                  │
-     │                              │13. ← message:read ──────────────│
+     │                              │13. ← message:read ───────────-───│
      │                              │    {channelId, userId,           │
      │                              │     lastReadMessageId}           │
-     │14. ← message:read ──────────│                                  │
+     │14. ← message:read ───────-───│                                  │
      │                              │15. Read Receipt Aggregator       │
      │                              │    (buffer 3s → batch UPSERT)    │
 ```
@@ -374,42 +377,44 @@ Sender Client                  Gateway/Server                   Recipient Client
 Sender Client                  Gateway/Server                   Recipient Client(s)
      │                              │                                  │
      │ 1. Encrypt locally:          │                                  │
-     │    - Resolve PreKey bundle   │                                  │
-     │      for each recipient      │                                  │
-     │    - Advance Double Ratchet  │                                  │
-     │    - Encrypt content →       │                                  │
-     │      ciphertext blob         │                                  │
+     │    - Resolve peer's PreKey   │                                  │
+     │      bundle from server      │                                  │
+     │    - ECDH key exchange       │                                  │
+     │    - Derive shared AES key   │                                  │
+     │    - AES-256-GCM encrypt     │                                  │
+     │      content → ciphertext    │                                  │
      │                              │                                  │
      │ 2. message:e2e:send ────────→│                                  │
      │    {channelId, clientMsgId,  │                                  │
      │     ciphertext,              │                                  │
+     │     algorithm, iv,           │                                  │
      │     senderDeviceId}          │                                  │
      │                              │ 3. Auth + Rate Limit Check       │
      │                              │ 4. Idempotency Check (Redis)     │
      │                              │ 5. Store ciphertext as-is        │
      │                              │    INSERT INTO messages          │
      │                              │    (content = encrypted blob)    │
-     │ 6. message:ack ─────────────│                                  │
-     │    {messageId, status:      │                                  │
+     │ 6. message:ack ─────────────-│                                  │
+     │    {messageId, status:       │                                  │
      │     "sent"}                  │                                  │
      │                              │ 7. message:e2e:new ─────────────→│
      │                              │    {ciphertext blob,             │
      │                              │     senderDeviceId}              │
      │                              │                                  │
-     │                              │    ⚠ Server NEVER decrypts      │
+     │                              │    ⚠ Server NEVER decrypts       │
      │                              │    ⚠ No bot dispatch possible    │
      │                              │    ⚠ No server-side search       │
      │                              │                                  │
      │                              │ 8. Client decrypts locally:      │
      │                              │    - Lookup session by           │
      │                              │      senderDeviceId              │
-     │                              │    - Decrypt with Double Ratchet │
+     │                              │    - AES-256-GCM decrypt         │
      │                              │    - Render plaintext            │
 ```
 
 **Key characteristics:**
 
-- All encryption/decryption happens on the client using the shared `packages/signal` library.
+- All encryption/decryption happens on the client using the shared `packages/signal` library (currently ECDH + AES-256-GCM; Phase 3 upgrade path to Signal Protocol via `IE2eeProvider` interface).
 - The server is a **blind relay**: it stores and forwards opaque ciphertext blobs. The server cannot read message content, nor can it perform full-text search on E2E channels.
 - Read-once/disappearing messages are enforced through metadata only: read acknowledgments, expiry timestamps, and tombstone state. Clients must delete local plaintext when the policy expires.
 - Bots **cannot** participate in E2E channels — this is an architectural trade-off. The E2E protocol has no mechanism to include a third-party key in the ratchet without defeating the end-to-end guarantee.
@@ -421,17 +426,17 @@ Sender Client                  Gateway/Server                   Recipient Client
 ```
 User Client                Gateway/Server                   Bot Engine                 Bot (3rd-party)
      │                         │                                │                            │
-     │ 1. Type /poll          │                                │                            │
-     │    "Best language?"    │                                │                            │
+     │ 1. Type /poll           │                                │                            │
+     │    "Best language?"     │                                │                            │
      │ 2. bot.command.invoke ─→│                                │                            │
      │    {botName: "poll",    │                                │                            │
      │     command: "create",  │                                │                            │
-     │     args: [...]}         │                                │                            │
+     │     args: [...]}        │                                │                            │
      │                         │ 3. Auth + command lookup       │                            │
      │                         │    (bot installed in channel)  │                            │
      │                         │ 4. Publish to Redis Streams    │                            │
      │                         │    XADD events:bot-commands    │                            │
-     │ 5. command:ack ───────│                                │                            │
+     │ 5. command:ack   ───────│                                │                            │
      │                         │                                │ 6. Consumer Group reads    │
      │                         │                                │    event                   │
      │                         │                                │ 7. Route to installed bot  │
@@ -441,13 +446,13 @@ User Client                Gateway/Server                   Bot Engine          
      │                         │                                │                            │ 9. Bot processes
      │                         │                                │                            │    command
      │                         │                                │                            │10. Bot responds
-     │                         │                                │ ← Bot WS response ────────│
+     │                         │                                │ ← Bot WS response  ────────│
      │                         │                                │11. Validate response       │
      │                         │                                │12. Send to channel ───────→│
      │                         │                                │    io.to(channel).emit()   │
      │                         │                                │                            │
-     │ ← Bot response ────────│                                │                            │
-     │   (message:new)        │                                │                            │
+     │ ← Bot response  ────────│                                │                            │
+     │   (message:new)         │                                │                            │
 ```
 
 **Key characteristics:**
@@ -462,47 +467,47 @@ User Client                Gateway/Server                   Bot Engine          
 
 ```
 User Client                Gateway/Server               AI Agent Engine            LLM Provider
-     │                         │                              │                          │
-     │ 1. /ai summarize        │                              │                          │
-     │    yesterday            │                              │                          │
-     │ 2. bot.command.invoke ─→│                              │                          │
-     │                         │ 3. Auth + route /ai command  │                          │
-     │                         │ 4. Publish to AI Streams ───→│                          │
-     │ 5. command:ack ───────│                              │                          │
-     │                         │                              │ 6. Command Parser        │
+     │                         │                              │                           │
+     │ 1. /ai summarize        │                              │                           │
+     │    yesterday            │                              │                           │
+     │ 2. bot.command.invoke ─→│                              │                           │
+     │                         │ 3. Auth + route /ai command  │                           │
+     │                         │ 4. Publish to AI Streams ───→│                           │
+     │ 5. command:ack ─────────│                              │                           │
+     │                         │                              │ 6. Command Parser         │
      │                         │                              │    identifies "summarize" │
      │                         │                              │    agent, extracts intent │
      │                         │                              │ 7. Agent Router selects   │
      │                         │                              │    SummarizeAgent + model │
      │                         │                              │ 8. Memory Manager builds  │
      │                         │                              │    context (recent msgs,  │
-      │                         │                              │    full-text search tool) │
+     │                         │                              │    full-text search tool) │
      │                         │                              │                           │
-     │                         │ ← 9. message.stream_start ──│                           │
+     │                         │ ← 9. message.stream_start  ──│                           │
      │                         │    {placeholderMessageId}    │                           │
      │ ← message.stream_start──│                              │                           │
      │    (placeholder in UI)  │                              │                           │
      │                         │                              │10. Prompt sent ──────────→│
      │                         │                              │                           │
-     │                         │                              │ ← stream_chunk (token) ──│
-     │                         │ ← 11. message.stream_chunk ─│                           │
+     │                         │                              │ ← stream_chunk (token)  ──│
+     │                         │ ← 11. message.stream_chunk  ─│                           │
      │                         │    {chunkIndex, content}     │    (every ~100ms)         │
-     │ ← stream_chunk ────────│                              │                           │
+     │ ← stream_chunk ─────────│                              │                           │
      │    (progressive render) │                              │                           │
-     │                         │                              │ ← repeat until done ─────│
+     │                         │                              │ ← repeat until done  ─────│
      │                         │                              │                           │
      │12. User clicks [Cancel] │                              │                           │
      │13. stream_cancel ──────→│ ────────────────────────────→│                           │
      │                         │                              │14. Abort LLM request ────→│
-     │                         │ ← 15. message.stream_end ───│                           │
+     │                         │ ← 15. message.stream_end  ───│                           │
      │                         │    {status: "cancelled"}     │                           │
-     │ ← stream_end ──────────│                              │                           │
+     │ ← stream_end ───────────│                              │                           │
      │                         │                              │                           │
      │    OR (if completed):   │                              │                           │
-     │                         │ ← 15. message.stream_end ───│                           │
+     │                         │ ← 15. message.stream_end  ───│                           │
      │                         │    {status: "completed",     │                           │
      │                         │     usage: {tokens...}}      │                           │
-     │ ← stream_end ──────────│                              │                           │
+     │ ← stream_end ───────────│                              │                           │
      │    (final markdown      │                              │                           │
      │     with token stats)   │                              │                           │
 ```
@@ -523,11 +528,11 @@ User Client                Gateway/Server               AI Agent Engine         
 ### 6.1 Phase 1: Monolith with Clear Boundaries
 
 ```
-                              ┌──────────────────┐
+                              ┌───────────────────┐
                               │  Load Balancer    │
                               │  (Nginx / AWS ALB)│
                               │  sticky sessions  │
-                              └────────┬─────────┘
+                              └────────┬──────────┘
                                        │
                          ┌─────────────┼─────────────┐
                          ↓             ↓             ↓
@@ -542,18 +547,18 @@ User Client                Gateway/Server               AI Agent Engine         
                         └────────────┼────────────┘
                                      │
                         ┌────────────┴────────────┐
-                        │         Redis            │
-                        │  ├── Socket.IO Adapter   │
-                        │  ├── Session / Cache     │
-                        │  ├── Rate Limiting        │
-                        │  └── Redis Streams        │
-                        │     (Bot Event Bus)       │
-                        └──────────────────────────┘
+                        │         Redis           │
+                        │  ├── Socket.IO Adapter  │
+                        │  ├── Session / Cache    │
+                        │  ├── Rate Limiting      │
+                        │  └── Redis Streams      │
+                        │     (Bot Event Bus)     │
+                        └─────────────────────────┘
                                      │
                         ┌────────────┴────────────┐
-                        │      PostgreSQL          │
-                        │      (Primary)           │
-                        └──────────────────────────┘
+                        │      PostgreSQL         │
+                        │      (Primary)          │
+                        └─────────────────────────┘
 ```
 
 - All services (HTTP, WebSocket, Bot Engine) run in a **single Node.js process** deployed across multiple instances for availability.
@@ -614,7 +619,7 @@ For detailed microservices decoupling strategy, inter-service communication patt
 | **Channels** | Public/private channels, DM conversations, channel creation, archive, member management |
 | **Messages** | Text messages, message state machine (Draft → Sending → Sent → Delivered → Read), cursor-based pagination, edit/delete, emoji reactions |
 | **Rich Content** | Markdown rendering in messages |
-| **DM E2E** | Signal Protocol encryption for 1:1 DMs, opaque server relay, client-side key management, read-once/disappearing message policy |
+| **DM E2E** | ECDH key exchange + AES-256-GCM encryption for 1:1 DMs, opaque server relay, client-side key management, read-once/disappearing message policy. Phase 3 upgrade path to Signal Protocol (X3DH + Double Ratchet) via IE2eeProvider interface. |
 | **Bot (basic)** | Bot registration, `/slash` command parse + routing, bot WebSocket connection, Redis Streams event bus |
 | **UI** | Single-window layout (sidebar + chat view), channel list, message list with virtual scrolling, dark/light theme, message input |
 | **Desktop Shell** | Electron window, system tray, native notifications, auto-update |
@@ -683,3 +688,4 @@ For detailed microservices decoupling strategy, inter-service communication patt
 | **JSONB for message content** | Polymorphic content (text, image, file, system) maps naturally to JSONB. PostgreSQL JSONB supports indexing (`@>` containment) for attachment-type queries. | 2026-06-24 |
 | **Per-channel encryption mode** | A workspace can mix normal and E2E channels. This avoids an all-or-nothing trade-off and lets users choose the appropriate security model per conversation. | 2026-06-24 |
 | **Monolith-first deployment** | All services co-located in Phase 1 with clear domain boundaries in code. Service split deferred until scale demands it, avoiding premature distribution complexity. | 2026-06-24 |
+| **IE2eeProvider abstraction over @signalapp/libsignal** | Phase 1-2 uses ECDH + AES-256-GCM via `@noble/*` (HTTP-compatible, MIT license, ~15KB). The `IE2eeProvider` interface enables drop-in replacement with `@signalapp/libsignal` (X3DH + Double Ratchet) in Phase 3 without changing any consumer code. | 2026-07-10 |

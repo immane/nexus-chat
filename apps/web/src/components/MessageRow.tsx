@@ -8,6 +8,8 @@ import { API_BASE } from "../lib/api.js";
 
 const REACTION_EMOJIS = ["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉", "😡", "🤔", "💯", "✅", "🚀", "👀", "🎯", "💪", "🙏", "👋", "💀", "🐱"];
 
+const blobUrlCache = new Map<string, string>();
+
 export const MessageRow = ({
   message,
   status,
@@ -89,30 +91,34 @@ export const MessageRow = ({
       setAttachmentUrls({});
       return;
     }
-    const objectUrls: string[] = [];
-    let cancelled = false;
 
+    const next: Record<string, string> = {};
+    let hasAll = true;
+    for (const att of imageAttachments) {
+      const cached = blobUrlCache.get(att.fileId);
+      if (cached) { next[att.fileId] = cached; continue; }
+      hasAll = false;
+    }
+    if (hasAll) { setAttachmentUrls(next); return; }
+
+    let cancelled = false;
     void (async () => {
-      const next: Record<string, string> = {};
       for (const att of imageAttachments) {
+        if (next[att.fileId]) continue;
         try {
           const response = await fetch(`${API_BASE}/dev-download/${att.fileId}`, { headers: { authorization: `Bearer ${accessToken}` } });
           if (!response.ok) continue;
           const url = window.URL.createObjectURL(await response.blob());
-          objectUrls.push(url);
+          blobUrlCache.set(att.fileId, url);
           next[att.fileId] = url;
         } catch {
           // Ignore broken development-only previews.
         }
       }
       if (!cancelled) setAttachmentUrls(next);
-      else objectUrls.forEach((url) => window.URL.revokeObjectURL(url));
     })();
 
-    return () => {
-      cancelled = true;
-      objectUrls.forEach((url) => window.URL.revokeObjectURL(url));
-    };
+    return () => { cancelled = true; };
   }, [accessToken, imageAttachmentKey, message.id]);
 
   const downloadAttachment = useCallback(async (fileId: string, name: string) => {

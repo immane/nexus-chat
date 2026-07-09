@@ -70,7 +70,7 @@ apps/
 └── tui/         # Terminal UI / CLI (Ink + Commander)
 packages/
 ├── shared/      # Shared types and Zod schemas
-├── signal/      # Signal Protocol wrapper
+├── signal/      # E2EE abstraction (IE2eeProvider + @noble/* implementation)
 ├── bot-sdk/     # Bot SDK (TypeScript)
 ├── ui/          # Shared React components
 └── bots/        # First-party bots

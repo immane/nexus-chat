@@ -37,7 +37,7 @@ The Bot Engine is responsible for receiving internal platform events, routing th
 
 ### 1.2 Key Constraint
 
-**Bots CANNOT access E2E-encrypted channels.** The event pipeline skips bot dispatch entirely when a channel has end-to-end encryption enabled via the Signal Protocol. This is enforced at the routing layer — no event from an E2E channel ever enters the bot dispatch path.
+**Bots CANNOT access E2E-encrypted channels.** The event pipeline skips bot dispatch entirely when a channel has end-to-end encryption enabled. This is enforced at the routing layer — no event from an E2E channel ever enters the bot dispatch path.
 
 ### 1.3 Connection Modes
 
@@ -952,7 +952,7 @@ The platform follows a **bot-first feature model**, but bots do not own lifecycl
 | Message persistence, delivery, edits, deletes, read state | Core IM | Fundamental IM correctness and history integrity |
 | Channel / workspace membership and authorization | Core IM | Every feature depends on consistent access control |
 | Search indexes for normal-mode messages | Core IM | Search is a necessary IM primitive and must honor authz/retention |
-| Signal Protocol key distribution and E2E routing | Core IM | Encryption boundary cannot depend on bots |
+| E2EE key distribution and routing | Core IM | Encryption boundary cannot depend on bots |
 | Attachment upload sessions, object keys, scan status, signed URLs, retention | Core Attachment Service | Required for authorization, malware scanning, E2E opaque blobs, and compliance |
 | Bot installation, token validation, scopes, event subscriptions | Core Bot Engine | Required for safe extensibility |
 | Polls, reminders, kudos, standups, CI/CD, GitHub/GitLab, AI workflows | Bots | Product workflows and integrations; safe to evolve independently |

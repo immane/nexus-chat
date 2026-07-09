@@ -76,41 +76,41 @@ When WebRTC succeeds, the server is removed from the message data path entirely.
 
 ```
 ┌─────────────────────────────────┐     ┌─────────────────────────────────┐
-│         Alice's Client           │     │          Bob's Client            │
-│                                  │     │                                  │
-│  ┌────────────────────────────┐  │     │  ┌────────────────────────────┐  │
-│  │  packages/signal           │  │     │  │  packages/signal           │  │
-│  │  encryptForSession()       │  │     │  │  decryptFromSession()      │  │
-│  │  (unchanged)               │  │     │  │  (unchanged)               │  │
-│  └──────────┬─────────────────┘  │     │  └──────────▲─────────────────┘  │
-│             │ ciphertext         │     │             │ ciphertext         │
-│  ┌──────────▼─────────────────┐  │     │  ┌──────────┴─────────────────┐  │
-│  │  P2P Transport Manager      │  │     │  │  P2P Transport Manager      │  │
-│  │  ┌───────────────────────┐  │  │     │  │  ┌───────────────────────┐  │  │
-│  │  │ WebRTC Data Channel    │──┼──┼─────┼──│ WebRTC Data Channel    │  │  │
-│  │  │ (preferred path)       │  │  │     │  │ (preferred path)       │  │  │
-│  │  └───────────────────────┘  │  │     │  │  └───────────────────────┘  │  │
-│  │  ┌───────────────────────┐  │  │     │  │  ┌───────────────────────┐  │  │
-│  │  │ WebSocket (fallback)   │──┼──┼──┐  │  │  │ WebSocket (fallback)   │  │  │
-│  │  └───────────────────────┘  │  │  │  │  │  └───────────────────────┘  │  │
-│  │  ┌───────────────────────┐  │  │  │  │  │  ┌───────────────────────┐  │  │
-│  │  │ Signaling (WebSocket)  │──┼──┼──┼──┼──│  │ Signaling (WebSocket)  │  │  │
-│  │  └───────────────────────┘  │  │  │  │  │  └───────────────────────┘  │  │
-│  └────────────────────────────┘  │  │  │  └────────────────────────────┘  │
-└──────────────────────────────────┘  │  │  └──────────────────────────────────┘
-                                      │  │
-                          ┌───────────▼──┴───────────┐
-                          │        Server              │
-                          │  ┌──────────────────────┐  │
-                          │  │ Signaling Relay       │  │
-                          │  │ (WebSocket events)    │  │
-                          │  └──────────────────────┘  │
-                          │  ┌──────────────────────┐  │
-                          │  │ Message Relay         │  │
-                          │  │ (fallback only,       │  │
-                          │  │  unchanged)            │  │
-                          │  └──────────────────────┘  │
-                          └───────────────────────────┘
+│         Alice's Client          │     │          Bob's Client           │
+│                                 │     │                                 │
+│  ┌───────────────────────────┐  │     │  ┌───────────────────────────┐  │
+│  │  packages/signal          │  │     │  │  packages/signal          │  │
+│  │  encryptForSession()      │  │     │  │  decryptFromSession()     │  │
+│  │  (unchanged)              │  │     │  │  (unchanged)              │  │
+│  └──────────┬────────────────┘  │     │  └──────────▲────────────────┘  │
+│             │ ciphertext        │     │             │ ciphertext        │
+│  ┌──────────▼────────────────┐  │     │  ┌──────────┴────────────────┐  │
+│  │  P2P Transport Manager    │  │     │  │  P2P Transport Manager    │  │
+│  │  ┌─────────────────────┐  │  │     │  │  ┌─────────────────────┐  │  │
+│  │  │ WebRTC Data Channel │──┼──┼─────┼──│ WebRTC Data Channel    │  │  │
+│  │  │ (preferred path)    │  │  │     │  │ (preferred path)       │  │  │
+│  │  └─────────────────────┘  │  │     │  │  └─────────────────────┘  │  │
+│  │  ┌─────────────────────┐  │  │     │  │  ┌─────────────────────┐  │  │
+│  │  │ WebSocket (fallback)│──┼──┼──┐  │  │  │ WebSocket (fallback)│  │  │
+│  │  └─────────────────────┘  │  │  │  │  │  └─────────────────────┘  │  │
+│  │  ┌─────────────────────┐  │  │  │  │  │  ┌─────────────────────┐  │  │
+│  │  │Signaling (WebSocket)│──┼──┼──┼──┼──│  │Signaling (WebSocket)│  │  │
+│  │  └─────────────────────┘  │  │  │  │  │  └─────────────────────┘  │  │
+│  └───────────────────────────┘  │  │  │  └───────────────────────────┘  │
+└─────────────────────────────────┘  │  │  └──────────────────────────────┘
+                                     │  │
+                         ┌───────────▼──┴───────────┐
+                         │        Server            │
+                         │  ┌────────────────────┐  │
+                         │  │ Signaling Relay    │  │
+                         │  │ (WebSocket events) │  │
+                         │  └────────────────────┘  │
+                         │  ┌────────────────────┐  │
+                         │  │ Message Relay      │  │
+                         │  │ (fallback only,    │  │
+                         │  │  unchanged)        │  │
+                         │  └────────────────────┘  │
+                         └──────────────────────────┘
 ```
 
 ### 2.2 Component Matrix
@@ -739,7 +739,7 @@ if (envelope.type === "p2p.status") {
 P2P messages benefit from **two layers of encryption**:
 
 1. **DTLS (WebRTC transport)**: All data channel traffic is encrypted at the transport layer using DTLS-SRTP with per-session keys.
-2. **Signal Protocol (application)**: The ciphertext carried over the data channel is encrypted with Signal Double Ratchet keys.
+2. **Application-layer E2EE**: The ciphertext carried over the data channel is encrypted with ECDH + AES-256-GCM keys.
 
 This means even if WebRTC encryption were somehow compromised, the application-layer ciphertext remains protected by Signal.
 

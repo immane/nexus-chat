@@ -15,7 +15,7 @@ lang: en
 2. [Data Model — Drizzle ORM Schema](#2-data-model--drizzle-orm-schema)
 3. [Message State Machine](#3-message-state-machine)
 4. [Channel State Machine](#4-channel-state-machine)
-5. [Signal Protocol Key Server](#5-signal-protocol-key-server)
+5. [E2EE Key Server (PreKey Infrastructure)](#5-e2ee-key-server-prekey-infrastructure)
 6. [Redis Caching Architecture](#6-redis-caching-architecture)
 7. [Bot Integration Module](#7-bot-integration-module)
 8. [Security Implementation](#8-security-implementation)
@@ -754,7 +754,7 @@ The server's role is limited to:
 
 ---
 
-## 5. Signal Protocol Key Server
+## 5. E2EE Key Server (PreKey Infrastructure) {#5-e2ee-key-server-prekey-infrastructure}
 
 ### 5.1 Design Principle: Zero-Knowledge Server
 

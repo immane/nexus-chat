@@ -18,7 +18,7 @@ export interface P2pMessageFrame {
   content: {
     type: "ciphertext";
     ciphertext: string;
-    algorithm: "signal-v1";
+    algorithm: string;
     senderDeviceId: string;
     readOnce?: boolean;
     expiresAt?: string;
