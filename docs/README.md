@@ -26,7 +26,7 @@ Nexus Chat is a desktop-first team communication platform that combines the fami
 | Mode | Description |
 |------|-------------|
 | **Normal** | Full IM features: real-time messaging, server-side search, bot participation, slash commands |
-| **E2E** | End-to-end encrypted via the [Signal Protocol](https://github.com/signalapp/libsignal): the server is an opaque relay that cannot read message content, bots are fully excluded, and read-once/disappearing messages are supported for sensitive DMs |
+| **E2E** | End-to-end encrypted via client-side ECDH + AES-256-GCM (Phase 1-2, MIT-compatible): the server is an opaque relay that cannot read message content, bots are fully excluded, and read-once/disappearing messages are supported for sensitive DMs. Signal Protocol (X3DH + Double Ratchet) planned for Phase 3 on a separate AGPL-3.0 distribution branch. |
 
 A single workspace can contain **both** normal and E2E channels side-by-side, letting teams choose the appropriate security model per conversation.
 
@@ -71,7 +71,7 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| E2E Encryption | **@signalapp/libsignal** (Signal Protocol) | X3DH key exchange + Double Ratchet for 1:1 and group E2E |
+| E2E Encryption | **@noble/curves + @noble/ciphers** (Phase 1-2, MIT) | ECDH key exchange + AES-256-GCM for 1:1 DMs. Phase 3 upgrades to Signal Protocol on a separate AGPL-3.0 branch. |
 | AI Agent Framework | **Vercel AI SDK v6** (Phase 2), **LangGraph** (Phase 3) | Streaming-first agent orchestration, tool calling, multi-agent |
 | LLM Providers | **OpenAI / Anthropic / Google / OpenRouter / Ollama** | Multi-provider abstraction with fallback chain |
 | Vector Store | **pgvector** (Phase 3) | In-database semantic search after full-text search, retention, and deletion semantics are stable |
@@ -134,7 +134,7 @@ A single workspace can contain **both** normal and E2E channels side-by-side, le
 ### 3.2 Core Design Principles
 
 - **Monolith-first with clear boundaries** — Phase 1 deploys as a single process; service boundaries in code enable future split without rewrites
-- **Zero-knowledge encryption server** — Private keys never leave the client; the Signal Protocol key server stores only public keys
+- **Zero-knowledge encryption server** — Private keys never leave the client; the E2EE key server stores only public keys and ciphertext
 - **Streaming-native protocol** — First-class `stream_start → stream_chunk → stream_end` events in the WebSocket layer
 - **Bot SDK parity** — First-party bundled bots use the same public SDK as third-party developers
 - **Hybrid mode per channel** — Normal and E2E channels coexist in one workspace; bots are automatically excluded from E2E
@@ -152,7 +152,7 @@ nexus-chat/
 │   └── tui/                     # Terminal UI / CLI client (Ink + Commander)
 ├── packages/
 │   ├── shared/                  # Shared types, Zod schemas, constants, event definitions
-│   ├── signal/                  # Signal Protocol wrapper (@signalapp/libsignal)
+│   ├── signal/                  # E2EE abstraction layer (IE2eeProvider + 3 implementations)
 │   ├── bot-sdk/                 # Public Bot SDK (TypeScript/Node.js)
 │   ├── ai-bot/                  # AI Agent Engine (Phase 2)
 │   └── ui/                      # Shared React UI component library
@@ -195,7 +195,7 @@ nexus-chat/
 - Workspace creation, channel management (public/private/DM)
 - Text messages with state machine (Draft → Sent → Delivered → Read)
 - Markdown rendering, emoji reactions
-- Signal Protocol E2E for 1:1 DMs, including read-once/disappearing message policy
+- ECDH + AES-256-GCM E2EE for 1:1 DMs, including read-once/disappearing message policy (Phase 3: Signal Protocol on separate branch)
 - Bot registration, slash command routing, Redis Streams event bus
 - **7 base bots**: Welcome, Help, Notification, Reminder, Poll, Webhook, Kudos
 - Electron shell with window management, tray, notifications
@@ -253,6 +253,7 @@ nexus-chat/
 | 07 | [P2P DM Direct Connection](design/07_P2P_DM_Direct_Connection.md) | WebRTC DataChannel for 1:1 E2EE DMs, peer discovery, relay fallback, signal server integration |
 | 08 | [TUI Chat Redesign](design/08_TUI_Chat_Redesign.md) | Two-pane terminal UI layout, Ink components, WS event handling, IME-safe CJK input |
 | 09 | [Web Client UI Design](design/09_Web_Client_UI_Design.md) | Desktop layout, Zustand store architecture, component tree, mobile adaptation plan (P0/P1/P2) |
+| 10 | [E2EE Encryption Abstract Layer](design/10_E2EE_Encryption_Abstract_Layer.md) | IE2eeProvider interface, placeholder/@noble/SubtleCrypto implementations, ECDH + AES-256-GCM, Phase 3 Signal Protocol upgrade path |
 
 ### 6.2 Research Documents
 
@@ -262,7 +263,7 @@ nexus-chat/
 | [Backend IM & State Machine](research/backend-im-state-machine.md) | Framework comparison (Hono/Fastify/NestJS), WebSocket architecture, message/channel state machines, database design, Redis caching, security |
 | [UI Components & Plugin Protocol](research/ui-components-plugin-protocol.md) | Component hierarchy, message rendering, plugin sandbox (iframe/Worker), extension points, Block Kit-style UI, security isolation |
 | [Bot Engine & Microservices](research/bot-engine-microservices.md) | Event-driven architecture, Redis Streams → NATS, connection modes, Bot SDK design, task queues (BullMQ), service split boundaries, observability |
-| [Security Defense & E2EE](research/security-defense-e2ee-roadmap.md) | Helmet.js/CORS/CSP, Argon2id, JWT best practices, Signal Protocol deep dive (X3DH/Double Ratchet/Sender Key), threat model, GDPR compliance |
+| [Security Defense & E2EE](research/security-defense-e2ee-roadmap.md) | Helmet.js/CORS/CSP, Argon2id, JWT best practices, E2E encryption deep dive, threat model, GDPR compliance |
 | [Base Bot Catalog](research/base-bot-catalog.md) | Platform survey (Slack/Discord/Teams/Telegram), 17 recommended bots across 5 domains, priority matrix, interaction models, implementation strategy |
 | [AI Agent Orchestration](research/ai-agent-orchestration.md) | Streaming message design, agent frameworks survey (Vercel AI SDK/LangGraph/Mastra/CrewAI), LLM provider abstraction, context/memory, tool calling, prompt engineering |
 

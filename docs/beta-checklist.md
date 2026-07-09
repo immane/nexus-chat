@@ -29,8 +29,8 @@
 
 ## E2E Encrypted DMs
 
-- [x] Signal Protocol X3DH key exchange for 1:1 DMs
-- [x] Double Ratchet forward secrecy
+- [x] ECDH + AES-256-GCM key exchange for 1:1 DMs (Phase 1-2, MIT-compatible)
+- [x] Forward secrecy placeholder (full Double Ratchet deferred to Phase 3, Signal Protocol branch)
 - [x] PreKeyBundle upload and retrieval flow
 - [x] Server stores ciphertext only (no plaintext access)
 - [x] Bots excluded from E2E channels

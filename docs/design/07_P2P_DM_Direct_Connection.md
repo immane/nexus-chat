@@ -739,7 +739,7 @@ if (envelope.type === "p2p.status") {
 P2P messages benefit from **two layers of encryption**:
 
 1. **DTLS (WebRTC transport)**: All data channel traffic is encrypted at the transport layer using DTLS-SRTP with per-session keys.
-2. **Signal Protocol (application)**: The ciphertext carried over the data channel is encrypted with Signal Double Ratchet keys.
+2. **Application-layer E2EE**: The ciphertext carried over the data channel is encrypted with ECDH + AES-256-GCM keys.
 
 This means even if WebRTC encryption were somehow compromised, the application-layer ciphertext remains protected by Signal.
 

@@ -11,7 +11,7 @@
 
 一个类 Slack 的工作区聊天系统，采用**混合加密**模式：普通频道支持 Bot、消息历史和服务端工作流；端到端加密 DM 中服务端只能看到密文。使用 TypeScript、React、Electron、Hono 和 Socket.IO 从零构建。
 
-Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、Signal 风格 E2EE 服务边界、1:1 E2EE DM 的 WebRTC P2P 直连、emoji reaction、消息回复/转发/右键菜单、Markdown 渲染、文件/图片上传、在线状态、通知等。测试套件覆盖 18 个文件，89 个测试，statement/function/line coverage 100%。
+Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、客户端 E2EE（ECDH + AES-256-GCM），1:1 E2EE DM 的 WebRTC P2P 直连、emoji reaction、消息回复/转发/右键菜单、Markdown 渲染、文件/图片上传、在线状态、通知等。测试套件覆盖 18 个文件，89 个测试，statement/function/line coverage 100%。
 
 <p align="center">
   <img src="docs/images/login-sample.jpg" alt="登录界面" width="30%">
@@ -183,7 +183,7 @@ nexus-chat/
 │   └── tui/              Commander CLI + Ink 交互式 UI
 ├── packages/
 │   ├── shared/           40+ Zod schemas, 协议类型, API envelope 辅助函数
-│   ├── signal/           本地 Signal 风格 facade（pre-key, encrypt/decrypt）
+│   ├── signal/           E2EE 抽象层（ECDH + AES-256-GCM）
 │   ├── bot-sdk/          NexusBotClient: WS 连接, middleware, 事件分发
 │   ├── ui/               共享 React primitives 和 design tokens
 │   └── bots/
@@ -320,7 +320,7 @@ bot.connect();
 
 ### 客户端 Facade
 
-`packages/signal` 提供一个本地 facade，包含 `generateIdentity`、`generatePreKeyBundle`、`encryptMessage` 和 `decryptMessage`。用于测试和 smoke scripts。生产级 Signal Protocol 集成（`@signalapp/libsignal-client`）是 AGPL-3.0 依赖项，正在评估许可影响。
+`packages/signal` 通过 `IE2eeProvider` 接口提供 E2EE 抽象层。**Phase 1-2（main 分支）**使用 ECDH 密钥交换 + AES-256-GCM 加密（通过 `@noble/curves` 和 `@noble/ciphers`，纯 JS，HTTP 兼容，MIT 许可证）。**Signal Protocol（X3DH + Double Ratchet）规划于 Phase 3 实现**，将在**独立分支或发行版**中提供 — 不会合入 `main` 分支 — 因为 `@signalapp/libsignal-client` 是 AGPL-3.0 许可证，不能与 MIT 代码库链接。
 
 ### E2EE 频道限制
 
@@ -350,7 +350,7 @@ Alice ═══ WebRTC Data Channel ═══► Bob     (首选，DTLS + Signal
 **关键属性：**
 
 - 无 npm 依赖 — WebRTC 是浏览器原生 API（`RTCPeerConnection`, `RTCDataChannel`）。
-- 双层加密：DTLS（传输层）+ Signal Protocol（应用层）。
+- 双层加密：DTLS（传输层）+ AES-256-GCM（应用层）。
 - 服务端永远不知道 P2P 消息内容、时间戳或消息数量 — 只知道信令元数据。
 - TUI/CLI 客户端保持 relay-only（Node.js 无原生 WebRTC）。
 
@@ -615,6 +615,7 @@ Phase 1 是本地开发和封闭测试里程碑。主要限制：
 - **Electron 打包：** 无生产代码签名、公证或自动更新发布。
 - **附件 UX：** 服务端附件基元已存在；Web/Desktop 上传 UI 尚未构建。
 - **P2P 客户端支持：** 基于 WebRTC 的 P2P 直连在 Web（浏览器）和 Electron 客户端中可用。TUI/CLI 保持 server-relay-only（Node.js 无原生 `RTCPeerConnection`）。
+- **Signal Protocol（Phase 3）：** 不包含在 MIT 许可的 `main` 分支中。完整的 X3DH + Double Ratchet 前向安全加密将在独立分发分支上提供，以避免 `@signalapp/libsignal-client` 的 AGPL-3.0 许可证污染 MIT 代码库。
 
 完整列表见 [docs/known-limitations.md](docs/known-limitations.md)。
 
@@ -634,4 +635,4 @@ Phase 1 是本地开发和封闭测试里程碑。主要限制：
 
 ## 许可证
 
-MIT — 详见 [LICENSE](LICENSE)。
+MIT — 详见 [LICENSE](LICENSE)。`main` 分支仅包含 MIT 兼容代码。Signal Protocol（AGPL-3.0）将在 Phase 3 单独分发。

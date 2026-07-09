@@ -27,7 +27,7 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 | WebSocket | Socket.IO v4 + Redis Adapter | ^4.8.0 |
 | Database | PostgreSQL + Drizzle ORM | PG 17.x, Drizzle ^0.40 |
 | Cache / Pub/Sub | Redis | 7.4+ |
-| Encryption | Signal Protocol (`@signalapp/libsignal-client`) | ^0.96.2 |
+| Encryption | ECDH + AES-256-GCM (@noble/*, Phase 1-2) / Signal Protocol (@signalapp/libsignal, Phase 3 branch) | ^0.96.2 |
 | Task Queue | BullMQ | ^5.x |
 | Object Storage | Core Attachment Service + S3-compatible storage (R2 / MinIO) | — |
 | Desktop Packaging | electron-builder + electron-updater | ^26.0, ^6.3 |
@@ -75,17 +75,17 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 │ Bot SDK (WebSocket + Webhook hybrid)          │
 │ BullMQ task queue for dispatch                │
 ├──────────────────────────────────────────────┤
-│ Layer 5: E2EE (Signal Protocol)               │
-│ X3DH handshake + Double Ratchet encryption    │
-│ Sender Key distribution for groups            │
-│ Client-side key storage (OS keychain)         │
+│ Layer 5: E2EE (ECDH + AES-256-GCM)             │
+│ ECDH key exchange + AES-256-GCM encryption    │
+│ Sender Key distribution for groups (Phase 2)    │
+│ Client-side key storage (memory)                │
 └──────────────────────────────────────────────┘
 ```
 
 ### 3.2 Hybrid Encryption Model
 
 - **Normal Channels**: Server-side plaintext storage — enables server-side search, Bot access, message history for new members
-- **E2EE Channels**: Signal Protocol end-to-end encryption — server stores only ciphertext. New members see only messages after join (Pending Join). Server-side search disabled; client-side local search only
+- **E2EE Channels**: Client-side ECDH + AES-256-GCM end-to-end encryption — server stores only ciphertext. New members see only messages after join (Pending Join). Server-side search disabled; client-side local search only. Signal Protocol (X3DH + Double Ratchet) planned for Phase 3 on a separate AGPL-3.0 distribution branch.
 - **Per-Channel Granularity**: Each channel/DM independently selects encryption level
 - **E2E Attachments**: Client encrypts files before upload. Core Attachment Service stores opaque encrypted blobs and authorization metadata. Bots, including `@FileBot`, do not participate in E2E attachment upload/download.
 
@@ -98,7 +98,7 @@ Bots are used for product workflows and integrations, but core services own life
 | Message persistence, delivery, edits, deletes, read state | Core IM |
 | Workspace/channel membership and authorization | Core IM |
 | Search indexes for normal-mode messages | Core IM |
-| Signal Protocol key distribution and E2E routing | Core IM |
+| E2EE key distribution and routing | Core IM |
 | Attachment upload sessions, object keys, scan status, signed URLs, retention | Core Attachment Service |
 | Bot installation, token validation, scopes, event subscriptions | Core Bot Engine |
 | Polls, reminders, kudos, standups, CI/CD, GitHub/GitLab, AI workflows | Bots |
@@ -181,7 +181,7 @@ Componentized UI architecture with Atomic Design methodology across three packag
 - Channel member management with owner/admin/member RBAC
 - Bot framework: event-driven engine, WebSocket SDK, slash commands, basic message reply
 - JWT authentication with refresh token rotation
-- 1:1 DM E2EE via Signal Protocol (X3DH + Double Ratchet), including read-once/disappearing message policy
+- 1:1 DM E2EE via ECDH + AES-256-GCM, including read-once/disappearing message policy (Phase 3: Signal Protocol on separate AGPL-3.0 branch)
 - Desktop client (Electron) with virtual scrolling, offline queue, system tray
 - TUI command-line client for auth, workspace/channel navigation, messaging, and E2E/bot smoke tests
 - Security baseline (Helmet, CSP, CORS, rate limiting, audit logs)
@@ -202,7 +202,7 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 06 | Workspace, Channel, DM & Membership Services | Done |
 | 07 | Message Service, State Machine & Core IM Actions | Done |
 | 08 | Attachment Service Foundation & E2E-Safe File Boundary | Done |
-| 09 | Signal Protocol 1:1 DM E2EE | Done |
+| 09 | Signal Protocol 1:1 DM E2EE (placeholder, Phase 3 full impl) | Done |
 | 10 | Bot Engine Core, Event Dispatch & Command Invocation | Done |
 | 11 | Node.js Bot SDK Reference Implementation | Done |
 | 12 | Minimal First-Party Base Bots | Done |

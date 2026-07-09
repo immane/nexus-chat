@@ -754,7 +754,7 @@ The server's role is limited to:
 
 ---
 
-## 5. Signal Protocol Key Server
+## 5. E2EE Key Server (PreKey Infrastructure)
 
 ### 5.1 Design Principle: Zero-Knowledge Server
 
