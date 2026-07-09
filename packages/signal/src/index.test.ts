@@ -105,6 +105,26 @@ describe("IE2eeProvider implementations", () => {
   testProvider("noble", nobleProvider, true);
 });
 
+describe("noble fallback", () => {
+  it("uses fallback key when peer bundle has invalid key", async () => {
+    const alice = await nobleProvider.createLocalIdentity("alice", "d1", 1);
+    // Valid Base64, but not a valid P-256 public key
+    const fakeBundle = {
+      userId: "bob", deviceId: "d1",
+      identityKey: btoa("not-a-valid-ec-point"),
+      signedPreKeyId: 1, signedPreKey: btoa("also-fake"),
+      signedPreKeySignature: btoa("fake-sig")
+    };
+    const session = await nobleProvider.establishSession(alice, fakeBundle);
+    expect(session.peerUserId).toBe("bob");
+    expect(session.sharedKey.length).toBe(32);
+
+    const encrypted = await nobleProvider.encryptForSession(session, "hello");
+    const decrypted = await nobleProvider.decryptFromSession(session, encrypted.ciphertext, encrypted.iv);
+    expect(decrypted).toBe("hello");
+  });
+});
+
 describe("session store", () => {
   it("stores persists lists and deletes sessions", async () => {
     const store = createInMemorySignalSessionStore();

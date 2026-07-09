@@ -138,7 +138,7 @@ export const workspaceService = {
   canAccessChannel(userId: string, channelId: string): boolean {
     const channel = store.channels.get(channelId);
     if (!channel || channel.deletedAt) return false;
-    if (channel.kind === "channel" && !channel.isPrivate) return this.canAccessWorkspace(userId, channel.workspaceId);
+    if (channel.kind === "channel" && channel.name === "general") return this.canAccessWorkspace(userId, channel.workspaceId);
     return store.channelMembers.has(channelMemberKey(channelId, userId));
   },
   canManageChannel(userId: string, channelId: string): boolean {

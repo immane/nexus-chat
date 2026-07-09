@@ -1,9 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState, forwardRef } from "react";
+import type { HTMLAttributes } from "react";
 import type { Message } from "@nexus-chat/shared";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import type { TransportLabel } from "./signal-helpers.js";
 import { MessageRow } from "./MessageRow.js";
 import { formatDateSeparator } from "../lib/markdown.js";
+
+const Scroller = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ style, ...props }, ref) => (
+    <div ref={ref} style={{ ...style, background: "transparent" }} {...props} />
+  )
+);
+Scroller.displayName = "Scroller";
 
 export const MessageList = ({
   messages,
@@ -37,27 +45,46 @@ export const MessageList = ({
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const pendingRef = useRef<string[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const atBottomRef = useRef(true);
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
 
-  useEffect(() => {
+  const scrollToBottom = useCallback(() => {
+    atBottomRef.current = true;
     if (messages.length > 0) {
-      setTimeout(() => virtuosoRef.current?.scrollToIndex({ index: messages.length - 1, behavior: "smooth" }), 50);
+      virtuosoRef.current?.scrollToIndex({ index: messages.length - 1, behavior: "smooth" });
     }
+    setShowScrollBtn(false);
   }, [messages.length]);
 
-  const flushAcks = () => {
+  const flushAcks = useCallback(() => {
     if (pendingRef.current.length > 0 && onMessagesVisible) {
       onMessagesVisible(pendingRef.current);
       pendingRef.current = [];
     }
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = undefined; }
-  };
+  }, [onMessagesVisible]);
+
+  useEffect(() => {
+    if (messages.length > 0 && atBottomRef.current) {
+      setTimeout(() => virtuosoRef.current?.scrollToIndex({ index: messages.length - 1, behavior: "smooth" }), 50);
+    }
+  }, [messages.length]);
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
 
   return (
-    <Virtuoso
+    <>
+      <Virtuoso
       ref={virtuosoRef}
       className="flex-1"
       data={messages}
-      followOutput="smooth"
+      computeItemKey={(_, message) => message.id}
+      followOutput={false}
+      atBottomStateChange={(ab) => { atBottomRef.current = ab; setShowScrollBtn(!ab); }}
+      components={{ Scroller }}
+      overscan={{ main: 200, reverse: 200 }}
       rangeChanged={(range) => {
         const visible = messages.slice(range.startIndex, range.endIndex + 1).map((m) => m.id);
         pendingRef.current = [...new Set([...pendingRef.current, ...visible])];
@@ -94,5 +121,14 @@ export const MessageList = ({
         );
       }}
     />
+    {showScrollBtn ? (
+      <button
+        className="fixed bottom-20 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-sky-500/80 text-white shadow-lg transition hover:bg-sky-500"
+        type="button"
+        onClick={scrollToBottom}
+        title="Back to bottom"
+      >↓</button>
+    ) : null}
+    </>
   );
 };

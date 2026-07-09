@@ -31,6 +31,7 @@ import { useChannelMembers } from "../hooks/useChannelMembers.js";
 import { useMessageActions } from "../hooks/useMessageActions.js";
 import { useReadReceipts } from "../hooks/useReadReceipts.js";
 import { useTyping } from "../hooks/useTyping.js";
+import { useNotificationSound } from "../hooks/useNotificationSound.js";
 import { WEB_SIGNAL_DEVICE_ID, parseDmPeerUserId, applyDisappearingPolicy, ensureSignalSession as doEnsureSignalSession, type TransportLabel } from "./signal-helpers.js";
 import { ChannelList } from "./ChannelList.js";
 import { ChatComposer } from "./ChatComposer.js";
@@ -100,6 +101,14 @@ const ChatRoute = () => {
   const { clearPendingAttachments, fileInputRef, handleFileUpload, handlePaste, pendingAttachments, uploading } = useAttachments({ accessToken, setDraft, workspaceId: activeWorkspaceId });
   const { handleMessagesVisible, readReceipts, setReadReceipts } = useReadReceipts(socketRef);
   const { handleTypingChange, setTypingUsers, stopTyping, typingUsers } = useTyping({ activeChannel, setDraft, socketRef, userId: user?.id });
+  const { play: playSound } = useNotificationSound(settings.soundEnabled);
+
+  // Open sidebar on desktop mount, keep closed on mobile
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      setSidebarOpen(true);
+    }
+  }, []);
 
   const selectChannel = (id: string) => {
     stopTyping();
@@ -245,6 +254,7 @@ const ChatRoute = () => {
           if (settings.notificationsEnabled && document.hidden) {
             try { new window.Notification("Nexus Chat", { body: notificationBody }); } catch { /* */ }
           }
+          playSound();
         }
       }
       if (event.type === "typing.updated") {
@@ -518,6 +528,8 @@ const ChatRoute = () => {
   const peerOnline = peerUserId ? onlineUserIds.has(peerUserId) : false;
   const isP2pMode = dmTransportMode === "p2p" || (dmTransportMode === "auto" && peerOnline);
   const p2pBlocked = dmTransportMode === "p2p" && !peerOnline;
+  const isGeneral = activeChannel?.kind === "channel" && activeChannel.name === "general";
+  const rightPanelMembers = isGeneral ? members.map((m) => ({ channelId: activeChannel?.id ?? "", userId: m.userId })) : channelMembers;
 
   return (
     <main className={`grid h-screen grid-cols-[280px_1fr] ${rightSidebarOpen ? "md:grid-cols-[280px_1fr_260px]" : ""} ${themeBg} max-md:grid-cols-[1fr]`}>
@@ -602,7 +614,7 @@ const ChatRoute = () => {
         ) : leftTab === "member" ? (
           <section className="mt-6">
             <div className="mb-2 flex items-center justify-between">
-              <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Members ({members.length})</h2>
+              <h2 className={`text-xs uppercase tracking-wide ${themeSectionTitle}`}>Workspace Members ({members.length})</h2>
             </div>
             <div className="mb-2 flex gap-1">
               <input className={`flex-1 rounded-lg ${themeInput} px-2 py-1 text-xs outline-none`} placeholder="Search..." value={friendSearchInput} onChange={(e) => setFriendSearchInput(e.target.value)} />
@@ -740,14 +752,12 @@ const ChatRoute = () => {
       {rightSidebarOpen ? (
         <RightMemberPanel
           addChannelMember={addChannelMember}
-          addMemberInput={addMemberInput}
-          channelMembers={channelMembers}
+          channelMembers={rightPanelMembers}
           compact={compact}
           currentUserId={user?.id}
           members={members}
           onlineUserIds={onlineUserIds}
           removeChannelMember={removeChannelMember}
-          setAddMemberInput={setAddMemberInput}
           setRightSidebarOpen={setRightSidebarOpen}
           themeAside={themeAside}
           themeBtn={themeBtn}
