@@ -278,7 +278,7 @@ describe("provider selection", () => {
     process.env.E2EE_BACKEND = "webcrypto";
     vi.stubGlobal("window", { isSecureContext: false });
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { encryptForSession, establishSession, createLocalSignalIdentity, toPreKeyBundle, decryptFromSession } = await import("./index.js");
+    const { encryptForSession, establishSession, createLocalSignalIdentity, toPreKeyBundle } = await import("./index.js");
     const alice = await createLocalSignalIdentity("a", "d1", 1);
     const bob = await createLocalSignalIdentity("b", "d1", 1);
     const session = await establishSession(alice, toPreKeyBundle(bob));

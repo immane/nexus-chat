@@ -97,7 +97,7 @@ const ChatRoute = () => {
   const isE2e = activeChannel?.mode === "e2e";
   const suggestions = isE2e ? [] : getCommandSuggestions(manifests, deferredDraft);
   useChatBootstrap();
-  const { addChannelMember, addMemberInput, channelMembers, members, removeChannelMember, senderNames, setAddMemberInput } = useChannelMembers({ accessToken, activeChannelId, workspaceId: activeWorkspaceId });
+  const { addChannelMember, channelMembers, members, removeChannelMember, senderNames } = useChannelMembers({ accessToken, activeChannelId, workspaceId: activeWorkspaceId });
   const { clearPendingAttachments, fileInputRef, handleFileUpload, handlePaste, pendingAttachments, uploading } = useAttachments({ accessToken, setDraft, workspaceId: activeWorkspaceId });
   const { handleMessagesVisible, readReceipts, setReadReceipts } = useReadReceipts(socketRef);
   const { handleTypingChange, setTypingUsers, stopTyping, typingUsers } = useTyping({ activeChannel, setDraft, socketRef, userId: user?.id });

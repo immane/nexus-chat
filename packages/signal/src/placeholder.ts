@@ -88,17 +88,17 @@ export const placeholderProvider: IE2eeProvider = {
   },
 
   /** @deprecated Placeholder — atob(), NOT AES-256-GCM. Phase 3 stub. Real impl: noble.ts (Task #27). */
-  async decryptFromSession(_session, ciphertext, _iv): Promise<string> {
+  async decryptFromSession(_session, ciphertext): Promise<string> {
     return atob(ciphertext);
   },
 
-  async encryptFile(blob: Blob, _key: FileEncryptionKey): Promise<EncryptedFile> {
+  async encryptFile(blob: Blob): Promise<EncryptedFile> {
     const b = new Uint8Array(await blob.arrayBuffer());
     return { ciphertext: b, iv: new Uint8Array(12), originalName: (blob as File).name ?? "unknown", mimeType: blob.type, sizeBytes: b.length };
   },
 
-  async decryptFile(encrypted: EncryptedFile, _key: FileEncryptionKey): Promise<Blob> {
-    return new Blob([encrypted.ciphertext as BlobPart], { type: encrypted.mimeType });
+  async decryptFile(encrypted: EncryptedFile): Promise<Blob> {
+    return new Blob([encrypted.ciphertext as unknown as BlobPart]);
   },
 
   async deriveFileKey(session: SignalSession): Promise<FileEncryptionKey> {

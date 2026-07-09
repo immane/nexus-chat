@@ -48,7 +48,12 @@ export default [
         HTMLTextAreaElement: "readonly",
         HTMLImageElement: "readonly",
         HTMLElement: "readonly",
-        Notification: "readonly"
+        Notification: "readonly",
+        AudioContext: "readonly",
+        Blob: "readonly",
+        BlobPart: "readonly",
+        TextEncoder: "readonly",
+        TextDecoder: "readonly"
       }
     }
   },

@@ -1,5 +1,5 @@
 import { randomBytes, bytesToBase64, base64ToBytes, bytesToHex, encryptFile, decryptFile, deriveFileKey } from "./crypto.js";
-import type { E2eeCiphertext, EncryptedFile, FileEncryptionKey, IE2eeProvider, LocalSignalIdentity, SignalSession, SignalSessionStore } from "./types.js";
+import type { E2eeCiphertext, IE2eeProvider, LocalSignalIdentity, SignalSession } from "./types.js";
 import type { SignalPreKeyBundle } from "@nexus-chat/shared";
 
 const hkdfSha256 = async (ikm: Uint8Array, salt: string, length: number): Promise<Uint8Array> => {
