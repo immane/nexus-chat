@@ -1,3 +1,26 @@
+/**
+ * useChatBootstrap — Initial Data Loading Hub
+ *
+ * Fires once on mount (guarded by dataLoadedRef) to bootstrap the entire
+ * chat UI with initial data from the server:
+ * - Validates persisted token via /api/v1/auth/me (clears auth if invalid)
+ * - Fetches workspaces, channels, messages, reactions, unread counts
+ * - Installs bot manifests and joins bots to channels
+ *
+ * Also handles:
+ * - Setting currentUserId on the message store
+ * - Requesting browser notification permission
+ *
+ * Design Decision:
+ * This is a single monolithic hook rather than per-domain hooks because
+ * the initial load has sequential dependencies (workspaces → channels →
+ * messages) and we want a single loading gate. Individual domain hooks
+ * handle subsequent updates.
+ *
+ * Does NOT:
+ * - Handle real-time updates (handled by WebSocket event handlers in ChatRoute)
+ * - Refresh data after the initial bootstrap (page reload required)
+ */
 import { useEffect, useRef } from "react";
 import type { BotManifest, Channel, Message, Workspace } from "@nexus-chat/shared";
 import { API_BASE } from "../lib/api.js";

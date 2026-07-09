@@ -1,3 +1,20 @@
+/**
+ * Prometheus Metrics
+ *
+ * Defines and registers all application-level metrics. Exposed at GET /metrics
+ * via the registry and consumed by the HTTP routes module.
+ *
+ * Metrics:
+ * - nexus_http_requests_total (counter, labels: method, route, status)
+ * - nexus_ws_connections_active (gauge — current WS connection count)
+ * - nexus_message_sends_total (counter, labels: mode — normal/e2e)
+ * - nexus_auth_failures_total (counter, labels: reason)
+ * - nexus_bot_event_queue_depth (gauge — pending bot events)
+ * - nexus_redis_errors_total (counter — Redis operation failures)
+ *
+ * Default metrics (process, CPU, memory, GC, event loop lag) are collected
+ * automatically via collectDefaultMetrics.
+ */
 import client from "prom-client";
 
 export const registry = new client.Registry();

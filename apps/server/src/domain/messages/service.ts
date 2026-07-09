@@ -1,3 +1,29 @@
+/**
+ * Message Service (Core IM — Layer 3)
+ *
+ * Responsibilities:
+ * - Message send with idempotency (clientMsgId deduplication)
+ * - Cursor-based pagination for channel message history
+ * - Edit, soft-delete, forward, save/bookmark
+ * - Reactions (add/remove with count aggregation)
+ * - Read receipts (ack with 3-second batch flush window)
+ * - Pin/unpin messages (max 50 per channel)
+ * - Message type enforcement (ciphertext-only in E2E, plaintext-only in normal)
+ * - E2E tombstone generation (read-once consumed, TTL expired)
+ * - Bot event dispatch for normal channels
+ *
+ * Key Design Decisions:
+ * - idempotency via messagesByClientId prevents duplicate sends when the client retries
+ * - Tombstones replace deleted/expired messages with a marker to preserve history integrity
+ * - Read receipts are batched (pendingReadReceipts + flushReadReceipts) to avoid
+ *   overwhelming the channel with individual read events
+ * - Reply validation requires the target message to exist in the same channel and not be deleted
+ *
+ * Does NOT:
+ * - Handle WebSocket broadcasts (caller's responsibility after send/edit/delete)
+ * - Perform channel access checks for listing (delegated to workspaceService)
+ * - Store files (delegated to attachmentService)
+ */
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail, messageSchema, nowIso, type AttachmentRef, type Message, type MessageContent, type SendMessageInput } from "@nexus-chat/shared";
 import { messageSends } from "../../observability/metrics.js";
@@ -38,6 +64,9 @@ export const messageService = {
       if (!workspaceService.canAccessChannel(actorId, repliedTo.channelId)) return apiFail("FORBIDDEN", "Cannot reply to this message");
     }
     const idempotencyKey = `${actorId}:${input.clientMsgId}`;
+    // Check for duplicates: the composite (senderId:clientMsgId) is the
+    // idempotency anchor. If the client retries a send with the same
+    // clientMsgId, return the existing message instead of creating a duplicate.
     const existingId = store.messagesByClientId.get(idempotencyKey);
     if (existingId) return store.messages.get(existingId) ?? apiFail("CONFLICT", "Message idempotency conflict");
     const attachments: AttachmentRef[] = "attachments" in input.content ? (input.content.attachments as AttachmentRef[]) : [];
@@ -140,9 +169,13 @@ export const messageService = {
     if (message.senderId === actorId) return { accepted: true };
     const readAt = nowIso();
     const key = `${messageId}:${actorId}`;
+    // Only push to pendingReadReceipts once per (messageId, userId) pair.
+    // flushReadReceipts drains pending receipts and broadcasts batched read counts.
     if (!store.readReceipts.has(key)) store.pendingReadReceipts.push({ messageId, userId: actorId, readAt });
     store.readReceipts.set(key, { messageId, userId: actorId, readAt });
     const updated = { ...message, state: "read" as const };
+    // readOnce messages self-destruct on first read: the message is tombstoned
+    // immediately so the sender and any future viewers see the consumed marker.
     if (message.content.type === "ciphertext" && message.content.readOnce) {
       const consumed = tombstone(updated, "read_once_consumed");
       store.messages.set(messageId, consumed);

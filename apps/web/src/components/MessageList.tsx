@@ -56,6 +56,9 @@ export const MessageList = ({
     setShowScrollBtn(false);
   }, [messages.length]);
 
+  // Debounced visible-message ack batching: collect visible IDs as the
+  // user scrolls, then flush them every 500ms to avoid flooding the server
+  // with one ack per MessageRow render.
   const flushAcks = useCallback(() => {
     if (pendingRef.current.length > 0 && onMessagesVisible) {
       onMessagesVisible(pendingRef.current);

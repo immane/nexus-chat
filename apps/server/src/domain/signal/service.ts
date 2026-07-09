@@ -1,3 +1,29 @@
+/**
+ * Signal / E2EE Service
+ *
+ * Responsibilities:
+ * - Pre-key bundle upload, fetch, and consumption (with one-time pre-key transaction)
+ * - One-time pre-key count queries
+ * - Session storage and retrieval
+ *
+ * Key Design Decisions:
+ * - Bundle fetch atomically consumes one available one-time pre-key if one exists.
+ *   The caller (client) uses this for X3DH-like handshake initiation.
+ * - One-time pre-keys are consumed exactly once (consumedAt timestamp check); re-fetching
+ *   the same bundle returns a different key or none at all.
+ * - The service is protocol-agnostic — it stores opaque bundles and sessions without
+ *   interpreting their contents. Actual ECDH/AES-GCM operations happen client-side via
+ *   the IE2eeProvider in packages/signal.
+ *
+ * Does NOT:
+ * - Perform any cryptographic operations (client-side only)
+ * - Handle key rotation or expiry (future Signal Protocol Phase 3)
+ * - Validate key material beyond basic existence checks
+ *
+ * Related Modules:
+ * - packages/signal: IE2eeProvider interface, noble/webcrypto/placeholder implementations
+ * - packages/shared: SignalPreKeyBundle Zod schema
+ */
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail, nowIso, type SignalPreKeyBundle } from "@nexus-chat/shared";
 import { store } from "../store.js";

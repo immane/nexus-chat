@@ -1,3 +1,4 @@
+/** Title bar: "Nexus Chat" with WebSocket connection status indicator (green dot / red dot). */
 import { Box, Text } from "ink";
 
 export const TopBar = ({ connected }: { connected: boolean }) => (

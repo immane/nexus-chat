@@ -1,3 +1,7 @@
+/**
+ * Chat Header — Channel name with #/@ prefix, E2EE indicator, online count, typing users.
+ * Typing users are filtered to only those in the active channel.
+ */
 import { Box, Text } from "ink";
 import type { Channel } from "@nexus-chat/shared";
 

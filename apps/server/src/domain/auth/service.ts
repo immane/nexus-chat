@@ -1,3 +1,32 @@
+/**
+ * Authentication Service
+ *
+ * Responsibilities:
+ * - User registration (email+password, Argon2id hashing)
+ * - Login with credential verification
+ * - JWT access token issuance (RS256, 15min) and verification
+ * - Refresh token lifecycle (creation, rotation, revocation, replay detection)
+ * - User profile lookup (me, by email)
+ *
+ * Key Design Decisions:
+ * - JWT uses RS256 with a local auto-generated keypair (fallback from PEM env vars).
+ *   This avoids needing an external KMS in Phase 1 while supporting rotation via KID.
+ * - Refresh tokens use rotation + replay detection: each refresh revokes the old token
+ *   and issues a new one. If a revoked token is reused, all sessions for that user
+ *   are flagged (auth.refresh_reuse_detected audit event).
+ * - Argon2id parameters: memoryCost=65536, timeCost=3, parallelism=4
+ *   (OWASP recommended minimum as of 2026).
+ *
+ * Does NOT:
+ * - Handle authorization or role checks (delegated to workspaceService)
+ * - Store sessions directly (delegated to refreshSessionStore)
+ * - Rate-limit login attempts (handled by authRateLimiter in http/)
+ *
+ * Dependencies:
+ * - @node-rs/argon2 (native Argon2 binding, faster than argon2 npm package)
+ * - jsonwebtoken (JWT sign/verify)
+ * - refreshSessionStore (Redis or in-memory)
+ */
 import { hash, verify } from "@node-rs/argon2";
 import { createId } from "@paralleldrive/cuid2";
 import jwt from "jsonwebtoken";

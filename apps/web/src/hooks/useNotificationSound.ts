@@ -1,3 +1,19 @@
+/**
+ * useNotificationSound — Audio Notification
+ *
+ * Plays a short sine-wave chime (880→1100 Hz, 150ms) when enabled.
+ * Uses the Web Audio API (AudioContext + OscillatorNode) rather than
+ * an audio file to avoid loading external assets.
+ *
+ * Design Decision:
+ * We create the AudioContext lazily on first use (not on mount) to comply
+ * with browser autoplay policies — AudioContexts must be created/resumed
+ * after a user gesture.
+ *
+ * Does NOT:
+ * - Play sounds for message content (only notification events)
+ * - Use preloaded audio files (all sounds are synthesized)
+ */
 import { useCallback, useRef } from "react";
 
 export const useNotificationSound = (enabled: boolean) => {

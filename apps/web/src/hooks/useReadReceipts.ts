@@ -1,3 +1,20 @@
+/**
+ * useReadReceipts — Visible Message Acknowledgment
+ *
+ * Tracks which message IDs have been acknowledged and sends
+ * "message.ack" events for newly visible messages.
+ *
+ * Key Design:
+ * - ackedMessagesRef prevents duplicate acks for the same message
+ * - handleMessagesVisible is called by MessageList via onMessagesVisible
+ *   with a batched list of visible message IDs (debounced 500ms)
+ * - The actual ack goes through the WebSocket (message.ack envelope),
+ *   not the REST API, because read receipts are ephemeral and high-frequency.
+ *
+ * Does NOT:
+ * - Track read receipts from other users (handled by ChatRoute WS event listener)
+ * - Persist ack state across page reloads
+ */
 import { useRef, useState, type RefObject } from "react";
 import type { Socket } from "socket.io-client";
 

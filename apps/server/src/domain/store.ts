@@ -1,3 +1,31 @@
+/**
+ * In-Memory Data Store (Phase 1)
+ *
+ * Central storage for all runtime domain data. Serves as a drop-in replacement
+ * for PostgreSQL during Phase 1 development. Every domain service reads from
+ * and writes to this store directly.
+ *
+ * Ownership:
+ * - All user, workspace, channel, message, bot, and signal data
+ * - Read receipts and unread state
+ * - Online presence tracking
+ * - Audit logs
+ *
+ * Does NOT:
+ * - Implement any business logic (pure data container)
+ * - Provide transactional guarantees (Map-based operations are atomic per key only)
+ * - Persist across restarts (data lives in memory)
+ *
+ * Invariants:
+ * - Every domain service that modifies state uses store directly (no repository layer)
+ * - usersByEmail is kept in sync with users — write both or risk inconsistency
+ * - messagesByClientId is the idempotency index: (senderId:clientMsgId) -> messageId
+ * - channelMutes keyed by userId, value is Set<channelId>
+ *
+ * Future Evolution:
+ * - Replace with Drizzle+PostgreSQL transactional repository per domain service
+ * - Add Redis for session store, presence, and hot message cache
+ */
 import type { BotEvent, BotManifest, Channel, FileRecord, Message, SignalPreKeyBundle, User, Workspace, WorkspaceMember } from "@nexus-chat/shared";
 
 export type StoredUser = User & { passwordHash: string };

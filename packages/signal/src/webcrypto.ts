@@ -1,3 +1,22 @@
+/**
+ * IE2eeProvider — Web Crypto API Implementation
+ *
+ * ECDH P-256 + AES-256-GCM using the browser's SubtleCrypto API.
+ * Requires a secure context (HTTPS or localhost).
+ *
+ * When to use: In Electron or web clients that are served over HTTPS
+ * and want hardware-accelerated crypto via the OS's crypto stack.
+ *
+ * Limitations:
+ * - Requires window.isSecureContext === true
+ * - Cannot export ECDH private keys in raw format (uses pkcs8)
+ * - Falls back to noble.ts when isSecureContext is false
+ *
+ * Related Modules:
+ * - crypto.ts: shared helper functions
+ * - types.ts: IE2eeProvider interface
+ * - index.ts: provider selection with fallback logic
+ */
 import { randomBytes, bytesToBase64, base64ToBytes, bytesToHex, encryptFile, decryptFile, deriveFileKey } from "./crypto.js";
 import type { E2eeCiphertext, IE2eeProvider, LocalSignalIdentity, SignalSession } from "./types.js";
 import type { SignalPreKeyBundle } from "@nexus-chat/shared";

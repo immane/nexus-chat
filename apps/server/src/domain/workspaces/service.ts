@@ -1,3 +1,30 @@
+/**
+ * Workspace & Channel Service (Organization Layer)
+ *
+ * Responsibilities:
+ * - Workspace CRUD, membership management with RBAC (owner/admin/member)
+ * - Ownership transfer (downgrades previous owner to admin)
+ * - Channel CRUD (create, list, archive, delete)
+ * - Channel membership management (add/remove members, enforce bot/E2E restrictions)
+ * - DM creation (createOrGetDm — idempotent, returns existing DM if found)
+ * - Channel mute/unmute per user
+ * - Access control queries (canAccessWorkspace, canAccessChannel, canManageChannel)
+ *
+ * RBAC Model:
+ * - owner: full control (workspace settings, members, channel management, ownership transfer)
+ * - admin: can manage channels and members, but cannot add/remove other admins or owners
+ * - member: read/write access to channels they belong to
+ *
+ * Channel Visibility:
+ * - "general" channel is auto-accessible to all workspace members (no explicit membership)
+ * - Private channels require explicit channelMembers entry
+ * - Archived and soft-deleted channels are excluded from listings
+ *
+ * Does NOT:
+ * - Handle message storage or delivery (owned by messageService)
+ * - Manage WebSocket rooms (owned by ws/socket.ts)
+ * - Validate channel names against workspace-level uniqueness (enforced in createChannel)
+ */
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail, nowIso, type Channel, type ChannelMode, type Workspace, type WorkspaceMember, type WorkspaceRole } from "@nexus-chat/shared";
 import { store } from "../store.js";
@@ -70,6 +97,9 @@ export const workspaceService = {
     if (this.getRole(actorId, workspaceId) !== "owner") return apiFail("FORBIDDEN", "Only owners can transfer ownership");
     const target = store.workspaceMembers.get(memberKey(workspaceId, newOwnerUserId));
     if (!target) return apiFail("NOT_FOUND", "New owner must be a workspace member");
+    // The previous owner is downgraded to admin (not member) to preserve
+    // administrative access after the transfer. This avoids a workspace
+    // losing all admins after an ownership change.
     const previousOwner = store.workspaceMembers.get(memberKey(workspaceId, actorId));
     if (previousOwner) store.workspaceMembers.set(memberKey(workspaceId, actorId), { ...previousOwner, role: "admin" });
     const newOwner = { ...target, role: "owner" as const };
@@ -125,6 +155,8 @@ export const workspaceService = {
   },
   createOrGetDm(actorId: string, workspaceId: string, peerUserId: string, mode: ChannelMode): Channel | ReturnType<typeof apiFail> {
     if (!this.canAccessWorkspace(actorId, workspaceId) || !this.canAccessWorkspace(peerUserId, workspaceId)) return apiFail("FORBIDDEN", "Both users must be workspace members");
+    // DM names are deterministic: sorted user IDs ensure the same channel
+    // is returned regardless of which user initiates the DM (idempotent).
     const [a, b] = [actorId, peerUserId].sort();
     const name = `dm:${a}:${b}:${mode}`;
     const existing = [...store.channels.values()].find((channel) => channel.workspaceId === workspaceId && channel.kind === "dm" && channel.name === name);
@@ -138,6 +170,9 @@ export const workspaceService = {
   canAccessChannel(userId: string, channelId: string): boolean {
     const channel = store.channels.get(channelId);
     if (!channel || channel.deletedAt) return false;
+    // The "general" channel is auto-accessible to all workspace members
+    // without requiring an explicit channelMembers entry. This simplifies
+    // onboarding — every new member can immediately read and post to #general.
     if (channel.kind === "channel" && channel.name === "general") return this.canAccessWorkspace(userId, channel.workspaceId);
     return store.channelMembers.has(channelMemberKey(channelId, userId));
   },

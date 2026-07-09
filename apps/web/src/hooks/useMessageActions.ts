@@ -1,3 +1,23 @@
+/**
+ * useMessageActions — Message CRUD & Interaction Actions
+ *
+ * Provides callbacks for:
+ * - Copy message text to clipboard (handleCopy)
+ * - Edit message text via REST PATCH (handleEdit)
+ * - Delete message with confirmation modal state (handleDelete, confirmDelete)
+ * - React to messages with add/remove toggle (handleReact)
+ * - Forward messages to another channel (handleForwardToChannel)
+ *
+ * State Ownership:
+ * - forwardSource: the Message being forwarded (null when modal is closed)
+ * - confirmDeleteId: the message ID pending deletion confirmation
+ * - Reactions are synced to useMessageStore after each API call
+ *
+ * Does NOT:
+ * - Show any UI (returns state + handlers for modal components)
+ * - Handle P2P-specific actions (owned by ChatRoute)
+ * - Decrypt messages (decryptedMessages is passed in as a prop)
+ */
 import { useState } from "react";
 import type { Message } from "@nexus-chat/shared";
 import { API_BASE } from "../lib/api.js";

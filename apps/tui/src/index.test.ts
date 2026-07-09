@@ -1,3 +1,11 @@
+/**
+ * TUI Unit Tests — CLI Program Registration and Token Persistence
+ *
+ * Covers:
+ * - Commander.js program structure: all 20+ commands are registered
+ * - Required options enforcement: login needs --email/--password, channels needs --workspace
+ * - Token lifecycle in memory: setAccessToken → getAccessToken → clearAccessToken
+ */
 import { describe, expect, it } from "vitest";
 import { createProgram } from "./cli.js";
 import { getAccessToken, setAccessToken, clearAccessToken } from "./lib/api.js";

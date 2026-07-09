@@ -1,3 +1,32 @@
+/**
+ * Socket.IO Server Setup (Layer 2 — Long Connection Gateway)
+ *
+ * Responsibilities:
+ * - Creates Socket.IO server attached to the HTTP server
+ * - Manages CORS origin validation (same as HTTP middleware)
+ * - Authenticates user connections via Bearer JWT in handshake auth
+ * - Authenticates bot connections via nxbot_v1_ tokens on the /bots namespace
+ * - Joins sockets to user, workspace, and channel rooms for targeted broadcasts
+ * - Tracks online presence (connection count, first-connect/offline broadcast)
+ * - Delegates event processing to handleClientEnvelope (gateway.ts)
+ * - Bot event polling via setInterval (500ms) on dedicated /bots namespace
+ *
+ * Key Design Decisions:
+ * - WebSocket authentication happens in the io.use middleware — unauthenticated
+ *   connections are rejected before reaching the connection handler.
+ * - Presence uses a reference counter (onlineConnections Map) to handle multiple
+ *   tabs/devices: offline broadcast only fires when count reaches 0.
+ * - Rooms are joined eagerly on connection based on current workspace/channel
+ *   membership, avoiding per-event access control checks in the broadcast path.
+ * - Bot namespace (/bots) is separate from user namespace to avoid token confusion
+ *   and to enable different rate limiting and event formats.
+ * - Bot events are polled rather than pushed because bots may reconnect and
+ *   would miss events sent during disconnection.
+ *
+ * Transport:
+ * - websocket only (no long-polling fallback) — reduces server load for IM use case
+ * - pingInterval 30s, pingTimeout 10s — detects silent disconnects
+ */
 import type { Server as HttpServer } from "node:http";
 import { URL } from "node:url";
 import { Server } from "socket.io";
@@ -51,8 +80,14 @@ export const attachSocketServer = (httpServer: HttpServer) => {
   io.on("connection", (socket) => {
     const userId = socket.data.userId as string;
     wsConnections.inc();
+    // Reference counting for multi-tab/device support: only broadcast "online"
+    // when the user's first connection arrives (wasOffline), and "offline" only
+    // when the last connection drops (count <= 0).
     const wasOffline = !store.onlineConnections.has(userId);
     store.onlineConnections.set(userId, (store.onlineConnections.get(userId) ?? 0) + 1);
+    // Join the user to their personal room and all authorized workspace/channel rooms.
+    // Room membership is determined eagerly at connection time — this avoids
+    // per-event access control checks in the broadcast path.
     socket.join(`user:${userId}`);
     for (const workspace of store.workspaces.values()) {
       if (workspaceService.canAccessWorkspace(userId, workspace.id)) socket.join(`workspace:${workspace.id}`);

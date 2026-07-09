@@ -1,3 +1,19 @@
+/**
+ * Environment Configuration
+ *
+ * Validates and exposes all runtime environment variables via a single Zod schema.
+ * Every external dependency (DB, Redis, JWT) is configured here.
+ *
+ * Responsibilities:
+ * - Parse and validate process.env at startup
+ * - Provide typed access to configuration values
+ *
+ * Invariants:
+ * - env is immutable after initialization
+ * - All optional vars have sensible defaults for local development
+ * - SESSION_STORE controls Redis vs in-memory session backend
+ * - JWT keys default to auto-generated local RSA keypair when PEM vars are empty
+ */
 import { z } from "zod";
 
 const envSchema = z.object({

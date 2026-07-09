@@ -1,3 +1,33 @@
+/**
+ * Zustand Domain Stores (Web Client State Management)
+ *
+ * Multi-store architecture with normalized state for O(1) lookups.
+ * Each store owns a distinct domain concern:
+ *
+ * Stores:
+ * - useAuthStore — persisted to localStorage ("nexus-auth" key); session, tokens, user profile
+ * - useWorkspaceStore — workspace list and active workspace ID
+ * - useChannelStore — channel list, active channel, per-channel unread counts
+ * - useMessageStore — normalized message Map + insertion order array, send statuses, reactions
+ * - usePresenceStore — online user IDs Set
+ * - useSignalStore — E2E-enabled channel IDs Set
+ * - useBotStore — bot manifests and registered input actions
+ * - useUiStore — sidebar, draft, disappearing policy, settings, DM transport mode
+ *
+ * Key Design Decisions:
+ * - Messages use a Map<id, Message> for O(1) upsert/lookup plus a separate "order" array
+ *   for insertion-order iteration. This avoids re-sorting on every update.
+ * - Reactions are stored as Record<messageId, Record<emoji, {count, reacted}>> —
+ *   each MessageRow subscribes only to its own reactions, not the full reactions map.
+ * - createOptimisticMessage generates local Messages with an "optimistic-" prefix for
+ *   instant UI feedback before the server confirms.
+ * - Auth is persisted to localStorage (via zustand/middleware persist) so the session
+ *   survives page reloads.
+ *
+ * Does NOT:
+ * - Handle WebSocket state (owned by ChatRoute.tsx refs)
+ * - Store decrypted message text (owned by ChatRoute.tsx useState)
+ */
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { AuthSession, BotManifest, Channel, Message, MessageContent, User, Workspace } from "@nexus-chat/shared";
@@ -8,6 +38,15 @@ export type InputAction = { id: string; label: string; description: string; comm
 
 export const createClientMsgId = () => `client-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+/**
+ * Creates a local-only Message for instant UI feedback.
+ *
+ * The message gets a temporary "optimistic-*" ID. When the server broadcasts
+ * the confirmed message (via WebSocket message.created), ChatRoute replaces
+ * this optimistic entry using clientMsgId deduplication.
+ *
+ * Side Effects: None (pure factory, no store mutation).
+ */
 export const createOptimisticMessage = (input: {
   workspaceId: string;
   channelId: string;
@@ -114,6 +153,9 @@ export const useMessageStore = create<{
   messages: Map<string, Message>;
   order: string[];
   sendStatusByClientId: Record<string, MessageSendStatus>;
+  // reactions shape: { [messageId]: { [emoji]: { count, reacted } } }
+  // Nested by messageId so each MessageRow can subscribe to only its own
+  // reactions slice, avoiding re-renders when other messages receive reactions.
   reactions: Record<string, Record<string, { count: number; reacted: boolean }>>;
   currentUserId: string | undefined;
   setCurrentUser: (userId: string) => void;

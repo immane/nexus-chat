@@ -1,3 +1,13 @@
+/**
+ * WelcomeBot — Sends onboarding messages on member join
+ *
+ * Listens for "workspace.member_added" events and sends a welcome
+ * message to the new member's first channel.
+ *
+ * Related Modules:
+ * - packages/bot-sdk: NexusBotClient base class
+ * - server domain/bots/service.ts: dispatches workspace.member_added events
+ */
 import { NexusBotClient } from "@nexus-chat/bot-sdk";
 import type { BotManifest } from "@nexus-chat/shared";
 

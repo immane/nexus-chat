@@ -1,3 +1,12 @@
+/**
+ * Desktop Configuration Tests
+ *
+ * Covers:
+ * - BrowserWindow security invariants (contextIsolation, sandbox, etc.)
+ * - Renderer target resolution (dev vs prod paths)
+ * - IPC channel allow-list membership
+ * - Notification payload bounds
+ */
 import { describe, expect, it } from "vitest";
 import { getBrowserWindowOptions, IPC_CHANNELS, isAllowedIpcChannel, resolveRendererTarget, sanitizeNotificationInput } from "./config.js";
 

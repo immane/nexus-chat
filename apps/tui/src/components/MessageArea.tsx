@@ -1,3 +1,12 @@
+/**
+ * Message List Components — Renders the scrollable message area with date separators.
+ *
+ * MessageRow: Renders a single message with sender, timestamp, edited/encrypted labels,
+ * reply-to indicator, reactions, and non-image attachments.
+ *
+ * MessageArea: Iterates over all messages, inserting date separator banners when the
+ * date changes between consecutive messages. Delegates rendering to MessageRow.
+ */
 import { Box, Text } from "ink";
 import type { Message } from "@nexus-chat/shared";
 import { formatRelativeTime, formatDateSeparator, formatFileSize } from "../lib/format.js";

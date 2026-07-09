@@ -1,3 +1,27 @@
+/**
+ * CLI Command Definitions — Nexus Chat Terminal Client
+ *
+ * Responsibilities:
+ * - Defines all Commander.js CLI commands (login, workspace/channel CRUD, chat, send, read, smoke tests)
+ * - Bridges user input from terminal args to the REST API and WebSocket transport layers
+ * - Manages token lifecycle (login persisting to .env.tui, logout clearing it)
+ *
+ * Dependencies:
+ * - `./lib/api.js` — HTTP client with token auto-attach (`request<T>()`, `clearAccessToken()`)
+ * - `./lib/ws-client.js` — Socket.IO client for send/command operations
+ * - `./commands/smoke.js` — All smoke/e2e test implementations
+ *
+ * Forbidden Dependencies:
+ * - Must NOT import React/Ink directly (those are lazy-loaded by the `chat` command via app.tsx)
+ *
+ * Invariants:
+ * - Every command handler sets `process.exitCode = 1` on failure rather than throwing
+ * - The `login` command writes the token to `.env.tui` via `setAccessToken()`
+ *
+ * Extension Points:
+ * - New commands follow the pattern: `program.command("name").description("...").action(async () => { ... })`
+ * - Smoke tests follow the naming convention `runXxxSmoke` in `commands/smoke.ts`
+ */
 import { Command } from "commander";
 import { request, clearAccessToken } from "./lib/api.js";
 import { createSocket, sendMessage, sendBotCommand } from "./lib/ws-client.js";
@@ -14,6 +38,16 @@ import {
   login as smokeLogin
 } from "./commands/smoke.js";
 
+/**
+ * Creates the full Commander.js CLI program with all registered commands.
+ *
+ * Returns a Command instance ready for `.parseAsync(process.argv)`.
+ *
+ * Side Effects:
+ * - `login` command writes token to `.env.tui`
+ * - `logout` command clears `.env.tui`
+ * - Smoke commands execute HTTP + WebSocket requests against the configured API base
+ */
 export function createProgram(): Command {
   const program = new Command();
   program.name("nexus").description("Nexus Chat TUI/CLI").version("0.1.0");

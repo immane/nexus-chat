@@ -1,3 +1,26 @@
+/**
+ * IE2eeProvider — @noble/* Implementation (Default)
+ *
+ * Real ECDH P-256 + AES-256-GCM encryption using:
+ * - @noble/curves (p256): ECDH key agreement
+ * - @noble/ciphers (gcm): AES-256-GCM symmetric encryption
+ * - Web Crypto API (SubtleCrypto): HKDF-SHA256 for key derivation
+ *
+ * Advantages over webcrypto.ts:
+ * - Works over plain HTTP (no secure context requirement)
+ * - Pure JS, no native bindings
+ * - MIT license (compatible with main branch licensing)
+ *
+ * Fallback: If the peer's identity key is not a valid P-256 public key
+ * (e.g., the peer hasn't uploaded a real bundle), establishSession falls
+ * back to a deterministic key derived from both user IDs. This enables
+ * E2EE to work even when both parties haven't exchanged valid keys,
+ * at the cost of weakened forward secrecy for initial messages.
+ *
+ * Related Modules:
+ * - crypto.ts: shared helper functions (bytesToBase64, etc.)
+ * - types.ts: IE2eeProvider interface
+ */
 import { p256 } from "@noble/curves/nist.js";
 import { gcm } from "@noble/ciphers/aes.js";
 import { randomBytes, bytesToBase64, base64ToBytes, bytesToHex, encryptFile, decryptFile, deriveFileKey } from "./crypto.js";

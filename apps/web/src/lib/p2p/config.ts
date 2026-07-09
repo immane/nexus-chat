@@ -1,3 +1,19 @@
+/**
+ * P2P ICE Server Configuration
+ *
+ * Resolves STUN/TURN server URLs from environment variables with fallback:
+ * - VITE_NEXUS_STUN_SERVERS > NEXUS_STUN_SERVERS > stun:stun.l.google.com:19302
+ * - TURN servers are optional (only included when username+credential are provided)
+ *
+ * Design Decision:
+ * We check both VITE_* (Vite import.meta.env) and plain env vars to support
+ * both browser and Node.js/Electron contexts. The default STUN server is
+ * Google's public STUN — sufficient for LAN and simple NAT traversal.
+ *
+ * Related Modules:
+ * - pool.ts: consumes buildRtcConfiguration() to create RTCPeerConnection
+ * - types.ts: IceServerConfig interface
+ */
 import type { IceServerConfig } from "./types.js";
 
 const envValue = (key: string): string => {

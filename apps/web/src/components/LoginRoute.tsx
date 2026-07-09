@@ -4,6 +4,14 @@ import { useAuthStore } from "../stores/domain.js";
 import { API_BASE } from "../lib/api.js";
 import { seedDemoSession } from "./demo-data.js";
 
+/**
+ * Dual-mode login: "Demo" seeds the stores with fake data (no server needed);
+ * "Real Server" sends credentials to the REST API and persists the JWT session.
+ *
+ * Why dual-mode: Enables UI development and screenshots without a running backend.
+ * The demo-access-token is never sent over the network — ChatRoute detects it and
+ * handles /help locally rather than establishing a WebSocket.
+ */
 const LoginRoute = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

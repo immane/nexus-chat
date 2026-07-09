@@ -1,3 +1,14 @@
+/**
+ * Message Composer — Text input area with edit/reply modes.
+ *
+ * Modes:
+ * - Default: shows "Message or /command" placeholder
+ * - Edit: shows original text pre-filled, "Editing..." indicator, Enter to save, Esc to cancel
+ * - Reply: shows "Replying to <name>" banner above input
+ *
+ * The isPrintable() filter strips ANSI escape sequences and control characters
+ * to prevent CoreText crashes during CJK IME input.
+ */
 import { useState, useEffect } from "react";
 import { Box, Text, useInput } from "ink";
 import type { Channel } from "@nexus-chat/shared";

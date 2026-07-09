@@ -1,3 +1,28 @@
+/**
+ * Hybrid P2P/Relay Transport for E2EE Messages
+ *
+ * Implements a P2P-first, relay-fallback delivery strategy for 1:1 E2E DMs.
+ *
+ * Flow:
+ * 1. Check if an open P2P DataChannel exists → send directly (P2P path)
+ * 2. If no channel exists and not in cooldown → initiate WebRTC handshake,
+ *    wait up to P2P_CONNECTION_TIMEOUT_MS, then send via P2P
+ * 3. If P2P fails, in cooldown, or timed out → send via server relay (WS)
+ *
+ * Incoming messages are received via either:
+ * - P2P DataChannel (handleIncomingP2pMessage) — > decrypted client-side
+ * - Server WebSocket event (message.created) — > already decrypted by ChatRoute
+ *
+ * Deduplication:
+ * Recently processed clientMsgIds are tracked (up to 1000) to avoid
+ * processing the same message twice when both P2P and relay deliver it.
+ *
+ * Related Modules:
+ * - pool.ts: P2pConnectionPool (RTCPeerConnection lifecycle)
+ * - signaling.ts: Socket.IO signaling relay
+ * - types.ts: P2pMessageFrame, P2pAckFrame
+ * - ChatRoute.tsx: owns the HybridTransport instance
+ */
 import type { Socket } from "socket.io-client";
 import type { P2pConnectionPool } from "./pool.js";
 import { sendP2pEvent, subscribeSignaling } from "./signaling.js";
@@ -10,6 +35,9 @@ type MessageHandler = (message: { content: E2eTransportContent; senderId: string
 
 export class HybridTransport {
   private unsubscribe: (() => void) | null = null;
+  // Dedup incoming P2P messages by clientMsgId. Capped at 1000 entries to
+  // bound memory usage in long-lived sessions. Oldest entry is evicted on
+  // overflow (FIFO via Set iteration order).
   private recentlyProcessed = new Set<string>();
 
   constructor(

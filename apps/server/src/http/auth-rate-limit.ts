@@ -1,3 +1,24 @@
+/**
+ * Login Rate Limiter (In-Memory Sliding Window)
+ *
+ * Implements per-IP and per-email rate limiting for the login endpoint.
+ * Uses two independent sliding-window buckets per attempt:
+ * - IP-based: prevents a single source from brute-forcing any account
+ * - Email-based: prevents distributed brute-force on a specific account
+ *
+ * Design Decision:
+ * We intentionally use separate buckets for IP and email rather than a
+ * combined key. This prevents an attacker from rotating IPs to bypass
+ * the email-level limit, while also preventing a single IP from trying
+ * many different emails.
+ *
+ * Does NOT:
+ * - Persist state across server restarts (in-memory only)
+ * - Rate-limit other endpoints (those use a separate WS rate limiter)
+ *
+ * Future Evolution:
+ * - Replace with Redis-backed sliding window for horizontal scaling
+ */
 export type AuthRateLimitDecision = { limited: boolean; retryAfterSeconds?: number };
 
 type Bucket = { count: number; resetAt: number };

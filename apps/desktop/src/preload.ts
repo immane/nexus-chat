@@ -1,3 +1,27 @@
+/**
+ * Electron Preload Script — IPC Security Boundary
+ *
+ * Responsibilities:
+ * - Exposes a typed window.nexus API to the renderer via contextBridge
+ * - Enforces the IPC channel allow-list — unknown channels are rejected at runtime
+ * - Sanitizes notification payloads before crossing the IPC boundary
+ *
+ * Dependencies:
+ * - config.ts (IPC_CHANNELS, isAllowedIpcChannel, sanitizeNotificationInput)
+ *
+ * Forbidden Dependencies:
+ * - Any Node.js APIs beyond contextBridge and ipcRenderer
+ * - Any Electron main-process modules (app, BrowserWindow, etc.)
+ *
+ * Invariants:
+ * - Every IPC call passes through isAllowedIpcChannel — no unlisted channel can reach main
+ * - Notification strings are truncated before IPC dispatch
+ * - NexusDesktopApi is the single source of truth for the renderer's main-process access
+ *
+ * Extension Points:
+ * - Add a new method to NexusDesktopApi, register the corresponding IPC handler in main.ts,
+ *   and add the channel to IPC_CHANNELS in config.ts
+ */
 import { contextBridge, ipcRenderer } from "electron";
 import { IPC_CHANNELS, isAllowedIpcChannel, sanitizeNotificationInput, type NotificationInput } from "./config.js";
 
@@ -9,6 +33,12 @@ export type NexusDesktopApi = {
   updates: { check: () => Promise<{ available: boolean; reason: string }> };
 };
 
+/**
+ * Wraps ipcRenderer.invoke with an allow-list guard.
+ *
+ * This is the only IPC invocation path exposed to the renderer — every call
+ * is validated against IPC_CHANNELS before reaching the main process.
+ */
 const invoke = <T>(channel: string, ...args: unknown[]) => {
   if (!isAllowedIpcChannel(channel)) throw new Error(`IPC channel is not allowed: ${channel}`);
 

@@ -8,6 +8,10 @@ import { API_BASE } from "../lib/api.js";
 
 const REACTION_EMOJIS = ["👍", "❤️", "😄", "😢", "😮", "🔥", "👏", "🎉", "😡", "🤔", "💯", "✅", "🚀", "👀", "🎯", "💪", "🙏", "👋", "💀", "🐱"];
 
+// Module-level blob URL cache avoids re-downloading attachments when
+// messages re-render in the virtual list. Keys are file IDs, values are
+// object URLs created via URL.createObjectURL(). Never cleared in Phase 1;
+// production should add a size-bounded LRU cache.
 const blobUrlCache = new Map<string, string>();
 
 export const MessageRow = ({
@@ -55,6 +59,9 @@ export const MessageRow = ({
     if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
   }, []);
 
+  // Long-press for touch devices (mobile adaptation P0): hold for 500ms to
+  // open the context menu. Movement >10px cancels to avoid accidental triggers
+  // while scrolling. Complements the right-click context menu on desktop.
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     if (!touch) return;
