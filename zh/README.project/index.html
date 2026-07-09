@@ -946,6 +946,8 @@
       
         
       
+        
+      
     
     
     
@@ -1260,6 +1262,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -2547,14 +2577,14 @@
 <p><p对齐=“中心”>
   <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="覆盖范围">
-  <img src="https://img.shields.io/badge/tests-89%20passed-green" alt="测试">
+  <img src="https://img.shields.io/badge/tests-119%20passed-green" alt="测试">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="许可证">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="节点">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
 </p></p>
 <h1 id="nexus">Nexus 聊天<a class="headerlink" href="#nexus" title="Permanent link">&para;</a></h1>
 <p>具有<strong>混合加密</strong>的类似 Slack 的工作区聊天系统：支持机器人、消息历史记录和服务器端工作流程的正常通道，以及服务器只能看到密文的端到端加密 DM。使用 React、Electron、Hono 和 Socket.IO 使用 TypeScript 从头开始​​构建。</p>
-<p>第一阶段提供了一个带有 Web 客户端、Electron 桌面 shell、TUI/CLI、REST/WebSocket 网关、完整消息状态机、带有 SDK 的机器人引擎、三个第一方机器人、Signal 式 E2E 服务边界、用于 1:1 E2EE DM 的机会性 WebRTC P2P 直接连接、表情符号反应、消息回复/转发/上下文菜单和实时状态的单一存储库。该测试套件涵盖 18 个文件、87 个测试，语句、函数和行覆盖率为 100%。</p>
+<p>第一阶段提供了一个带有 Web 客户端、Electron 桌面 shell、TUI/CLI、REST/WebSocket 网关、完整消息状态机、带有 SDK 的机器人引擎、三个第一方机器人、用于 1:1 DM 的客户端 E2EE (ECDH + AES-256-GCM)、用于 1:1 E2EE DM 的机会性 WebRTC P2P 直接连接、表情符号反应、消息回复/转发/上下文菜单、和实时存在。该测试套件涵盖 18 个文件、119 个测试，语句、函数和行覆盖率为 100%。</p>
 <p><p对齐=“中心”>
   <img src="docs/images/login-sample.jpg" alt="登录屏幕" width="30%">
   <img src="docs/images/chat-sample.jpg" alt="聊天屏幕" width="30%">
@@ -2733,7 +2763,7 @@
 <a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>│   └── tui/              Commander CLI + Ink interactive UI
 <a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>├── packages/
 <a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>│   ├── shared/           40+ Zod schemas, protocol types, API envelope helpers
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>│   ├── signal/           Local Signal-style facade (pre-key, encrypt/decrypt)
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>│   ├── signal/           E2EE abstraction layer (ECDH + AES-256-GCM)
 <a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>│   ├── bot-sdk/          NexusBotClient: WS connect, middleware, event dispatch
 <a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>│   ├── ui/               Shared React primitives and design tokens
 <a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>│   └── bots/
@@ -2825,7 +2855,7 @@
 <tr>
 <td><strong>测试</strong></td>
 <td>维泰斯特+V8覆盖</td>
-<td>18 个测试文件，87 个测试</td>
+<td>18 个测试文件，119 个测试</td>
 </tr>
 <tr>
 <td><strong>P2P</strong></td>
@@ -2925,7 +2955,7 @@
 <li><strong>会话存储：</strong> 存储链接到所有者和对等用户 ID 的 Signal 会话。</li>
 </ul>
 <h3 id="_17">客户端外观<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
-<p><code>packages/signal</code> 提供了带有 <code>generateIdentity</code>、<code>generatePreKeyBundle</code>、<code>encryptMessage</code> 和 <code>decryptMessage</code> 的局部外观。这用于测试和烟雾脚本。生产信号协议集成 (<code>@signalapp/libsignal-client</code>) 是针对许可影响进行评估的 AGPL-3.0 依赖项。</p>
+<p><code>packages/signal</code>通过<code>IE2eeProvider</code>接口提供E2EE抽象层。 <strong>阶段 1-2（主分支）</strong> 通过 <code>@noble/curves</code> 和 <code>@noble/ciphers</code> 使用 ECDH 密钥交换 + AES-256-GCM 加密（纯 JS，HTTP 兼容，MIT 许可证）。 <strong>信号协议（X3DH + 双棘轮）计划在第 3 阶段</strong>，并将在 <strong>单独的分支或分发版本</strong> 上实现 - 而不是在 <code>main</code> 分支中 - 因为 <code>@signalapp/libsignal-client</code> 是 AGPL-3.0 许可的，并且不得链接到 MIT 许可的代码库。</p>
 <h3 id="e2ee_2">E2EE 通道限制<a class="headerlink" href="#e2ee_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>仅接受<code>content.type === "ciphertext"</code>。</li>
@@ -2950,7 +2980,7 @@
 <p><strong>关键属性：</strong></p>
 <ul>
 <li>无 npm 依赖项 — WebRTC 是浏览器原生的（<code>RTCPeerConnection</code>、<code>RTCDataChannel</code>）。</li>
-<li>双重加密：DTLS（传输）+信号协议（应用）。</li>
+<li>双重加密：DTLS（传输）+ AES-256-GCM（应用）。</li>
 <li>服务器永远不会看到 P2P 消息内容、时间戳或计数 — 只能看到信令元数据。</li>
 <li>TUI/CLI 客户端保持仅中继（Node.js 缺乏本机 WebRTC）。</li>
 </ul>
@@ -3487,7 +3517,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>测试细分（18 个文件，89 个测试）：</strong></p>
+<p><strong>测试细分（18 个文件，119 个测试）：</strong></p>
 <table>
 <thead>
 <tr>
@@ -3785,6 +3815,7 @@
 <li><strong>电子打包：</strong> 无生产代码签名、公证或自动更新发布。</li>
 <li><strong>附件用户体验：</strong> 服务器端附件原语存在；未构建网络/桌面上传 UI。</li>
 <li><strong>P2P 客户端支持：</strong> 基于 WebRTC 的 P2P 直接连接可在 Web（浏览器）和 Electron 客户端中使用。 TUI/CLI 仍然仅用于服务器中继（Node.js 缺少原生 <code>RTCPeerConnection</code>）。</li>
+<li><strong>信号协议（第 3 阶段）：</strong> 不包含在 MIT 许可的 <code>main</code> 分支中。完整的 X3DH + 双棘轮前向保密将在单独的分发分支上提供，以避免来自 <code>@signalapp/libsignal-client</code> 的 AGPL-3.0 许可证污染。</li>
 </ul>
 <p>完整列表请参见<a href="docs/known-limitations.md">docs/known-limitations.md</a>。</p>
 <hr />
@@ -3799,7 +3830,7 @@
 <p>请参阅 <code>AGENTS.md</code> 了解完整的约定参考。</p>
 <hr />
 <h2 id="_32">许可证<a class="headerlink" href="#_32" title="Permanent link">&para;</a></h2>
-<p>麻省理工学院——参见<a href="LICENSE">LICENSE</a>。</p>
+<p>麻省理工学院——参见<a href="LICENSE">LICENSE</a>。 <code>main</code> 分支仅包含 MIT 兼容的代码。信号协议（AGPL-3.0）将在第 3 阶段单独分发。</p>
 
 
 

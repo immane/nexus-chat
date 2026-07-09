@@ -724,6 +724,8 @@
       
         
       
+        
+      
     
     
     
@@ -1038,6 +1040,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="design/10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -2133,7 +2163,7 @@
 </tr>
 <tr>
 <td><strong>端到端</strong></td>
-<td>通过 <a href="https://github.com/signalapp/libsignal">Signal Protocol</a> 进行端到端加密：服务器是一个不透明的中继，无法读取消息内容，完全排除机器人，并且支持敏感 DM 读取一次/消失的消息</td>
+<td>通过客户端 ECDH + AES-256-GCM（第 1-2 阶段，MIT 兼容）进行端到端加密：服务器是一个不透明的中继，无法读取消息内容，完全排除机器人，并且支持敏感 DM 的一次读取/消失消息。信号协议（X3DH + 双棘轮）计划在单独的 AGPL-3.0 分配分支上进行第 3 阶段。</td>
 </tr>
 </tbody>
 </table>
@@ -2255,8 +2285,8 @@
 <tbody>
 <tr>
 <td>端到端加密</td>
-<td><strong>@signalapp/libsignal</strong>（信号协议）</td>
-<td>X3DH 密钥交换 + 用于 1:1 和组 E2E 的双棘轮</td>
+<td><strong>@noble/curves + @noble/ciphers</strong>（阶段 1-2，麻省理工学院）</td>
+<td>用于 1:1 DM 的 ECDH 密钥交换 + AES-256-GCM。第 3 阶段在单独的 AGPL-3.0 分支上升级到信号协议。</td>
 </tr>
 <tr>
 <td>人工智能代理框架</td>
@@ -2359,7 +2389,7 @@
 <h3 id="32">3.2 核心设计原则<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>整体优先，边界清晰</strong> — 第 1 阶段作为单个进程部署；代码中的服务边界允许将来拆分而无需重写</li>
-<li><strong>零知识加密服务器</strong> — 私钥永远不会离开客户端；信号协议密钥服务器仅存储公钥</li>
+<li><strong>零知识加密服务器</strong> — 私钥永远不会离开客户端； E2EE密钥服务器仅存储公钥和密文</li>
 <li><strong>流原生协议</strong> — WebSocket 层中的一流 <code>stream_start → stream_chunk → stream_end</code> 事件</li>
 <li><strong>机器人 SDK 奇偶校验</strong> — 第一方捆绑机器人使用与第三方开发人员相同的公共 SDK</li>
 <li><strong>每个通道混合模式</strong> — 普通通道和 E2E 通道共存于一个工作区中；机器人自动被排除在E2E之外</li>
@@ -2374,7 +2404,7 @@
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   └── tui/                     # Terminal UI / CLI client (Ink + Commander)
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── packages/
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── shared/                  # Shared types, Zod schemas, constants, event definitions
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── signal/                  # Signal Protocol wrapper (@signalapp/libsignal)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── signal/                  # E2EE abstraction layer (IE2eeProvider + 3 implementations)
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── bot-sdk/                 # Public Bot SDK (TypeScript/Node.js)
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   ├── ai-bot/                  # AI Agent Engine (Phase 2)
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   └── ui/                      # Shared React UI component library
@@ -2413,7 +2443,7 @@
 <li>工作空间创建、渠道管理（公共/私人/DM）</li>
 <li>带有状态机的短信（草稿→已发送→已发送→已读）</li>
 <li>Markdown 渲染、表情符号反应</li>
-<li>用于 1:1 DM 的信号协议 E2E，包括一次读取/消失消息策略</li>
+<li>用于 1:1 DM 的 ECDH + AES-256-GCM E2EE，包括一次读取/消失消息策略（第 3 阶段：单独分支上的信号协议）</li>
 <li>机器人注册、斜杠命令路由、Redis Streams 事件总线</li>
 <li><strong>7 个基本机器人</strong>：欢迎、帮助、通知、提醒、投票、Webhook、Kudos</li>
 <li>带窗口管理、托盘、通知的 Electron shell</li>
@@ -2513,6 +2543,11 @@
 <td><a href="design/09_Web_Client_UI_Design/">Web Client UI Design</a></td>
 <td>桌面布局、Zustand商店架构、组件树、移动适配方案（P0/P1/P2）</td>
 </tr>
+<tr>
+<td>10</td>
+<td>10 <a href="design/10_E2EE_Encryption_Abstract_Layer/">E2EE Encryption Abstract Layer</a></td>
+<td>IE2eeProvider 接口、占位符/@noble/SubtleCrypto 实现、ECDH + AES-256-GCM、第 3 阶段信号协议升级路径</td>
+</tr>
 </tbody>
 </table>
 <h3 id="62">6.2 研究文件<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
@@ -2542,7 +2577,7 @@
 </tr>
 <tr>
 <td><a href="research/security-defense-e2ee-roadmap/">Security Defense &amp; E2EE</a></td>
-<td>Helmet.js/CORS/CSP、Argon2id、JWT 最佳实践、信号协议深入研究（X3DH/双棘轮/发送方密钥）、威胁模型、GDPR 合规性</td>
+<td>Helmet.js/CORS/CSP、Argon2id、JWT 最佳实践、E2E 加密深入研究、威胁模型、GDPR 合规性</td>
 </tr>
 <tr>
 <td><a href="research/base-bot-catalog/">Base Bot Catalog</a></td>
@@ -2606,8 +2641,8 @@
 </tr>
 <tr>
 <td>09</td>
-<td><a href="tasks/09-phase-1-signal-dm-e2ee/">Signal DM E2EE</a></td>
-<td>PreKeyBundle 流程、X3DH、双棘轮、1:1 加密 DM</td>
+<td><a href="tasks/09-phase-1-signal-dm-e2ee/">Signal DM E2EE (Placeholder)</a></td>
+<td>PreKeyBundle 基础设施、会话管理、密文协议。真正的 ECDH + AES-256-GCM 加密推迟到任务 #27。</td>
 </tr>
 <tr>
 <td>10</td>
@@ -2693,6 +2728,11 @@
 <td>26</td>
 <td>26 <a href="tasks/26-phase-1-web-mobile-adaptation/">Web Mobile Adaptation</a></td>
 <td>视口元、覆盖抽屉侧边栏、长按上下文菜单、响应式模式、安全区域</td>
+</tr>
+<tr>
+<td>27</td>
+<td>27 <a href="tasks/27-phase-1-e2ee-real-encryption/">E2EE Real Encryption</a></td>
+<td>IE2eeProvider 接口、@noble/* ECDH + AES-256-GCM、WebCrypto、文件加密助手、119 项测试</td>
 </tr>
 </tbody>
 </table>

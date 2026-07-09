@@ -409,6 +409,8 @@
       
         
       
+        
+      
     
     
     
@@ -1517,6 +1519,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -3136,41 +3166,41 @@
 <h2 id="2">2. 架构概述<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
 <h3 id="21">2.1 高级数据流<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>┌─────────────────────────────────┐     ┌─────────────────────────────────┐
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>│         Alice&#39;s Client           │     │          Bob&#39;s Client            │
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│                                  │     │                                  │
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│  ┌────────────────────────────┐  │     │  ┌────────────────────────────┐  │
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│  │  packages/signal           │  │     │  │  packages/signal           │  │
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│  │  encryptForSession()       │  │     │  │  decryptFromSession()      │  │
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│  │  (unchanged)               │  │     │  │  (unchanged)               │  │
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│  └──────────┬─────────────────┘  │     │  └──────────▲─────────────────┘  │
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│             │ ciphertext         │     │             │ ciphertext         │
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│  ┌──────────▼─────────────────┐  │     │  ┌──────────┴─────────────────┐  │
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│  │  P2P Transport Manager      │  │     │  │  P2P Transport Manager      │  │
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│  │  ┌───────────────────────┐  │  │     │  │  ┌───────────────────────┐  │  │
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│  │  │ WebRTC Data Channel    │──┼──┼─────┼──│ WebRTC Data Channel    │  │  │
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│  │  │ (preferred path)       │  │  │     │  │ (preferred path)       │  │  │
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│  │  └───────────────────────┘  │  │     │  │  └───────────────────────┘  │  │
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│  │  ┌───────────────────────┐  │  │     │  │  ┌───────────────────────┐  │  │
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│  │  │ WebSocket (fallback)   │──┼──┼──┐  │  │  │ WebSocket (fallback)   │  │  │
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│  │  └───────────────────────┘  │  │  │  │  │  └───────────────────────┘  │  │
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│  │  ┌───────────────────────┐  │  │  │  │  │  ┌───────────────────────┐  │  │
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│  │  │ Signaling (WebSocket)  │──┼──┼──┼──┼──│  │ Signaling (WebSocket)  │  │  │
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│  │  └───────────────────────┘  │  │  │  │  │  └───────────────────────┘  │  │
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│  └────────────────────────────┘  │  │  │  └────────────────────────────┘  │
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>└──────────────────────────────────┘  │  │  └──────────────────────────────────┘
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>                                      │  │
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>                          ┌───────────▼──┴───────────┐
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>                          │        Server              │
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>                          │  ┌──────────────────────┐  │
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>                          │  │ Signaling Relay       │  │
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>                          │  │ (WebSocket events)    │  │
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>                          │  └──────────────────────┘  │
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>                          │  ┌──────────────────────┐  │
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>                          │  │ Message Relay         │  │
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>                          │  │ (fallback only,       │  │
-<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>                          │  │  unchanged)            │  │
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>                          │  └──────────────────────┘  │
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>                          └───────────────────────────┘
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>│         Alice&#39;s Client          │     │          Bob&#39;s Client           │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│                                 │     │                                 │
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│  ┌───────────────────────────┐  │     │  ┌───────────────────────────┐  │
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│  │  packages/signal          │  │     │  │  packages/signal          │  │
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│  │  encryptForSession()      │  │     │  │  decryptFromSession()     │  │
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│  │  (unchanged)              │  │     │  │  (unchanged)              │  │
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│  └──────────┬────────────────┘  │     │  └──────────▲────────────────┘  │
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│             │ ciphertext        │     │             │ ciphertext        │
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│  ┌──────────▼────────────────┐  │     │  ┌──────────┴────────────────┐  │
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│  │  P2P Transport Manager    │  │     │  │  P2P Transport Manager    │  │
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│  │  ┌─────────────────────┐  │  │     │  │  ┌─────────────────────┐  │  │
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│  │  │ WebRTC Data Channel │──┼──┼─────┼──│ WebRTC Data Channel    │  │  │
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│  │  │ (preferred path)    │  │  │     │  │ (preferred path)       │  │  │
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│  │  └─────────────────────┘  │  │     │  │  └─────────────────────┘  │  │
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│  │  ┌─────────────────────┐  │  │     │  │  ┌─────────────────────┐  │  │
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│  │  │ WebSocket (fallback)│──┼──┼──┐  │  │  │ WebSocket (fallback)│  │  │
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│  │  └─────────────────────┘  │  │  │  │  │  └─────────────────────┘  │  │
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│  │  ┌─────────────────────┐  │  │  │  │  │  ┌─────────────────────┐  │  │
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│  │  │Signaling (WebSocket)│──┼──┼──┼──┼──│  │Signaling (WebSocket)│  │  │
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│  │  └─────────────────────┘  │  │  │  │  │  └─────────────────────┘  │  │
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│  └───────────────────────────┘  │  │  │  └───────────────────────────┘  │
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>└─────────────────────────────────┘  │  │  └──────────────────────────────┘
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>                                     │  │
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>                         ┌───────────▼──┴───────────┐
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>                         │        Server            │
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>                         │  ┌────────────────────┐  │
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>                         │  │ Signaling Relay    │  │
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>                         │  │ (WebSocket events) │  │
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>                         │  └────────────────────┘  │
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>                         │  ┌────────────────────┐  │
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>                         │  │ Message Relay      │  │
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>                         │  │ (fallback only,    │  │
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>                         │  │  unchanged)        │  │
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>                         │  └────────────────────┘  │
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>                         └──────────────────────────┘
 </code></pre></div>
 <h3 id="22">2.2 组件矩阵<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
 <table>
@@ -3824,7 +3854,7 @@
 <p>P2P 消息受益于<strong>两层加密</strong>：</p>
 <ol>
 <li><strong>DTLS（WebRTC 传输）</strong>：所有数据通道流量均使用带有每会话密钥的 DTLS-SRTP 在传输层进行加密。</li>
-<li><strong>信号协议（应用）</strong>：数据通道上承载的密文使用信号双棘轮密钥进行加密。</li>
+<li><strong>应用层E2EE</strong>：数据通道承载的密文使用ECDH + AES-256-GCM 密钥进行加密。</li>
 </ol>
 <p>这意味着即使 WebRTC 加密受到某种程度的破坏，应用层密文仍然受到 Signal 的保护。</p>
 <h3 id="113">11.3 元数据泄露比较<a class="headerlink" href="#113" title="Permanent link">&para;</a></h3>

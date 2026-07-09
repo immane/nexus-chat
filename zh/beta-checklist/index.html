@@ -407,6 +407,8 @@
       
         
       
+        
+      
     
     
     
@@ -721,6 +723,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -1789,8 +1819,8 @@
 </ul>
 <h2 id="e2e-dm">E2E 加密 DM<a class="headerlink" href="#e2e-dm" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[x] 1:1 DM 的信号协议 X3DH 密钥交换</li>
-<li>[x] 双棘轮前向保密</li>
+<li>[x] ECDH + AES-256-GCM 密钥交换用于 1:1 DM（第 1-2 阶段，MIT 兼容）</li>
+<li>[x] 前向保密占位符（完整的双棘轮推迟到第 3 阶段，信号协议分支）</li>
 <li>[x] PreKeyBundle上传和检索流程</li>
 <li>[x] 服务器仅存储密文（无明文访问）</li>
 <li>[x] 机器人被排除在端到端渠道之外</li>

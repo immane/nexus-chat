@@ -409,6 +409,8 @@
       
         
       
+        
+      
     
     
     
@@ -882,15 +884,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5" class="md-nav__link">
+  <a href="#5-e2ee-prekey-5-e2ee-key-server-prekey-infrastruction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. 信号协议密钥服务器
+        5. E2EE 密钥服务器（PreKey 基础设施）{#5-e2ee-key-server-prekey-infrastruction}
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. 信号协议密钥服务器">
+    <nav class="md-nav" aria-label="5. E2EE 密钥服务器（PreKey 基础设施）{#5-e2ee-key-server-prekey-infrastruction}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1044,7 +1046,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5_1" class="md-nav__link">
+  <a href="#5" class="md-nav__link">
     <span class="md-ellipsis">
       
         第 5 层：速率限制
@@ -1416,6 +1418,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -2466,15 +2496,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5" class="md-nav__link">
+  <a href="#5-e2ee-prekey-5-e2ee-key-server-prekey-infrastruction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. 信号协议密钥服务器
+        5. E2EE 密钥服务器（PreKey 基础设施）{#5-e2ee-key-server-prekey-infrastruction}
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. 信号协议密钥服务器">
+    <nav class="md-nav" aria-label="5. E2EE 密钥服务器（PreKey 基础设施）{#5-e2ee-key-server-prekey-infrastruction}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2628,7 +2658,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5_1" class="md-nav__link">
+  <a href="#5" class="md-nav__link">
     <span class="md-ellipsis">
       
         第 5 层：速率限制
@@ -2868,7 +2898,7 @@
 <li><a href="#2-data-model--drizzle-orm-schema">Data Model — Drizzle ORM Schema</a></li>
 <li><a href="#3-message-state-machine">Message State Machine</a>
 4.<a href="#4-channel-state-machine">Channel State Machine</a></li>
-<li><a href="#5-signal-protocol-key-server">Signal Protocol Key Server</a></li>
+<li><a href="#5-e2ee-key-server-prekey-infrastructure">E2EE Key Server (PreKey Infrastructure)</a></li>
 <li><a href="#6-redis-caching-architecture">Redis Caching Architecture</a>
 7.<a href="#7-bot-integration-module">Bot Integration Module</a>
 8.<a href="#8-security-implementation">Security Implementation</a></li>
@@ -3706,7 +3736,7 @@
 - 广播 <code>channel:key_rotation</code> 事件以触发客户端轮换。
 - 服务器从不拥有任何私钥材料。</p>
 <hr />
-<h2 id="5">5. 信号协议密钥服务器<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h2 id="5-e2ee-prekey-5-e2ee-key-server-prekey-infrastruction">5. E2EE 密钥服务器（PreKey 基础设施）{#5-e2ee-key-server-prekey-infrastruction}<a class="headerlink" href="#5-e2ee-prekey-5-e2ee-key-server-prekey-infrastruction" title="Permanent link">&para;</a></h2>
 <h3 id="51">5.1 设计原则：零知识服务器<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
 <p>服务器仅存储<strong>公钥</strong>并仅转发<strong>密文</strong>。它从不生成、拥有或需要知道任何私钥。所有加密操作都发生在客户端上。</p>
 <h3 id="52-prekeybundle">5.2 PreKeyBundle 上传<a class="headerlink" href="#52-prekeybundle" title="Permanent link">&para;</a></h3>
@@ -3943,7 +3973,7 @@
 <a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a><span class="w">    </span><span class="p">.</span><span class="nx">orderBy</span><span class="p">(</span><span class="nx">desc</span><span class="p">(</span><span class="nx">messages</span><span class="p">.</span><span class="nx">id</span><span class="p">)).</span><span class="nx">limit</span><span class="p">(</span><span class="nx">limit</span><span class="p">);</span>
 <a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a><span class="p">}</span>
 </code></pre></div>
-<h4 id="5_1">第 5 层：速率限制<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h4>
+<h4 id="5">第 5 层：速率限制<a class="headerlink" href="#5" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1">// Sliding window counter (Redis-backed, distributed)</span>
 <a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">checkRateLimit</span><span class="p">(</span>
 <a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">maxRequests</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">windowSec</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span>

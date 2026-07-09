@@ -407,6 +407,8 @@
       
         
       
+        
+      
     
     
     
@@ -721,6 +723,34 @@
     
   
     Web Client UI Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE Encryption Abstract Layer
   
 
     
@@ -1700,8 +1730,8 @@
 <ul>
 <li><strong>Single-device E2EE only.</strong> Phase 1 supports one device per user for end-to-end encrypted DMs. Multi-device E2EE session relay is planned for Phase 3.</li>
 <li><strong>No group E2EE.</strong> Only 1:1 DM encryption is implemented. Group E2E via Sender Key is planned for Phase 2.</li>
-<li><strong>No safety numbers UI.</strong> Signal Protocol safety number verification is not surfaced in the UI yet (Phase 3).</li>
-<li><strong>AGPL-3.0 concern for @signalapp/libsignal-client.</strong> The native <code>@signalapp/libsignal-client</code> dependency is licensed under AGPL-3.0, which may impose copyleft obligations on the project. This project uses this dependency only for educational purposes during development. Evaluate license compatibility before production deployment.</li>
+<li><strong>No safety numbers UI.</strong> Key verification UI is not surfaced yet (Phase 3, Signal Protocol distribution branch).</li>
+<li><strong>Signal Protocol deferred to Phase 3.</strong> The <code>main</code> branch uses ECDH + AES-256-GCM (MIT-compatible) via <code>@noble/*</code>. Full X3DH + Double Ratchet forward secrecy via <code>@signalapp/libsignal-client</code> (AGPL-3.0) will ship on a separate distribution branch to avoid copyleft license contamination of the MIT codebase.</li>
 </ul>
 <h2 id="data-stores">Data Stores<a class="headerlink" href="#data-stores" title="Permanent link">&para;</a></h2>
 <ul>

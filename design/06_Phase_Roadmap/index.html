@@ -409,6 +409,8 @@
       
         
       
+        
+      
     
     
     
@@ -1118,6 +1120,34 @@
     
   
     Web Client UI Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE Encryption Abstract Layer
   
 
     
@@ -2263,7 +2293,7 @@
 <h1 id="06-phase-roadmap-milestone-plan">06 — Phase Roadmap &amp; Milestone Plan<a class="headerlink" href="#06-phase-roadmap-milestone-plan" title="Permanent link">&para;</a></h1>
 <blockquote>
 <p>nexus-chat · Slack-like IM application<br />
-Design date: June 2026 · Status: Draft v1.0<br />
+Design date: June 2026 · Status: Draft v1.1 (updated 2026-07-10)<br />
 Target: SaaS multi-tenant cloud deployment</p>
 </blockquote>
 <hr />
@@ -2399,8 +2429,8 @@ Target: SaaS multi-tenant cloud deployment</p>
 </tr>
 <tr>
 <td><strong>DM E2E</strong></td>
-<td>Signal Protocol for 1:1 DMs, X3DH key negotiation, Double Ratchet, client-side encrypt/decrypt, server opaque relay, PreKeyBundle server</td>
-<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+<td>ECDH + AES-256-GCM (Phase 1-2, MIT-compatible, main branch). Signal Protocol with X3DH + Double Ratchet planned for Phase 3 on a <strong>separate distribution branch</strong> — not in <code>main</code> — to avoid AGPL-3.0 license contamination from <code>@signalapp/libsignal</code>.</td>
+<td><a href="../10_E2EE_Encryption_Abstract_Layer/">10 - E2EE Encryption Abstract Layer</a></td>
 </tr>
 <tr>
 <td><strong>E2E Disappearing Messages</strong></td>
@@ -2512,7 +2542,7 @@ Target: SaaS multi-tenant cloud deployment</p>
 <tr>
 <td><code>signal</code></td>
 <td><code>packages/signal/</code></td>
-<td>Signal Protocol wrapper (@signalapp/libsignal)</td>
+<td>E2EE abstraction layer (IE2eeProvider + @noble/* implementation); Signal Protocol via <code>@signalapp/libsignal</code> on separate Phase 3 branch only</td>
 </tr>
 <tr>
 <td><code>bot-sdk</code></td>
@@ -2578,8 +2608,8 @@ Target: SaaS multi-tenant cloud deployment</p>
 </tr>
 <tr>
 <td>9–10</td>
-<td>Signal Protocol integration</td>
-<td>PreKeyBundle server, X3DH + Double Ratchet, E2E DM flow, read-once/disappearing policy</td>
+<td>E2EE infrastructure</td>
+<td>ECDH + AES-256-GCM message encryption, PreKeyBundle server endpoints, E2E DM flow, read-once/disappearing policy, IE2eeProvider interface (placeholder, Phase 3 Signal Protocol deferred to AGPL-3.0 branch)</td>
 </tr>
 <tr>
 <td>11–12</td>
@@ -2829,8 +2859,8 @@ Target: SaaS multi-tenant cloud deployment</p>
 </tr>
 <tr>
 <td><strong>Advanced E2E</strong></td>
-<td>Verified safety numbers (QR code compare), device management (list/revoke), sealed sender, transparency/audit UX, advanced retention policy controls</td>
-<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+<td>Signal Protocol (X3DH + Double Ratchet, separate AGPL-3.0 branch), verified safety numbers (QR code compare), device management (list/revoke), sealed sender, transparency/audit UX, advanced retention policy controls</td>
+<td><a href="../10_E2EE_Encryption_Abstract_Layer/">10 - E2EE Encryption Abstract Layer</a></td>
 </tr>
 <tr>
 <td><strong>Multi-Device Sync</strong></td>
@@ -2926,17 +2956,17 @@ Target: SaaS multi-tenant cloud deployment</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 3: Microservices
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>┌────────────────────┐              ┌────────────────────┐              ┌────────────────────┐
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│  Single Process:    │              │  App Node × N:      │              │  Gateway Service   │
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│  Hono + Socket.IO   │              │  ├─ Hono REST       │              │  (stateless, N×)   │
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  + Bot Engine       │              │  ├─ Socket.IO       │              ├────────────────────┤
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│  + AI Agent Engine  │              │  ├─ Bot Engine      │              │  Message Service   │
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>└────────┬───────────┘              │  └─ AI Engine       │              │  (stateful, N×)    │
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>         │                           └────────┬───────────┘              ├────────────────────┤
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    ┌────┴────┐                           ┌───┴────┐                    │  Bot Engine        │
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   PG    │                           │  Redis │                    │  (NATS consumer)   │
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │  Redis  │                           │Cluster │                    ├────────────────────┤
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    └─────────┘                           └───┬────┘                    │  AI Agent Engine   │
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    Event bus:                               │                         │  (NATS consumer)   │
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│  Single Process:   │              │  App Node × N:     │              │  Gateway Service   │
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│  Hono + Socket.IO  │              │  ├─ Hono REST      │              │  (stateless, N×)   │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  + Bot Engine      │              │  ├─ Socket.IO      │              ├────────────────────┤
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│  + AI Agent Engine │              │  ├─ Bot Engine     │              │  Message Service   │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>└────────┬───────────┘              │  └─ AI Engine      │              │  (stateful, N×)    │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>         │                          └────────┬───────────┘              ├────────────────────┤
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    ┌────┴────┐                          ┌───┴────┐                     │  Bot Engine        │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   PG    │                          │  Redis │                     │  (NATS consumer)   │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │  Redis  │                          │Cluster │                     ├────────────────────┤
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    └─────────┘                          └───┬────┘                     │  AI Agent Engine   │
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    Event bus:                               │                          │  (NATS consumer)   │
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    Redis Streams                     ┌──────┴──────┐                   ├────────────────────┤
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                                      │    PG       │                   │  File Service      │
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                                      │  Primary +  │                   │  (stateless, N×)   │
@@ -2947,10 +2977,10 @@ Target: SaaS multi-tenant cloud deployment</p>
 <a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                                                                            │ JetStream │
 <a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                                                                            └────┬──────┘
 <a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>                                                                                 │
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                                                                          ┌──────┴──────┐
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                                                                          │  PG per svc │
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                                                                          │  Redis Cluster│
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                                                                          └─────────────┘
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                                                                          ┌──────┴─────-─┐
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                                                                          │ PG per svc   │
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                                                                          │ Redis Cluster│
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                                                                          └────────────-─┘
 </code></pre></div>
 <h3 id="key-infrastructure-milestones">Key Infrastructure Milestones<a class="headerlink" href="#key-infrastructure-milestones" title="Permanent link">&para;</a></h3>
 <table>
@@ -3350,9 +3380,9 @@ Target: SaaS multi-tenant cloud deployment</p>
 </tr>
 <tr>
 <td><code>packages/signal</code></td>
-<td>X3DH + Double Ratchet</td>
+<td>ECDH + AES-256-GCM (IE2eeProvider + @noble/*), PreKey endpoints</td>
 <td>+ Sender Key, group E2E</td>
-<td>+ Sealed sender, device mgmt</td>
+<td>+ Signal Protocol (X3DH + Double Ratchet, AGPL-3.0 branch), sealed sender, device mgmt</td>
 </tr>
 <tr>
 <td><code>packages/bot-sdk</code></td>
@@ -3407,6 +3437,10 @@ Target: SaaS multi-tenant cloud deployment</p>
 - <a href="../03_Business_Logic_and_Persistence_Backend/">03 — Business Logic &amp; Persistence</a>
 - <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 — Async Bot Engine &amp; Event Dispatch</a>
 - <a href="../05_AI_Agent_Orchestration_and_Streaming/">05 — AI Agent Orchestration &amp; Streaming</a>
+- <a href="../07_P2P_DM_Direct_Connection/">07 — P2P DM Direct Connection</a>
+- <a href="../08_TUI_Chat_Redesign/">08 — TUI Chat Redesign</a>
+- <a href="../09_Web_Client_UI_Design/">09 — Web Client UI Design</a>
+- <a href="../10_E2EE_Encryption_Abstract_Layer/">10 — E2EE Encryption Abstract Layer</a>
 - <a href="../../research/base-bot-catalog/">Base Bot Catalog Research</a>
 - <a href="../../research/ai-agent-orchestration/">AI Agent Orchestration Research</a></p>
 </blockquote>

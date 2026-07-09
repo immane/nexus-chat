@@ -409,6 +409,8 @@
       
         
       
+        
+      
     
     
     
@@ -882,15 +884,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-signal-protocol-key-server" class="md-nav__link">
+  <a href="#5-e2ee-key-server-prekey-infrastructure-5-e2ee-key-server-prekey-infrastructure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Signal Protocol Key Server
+        5. E2EE Key Server (PreKey Infrastructure) {#5-e2ee-key-server-prekey-infrastructure}
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Signal Protocol Key Server">
+    <nav class="md-nav" aria-label="5. E2EE Key Server (PreKey Infrastructure) {#5-e2ee-key-server-prekey-infrastructure}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1416,6 +1418,34 @@
     
   
     Web Client UI Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE Encryption Abstract Layer
   
 
     
@@ -2466,15 +2496,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-signal-protocol-key-server" class="md-nav__link">
+  <a href="#5-e2ee-key-server-prekey-infrastructure-5-e2ee-key-server-prekey-infrastructure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Signal Protocol Key Server
+        5. E2EE Key Server (PreKey Infrastructure) {#5-e2ee-key-server-prekey-infrastructure}
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Signal Protocol Key Server">
+    <nav class="md-nav" aria-label="5. E2EE Key Server (PreKey Infrastructure) {#5-e2ee-key-server-prekey-infrastructure}">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2868,7 +2898,7 @@ Dependencies: <a href="../../research/backend-im-state-machine/">backend-im-stat
 <li><a href="#2-data-model--drizzle-orm-schema">Data Model — Drizzle ORM Schema</a></li>
 <li><a href="#3-message-state-machine">Message State Machine</a></li>
 <li><a href="#4-channel-state-machine">Channel State Machine</a></li>
-<li><a href="#5-signal-protocol-key-server">Signal Protocol Key Server</a></li>
+<li><a href="#5-e2ee-key-server-prekey-infrastructure">E2EE Key Server (PreKey Infrastructure)</a></li>
 <li><a href="#6-redis-caching-architecture">Redis Caching Architecture</a></li>
 <li><a href="#7-bot-integration-module">Bot Integration Module</a></li>
 <li><a href="#8-security-implementation">Security Implementation</a></li>
@@ -3706,7 +3736,7 @@ Dependencies: <a href="../../research/backend-im-state-machine/">backend-im-stat
 - Broadcasting <code>channel:key_rotation</code> events to trigger client-side rotation.
 - The server never possesses any private key material.</p>
 <hr />
-<h2 id="5-signal-protocol-key-server">5. Signal Protocol Key Server<a class="headerlink" href="#5-signal-protocol-key-server" title="Permanent link">&para;</a></h2>
+<h2 id="5-e2ee-key-server-prekey-infrastructure-5-e2ee-key-server-prekey-infrastructure">5. E2EE Key Server (PreKey Infrastructure) {#5-e2ee-key-server-prekey-infrastructure}<a class="headerlink" href="#5-e2ee-key-server-prekey-infrastructure-5-e2ee-key-server-prekey-infrastructure" title="Permanent link">&para;</a></h2>
 <h3 id="51-design-principle-zero-knowledge-server">5.1 Design Principle: Zero-Knowledge Server<a class="headerlink" href="#51-design-principle-zero-knowledge-server" title="Permanent link">&para;</a></h3>
 <p>The server stores only <strong>public keys</strong> and forwards only <strong>ciphertext</strong>. It never generates, possesses, or needs to know any private key. All cryptographic operations occur on the client.</p>
 <h3 id="52-prekeybundle-upload">5.2 PreKeyBundle Upload<a class="headerlink" href="#52-prekeybundle-upload" title="Permanent link">&para;</a></h3>

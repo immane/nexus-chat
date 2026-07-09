@@ -407,6 +407,8 @@
       
         
       
+        
+      
     
     
     
@@ -721,6 +723,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -1700,8 +1730,8 @@
 <ul>
 <li><strong>仅限单设备 E2EE。</strong> 第 1 阶段支持每个用户使用一台设备进行端到端加密 DM。多设备 E2EE 会话中继计划在第 3 阶段进行。</li>
 <li><strong>无组 E2EE。</strong> 仅实施 1:1 DM 加密。第 2 阶段计划通过发送者密钥进行 E2E 组。</li>
-<li><strong>没有安全号码 UI。</strong> Signal Protocol 安全号码验证尚未出现在 UI 中（第 3 阶段）。</li>
-<li><strong>AGPL-3.0 关注 @signalapp/libsignal-client。</strong> 本机 <code>@signalapp/libsignal-client</code> 依赖项根据 AGPL-3.0 获得许可，这可能会对项目施加 Copyleft 义务。该项目在开发过程中仅将这种依赖关系用于教育目的。在生产部署之前评估许可证兼容性。</li>
+<li><strong>没有安全号码 UI。</strong> 密钥验证 UI 尚未浮出水面（第 3 阶段，信号协议分发分支）。</li>
+<li><strong>信号协议推迟到第 3 阶段。</strong> <code>main</code> 分支通过 <code>@noble/*</code> 使用 ECDH + AES-256-GCM（MIT 兼容）。通过 <code>@signalapp/libsignal-client</code> (AGPL-3.0) 实现的完整 X3DH + 双棘轮前向保密将在单独的分发分支上发布，以避免 MIT 代码库的 Copyleft 许可证污染。</li>
 </ul>
 <h2 id="_3">数据存储<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>

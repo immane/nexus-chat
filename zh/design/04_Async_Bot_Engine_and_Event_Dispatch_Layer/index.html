@@ -409,6 +409,8 @@
       
         
       
+        
+      
     
     
     
@@ -1599,6 +1601,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -3255,7 +3285,7 @@
 <h3 id="11">1.1 目的<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
 <p>机器人引擎负责接收内部平台事件，根据通道订阅将它们路由到已注册的机器人，处理机器人响应（消息、通道操作），并强制执行安全边界。它是 Nexus-chat 中第三方可扩展性的中枢神经系统。</p>
 <h3 id="12">1.2 关键约束<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
-<p><strong>机器人无法访问端到端加密通道。</strong> 当通道通过信号协议启用端到端加密时，事件管道会完全跳过机器人调度。这是在路由层强制执行的 - 来自 E2E 通道的事件不会进入机器人调度路径。</p>
+<p><strong>机器人无法访问端到端加密通道。</strong> 当通道启用端到端加密时，事件管道会完全跳过机器人调度。这是在路由层强制执行的 - 来自 E2E 通道的事件不会进入机器人调度路径。</p>
 <h3 id="13">1.3 连接方式<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -4341,7 +4371,7 @@
 <td>搜索是必要的 IM 原语，并且必须尊重授权/保留</td>
 </tr>
 <tr>
-<td>Signal Protocol 密钥分发和端到端路由</td>
+<td>E2EE密钥分发和路由</td>
 <td>核心即时通讯</td>
 <td>加密边界不能依赖机器人</td>
 </tr>
@@ -4453,7 +4483,7 @@
 <tr>
 <th>警报</th>
 <th>状况</th>
-<th>严重性</th>
+<th>严重程度</th>
 <th>行动</th>
 </tr>
 </thead>

@@ -1,0 +1,3696 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Slack-like IM platform with hybrid encryption — normal mode (IM + Bot) and end-to-end encrypted mode (IM only). Phase 1 complete, 25/25 tasks.">
+      
+      
+      
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/design/10_E2EE_Encryption_Abstract_Layer/">
+      
+      
+        <link rel="prev" href="../09_Web_Client_UI_Design/">
+      
+      
+        <link rel="next" href="../../research/frontend-architecture/">
+      
+      
+        
+          <link rel="alternate" href="/nexus-chat/" hreflang="en">
+        
+          <link rel="alternate" href="/nexus-chat/zh/" hreflang="zh">
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>E2EE加密抽象层 - Nexus Chat</title>
+      
+    
+    
+  
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+  <style>
+    .md-copyright--split {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      width: 100%;
+    }
+  </style>
+
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#10-e2ee" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus Chat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              E2EE加密抽象层
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="选择当前语言">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/nexus-chat/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Nexus Chat
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../README.project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Readme
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../QUICKSTART/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速入门
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    设计文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    设计文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00_System_High_Level_Architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统总体架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01_Client_Shell_and_UI_Rendering_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    客户端外壳与 UI 渲染层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02_Long_Connection_and_Core_Gateway_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    长连接与核心网关层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03_Business_Logic_and_Persistence_Backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    业务逻辑与持久化后端
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    异步 Bot 引擎与事件分发层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05_AI_Agent_Orchestration_and_Streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent 编排与流式引擎
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06_Phase_Roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    阶段路线图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07_P2P_DM_Direct_Connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P DM 直连
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08_TUI_Chat_Redesign/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI 聊天室重新设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09_Web_Client_UI_Design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 动机
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 动机">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 当前状态
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 当前状态">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-packagessignalsrcindexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 占位符代码 (packages/signal/src/index.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 消费者代码（重构后不变）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 服务器端基础设施（已经生产就绪）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 目标架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 目标架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 文件结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 层图
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4ie2eeprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.接口定义（IE2eeProvider）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.接口定义（IE2eeProvider）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 类型变更
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 提供者接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 向后兼容性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 实现：占位符
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 实现：占位符">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 目的
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-placeholderts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 文件：placeholder.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-noble" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 实现：@noble/*（生产）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 实现：@noble/*（生产）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-noble" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 为什么@noble/*
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 依赖关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-noblets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 文件：noble.ts（关键部分）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 主要特征
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-web-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 实现：Web 加密 API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 实现：Web 加密 API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-webcryptots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 文件：webcrypto.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 环境检测
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 文件加解密
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 文件加解密">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-cryptots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 文件：crypto.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 文件密钥派生
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-e2ee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 E2EE 附件流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 环境选择
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 环境选择">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 默认行为
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 第 0 层影响分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 第 0 层影响分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 文件不变
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 文件更改（最小）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 第 3 阶段升级路径
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 第 3 阶段升级路径">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 迁移策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 有何变化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 提供者实现面
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 安全考虑
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 安全考虑">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-1-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 威胁模型覆盖范围（第 1-2 阶段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 已知限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 密钥管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技术调研
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    技术调研
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/frontend-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    前端架构与性能优化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/backend-im-state-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js 核心 IM 与状态机设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ui-components-plugin-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    组件化 UI 与插件生态协议
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/bot-engine-microservices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    异步 Bot 引擎与微服务解耦
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/security-defense-e2ee-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    低成本防御方案与未来 E2EE 路线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/base-bot-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础 Bot 目录
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ai-agent-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Agent 编排与流式交互设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/telegram-interface-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telegram 接口分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bot SDK
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bot SDK
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/nodejs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node.js / TypeScript
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/java/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Java
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/php/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PHP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sdk/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup-restore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    备份与恢复
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../beta-checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    测试版清单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known-limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    已知限制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai/context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI 会话上下文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 动机
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 动机">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 当前状态
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 当前状态">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-packagessignalsrcindexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 占位符代码 (packages/signal/src/index.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 消费者代码（重构后不变）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 服务器端基础设施（已经生产就绪）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 目标架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 目标架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 文件结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 层图
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4ie2eeprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.接口定义（IE2eeProvider）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.接口定义（IE2eeProvider）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 类型变更
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 提供者接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 向后兼容性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 实现：占位符
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 实现：占位符">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 目的
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-placeholderts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 文件：placeholder.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-noble" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 实现：@noble/*（生产）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 实现：@noble/*（生产）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-noble" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 为什么@noble/*
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 依赖关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-noblets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 文件：noble.ts（关键部分）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 主要特征
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-web-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 实现：Web 加密 API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 实现：Web 加密 API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-webcryptots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 文件：webcrypto.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 环境检测
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 文件加解密
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 文件加解密">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-cryptots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 文件：crypto.ts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 文件密钥派生
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-e2ee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 E2EE 附件流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 环境选择
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 环境选择">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 默认行为
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 第 0 层影响分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 第 0 层影响分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 文件不变
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 文件更改（最小）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 第 3 阶段升级路径
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 第 3 阶段升级路径">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 迁移策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 有何变化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 提供者实现面
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 安全考虑
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 安全考虑">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-1-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 威胁模型覆盖范围（第 1-2 阶段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 已知限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 密钥管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="10-e2ee">10 — E2EE 加密抽象层<a class="headerlink" href="#10-e2ee" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>文档版本</strong>：v1.0
+<strong>最后更新</strong>：2026-07-10
+<strong>状态</strong>：设计（待实施）
+<strong>参考文献</strong>：
+- <a href="../../research/security-defense-e2ee-roadmap/">Security &amp; E2EE Roadmap</a>
+- <a href="../00_System_High_Level_Architecture/">System High-Level Architecture</a></p>
+</blockquote>
+<hr />
+<h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>1.<a href="#1-motivation">Motivation</a>
+2.<a href="#2-current-state">Current State</a>
+3.<a href="#3-target-architecture">Target Architecture</a>
+4.<a href="#4-interface-definition-ie2eeprovider">Interface Definition (IE2eeProvider)</a>
+5. <a href="#5-implementation-placeholder">Implementation: Placeholder</a>
+6.<a href="#6-implementation-noble-production">Implementation: @noble/* (Production)</a>
+7.<a href="#7-implementation-web-crypto-api">Implementation: Web Crypto API</a>
+8. <a href="#8-file-encryption--decryption">File Encryption &amp; Decryption</a>
+9.<a href="#9-environment-selection">Environment Selection</a>
+10.<a href="#10-layer-0-impact-analysis">Layer 0 Impact Analysis</a>
+11.<a href="#11-phase-3-upgrade-path">Phase 3 Upgrade Path</a>
+12.<a href="#12-security-considerations">Security Considerations</a></p>
+<hr />
+<h2 id="1">1. 动机<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="11">1.1 问题<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<p>当前的<code>packages/signal/</code>导出了一套完整的E2EE功能（<code>createLocalSignalIdentity</code>，<code>toPreKeyBundle</code>，<code>establishSession</code>，<code>encryptForSession</code>，<code>decryptForSession</code>），但实现完全是占位符：</p>
+<ul>
+<li><strong>密钥</strong>是随机的十六进制字符串，而不是真正的加密密钥对</li>
+<li><strong>加密</strong>为<code>btoa(plaintext)</code>（Base64编码），提供<strong>零机密性</strong></li>
+<li><strong>解密</strong>是<code>atob(ciphertext)</code></li>
+<li><strong>会话建立</strong>生成随机会话 ID，无需执行任何 Diffie-Hellman 交换</li>
+</ul>
+<p>这意味着标记为“E2EE”的消息通过服务器以明文形式传输，并且整个 E2EE 功能集（任务#09，在第 1 阶段标记为“完成”）不提供实际的加密保护。</p>
+<h3 id="12">1.2 目标<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<p>使用 ECDH 密钥交换和 AES-256-GCM 对称加密将占位符替换为<strong>真正的端到端加密</strong>，同时保留现有的公共 API，以便<strong>消费者代码中需要零更改</strong>（<code>ChatRoute.tsx</code>、<code>signal-helpers.ts</code>、<code>MessageRow.tsx</code>、服务器路由）。</p>
+<h3 id="13">1.3 限制<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
+<ul>
+<li>必须通过<strong>纯 HTTP</strong>（不仅仅是 HTTPS/localhost）工作 — 排除 <code>SubtleCrypto</code> 作为唯一实现</li>
+<li>必须支持<strong>多个运行时环境</strong>（Node.js、Electron、浏览器）</li>
+<li>必须允许在第 3 阶段<strong>轻松迁移到信号协议</strong>（X3DH + 双棘轮），而不破坏公共 API</li>
+<li>必须保持<strong>tree-shakable</strong> - 未使用的实现不会增加包大小</li>
+</ul>
+<hr />
+<h2 id="2">2. 当前状态<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21-packagessignalsrcindexts">2.1 占位符代码 (<code>packages/signal/src/index.ts</code>)<a class="headerlink" href="#21-packagessignalsrcindexts" title="Permanent link">&para;</a></h3>
+<p>所有86条线路都是纯基础设施脚手架：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Key generation: random strings</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">randomString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">getRandomValues</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="mf">32</span><span class="p">))</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">v</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">b</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mf">16</span><span class="p">).</span><span class="nx">padStart</span><span class="p">(</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0&quot;</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1">// Encryption: Base64 encoding (NOT encryption)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">encryptForSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">_session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">,</span><span class="w"> </span><span class="nx">plaintext</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ciphertext&quot;</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kd">const</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">btoa</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">),</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nx">algorithm</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;signal-v1&quot;</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kd">const</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">});</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1">// Decryption: Base64 decoding</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">decryptFromSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">_session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nx">atob</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="22">2.2 消费者代码（重构后不变）<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<p>从 <code>@nexus-chat/signal</code> 导入 4 个文件：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>导入函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/web/src/components/ChatRoute.tsx</code></td>
+<td><code>encryptForSession</code>、<code>decryptFromSession</code>、<code>establishSession</code></td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/signal-helpers.ts</code></td>
+<td><code>createLocalSignalIdentity</code>、<code>toPreKeyBundle</code>、<code>establishSession</code>、<code>encryptForSession</code>、<code>decryptFromSession</code></td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/MessageRow.tsx</code></td>
+<td>（通过<code>signal-helpers.ts</code>）</td>
+</tr>
+<tr>
+<td><code>apps/server/src/domain/signal/service.ts</code></td>
+<td>（管理 PreKey 捆绑存储，调用 <code>consumeOneTimePreKey</code>）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>在此重构中，这些文件都不会被修改。</strong></p>
+<h3 id="23">2.3 服务器端基础设施（已经生产就绪）<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<p>服务器处理 PreKey 捆绑包存储、消费和会话元数据跟踪：</p>
+<ul>
+<li><code>POST /signal/prekey-bundles</code> — 上传公钥包（身份密钥、签名预密钥、OPK）</li>
+<li><code>GET /signal/prekey-bundles/:userId/:deviceId</code> — 获取包</li>
+<li><code>POST /signal/prekey-bundles/:userId/:deviceId/consume</code> — 消耗一次性预密钥</li>
+<li><code>POST /signal/sessions</code> — 记录会话元数据</li>
+<li><code>GET /signal/sessions</code> — 列出用户会话</li>
+</ul>
+<p>这些存储<strong>不透明字符串</strong>（密钥为十六进制/JWK）。服务器从不解释密钥材料。这使得服务器与任何加密实现完全兼容——它是一个透明的存储转发层。</p>
+<hr />
+<h2 id="3">3. 目标架构<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 文件结构<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>packages/signal/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── src/
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── types.ts           # Shared types + IE2eeProvider interface
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── placeholder.ts     # Current Base64 impl (preserved as fallback, @deprecated)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   ├── noble.ts           # @noble/curves + @noble/ciphers (production, HTTP-compatible)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   ├── webcrypto.ts       # SubtleCrypto (production, HTTPS/localhost-only)
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   ├── crypto.ts          # File encryption/decryption helpers (shared by all providers)
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   └── index.ts           # Provider selection + re-export
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>├── package.json           # + @noble/curves, @noble/ciphers
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>└── tsconfig.json
+</code></pre></div>
+<h3 id="32">3.2 层图<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>┌──────────────────────────────────────────────────────────┐
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>│                     Consumer Layer                         │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│  ChatRoute.tsx    signal-helpers.ts    MessageRow.tsx     │
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│  (import { encryptForSession, ... } from &quot;@nexus-chat/signal&quot;)│
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>└────────────────────┬─────────────────────────────────────┘
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>                     │   Imports (unchanged)
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>┌────────────────────┴─────────────────────────────────────┐
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│              packages/signal/src/index.ts                  │
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│         (provider selection + re-export)                   │
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│                                                           │
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│  if E2EE_BACKEND=noble   → nobleProvider                  │
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│  if E2EE_BACKEND=webcrypto → webcryptoProvider            │
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│  else                    → placeholderProvider             │
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>└──────┬────────────┬────────────┬──────────────────────────┘
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>       │            │            │
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>┌──────┴──┐  ┌──────┴──┐  ┌─────┴─────┐
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│noble.ts │  │webcrypto│  │placeholder│
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│@noble/* │  │Subtle   │  │btoa/atob  │
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│ECDH +   │  │Crypto   │  │random hex │
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│AES-GCM  │  │P-256 +  │  │(Phase 3   │
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│         │  │AES-GCM  │  │  fallback)│
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>└─────────┘  └─────────┘  └───────────┘
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>       │            │            │
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>       └────────────┼────────────┘
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>                    │
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>           ┌────────┴────────┐
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>           │    crypto.ts     │
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>           │ encryptFile()    │
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>           │ decryptFile()    │
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>           └─────────────────┘
+</code></pre></div>
+<hr />
+<h2 id="4ie2eeprovider">4.接口定义（IE2eeProvider）<a class="headerlink" href="#4ie2eeprovider" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 类型变更<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>当前的 <code>LocalSignalIdentity</code> 对所有关键字段使用 <code>string</code>。改进版本使用 <code>Uint8Array</code> 作为原始密钥材料，并带有序列化助手：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// types.ts — shared type definitions</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">LocalSignalIdentity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nx">deviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nx">identityKeyPublic</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">       </span><span class="c1">// was: string</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nx">identityKeyPrivate</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">      </span><span class="c1">// was: string</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nx">signedPreKeyPublic</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">      </span><span class="c1">// was: string</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nx">signedPreKeyPrivate</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">     </span><span class="c1">// was: string</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nx">signedPreKeySignature</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">   </span><span class="c1">// was: string</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nx">oneTimePreKeys</span><span class="o">:</span><span class="w"> </span><span class="kt">Array</span><span class="o">&lt;</span><span class="p">{</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="nx">publicKey</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">             </span><span class="c1">// was: string</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="nx">privateKey</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">            </span><span class="c1">// was: string</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="p">}</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="p">};</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">SignalSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">  </span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="nx">peerUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">  </span><span class="nx">peerDeviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">  </span><span class="nx">establishedAt</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">  </span><span class="nx">sharedKey</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">               </span><span class="c1">// NEW: ECDH-derived symmetric key</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="p">};</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">SignalSessionStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">  </span><span class="nx">get</span><span class="p">(</span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">SignalSession</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">undefined</span><span class="p">;</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">  </span><span class="nx">set</span><span class="p">(</span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="w">  </span><span class="nx">listByPeer</span><span class="p">(</span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">deviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">SignalSession</span><span class="p">[];</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="w">  </span><span class="ow">delete</span><span class="p">(</span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="p">};</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">E2eeCiphertext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ciphertext&quot;</span><span class="p">;</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="w">  </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">                  </span><span class="c1">// Base64-encoded encrypted bytes</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="w">  </span><span class="nx">algorithm</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">                   </span><span class="c1">// &quot;aes-256-gcm-v1&quot; or &quot;signal-v1&quot;</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="w">  </span><span class="nx">iv</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">                          </span><span class="c1">// NEW: Base64-encoded 12-byte IV (GCM nonce)</span>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="p">};</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">EncryptedFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="w">  </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">              </span><span class="c1">// Encrypted file bytes</span>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="w">  </span><span class="nx">iv</span><span class="o">:</span><span class="w"> </span><span class="kt">Uint8Array</span><span class="p">;</span><span class="w">                      </span><span class="c1">// 12-byte IV</span>
+<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a><span class="w">  </span><span class="nx">originalName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">                </span><span class="c1">// Preserved for display</span>
+<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a><span class="w">  </span><span class="nx">mimeType</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a><span class="w">  </span><span class="nx">sizeBytes</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">                   </span><span class="c1">// Original plaintext size</span>
+<a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a><span class="p">};</span>
+<a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>
+<a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">FileEncryptionKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">;</span><span class="w">  </span><span class="c1">// 32-byte symmetric key</span>
+</code></pre></div>
+<h3 id="42">4.2 提供者接口<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// types.ts — interface</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">IE2eeProvider</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nx">createLocalIdentity</span><span class="p">(</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nx">deviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nx">preKeyCount?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">LocalSignalIdentity</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="nx">toPreKeyBundle</span><span class="p">(</span><span class="nx">identity</span><span class="o">:</span><span class="w"> </span><span class="kt">LocalSignalIdentity</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">SignalPreKeyBundle</span><span class="p">;</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="nx">establishSession</span><span class="p">(</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="nx">identity</span><span class="o">:</span><span class="w"> </span><span class="kt">LocalSignalIdentity</span><span class="p">,</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="nx">peerBundle</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalPreKeyBundle</span><span class="p">,</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="nx">sessionStore?</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSessionStore</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">SignalSession</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">  </span><span class="nx">encryptForSession</span><span class="p">(</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">,</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">    </span><span class="nx">plaintext</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">E2eeCiphertext</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">  </span><span class="nx">decryptFromSession</span><span class="p">(</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">    </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">,</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">    </span><span class="nx">iv</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">  </span><span class="nx">encryptFile</span><span class="p">(</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">    </span><span class="nx">file</span><span class="o">:</span><span class="w"> </span><span class="kt">Blob</span><span class="p">,</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">    </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">FileEncryptionKey</span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">EncryptedFile</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">  </span><span class="nx">decryptFile</span><span class="p">(</span>
+<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">    </span><span class="nx">encrypted</span><span class="o">:</span><span class="w"> </span><span class="kt">EncryptedFile</span><span class="p">,</span>
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="w">    </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">FileEncryptionKey</span>
+<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="w">  </span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Blob</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">  </span><span class="nx">deriveFileKey</span><span class="p">(</span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">FileEncryptionKey</span><span class="o">&gt;</span><span class="p">;</span>
+<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="p">}</span>
+</code></pre></div>
+<p>所有方法都是 <code>async</code> 以适应同步占位符逻辑和异步 <code>SubtleCrypto</code> / <code>@noble/*</code> 操作。</p>
+<h3 id="43">4.3 向后兼容性<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<p>现有的函数签名<code>encryptForSession(session, text)</code>和<code>decryptFromSession(session, ciphertext)</code>被保留在再导出层中。 <code>E2eeCiphertext</code> 中的 <code>ciphertext</code> 字段包装了 API 边界的附加 <code>iv</code> 和 <code>algorithm</code> 元数据：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// index.ts — backward-compatible wrapper</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">encryptForSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">,</span><span class="w"> </span><span class="nx">plaintext</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">provider</span><span class="p">.</span><span class="nx">encryptForSession</span><span class="p">(</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">plaintext</span><span class="p">);</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">decryptFromSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">wrapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">)</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">E2eeCiphertextWrapper</span><span class="p">;</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">provider</span><span class="p">.</span><span class="nx">decryptFromSession</span><span class="p">(</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">wrapper</span><span class="p">.</span><span class="nx">ciphertext</span><span class="p">,</span><span class="w"> </span><span class="nx">wrapper</span><span class="p">.</span><span class="nx">iv</span><span class="p">);</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">};</span>
+</code></pre></div>
+<hr />
+<h2 id="5">5. 实现：占位符<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 目的<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>保留当前基于 Base64 的实现作为<strong>开发后备和参考存根</strong>。所有函数都标记为 <code>@deprecated</code>，并明确警告这提供了零安全性。</p>
+<h3 id="52-placeholderts">5.2 文件：<code>placeholder.ts</code><a class="headerlink" href="#52-placeholderts" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cm">/** @deprecated Phase 3 placeholder — NOT SECURE. Uses Base64 encoding, not encryption. */</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">placeholderProvider</span><span class="o">:</span><span class="w"> </span><span class="kt">IE2eeProvider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">createLocalIdentity</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span><span class="w"> </span><span class="nx">preKeyCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nx">userId</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">      </span><span class="nx">deviceId</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">      </span><span class="nx">identityKeyPublic</span><span class="o">:</span><span class="w"> </span><span class="kt">hexToBytes</span><span class="p">(</span><span class="nx">randomString</span><span class="p">()),</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">      </span><span class="nx">identityKeyPrivate</span><span class="o">:</span><span class="w"> </span><span class="kt">hexToBytes</span><span class="p">(</span><span class="nx">randomString</span><span class="p">()),</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">      </span><span class="nx">signedPreKeyPublic</span><span class="o">:</span><span class="w"> </span><span class="kt">hexToBytes</span><span class="p">(</span><span class="nx">randomString</span><span class="p">()),</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">      </span><span class="nx">signedPreKeyPrivate</span><span class="o">:</span><span class="w"> </span><span class="kt">hexToBytes</span><span class="p">(</span><span class="nx">randomString</span><span class="p">()),</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">      </span><span class="nx">signedPreKeySignature</span><span class="o">:</span><span class="w"> </span><span class="kt">hexToBytes</span><span class="p">(</span><span class="nx">randomString</span><span class="p">()),</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">      </span><span class="nx">oneTimePreKeys</span><span class="o">:</span><span class="w"> </span><span class="kt">Array.from</span><span class="p">({</span><span class="w"> </span><span class="nx">length</span><span class="o">:</span><span class="w"> </span><span class="kt">preKeyCount</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">(</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">        </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">        </span><span class="nx">publicKey</span><span class="o">:</span><span class="w"> </span><span class="kt">hexToBytes</span><span class="p">(</span><span class="nx">randomString</span><span class="p">()),</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">        </span><span class="nx">privateKey</span><span class="o">:</span><span class="w"> </span><span class="kt">hexToBytes</span><span class="p">(</span><span class="nx">randomString</span><span class="p">()),</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">      </span><span class="p">})),</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">    </span><span class="p">};</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">establishSession</span><span class="p">(</span><span class="nx">identity</span><span class="p">,</span><span class="w"> </span><span class="nx">peerBundle</span><span class="p">,</span><span class="w"> </span><span class="nx">sessionStore</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="w">      </span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="sb">`signal:</span><span class="si">${</span><span class="nx">peerBundle</span><span class="p">.</span><span class="nx">userId</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">peerBundle</span><span class="p">.</span><span class="nx">deviceId</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">bytesToHex</span><span class="p">(</span><span class="nx">crypto</span><span class="p">.</span><span class="nx">getRandomValues</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="mf">16</span><span class="p">)))</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="w">      </span><span class="nx">peerUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">peerBundle.userId</span><span class="p">,</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="w">      </span><span class="nx">peerDeviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">peerBundle.deviceId</span><span class="p">,</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="w">      </span><span class="nx">establishedAt</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="w">      </span><span class="nx">sharedKey</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="mf">32</span><span class="p">),</span><span class="w"> </span><span class="c1">// zeros — no real key derivation</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="w">    </span><span class="p">};</span>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="w">    </span><span class="nx">sessionStore</span><span class="o">?</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">session</span><span class="p">);</span>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">session</span><span class="p">;</span>
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">encryptForSession</span><span class="p">(</span><span class="nx">_session</span><span class="p">,</span><span class="w"> </span><span class="nx">plaintext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a><span class="w">      </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ciphertext&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="w">      </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">btoa</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">),</span><span class="w">          </span><span class="c1">// ⚠️ NOT encrypted</span>
+<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a><span class="w">      </span><span class="nx">algorithm</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;signal-v1&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a><span class="w">      </span><span class="nx">iv</span><span class="o">:</span><span class="w"> </span><span class="kt">btoa</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="mf">12</span><span class="p">)),</span><span class="w">          </span><span class="c1">// dummy 12 zero bytes</span>
+<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a><span class="w">    </span><span class="p">};</span>
+<a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a>
+<a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">decryptFromSession</span><span class="p">(</span><span class="nx">_session</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">,</span><span class="w"> </span><span class="nx">_iv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-42" name="__codelineno-6-42" href="#__codelineno-6-42"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">atob</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">);</span><span class="w">                 </span><span class="c1">// ⚠️ NOT decrypted</span>
+<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-6-44" name="__codelineno-6-44" href="#__codelineno-6-44"></a>
+<a id="__codelineno-6-45" name="__codelineno-6-45" href="#__codelineno-6-45"></a><span class="w">  </span><span class="c1">// ... file methods return placeholder (no actual encryption)</span>
+<a id="__codelineno-6-46" name="__codelineno-6-46" href="#__codelineno-6-46"></a><span class="p">};</span>
+</code></pre></div>
+<hr />
+<h2 id="6-noble">6. 实现：@noble/*（生产）<a class="headerlink" href="#6-noble" title="Permanent link">&para;</a></h2>
+<h3 id="61-noble">6.1 为什么@noble/*<a class="headerlink" href="#61-noble" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>要求</th>
+<th>@高贵/*</th>
+<th>微妙的加密</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>通过纯 HTTP 工作</td>
+<td>✅ 纯JS</td>
+<td>❌ 需要安全上下文</td>
+</tr>
+<tr>
+<td>ECDH P-256 密钥交换</td>
+<td>✅ <code>@noble/curves</code></td>
+<td>✅ <code>SubtleCrypto</code></td>
+</tr>
+<tr>
+<td>AES-256-GCM 加密/解密</td>
+<td>✅ <code>@noble/ciphers</code></td>
+<td>✅ <code>SubtleCrypto</code></td>
+</tr>
+<tr>
+<td>捆绑尺寸</td>
+<td>~15 KB gzip</td>
+<td>0 KB（内置）</td>
+</tr>
+<tr>
+<td>摇树</td>
+<td>✅</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>许可证</td>
+<td>麻省理工学院</td>
+<td>W3C标准</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62">6.2 依赖关系<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">&quot;@noble/curves&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.4&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">&quot;@noble/ciphers&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^0.6&quot;</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="63-noblets">6.3 文件：<code>noble.ts</code>（关键部分）<a class="headerlink" href="#63-noblets" title="Permanent link">&para;</a></h3>
+<p><strong>身份创建（ECDH 密钥对）</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">p256</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@noble/curves/p256&quot;</span><span class="p">;</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">async</span><span class="w"> </span><span class="nx">createLocalIdentity</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span><span class="w"> </span><span class="nx">preKeyCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">identityPriv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p256</span><span class="p">.</span><span class="nx">utils</span><span class="p">.</span><span class="nx">randomPrivateKey</span><span class="p">();</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">identityPub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p256</span><span class="p">.</span><span class="nx">getPublicKey</span><span class="p">(</span><span class="nx">identityPriv</span><span class="p">);</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">signedPrePriv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p256</span><span class="p">.</span><span class="nx">utils</span><span class="p">.</span><span class="nx">randomPrivateKey</span><span class="p">();</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">signedPrePub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p256</span><span class="p">.</span><span class="nx">getPublicKey</span><span class="p">(</span><span class="nx">signedPrePriv</span><span class="p">);</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">p256</span><span class="p">.</span><span class="nx">sign</span><span class="p">(</span><span class="nx">signedPrePub</span><span class="p">,</span><span class="w"> </span><span class="nx">identityPriv</span><span class="p">);</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">opks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Array</span><span class="p">.</span><span class="kr">from</span><span class="p">({</span><span class="w"> </span><span class="nx">length</span><span class="o">:</span><span class="w"> </span><span class="kt">preKeyCount</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">(</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">priv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p256</span><span class="p">.</span><span class="nx">utils</span><span class="p">.</span><span class="nx">randomPrivateKey</span><span class="p">();</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">      </span><span class="nx">publicKey</span><span class="o">:</span><span class="w"> </span><span class="kt">p256.getPublicKey</span><span class="p">(</span><span class="nx">priv</span><span class="p">),</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">      </span><span class="nx">privateKey</span><span class="o">:</span><span class="w"> </span><span class="kt">priv</span><span class="p">,</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">    </span><span class="p">};</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">  </span><span class="p">});</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">    </span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">    </span><span class="nx">identityKeyPublic</span><span class="o">:</span><span class="w"> </span><span class="kt">identityPub</span><span class="p">,</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">    </span><span class="nx">identityKeyPrivate</span><span class="o">:</span><span class="w"> </span><span class="kt">identityPriv</span><span class="p">,</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">    </span><span class="nx">signedPreKeyPublic</span><span class="o">:</span><span class="w"> </span><span class="kt">signedPrePub</span><span class="p">,</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">    </span><span class="nx">signedPreKeyPrivate</span><span class="o">:</span><span class="w"> </span><span class="kt">signedPrePriv</span><span class="p">,</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">    </span><span class="nx">signedPreKeySignature</span><span class="o">:</span><span class="w"> </span><span class="kt">sig</span><span class="p">,</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">    </span><span class="nx">oneTimePreKeys</span><span class="o">:</span><span class="w"> </span><span class="kt">opks</span><span class="p">,</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="p">}</span>
+</code></pre></div>
+<p>注意：<code>@noble/curves</code>默认使用<strong>紧凑（33字节）公钥</strong>格式。 <code>toPreKeyBundle</code> 导出序列化为 Base64 以供服务器存储。</p>
+<p><strong>会话建立（ECDH）</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">async</span><span class="w"> </span><span class="nx">establishSession</span><span class="p">(</span><span class="nx">identity</span><span class="p">,</span><span class="w"> </span><span class="nx">peerBundle</span><span class="p">,</span><span class="w"> </span><span class="nx">sessionStore</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="c1">// Use our identity private key + peer&#39;s identity public key</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sharedSecret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p256</span><span class="p">.</span><span class="nx">getSharedSecret</span><span class="p">(</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nx">identity</span><span class="p">.</span><span class="nx">identityKeyPrivate</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nx">base64ToBytes</span><span class="p">(</span><span class="nx">peerBundle</span><span class="p">.</span><span class="nx">identityKey</span><span class="p">)</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="p">);</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="c1">// Derive AES-256 key via HKDF (SHA-256)</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sharedKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">hkdfSha256</span><span class="p">(</span><span class="nx">sharedSecret</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;nexus-chat-e2ee-v1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">32</span><span class="p">);</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="sb">`signal:</span><span class="si">${</span><span class="nx">peerBundle</span><span class="p">.</span><span class="nx">userId</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">peerBundle</span><span class="p">.</span><span class="nx">deviceId</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">randomId</span><span class="p">()</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="nx">peerUserId</span><span class="o">:</span><span class="w"> </span><span class="kt">peerBundle.userId</span><span class="p">,</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span><span class="nx">peerDeviceId</span><span class="o">:</span><span class="w"> </span><span class="kt">peerBundle.deviceId</span><span class="p">,</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">    </span><span class="nx">establishedAt</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">    </span><span class="nx">sharedKey</span><span class="p">,</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">  </span><span class="nx">sessionStore</span><span class="o">?</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">session</span><span class="p">);</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">session</span><span class="p">;</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>消息加密 (AES-256-GCM)</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">gcm</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@noble/ciphers/aes&quot;</span><span class="p">;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">async</span><span class="w"> </span><span class="nx">encryptForSession</span><span class="p">(</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">plaintext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">iv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">getRandomValues</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="mf">12</span><span class="p">));</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">encoder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TextEncoder</span><span class="p">();</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">gcm</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">sharedKey</span><span class="p">,</span><span class="w"> </span><span class="nx">iv</span><span class="p">);</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ciphertext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cipher</span><span class="p">.</span><span class="nx">encrypt</span><span class="p">(</span><span class="nx">encoder</span><span class="p">.</span><span class="nx">encode</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">));</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ciphertext&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nx">ciphertext</span><span class="o">:</span><span class="w"> </span><span class="kt">bytesToBase64</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">),</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nx">algorithm</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;aes-256-gcm-v1&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="nx">iv</span><span class="o">:</span><span class="w"> </span><span class="kt">bytesToBase64</span><span class="p">(</span><span class="nx">iv</span><span class="p">),</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>消息解密</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">async</span><span class="w"> </span><span class="nx">decryptFromSession</span><span class="p">(</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertextB64</span><span class="p">,</span><span class="w"> </span><span class="nx">ivB64</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ciphertext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">base64ToBytes</span><span class="p">(</span><span class="nx">ciphertextB64</span><span class="p">);</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">iv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">base64ToBytes</span><span class="p">(</span><span class="nx">ivB64</span><span class="p">);</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">gcm</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">sharedKey</span><span class="p">,</span><span class="w"> </span><span class="nx">iv</span><span class="p">);</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">plaintext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cipher</span><span class="p">.</span><span class="nx">decrypt</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">);</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">TextDecoder</span><span class="p">().</span><span class="nx">decode</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">);</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="64">6.4 主要特征<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>物业</th>
+<th>价值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>算法</td>
+<td>ECDH P-256 + AES-256-GCM</td>
+</tr>
+<tr>
+<td>密钥交换</td>
+<td>1 路 DH（仅身份密钥，由 X3DH 简化）</td>
+</tr>
+<tr>
+<td>随机数</td>
+<td>每条消息 12 字节随机 IV</td>
+</tr>
+<tr>
+<td>认证</td>
+<td>GCM 内置（密文 + 身份验证标签）</td>
+</tr>
+<tr>
+<td>HKDF盐</td>
+<td>修复了上下文字符串 <code>"nexus-chat-e2ee-v1"</code></td>
+</tr>
+<tr>
+<td>前向保密</td>
+<td>❌（会话密钥是静态的；第 3 阶段中的双棘轮）</td>
+</tr>
+<tr>
+<td>受损后恢复</td>
+<td>❌（第三阶段）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-web-api">7. 实现：Web 加密 API<a class="headerlink" href="#7-web-api" title="Permanent link">&para;</a></h2>
+<h3 id="71-webcryptots">7.1 文件：<code>webcrypto.ts</code><a class="headerlink" href="#71-webcryptots" title="Permanent link">&para;</a></h3>
+<p>与 <code>noble.ts</code> 相同的功能，但使用 <code>window.crypto.subtle</code>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">webcryptoProvider</span><span class="o">:</span><span class="w"> </span><span class="kt">IE2eeProvider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">createLocalIdentity</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span><span class="w"> </span><span class="nx">preKeyCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">identityKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">subtle</span><span class="p">.</span><span class="nx">generateKey</span><span class="p">(</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ECDH&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">namedCurve</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;P-256&quot;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;deriveBits&quot;</span><span class="p">]</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="p">);</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="c1">// ... same structure, export to raw Uint8Array via exportKey(&quot;raw&quot;)</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">encryptForSession</span><span class="p">(</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">plaintext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">iv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">getRandomValues</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="mf">12</span><span class="p">));</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">subtle</span><span class="p">.</span><span class="nx">importKey</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">session</span><span class="p">.</span><span class="nx">sharedKey</span><span class="p">,</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;AES-GCM&quot;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;encrypt&quot;</span><span class="p">]);</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">ciphertext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">subtle</span><span class="p">.</span><span class="nx">encrypt</span><span class="p">(</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;AES-GCM&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">iv</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">      </span><span class="nx">key</span><span class="p">,</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">      </span><span class="ow">new</span><span class="w"> </span><span class="nx">TextEncoder</span><span class="p">().</span><span class="nx">encode</span><span class="p">(</span><span class="nx">plaintext</span><span class="p">)</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="p">);</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">    </span><span class="c1">// ...</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">  </span><span class="c1">// ...</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="p">};</span>
+</code></pre></div>
+<h3 id="72">7.2 环境检测<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">function</span><span class="w"> </span><span class="nx">isSecureContext</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">isSecureContext</span><span class="p">;</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="p">}</span>
+</code></pre></div>
+<p>仅适用于 <code>localhost</code>、<code>127.0.0.1</code> 或 HTTPS 源。否则返回到 <code>@noble/*</code>。</p>
+<hr />
+<h2 id="8">8. 文件加解密<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<h3 id="81-cryptots">8.1 文件：<code>crypto.ts</code><a class="headerlink" href="#81-cryptots" title="Permanent link">&para;</a></h3>
+<p>由所有三个提供商共享。使用 AES-256-GCM 会话的 <code>sharedKey</code> （或派生的文件特定密钥）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">gcm</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@noble/ciphers/aes&quot;</span><span class="p">;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">encryptFile</span><span class="p">(</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="nx">blob</span><span class="o">:</span><span class="w"> </span><span class="kt">Blob</span><span class="p">,</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">FileEncryptionKey</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">EncryptedFile</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">iv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">getRandomValues</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="mf">12</span><span class="p">));</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">blob</span><span class="p">.</span><span class="nx">arrayBuffer</span><span class="p">();</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">gcm</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">iv</span><span class="p">);</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ciphertext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cipher</span><span class="p">.</span><span class="nx">encrypt</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Uint8Array</span><span class="p">(</span><span class="nx">buffer</span><span class="p">));</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">    </span><span class="nx">ciphertext</span><span class="p">,</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">    </span><span class="nx">iv</span><span class="p">,</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="nx">originalName</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">blob</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">File</span><span class="p">).</span><span class="nx">name</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="nx">mimeType</span><span class="o">:</span><span class="w"> </span><span class="kt">blob.type</span><span class="p">,</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">    </span><span class="nx">sizeBytes</span><span class="o">:</span><span class="w"> </span><span class="kt">buffer.byteLength</span><span class="p">,</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="p">}</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">decryptFile</span><span class="p">(</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="w">  </span><span class="nx">encrypted</span><span class="o">:</span><span class="w"> </span><span class="kt">EncryptedFile</span><span class="p">,</span>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="w">  </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">FileEncryptionKey</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Blob</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">gcm</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">encrypted</span><span class="p">.</span><span class="nx">iv</span><span class="p">);</span>
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">plaintext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cipher</span><span class="p">.</span><span class="nx">decrypt</span><span class="p">(</span><span class="nx">encrypted</span><span class="p">.</span><span class="nx">ciphertext</span><span class="p">);</span>
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Blob</span><span class="p">([</span><span class="nx">plaintext</span><span class="p">],</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">encrypted</span><span class="p">.</span><span class="nx">mimeType</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="82">8.2 文件密钥派生<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">deriveFileKey</span><span class="p">(</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="kt">SignalSession</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">FileEncryptionKey</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="c1">// HKDF-extract: derive a separate key for files from the session key</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">hkdfSha256</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">sharedKey</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;nexus-chat-file-key-v1&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">32</span><span class="p">);</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="83-e2ee">8.3 E2EE 附件流程<a class="headerlink" href="#83-e2ee" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Sender:
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  1. select file
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  2. deriveFileKey(session) → fileKey
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  3. encryptFile(blob, fileKey) → { ciphertext, iv, ... }
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>  4. PUT /dev-upload/:fileId  (body = ciphertext, headers include iv)
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  5. send message with attachment ref { fileId, name, scanStatus: &quot;skipped&quot; }
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>Receiver:
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>  1. GET /dev-download/:fileId → encrypted blob
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>  2. deriveFileKey(session) → fileKey
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>  3. decryptFile(encryptedBlob, fileKey) → Blob
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>  4. createObjectURL(blob) → render &lt;img&gt;
+</code></pre></div>
+<hr />
+<h2 id="9">9. 环境选择<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="91">9.1 配置<a class="headerlink" href="#91" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1">// index.ts</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">placeholderProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./placeholder.js&quot;</span><span class="p">;</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">nobleProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./noble.js&quot;</span><span class="p">;</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">webcryptoProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./webcrypto.js&quot;</span><span class="p">;</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="kd">function</span><span class="w"> </span><span class="nx">selectProvider</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nx">IE2eeProvider</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nx">process</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="nx">process.env.E2EE_BACKEND</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="kt">undefined</span><span class="p">;</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">backend</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;noble&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">nobleProvider</span><span class="p">;</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">backend</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;webcrypto&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">isSecureContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">webcryptoProvider</span><span class="p">;</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&quot;[E2EE] Web Crypto requires secure context (HTTPS/localhost).&quot;</span><span class="w"> </span><span class="o">+</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="w">      </span><span class="s2">&quot; Falling back to @noble/*.&quot;</span><span class="p">);</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">backend</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;placeholder&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">placeholderProvider</span><span class="p">;</span>
+<a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a>
+<a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a><span class="w">  </span><span class="c1">// Default: prefer @noble/* (works everywhere)</span>
+<a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">nobleProvider</span><span class="p">;</span>
+<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a><span class="p">}</span>
+<a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a>
+<a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a><span class="kd">const</span><span class="w"> </span><span class="nx">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">selectProvider</span><span class="p">();</span>
+<a id="__codelineno-17-29" name="__codelineno-17-29" href="#__codelineno-17-29"></a>
+<a id="__codelineno-17-30" name="__codelineno-17-30" href="#__codelineno-17-30"></a><span class="c1">// Re-export with the same function names (backward compatible)</span>
+<a id="__codelineno-17-31" name="__codelineno-17-31" href="#__codelineno-17-31"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">createLocalSignalIdentity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;createLocalIdentity&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-32" name="__codelineno-17-32" href="#__codelineno-17-32"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">createLocalIdentity</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+<a id="__codelineno-17-33" name="__codelineno-17-33" href="#__codelineno-17-33"></a>
+<a id="__codelineno-17-34" name="__codelineno-17-34" href="#__codelineno-17-34"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">toPreKeyBundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;toPreKeyBundle&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-35" name="__codelineno-17-35" href="#__codelineno-17-35"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">toPreKeyBundle</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+<a id="__codelineno-17-36" name="__codelineno-17-36" href="#__codelineno-17-36"></a>
+<a id="__codelineno-17-37" name="__codelineno-17-37" href="#__codelineno-17-37"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">establishSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;establishSession&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-38" name="__codelineno-17-38" href="#__codelineno-17-38"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">establishSession</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+<a id="__codelineno-17-39" name="__codelineno-17-39" href="#__codelineno-17-39"></a>
+<a id="__codelineno-17-40" name="__codelineno-17-40" href="#__codelineno-17-40"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">encryptForSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;encryptForSession&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-41" name="__codelineno-17-41" href="#__codelineno-17-41"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">encryptForSession</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+<a id="__codelineno-17-42" name="__codelineno-17-42" href="#__codelineno-17-42"></a>
+<a id="__codelineno-17-43" name="__codelineno-17-43" href="#__codelineno-17-43"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">decryptFromSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;decryptFromSession&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-44" name="__codelineno-17-44" href="#__codelineno-17-44"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">decryptFromSession</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+<a id="__codelineno-17-45" name="__codelineno-17-45" href="#__codelineno-17-45"></a>
+<a id="__codelineno-17-46" name="__codelineno-17-46" href="#__codelineno-17-46"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">encryptFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;encryptFile&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-47" name="__codelineno-17-47" href="#__codelineno-17-47"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">encryptFile</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+<a id="__codelineno-17-48" name="__codelineno-17-48" href="#__codelineno-17-48"></a>
+<a id="__codelineno-17-49" name="__codelineno-17-49" href="#__codelineno-17-49"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">decryptFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;decryptFile&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-50" name="__codelineno-17-50" href="#__codelineno-17-50"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">decryptFile</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+<a id="__codelineno-17-51" name="__codelineno-17-51" href="#__codelineno-17-51"></a>
+<a id="__codelineno-17-52" name="__codelineno-17-52" href="#__codelineno-17-52"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">deriveFileKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">...args</span><span class="o">:</span><span class="w"> </span><span class="kt">Parameters</span><span class="o">&lt;</span><span class="nx">IE2eeProvider</span><span class="p">[</span><span class="s2">&quot;deriveFileKey&quot;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<a id="__codelineno-17-53" name="__codelineno-17-53" href="#__codelineno-17-53"></a><span class="w">  </span><span class="nx">provider</span><span class="p">.</span><span class="nx">deriveFileKey</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="92">9.2 默认行为<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>环境</th>
+<th>默认提供商</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>浏览器，HTTPS</td>
+<td><code>nobleProvider</code></td>
+<td>行为一致； <code>E2EE_BACKEND=webcrypto</code> 选择加入</td>
+</tr>
+<tr>
+<td>浏览器，HTTP</td>
+<td><code>nobleProvider</code></td>
+<td>网络加密在不安全的环境中不可用</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td><code>nobleProvider</code></td>
+<td><code>SubtleCrypto</code> 可用，但 <code>@noble/*</code> 更便携</td>
+</tr>
+<tr>
+<td>CI（测试）</td>
+<td><code>placeholderProvider</code></td>
+<td>测试应设置 <code>E2EE_BACKEND=placeholder</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-0">10. 第 0 层影响分析<a class="headerlink" href="#10-0" title="Permanent link">&para;</a></h2>
+<h3 id="101">10.1 文件不变<a class="headerlink" href="#101" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/server/src/domain/signal/service.ts</code></td>
+<td>存储不透明的密钥字符串（现在是 JWK/Base64，而不是十六进制 — 透明）</td>
+</tr>
+<tr>
+<td><code>apps/server/src/http/routes.ts</code></td>
+<td>路线保持不变</td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/ChatRoute.tsx</code></td>
+<td>进口量不变</td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/signal-helpers.ts</code></td>
+<td>进口量不变</td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/MessageRow.tsx</code></td>
+<td>进口量不变</td>
+</tr>
+<tr>
+<td><code>apps/web/src/stores/domain.ts</code></td>
+<td>没有E2EE相关的状态变化</td>
+</tr>
+<tr>
+<td><code>apps/tui/src/lib/api.ts</code></td>
+<td>TUI 使用 REST，而不是直接使用 Signal</td>
+</tr>
+<tr>
+<td><code>packages/shared/</code></td>
+<td>模式已经支持密文内容</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102">10.2 文件更改（最小）<a class="headerlink" href="#102" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>改变</th>
+<th>线路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packages/signal/package.json</code></td>
+<td>添加 <code>@noble/curves</code>、<code>@noble/ciphers</code></td>
+<td>+2</td>
+</tr>
+<tr>
+<td><code>packages/signal/src/types.ts</code></td>
+<td>提取类型，添加 <code>IE2eeProvider</code>，将 <code>sharedKey</code> 添加到 <code>SignalSession</code></td>
+<td>〜80</td>
+</tr>
+<tr>
+<td><code>packages/signal/src/placeholder.ts</code></td>
+<td>移动当前代码，添加 <code>@deprecated</code> 注释</td>
+<td>〜100</td>
+</tr>
+<tr>
+<td><code>packages/signal/src/noble.ts</code></td>
+<td>新：<code>@noble/*</code> 实施</td>
+<td>〜120</td>
+</tr>
+<tr>
+<td><code>packages/signal/src/webcrypto.ts</code></td>
+<td>新：SubtleCrypto 实施</td>
+<td>〜120</td>
+</tr>
+<tr>
+<td><code>packages/signal/src/crypto.ts</code></td>
+<td>新：文件加密/解密助手</td>
+<td>〜60</td>
+</tr>
+<tr>
+<td><code>packages/signal/src/index.ts</code></td>
+<td>重写：提供商选择+再导出</td>
+<td>〜50</td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/ChatComposer.tsx</code></td>
+<td>删除 <code>!isE2e</code> 条件隐藏 📎</td>
+<td>-2</td>
+</tr>
+<tr>
+<td><code>apps/web/src/hooks/useAttachments.ts</code></td>
+<td>E2EE模式下PUT前调用<code>encryptFile()</code></td>
+<td>+5</td>
+</tr>
+<tr>
+<td><code>apps/web/src/components/MessageRow.tsx</code></td>
+<td>E2EE模式下GET后调用<code>decryptFile()</code></td>
+<td>+5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总计：约 550 行新/重写行，删除 -2 行。 3 个消费者文件，添加了约 12 行。</strong></p>
+<hr />
+<h2 id="11-3">11. 第 3 阶段升级路径<a class="headerlink" href="#11-3" title="Permanent link">&para;</a></h2>
+<h3 id="111">11.1 迁移策略<a class="headerlink" href="#111" title="Permanent link">&para;</a></h3>
+<p>当 <code>@signalapp/libsignal</code> 在阶段 3 中集成时：</p>
+<ol>
+<li>添加一个新的提供者 <code>libsignal.ts</code> 实现 <code>IE2eeProvider</code></li>
+<li><code>Signal Session</code>类型获得附加字段（<code>ratchetState</code>、<code>messageKeys</code>）
+3.更改<code>E2EE_BACKEND=libsignal</code>环境变量</li>
+<li>所有消费者代码保持<strong>完全不变</strong></li>
+</ol>
+<h3 id="112">11.2 有何变化<a class="headerlink" href="#112" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>第 1-2 阶段（现在）</th>
+<th>第三阶段（未来）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>密钥交换</td>
+<td>1路DH（身份密钥）</td>
+<td>X3DH（3路DH：身份+签名预密钥+OPK）</td>
+</tr>
+<tr>
+<td>钥匙轮换</td>
+<td>静态（每个会话）</td>
+<td>双棘轮（每条消息）</td>
+</tr>
+<tr>
+<td>前向保密</td>
+<td>没有</td>
+<td>是的</td>
+</tr>
+<tr>
+<td>受损后恢复</td>
+<td>没有</td>
+<td>是（DH 棘轮自愈）</td>
+</tr>
+<tr>
+<td>群组消息</td>
+<td>未实施</td>
+<td>发件人密钥分配</td>
+</tr>
+<tr>
+<td>许可证</td>
+<td>麻省理工学院 (@noble/*)</td>
+<td>AGPL-3.0（libsignal）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113">11.3 提供者实现面<a class="headerlink" href="#113" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">// Phase 3: libsignal.ts</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">libsignalProvider</span><span class="o">:</span><span class="w"> </span><span class="kt">IE2eeProvider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">createLocalIdentity</span><span class="p">(</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span><span class="w"> </span><span class="nx">preKeyCount</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="c1">// Use libsignal&#39;s IdentityKeyPair.generate()</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">establishSession</span><span class="p">(</span><span class="nx">identity</span><span class="p">,</span><span class="w"> </span><span class="nx">peerBundle</span><span class="p">,</span><span class="w"> </span><span class="nx">store</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="c1">// Use libsignal&#39;s processPreKeyBundle() → X3DH</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">encryptForSession</span><span class="p">(</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">plaintext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">    </span><span class="c1">// Use libsignal&#39;s sessionCipher.encrypt() → Double Ratchet advance</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">decryptFromSession</span><span class="p">(</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="w">    </span><span class="c1">// Use libsignal&#39;s sessionCipher.decrypt()</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">  </span><span class="c1">// file methods remain identical (AES-GCM over the session key)</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="p">};</span>
+</code></pre></div>
+<hr />
+<h2 id="12_1">12. 安全考虑<a class="headerlink" href="#12_1" title="Permanent link">&para;</a></h2>
+<h3 id="121-1-2">12.1 威胁模型覆盖范围（第 1-2 阶段）<a class="headerlink" href="#121-1-2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>威胁</th>
+<th>缓解措施</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务器泄露读取消息</td>
+<td>ECDH：服务器只存储公钥和密文</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>中间人（网络）</td>
+<td>GCM 身份验证标签可防止篡改</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>留言重播</td>
+<td>每条消息的随机 IV 防止相同的明文 → 相同的密文</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>关键妥协读取过去的消息</td>
+<td>❌ 无前向保密（静态会话密钥）</td>
+<td>第三阶段</td>
+</tr>
+<tr>
+<td>关键妥协使未来的消息成为可能❌无DH棘轮自愈</td>
+<td>第三阶段</td>
+<td></td>
+</tr>
+<tr>
+<td>客户端妥协（密钥提取）</td>
+<td>超出范围（操作系统级别问题）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="122">12.2 已知限制<a class="headerlink" href="#122" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>前向保密</strong>：如果攻击者获得会话的<code>sharedKey</code>，他们就可以解密该会话中的所有消息。第三阶段的双棘轮解决了这个问题。</li>
+<li><strong>身份验证</strong>：对等身份密钥没有安全号/二维码验证。控制服务器的 MITM 可以替换 PreKey 捆绑包并在第 1-2 阶段执行 MITM 攻击。第三阶段将增加安全号码显示。</li>
+<li><strong>会话持久化</strong>：<code>sharedKey</code>存储在内存中（<code>Map</code>）。浏览器刷新需要重新建立会话（服务器存储元数据，而不是密钥 - 这是设计使然）。</li>
+</ol>
+<h3 id="123">12.3 密钥管理<a class="headerlink" href="#123" title="Permanent link">&para;</a></h3>
+<ul>
+<li>私钥<strong>永远不会离开客户端</strong>（通过构造：<code>identityKeyPrivate</code>是仅在本地用于ECDH的<code>Uint8Array</code>）</li>
+<li>公钥被序列化为 Base64 并存储在服务器端的 PreKey 捆绑包中</li>
+<li>每个 E2EE DM 有一个 <code>SignalSession</code> 和一个 <code>sharedKey</code></li>
+<li>会话是针对每个对等点，而不是针对每条消息（第 3 阶段将添加针对每条消息的棘轮）</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright md-copyright--split">
+  <div>
+    
+      <div class="md-copyright__highlight">
+        Copyright &copy; 2026 Lam K. &mdash; <a href="https://github.com/immane/nexus-chat/blob/main/LICENSE">MIT License</a>
+      </div>
+    
+  </div>
+  
+    <div class="md-copyright__made-with">
+      Made with
+      <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        Material for MkDocs
+      </a>
+    </div>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

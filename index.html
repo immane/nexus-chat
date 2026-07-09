@@ -724,6 +724,8 @@
       
         
       
+        
+      
     
     
     
@@ -1038,6 +1040,34 @@
     
   
     Web Client UI Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="design/10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE Encryption Abstract Layer
   
 
     
@@ -2133,7 +2163,7 @@
 </tr>
 <tr>
 <td><strong>E2E</strong></td>
-<td>End-to-end encrypted via the <a href="https://github.com/signalapp/libsignal">Signal Protocol</a>: the server is an opaque relay that cannot read message content, bots are fully excluded, and read-once/disappearing messages are supported for sensitive DMs</td>
+<td>End-to-end encrypted via client-side ECDH + AES-256-GCM (Phase 1-2, MIT-compatible): the server is an opaque relay that cannot read message content, bots are fully excluded, and read-once/disappearing messages are supported for sensitive DMs. Signal Protocol (X3DH + Double Ratchet) planned for Phase 3 on a separate AGPL-3.0 distribution branch.</td>
 </tr>
 </tbody>
 </table>
@@ -2255,8 +2285,8 @@
 <tbody>
 <tr>
 <td>E2E Encryption</td>
-<td><strong>@signalapp/libsignal</strong> (Signal Protocol)</td>
-<td>X3DH key exchange + Double Ratchet for 1:1 and group E2E</td>
+<td><strong>@noble/curves + @noble/ciphers</strong> (Phase 1-2, MIT)</td>
+<td>ECDH key exchange + AES-256-GCM for 1:1 DMs. Phase 3 upgrades to Signal Protocol on a separate AGPL-3.0 branch.</td>
 </tr>
 <tr>
 <td>AI Agent Framework</td>
@@ -2359,7 +2389,7 @@
 <h3 id="32-core-design-principles">3.2 Core Design Principles<a class="headerlink" href="#32-core-design-principles" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Monolith-first with clear boundaries</strong> — Phase 1 deploys as a single process; service boundaries in code enable future split without rewrites</li>
-<li><strong>Zero-knowledge encryption server</strong> — Private keys never leave the client; the Signal Protocol key server stores only public keys</li>
+<li><strong>Zero-knowledge encryption server</strong> — Private keys never leave the client; the E2EE key server stores only public keys and ciphertext</li>
 <li><strong>Streaming-native protocol</strong> — First-class <code>stream_start → stream_chunk → stream_end</code> events in the WebSocket layer</li>
 <li><strong>Bot SDK parity</strong> — First-party bundled bots use the same public SDK as third-party developers</li>
 <li><strong>Hybrid mode per channel</strong> — Normal and E2E channels coexist in one workspace; bots are automatically excluded from E2E</li>
@@ -2374,7 +2404,7 @@
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   └── tui/                     # Terminal UI / CLI client (Ink + Commander)
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── packages/
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── shared/                  # Shared types, Zod schemas, constants, event definitions
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── signal/                  # Signal Protocol wrapper (@signalapp/libsignal)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── signal/                  # E2EE abstraction layer (IE2eeProvider + 3 implementations)
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── bot-sdk/                 # Public Bot SDK (TypeScript/Node.js)
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   ├── ai-bot/                  # AI Agent Engine (Phase 2)
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   └── ui/                      # Shared React UI component library
@@ -2413,7 +2443,7 @@
 <li>Workspace creation, channel management (public/private/DM)</li>
 <li>Text messages with state machine (Draft → Sent → Delivered → Read)</li>
 <li>Markdown rendering, emoji reactions</li>
-<li>Signal Protocol E2E for 1:1 DMs, including read-once/disappearing message policy</li>
+<li>ECDH + AES-256-GCM E2EE for 1:1 DMs, including read-once/disappearing message policy (Phase 3: Signal Protocol on separate branch)</li>
 <li>Bot registration, slash command routing, Redis Streams event bus</li>
 <li><strong>7 base bots</strong>: Welcome, Help, Notification, Reminder, Poll, Webhook, Kudos</li>
 <li>Electron shell with window management, tray, notifications</li>
@@ -2513,6 +2543,11 @@
 <td><a href="design/09_Web_Client_UI_Design/">Web Client UI Design</a></td>
 <td>Desktop layout, Zustand store architecture, component tree, mobile adaptation plan (P0/P1/P2)</td>
 </tr>
+<tr>
+<td>10</td>
+<td><a href="design/10_E2EE_Encryption_Abstract_Layer/">E2EE Encryption Abstract Layer</a></td>
+<td>IE2eeProvider interface, placeholder/@noble/SubtleCrypto implementations, ECDH + AES-256-GCM, Phase 3 Signal Protocol upgrade path</td>
+</tr>
 </tbody>
 </table>
 <h3 id="62-research-documents">6.2 Research Documents<a class="headerlink" href="#62-research-documents" title="Permanent link">&para;</a></h3>
@@ -2542,7 +2577,7 @@
 </tr>
 <tr>
 <td><a href="research/security-defense-e2ee-roadmap/">Security Defense &amp; E2EE</a></td>
-<td>Helmet.js/CORS/CSP, Argon2id, JWT best practices, Signal Protocol deep dive (X3DH/Double Ratchet/Sender Key), threat model, GDPR compliance</td>
+<td>Helmet.js/CORS/CSP, Argon2id, JWT best practices, E2E encryption deep dive, threat model, GDPR compliance</td>
 </tr>
 <tr>
 <td><a href="research/base-bot-catalog/">Base Bot Catalog</a></td>
@@ -2606,8 +2641,8 @@
 </tr>
 <tr>
 <td>09</td>
-<td><a href="tasks/09-phase-1-signal-dm-e2ee/">Signal DM E2EE</a></td>
-<td>PreKeyBundle flow, X3DH, Double Ratchet, 1:1 encrypted DMs</td>
+<td><a href="tasks/09-phase-1-signal-dm-e2ee/">Signal DM E2EE (Placeholder)</a></td>
+<td>PreKeyBundle infrastructure, session management, ciphertext protocol. Real ECDH + AES-256-GCM encryption deferred to Task #27.</td>
 </tr>
 <tr>
 <td>10</td>
@@ -2693,6 +2728,11 @@
 <td>26</td>
 <td><a href="tasks/26-phase-1-web-mobile-adaptation/">Web Mobile Adaptation</a></td>
 <td>Viewport meta, overlay drawer sidebar, long-press context menu, responsive modals, safe area</td>
+</tr>
+<tr>
+<td>27</td>
+<td><a href="tasks/27-phase-1-e2ee-real-encryption/">E2EE Real Encryption</a></td>
+<td>IE2eeProvider interface, @noble/* ECDH + AES-256-GCM, WebCrypto, file encryption helpers, 119 tests</td>
 </tr>
 </tbody>
 </table>

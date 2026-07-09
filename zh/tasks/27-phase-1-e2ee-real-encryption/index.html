@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/06-phase-1-workspace-channel-service/">
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/27-phase-1-e2ee-real-encryption/">
       
       
       
@@ -27,7 +27,7 @@
     
     
       
-        <title>06 — 第 1 阶段 — 工作空间、渠道、DM 和会员服务 - Nexus Chat</title>
+        <title>27 — 第 1 阶段 — E2EE 真实加密实施 - Nexus Chat</title>
       
     
     
@@ -90,7 +90,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#06-1-dm" class="md-skip">
+        <a href="#27-1-e2ee" class="md-skip">
           跳转至
         </a>
       
@@ -126,7 +126,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              06 — 第 1 阶段 — 工作空间、渠道、DM 和会员服务
+              27 — 第 1 阶段 — E2EE 真实加密实施
             
           </span>
         </div>
@@ -1534,7 +1534,7 @@
   <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        范围
+        当前状态
       
     </span>
   </a>
@@ -1545,21 +1545,115 @@
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        非目标
+        范围
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="范围">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#271-packagessignalsrctypests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.1 提取共享类型 (packages/signal/src/types.ts)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#api" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#272-packagessignalsrcplaceholderts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        API 端点
+        27.2 占位符提供程序 (packages/signal/src/placeholder.ts)
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#273-noble-provider-packagessignalsrcnoblets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.3 @noble/* Provider (packages/signal/src/noble.ts) — 生产
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#274-web-packagessignalsrcwebcryptots-https" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.4 Web 加密提供程序 (packages/signal/src/webcrypto.ts) — 仅 HTTPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#275-packagessignalsrccryptots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.5 文件加密 (packages/signal/src/crypto.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#276-packagessignalsrcindexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.6 提供商选择和再导出 (packages/signal/src/index.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#277-e2ee-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.7 启用 E2EE 文件附件（3 个消费者文件）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#278" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.8 安装依赖项
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#279" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.9 更新上游文档
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1567,7 +1661,7 @@
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        授权规则
+        非目标
       
     </span>
   </a>
@@ -1578,7 +1672,7 @@
   <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        文件已更改
       
     </span>
   </a>
@@ -1589,7 +1683,18 @@
   <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        测试计划
+        服务器影响
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p2p" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2P 影响
       
     </span>
   </a>
@@ -1600,7 +1705,18 @@
   <a href="#_7" class="md-nav__link">
     <span class="md-ellipsis">
       
-        依赖关系
+        验收标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设计参考
       
     </span>
   </a>
@@ -1627,119 +1743,172 @@
   
 
 
-<h1 id="06-1-dm">06 — 第 1 阶段 — 工作空间、渠道、DM 和会员服务<a class="headerlink" href="#06-1-dm" title="Permanent link">&para;</a></h1>
+<h1 id="27-1-e2ee">27 — 第 1 阶段 — E2EE 真实加密实施<a class="headerlink" href="#27-1-e2ee" title="Permanent link">&para;</a></h1>
 <h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>实现每个 IM、Bot 和 E2E 功能所依赖的核心工作区/渠道域模型。</p>
-<h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>将 <code>packages/signal/</code> 中当前占位符 Base64“加密”替换为真正的 ECDH 密钥交换和 AES-256-GCM 对称加密，重构为具有三个可交换实现的 <code>IE2eeProvider</code> 接口。</p>
+<h2 id="_2">当前状态<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p><code>packages/signal/src/index.ts</code> 提供了完整的 E2EE API 接口（<code>createLocalSignalIdentity</code>、<code>toPreKeyBundle</code>、<code>establishSession</code>、<code>encryptForSession</code>、<code>decryptFromSession</code>），但实现完全是假的：</p>
 <ul>
-<li>工作区创建/读取/更新。</li>
-<li>工作区成员邀请/加入/删除。</li>
-<li>工作区角色：所有者/管理员/成员。</li>
-<li>公共/私人频道 CRUD。</li>
-<li>频道成员添加/删除。</li>
-<li>频道存档/删除。</li>
-<li>DM 创建和查找。</li>
-<li>通道模式：<code>normal</code>或<code>e2e</code>。</li>
-<li>网关、消息服务、机器人引擎、信号服务和附件服务使用的授权助手。</li>
+<li>密钥是随机的十六进制字符串 (<code>randomString()</code>)，而不是真正的 ECDH 密钥对</li>
+<li>加密为<code>btoa(plaintext)</code>——零机密性的Base64编码</li>
+<li>解密为<code>atob(ciphertext)</code></li>
+<li>会话建立生成随机会话 ID，无需 Diffie-Hellman 交换</li>
 </ul>
-<h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>所有消费者代码（<code>ChatRoute.tsx</code>、<code>signal-helpers.ts</code>、<code>MessageRow.tsx</code>）均从 <code>@nexus-chat/signal</code> 导入，并且在此重构后需要<strong>零更改</strong>。</p>
+<h2 id="_3">范围<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="271-packagessignalsrctypests">27.1 提取共享类型 (<code>packages/signal/src/types.ts</code>)<a class="headerlink" href="#271-packagessignalsrctypests" title="Permanent link">&para;</a></h3>
 <ul>
-<li>没有频道文件夹/类别。</li>
-<li>没有企业角色层次结构。</li>
-<li>没有访客帐户。</li>
-<li>没有跨工作空间共享通道。</li>
+<li>从<code>index.ts</code>移动<code>LocalSignalIdentity</code>、<code>SignalSession</code>、<code>SignalSessionStore</code></li>
+<li>添加<code>IE2eeProvider</code>接口（7个方法）</li>
+<li>添加<code>E2eeCiphertext</code>、<code>EncryptedFile</code>、<code>FileEncryptionKey</code>类型</li>
+<li>将<code>LocalSignalIdentity</code>中的关键字段从<code>string</code>更改为<code>Uint8Array</code></li>
+<li>将<code>sharedKey: Uint8Array</code>添加到<code>SignalSession</code></li>
 </ul>
-<h2 id="api">API 端点<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<h3 id="272-packagessignalsrcplaceholderts">27.2 占位符提供程序 (<code>packages/signal/src/placeholder.ts</code>)<a class="headerlink" href="#272-packagessignalsrcplaceholderts" title="Permanent link">&para;</a></h3>
+<ul>
+<li>从 <code>index.ts</code> 移动当前代码（使用现有的大标题注释块和 <code>@deprecated</code> 注释）</li>
+<li>实现<code>IE2eeProvider</code>接口</li>
+<li>参考任务 #27 标记每个方法 <code>@deprecated</code></li>
+<li>文件仅在 <code>E2EE_BACKEND=placeholder</code> 时使用（开发中默认，用于 CI 测试）</li>
+</ul>
+<h3 id="273-noble-provider-packagessignalsrcnoblets">27.3 @noble/* Provider (<code>packages/signal/src/noble.ts</code>) — 生产<a class="headerlink" href="#273-noble-provider-packagessignalsrcnoblets" title="Permanent link">&para;</a></h3>
+<ul>
+<li>依赖项：<code>@noble/curves</code> (P-256 ECDH)、<code>@noble/ciphers</code> (AES-256-GCM)</li>
+<li><code>createLocalIdentity</code>: <code>p256.utils.randomPrivateKey()</code> → ECDH 密钥对</li>
+<li><code>establishSession</code>: <code>p256.getSharedSecret(priv, peerPub)</code> → HKDF 导出 AES-256 密钥</li>
+<li><code>encryptForSession</code>：<code>gcm(sharedKey, iv).encrypt(plaintext)</code></li>
+<li><code>decryptFromSession</code>：<code>gcm(sharedKey, iv).decrypt(ciphertext)</code></li>
+<li>通过纯 HTTP 工作（纯 JS，不需要安全上下文）</li>
+<li>麻省理工学院许可证，~15 KB gzip</li>
+</ul>
+<h3 id="274-web-packagessignalsrcwebcryptots-https">27.4 Web 加密提供程序 (<code>packages/signal/src/webcrypto.ts</code>) — 仅 HTTPS<a class="headerlink" href="#274-web-packagessignalsrcwebcryptots-https" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>createLocalIdentity</code>：<code>crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" })</code></li>
+<li><code>establishSession</code>：<code>crypto.subtle.deriveBits({ name: "ECDH", public: peerKey })</code></li>
+<li><code>encryptForSession</code>：<code>crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plaintext)</code></li>
+<li><code>decryptForSession</code>：<code>crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext)</code></li>
+<li>需要<code>window.isSecureContext === true</code>（本地主机/HTTPS）</li>
+<li>零捆绑尺寸（内置）</li>
+</ul>
+<h3 id="275-packagessignalsrccryptots">27.5 文件加密 (<code>packages/signal/src/crypto.ts</code>)<a class="headerlink" href="#275-packagessignalsrccryptots" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>encryptFile(blob, key)</code>：文件字节上的 AES-256-GCM → <code>{ ciphertext, iv, originalName, mimeType, sizeBytes }</code></li>
+<li><code>decryptFile(encryptedBlob, key)</code>：AES-256-GCM 解密 → <code>Blob</code></li>
+<li><code>deriveFileKey(session)</code>：来自<code>session.sharedKey</code>的HKDF与上下文<code>"nexus-chat-file-key-v1"</code></li>
+<li>由所有三个提供者共享（内部使用 <code>@noble/ciphers</code> 以保持一致性）</li>
+</ul>
+<h3 id="276-packagessignalsrcindexts">27.6 提供商选择和再导出 (<code>packages/signal/src/index.ts</code>)<a class="headerlink" href="#276-packagessignalsrcindexts" title="Permanent link">&para;</a></h3>
+<ul>
+<li>重写<code>index.ts</code>以根据<code>E2EE_BACKEND</code>环境变量选择提供者</li>
+<li>重新导出具有相同名称的所有函数（向后兼容）</li>
+<li>默认值：<code>nobleProvider</code>（适用于任何地方）</li>
+</ul>
+<h3 id="277-e2ee-3">27.7 启用 E2EE 文件附件（3 个消费者文件）<a class="headerlink" href="#277-e2ee-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>ChatComposer.tsx</code>：删除<code>!isE2e</code>条件隐藏📎按钮（〜2行）</li>
+<li><code>useAttachments.ts</code>：在 E2EE 模式下 PUT 之前调用 <code>encryptFile()</code>（~5 行）</li>
+<li><code>MessageRow.tsx</code>：E2EE模式下GET后调用<code>decryptFile()</code>（~5行）</li>
+</ul>
+<h3 id="278">27.8 安装依赖项<a class="headerlink" href="#278" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>packages/signal/package.json</code>：添加<code>@noble/curves</code>^1.4，<code>@noble/ciphers</code>^0.6</li>
+</ul>
+<h3 id="279">27.9 更新上游文档<a class="headerlink" href="#279" title="Permanent link">&para;</a></h3>
+<ul>
+<li>更新<code>docs/ai/context.md</code>第6.5节统计数据</li>
+<li>如果需要更新<code>docs/README.md</code>设计文档表</li>
+</ul>
+<h2 id="_4">非目标<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<ul>
+<li>无 X3DH 或双棘轮（推迟到第 3 阶段，信号协议，单独的 AGPL-3.0 分支）</li>
+<li>没有服务器端更改（PreKey 端点已做好生产准备）</li>
+<li>没有 P2P 特定的更改（自动应用共享加密/解密功能）</li>
+<li>无组 E2EE（第 2 阶段）</li>
+</ul>
+<h2 id="_5">文件已更改<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>方法</th>
-<th>路径</th>
-<th>描述</th>
+<th>文件</th>
+<th>改变</th>
+<th>线路</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/workspaces</code></td>
-<td>创建工作区</td>
+<td><code>packages/signal/package.json</code></td>
+<td>添加 <code>@noble/curves</code>、<code>@noble/ciphers</code></td>
+<td>+2</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><code>/api/v1/workspaces</code></td>
-<td>列出用户工作区</td>
+<td><code>packages/signal/src/types.ts</code></td>
+<td><strong>新</strong>：共享类型+ <code>IE2eeProvider</code> 接口</td>
+<td>〜80</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><code>/api/v1/workspaces/:id</code></td>
-<td>获取工作区</td>
+<td><code>packages/signal/src/placeholder.ts</code></td>
+<td>从 <code>index.ts</code> 移动，添加 <code>@deprecated</code>，实现 <code>IE2eeProvider</code></td>
+<td>〜100</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/workspaces/:id/members</code></td>
-<td>邀请/添加会员</td>
+<td><code>packages/signal/src/noble.ts</code></td>
+<td><strong>新</strong>：<code>@noble/*</code> ECDH + AES-256-GCM</td>
+<td>〜120</td>
 </tr>
 <tr>
-<td><code>DELETE</code></td>
-<td><code>/api/v1/workspaces/:id/members/:userId</code></td>
-<td>删除会员</td>
+<td><code>packages/signal/src/webcrypto.ts</code></td>
+<td><strong>新</strong>：SubtleCrypto ECDH + AES-256-GCM</td>
+<td>〜120</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/workspaces/:id/channels</code></td>
-<td>创建频道</td>
+<td><code>packages/signal/src/crypto.ts</code></td>
+<td><strong>新</strong>：文件加密/解密助手</td>
+<td>〜60</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><code>/api/v1/workspaces/:id/channels</code></td>
-<td>列出频道</td>
+<td><code>packages/signal/src/index.ts</code></td>
+<td>重写：提供商选择+再导出</td>
+<td>〜50</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/channels/:id/members</code></td>
-<td>添加频道会员</td>
+<td><code>apps/web/src/components/ChatComposer.tsx</code></td>
+<td>删除 <code>!isE2e</code> 条件隐藏 📎</td>
+<td>-2</td>
 </tr>
 <tr>
-<td><code>DELETE</code></td>
-<td><code>/api/v1/channels/:id/members/:userId</code></td>
-<td>删除频道成员</td>
+<td><code>apps/web/src/hooks/useAttachments.ts</code></td>
+<td>E2EE模式下PUT前调用<code>encryptFile()</code></td>
+<td>+5</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/dms</code></td>
-<td>创建或获取现有 DM</td>
+<td><code>apps/web/src/components/MessageRow.tsx</code></td>
+<td>E2EE模式下GET后调用<code>decryptFile()</code></td>
+<td>+5</td>
 </tr>
 </tbody>
 </table>
-<h2 id="_4">授权规则<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p><strong>总计：约 550 行新/重写行，3 个消费者文件，添加了约 12 行。</strong></p>
+<h2 id="_6">服务器影响<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p><strong>无。</strong> 所有 PreKey 捆绑存储、会话元数据和密文中继端点保持不变。无论加密实现如何，服务器都会存储不透明字符串（密钥为 Base64，密文为 Base64）。</p>
+<h2 id="p2p">P2P 影响<a class="headerlink" href="#p2p" title="Permanent link">&para;</a></h2>
+<p><strong>无。</strong> <code>encryptForSession</code> 和 <code>decryptFromSession</code> 由中继路径和 P2P 路径共享。更改其实现自动适用于两种传输模式。</p>
+<h2 id="_7">验收标准<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
-<li>工作区所有者可以转让所有权。</li>
-<li>工作区管理员可以邀请/删除除所有者之外的成员。</li>
-<li>频道创建者/管理员可以存档频道。</li>
-<li>读/写需要私人频道会员资格。</li>
-<li>DM 仅对参与者可见。</li>
-<li>机器人不能添加到E2E渠道。</li>
+<li>[x] <code>pnpm --filter @nexus-chat/signal typecheck</code> 通过</li>
+<li>[x] <code>pnpm --filter @nexus-chat/signal test</code> 通过（33 个测试，针对 <code>Uint8Array</code> 类型和异步 API 进行了更新）</li>
+<li>[x] <code>pnpm --filter @nexus-chat/server typecheck</code> 通过</li>
+<li>[x] <code>pnpm --filter @nexus-chat/web typecheck</code> 通过</li>
+<li>[x] E2EE消息使用真实的AES-256-GCM密文（<code>encryptForSession</code>返回带有IV的<code>algorithm: "aes-256-gcm-v1"</code>）</li>
+<li>[x] <code>E2EE_BACKEND=noble</code> 使用 <code>@noble/*</code> 提供程序（默认，不需要 env）</li>
+<li>[x] <code>E2EE_BACKEND=webcrypto</code> 使用 SubtleCrypto 提供程序（在测试中使用模拟的 <code>window.isSecureContext</code> 进行验证）</li>
+<li>[x] <code>E2EE_BACKEND=placeholder</code> 使用 Base64 存根（保留当前行为）</li>
+<li>[x] E2EE 文件附件：📎 按钮在 E2EE 模式下可见； <code>encryptFile</code>/<code>decryptFile</code> 对所有三个提供程序进行了测试</li>
+<li>[x] 覆盖率：信号包在所有指标上均达到 100%</li>
 </ul>
-<h2 id="_5">验收标准<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="_8">设计参考<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <ul>
-<li>用户可以创建工作区和默认通道。</li>
-<li>用户可以邀请其他用户。</li>
-<li>用户可以创建公共/私人频道。</li>
-<li>用户可以创建或检索 1:1 DM。</li>
-<li>授权助手可由其他模块重用。</li>
-<li>E2E通道模式在第一阶段创建后是不可变的，除非另有明确设计。</li>
-</ul>
-<h2 id="_6">测试计划<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
-<ul>
-<li>用于角色检查的单元测试。</li>
-<li>工作区/通道 CRUD 的集成测试。</li>
-<li>DM幂等性测试：相同的两个用户产生相同的DM。</li>
-<li>Bot 到 E2E 会员资格拒绝。</li>
-</ul>
-<h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../03-phase-1-database-schema/">03 — Database Schema</a></li>
-<li><a href="../04-phase-1-auth-session-security/">04 — Auth &amp; Security</a></li>
+<li><a href="../../design/10_E2EE_Encryption_Abstract_Layer/">10 — E2EE Encryption Abstract Layer</a></li>
+<li><a href="../../design/00_System_High_Level_Architecture/">00 — System High-Level Architecture</a></li>
 </ul>
 
 

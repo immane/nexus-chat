@@ -409,6 +409,8 @@
       
         
       
+        
+      
     
     
     
@@ -1118,6 +1120,34 @@
     
   
     网页客户端用户界面设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10_E2EE_Encryption_Abstract_Layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2EE加密抽象层
   
 
     
@@ -2263,21 +2293,19 @@
 <h1 id="06">06 — 阶段路线图和里程碑计划<a class="headerlink" href="#06" title="Permanent link">&para;</a></h1>
 <blockquote>
 <p>Nexus-chat · 类似 Slack 的 IM 应用<br />
-设计日期：2026 年 6 月 · 状态：草案 v1.0<br />
+设计日期：2026 年 6 月 · 状态：Draft v1.1（更新于 2026-07-10）<br />
 目标：SaaS多租户云部署</p>
 </blockquote>
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<ol>
-<li><a href="#1-overview--timeline">Overview &amp; Timeline</a></li>
-<li><a href="#2-phase-1--mvp-foundation-03-months">Phase 1 — MVP Foundation (0–3 months)</a></li>
-<li><a href="#3-phase-2--rich-features--production-hardening-36-months">Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)</a>
-4.<a href="#4-phase-3--advanced--enterprise-612-months">Phase 3 — Advanced &amp; Enterprise (+6–12 months)</a>
-5.<a href="#5-infrastructure-evolution">Infrastructure Evolution</a></li>
-<li><a href="#6-bot-catalog-rollout">Bot Catalog Rollout</a>
+<p>1.<a href="#1-overview--timeline">Overview &amp; Timeline</a>
+2. <a href="#2-phase-1--mvp-foundation-03-months">Phase 1 — MVP Foundation (0–3 months)</a>
+3.<a href="#3-phase-2--rich-features--production-hardening-36-months">Phase 2 — Rich Features &amp; Production Hardening (+3–6 months)</a>
+4. <a href="#4-phase-3--advanced--enterprise-612-months">Phase 3 — Advanced &amp; Enterprise (+6–12 months)</a>
+5.<a href="#5-infrastructure-evolution">Infrastructure Evolution</a>
+6. <a href="#6-bot-catalog-rollout">Bot Catalog Rollout</a>
 7.<a href="#7-ai-agent-implementation-sequence">AI Agent Implementation Sequence</a>
-8.<a href="#8-package-delivery-matrix">Package Delivery Matrix</a></li>
-</ol>
+8. <a href="#8-package-delivery-matrix">Package Delivery Matrix</a></p>
 <hr />
 <h2 id="1">1. 概述和时间表<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Phase 1 (MVP)           Phase 2 (Production)        Phase 3 (Enterprise)
@@ -2399,8 +2427,8 @@
 </tr>
 <tr>
 <td><strong>DM E2E</strong></td>
-<td>用于 1:1 DM 的信号协议、X3DH 密钥协商、双棘轮、客户端加密/解密、服务器不透明中继、PreKeyBundle 服务器</td>
-<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+<td>ECDH + AES-256-GCM（第 1-2 阶段，MIT 兼容，主分支）。采用 X3DH + 双棘轮的信号协议计划在<strong>单独的分发分支</strong>上进行第 3 阶段（不在 <code>main</code> 中），以避免来自 <code>@signalapp/libsignal</code> 的 AGPL-3.0 许可证污染。</td>
+<td><a href="../10_E2EE_Encryption_Abstract_Layer/">10 - E2EE Encryption Abstract Layer</a></td>
 </tr>
 <tr>
 <td><strong>端到端消失的消息</strong></td>
@@ -2512,7 +2540,7 @@
 <tr>
 <td><code>signal</code></td>
 <td><code>packages/signal/</code></td>
-<td>信号协议包装器 (@signalapp/libsignal)</td>
+<td>E2EE抽象层（IE2eeProvider + @noble/*实现）；仅在单独的第 3 阶段分支上通过 <code>@signalapp/libsignal</code> 的信号协议</td>
 </tr>
 <tr>
 <td><code>bot-sdk</code></td>
@@ -2578,8 +2606,8 @@
 </tr>
 <tr>
 <td>9–10</td>
-<td>信号协议集成</td>
-<td>PreKeyBundle 服务器，X3DH + 双棘轮，E2E DM 流程，一次读取/消失策略</td>
+<td>E2EE基础设施</td>
+<td>ECDH + AES-256-GCM 消息加密、PreKeyBundle 服务器端点、E2E DM 流程、一次读取/消失策略、IE2eeProvider 接口（占位符、第 3 阶段信号协议推迟到 AGPL-3.0 分支）</td>
 </tr>
 <tr>
 <td>11-12</td>
@@ -2722,7 +2750,7 @@
 <tr>
 <td><strong>M6：搜索工具+内存</strong></td>
 <td>11-12</td>
-<td>11-12权限感知核心全文检索工具，<code>ConversationWindow</code>、<code>ConversationSummarizer</code>、<code>ContextCache</code>（Redis）</td>
+<td>11-12权限感知核心全文搜索工具，<code>ConversationWindow</code>、<code>ConversationSummarizer</code>、<code>ContextCache</code>（Redis）</td>
 </tr>
 <tr>
 <td><strong>M7：UI 润色+隐私</strong></td>
@@ -2829,8 +2857,8 @@
 </tr>
 <tr>
 <td><strong>先进的端到端</strong></td>
-<td>验证安全号码（二维码比较）、设备管理（列表/撤销）、密封发件人、透明度/审核用户体验、高级保留策略控制</td>
-<td><a href="../03_Business_Logic_and_Persistence_Backend/">03 - Business Logic</a></td>
+<td>信号协议（X3DH + 双棘轮，单独的 AGPL-3.0 分支）、经过验证的安全号码（QR 代码比较）、设备管理（列表/撤销）、密封发送器、透明度/审核 UX、高级保留策略控制</td>
+<td><a href="../10_E2EE_Encryption_Abstract_Layer/">10 - E2EE Encryption Abstract Layer</a></td>
 </tr>
 <tr>
 <td><strong>多设备同步</strong></td>
@@ -2926,17 +2954,17 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Phase 1: Monolith                    Phase 2: Multi-Instance              Phase 3: Microservices
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>┌────────────────────┐              ┌────────────────────┐              ┌────────────────────┐
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│  Single Process:    │              │  App Node × N:      │              │  Gateway Service   │
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│  Hono + Socket.IO   │              │  ├─ Hono REST       │              │  (stateless, N×)   │
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  + Bot Engine       │              │  ├─ Socket.IO       │              ├────────────────────┤
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│  + AI Agent Engine  │              │  ├─ Bot Engine      │              │  Message Service   │
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>└────────┬───────────┘              │  └─ AI Engine       │              │  (stateful, N×)    │
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>         │                           └────────┬───────────┘              ├────────────────────┤
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    ┌────┴────┐                           ┌───┴────┐                    │  Bot Engine        │
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   PG    │                           │  Redis │                    │  (NATS consumer)   │
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │  Redis  │                           │Cluster │                    ├────────────────────┤
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    └─────────┘                           └───┬────┘                    │  AI Agent Engine   │
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    Event bus:                               │                         │  (NATS consumer)   │
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│  Single Process:   │              │  App Node × N:     │              │  Gateway Service   │
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│  Hono + Socket.IO  │              │  ├─ Hono REST      │              │  (stateless, N×)   │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  + Bot Engine      │              │  ├─ Socket.IO      │              ├────────────────────┤
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│  + AI Agent Engine │              │  ├─ Bot Engine     │              │  Message Service   │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>└────────┬───────────┘              │  └─ AI Engine      │              │  (stateful, N×)    │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>         │                          └────────┬───────────┘              ├────────────────────┤
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    ┌────┴────┐                          ┌───┴────┐                     │  Bot Engine        │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   PG    │                          │  Redis │                     │  (NATS consumer)   │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │  Redis  │                          │Cluster │                     ├────────────────────┤
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    └─────────┘                          └───┬────┘                     │  AI Agent Engine   │
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    Event bus:                               │                          │  (NATS consumer)   │
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    Redis Streams                     ┌──────┴──────┐                   ├────────────────────┤
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                                      │    PG       │                   │  File Service      │
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                                      │  Primary +  │                   │  (stateless, N×)   │
@@ -2947,10 +2975,10 @@
 <a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                                                                            │ JetStream │
 <a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                                                                            └────┬──────┘
 <a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>                                                                                 │
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                                                                          ┌──────┴──────┐
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                                                                          │  PG per svc │
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                                                                          │  Redis Cluster│
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                                                                          └─────────────┘
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                                                                          ┌──────┴─────-─┐
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                                                                          │ PG per svc   │
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>                                                                          │ Redis Cluster│
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>                                                                          └────────────-─┘
 </code></pre></div>
 <h3 id="_2">关键基础设施里程碑<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
 <table>
@@ -3350,9 +3378,9 @@
 </tr>
 <tr>
 <td><code>packages/signal</code></td>
-<td>X3DH + 双棘轮</td>
+<td>ECDH + AES-256-GCM (IE2eeProvider + @noble/*)，PreKey 端点</td>
 <td>+ 发件人密钥，组 E2E</td>
-<td>+ 密封发送器、设备管理</td>
+<td>+ 信号协议（X3DH + 双棘轮，AGPL-3.0 分支），密封发送器，设备管理</td>
 </tr>
 <tr>
 <td><code>packages/bot-sdk</code></td>
@@ -3407,6 +3435,10 @@
 - <a href="../03_Business_Logic_and_Persistence_Backend/">03 — Business Logic &amp; Persistence</a>
 - <a href="../04_Async_Bot_Engine_and_Event_Dispatch_Layer/">04 — Async Bot Engine &amp; Event Dispatch</a>
 - <a href="../05_AI_Agent_Orchestration_and_Streaming/">05 — AI Agent Orchestration &amp; Streaming</a>
+- <a href="../07_P2P_DM_Direct_Connection/">07 — P2P DM Direct Connection</a>
+- <a href="../08_TUI_Chat_Redesign/">08 — TUI Chat Redesign</a>
+- <a href="../09_Web_Client_UI_Design/">09 — Web Client UI Design</a>
+- <a href="../10_E2EE_Encryption_Abstract_Layer/">10 — E2EE Encryption Abstract Layer</a>
 - <a href="../../research/base-bot-catalog/">Base Bot Catalog Research</a>
 - <a href="../../research/ai-agent-orchestration/">AI Agent Orchestration Research</a></p>
 </blockquote>

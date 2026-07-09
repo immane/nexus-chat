@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="zh" class="no-js">
+<html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://immane.github.io/nexus-chat/zh/tasks/06-phase-1-workspace-channel-service/">
+        <link rel="canonical" href="https://immane.github.io/nexus-chat/tasks/27-phase-1-e2ee-real-encryption/">
       
       
       
@@ -27,7 +27,7 @@
     
     
       
-        <title>06 — 第 1 阶段 — 工作空间、渠道、DM 和会员服务 - Nexus Chat</title>
+        <title>27 — Phase 1 — E2EE Real Encryption Implementation - Nexus Chat</title>
       
     
     
@@ -90,8 +90,8 @@
     <div data-md-component="skip">
       
         
-        <a href="#06-1-dm" class="md-skip">
-          跳转至
+        <a href="#27-phase-1-e2ee-real-encryption-implementation" class="md-skip">
+          Skip to content
         </a>
       
     </div>
@@ -105,7 +105,7 @@
   
 
 <header class="md-header md-header--shadow" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="页眉">
+  <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Nexus Chat" class="md-header__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
   
@@ -126,7 +126,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              06 — 第 1 阶段 — 工作空间、渠道、DM 和会员服务
+              27 — Phase 1 — E2EE Real Encryption Implementation
             
           </span>
         </div>
@@ -166,7 +166,7 @@
       <div class="md-header__option">
   <div class="md-select">
     
-    <button class="md-header__button md-icon" aria-label="选择当前语言">
+    <button class="md-header__button md-icon" aria-label="Select language">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
     </button>
     <div class="md-select__inner">
@@ -200,16 +200,16 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="查找">
+      <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -222,7 +222,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            正在初始化搜索引擎
+            Initializing search
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -234,7 +234,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -268,7 +268,7 @@
 
 
 
-<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Nexus Chat" class="md-nav__button md-logo" aria-label="Nexus Chat" data-md-component="logo">
       
@@ -280,7 +280,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/immane/nexus-chat" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/immane/nexus-chat" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
@@ -307,7 +307,7 @@
   <span class="md-ellipsis">
     
   
-    首页
+    Home
   
 
     
@@ -361,7 +361,7 @@
   <span class="md-ellipsis">
     
   
-    快速入门
+    Quick Start
   
 
     
@@ -430,7 +430,7 @@
   <span class="md-ellipsis">
     
   
-    设计文档
+    Design Documents
   
 
     
@@ -446,7 +446,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    设计文档
+    Design Documents
   
 
           </label>
@@ -466,7 +466,7 @@
   <span class="md-ellipsis">
     
   
-    系统总体架构
+    System High-Level Architecture
   
 
     
@@ -494,7 +494,7 @@
   <span class="md-ellipsis">
     
   
-    客户端外壳与 UI 渲染层
+    Client Shell & UI Rendering
   
 
     
@@ -522,7 +522,7 @@
   <span class="md-ellipsis">
     
   
-    长连接与核心网关层
+    Long Connection & Core Gateway
   
 
     
@@ -550,7 +550,7 @@
   <span class="md-ellipsis">
     
   
-    业务逻辑与持久化后端
+    Business Logic & Persistence
   
 
     
@@ -578,7 +578,7 @@
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与事件分发层
+    Async Bot Engine & Event Dispatch
   
 
     
@@ -606,7 +606,7 @@
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式引擎
+    AI Agent Orchestration & Streaming
   
 
     
@@ -634,7 +634,7 @@
   <span class="md-ellipsis">
     
   
-    阶段路线图
+    Phase Roadmap
   
 
     
@@ -662,7 +662,7 @@
   <span class="md-ellipsis">
     
   
-    P2P DM 直连
+    P2P DM Direct Connection
   
 
     
@@ -690,7 +690,7 @@
   <span class="md-ellipsis">
     
   
-    TUI 聊天室重新设计
+    TUI Chat Redesign
   
 
     
@@ -718,7 +718,7 @@
   <span class="md-ellipsis">
     
   
-    网页客户端用户界面设计
+    Web Client UI Design
   
 
     
@@ -746,7 +746,7 @@
   <span class="md-ellipsis">
     
   
-    E2EE加密抽象层
+    E2EE Encryption Abstract Layer
   
 
     
@@ -817,7 +817,7 @@
   <span class="md-ellipsis">
     
   
-    技术调研
+    Research
   
 
     
@@ -833,7 +833,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    技术调研
+    Research
   
 
           </label>
@@ -853,7 +853,7 @@
   <span class="md-ellipsis">
     
   
-    前端架构与性能优化
+    Frontend Architecture
   
 
     
@@ -881,7 +881,7 @@
   <span class="md-ellipsis">
     
   
-    Node.js 核心 IM 与状态机设计
+    Backend IM & State Machine
   
 
     
@@ -909,7 +909,7 @@
   <span class="md-ellipsis">
     
   
-    组件化 UI 与插件生态协议
+    UI Components & Plugin Protocol
   
 
     
@@ -937,7 +937,7 @@
   <span class="md-ellipsis">
     
   
-    异步 Bot 引擎与微服务解耦
+    Bot Engine & Microservices
   
 
     
@@ -965,7 +965,7 @@
   <span class="md-ellipsis">
     
   
-    低成本防御方案与未来 E2EE 路线
+    Security Defense & E2EE
   
 
     
@@ -993,7 +993,7 @@
   <span class="md-ellipsis">
     
   
-    基础 Bot 目录
+    Base Bot Catalog
   
 
     
@@ -1021,7 +1021,7 @@
   <span class="md-ellipsis">
     
   
-    AI Agent 编排与流式交互设计
+    AI Agent Orchestration
   
 
     
@@ -1049,7 +1049,7 @@
   <span class="md-ellipsis">
     
   
-    Telegram 接口分析
+    Telegram Interface Analysis
   
 
     
@@ -1389,7 +1389,7 @@
   <span class="md-ellipsis">
     
   
-    备份与恢复
+    Backup & Restore
   
 
     
@@ -1417,7 +1417,7 @@
   <span class="md-ellipsis">
     
   
-    测试版清单
+    Beta Checklist
   
 
     
@@ -1445,7 +1445,7 @@
   <span class="md-ellipsis">
     
   
-    已知限制
+    Known Limitations
   
 
     
@@ -1480,7 +1480,7 @@
   <span class="md-ellipsis">
     
   
-    AI 会话上下文
+    AI Context
   
 
     
@@ -1506,7 +1506,7 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="目录">
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
   
@@ -1515,15 +1515,15 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      目录
+      Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#goal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        目标
+        Goal
       
     </span>
   </a>
@@ -1531,10 +1531,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#current-state" class="md-nav__link">
     <span class="md-ellipsis">
       
-        范围
+        Current State
       
     </span>
   </a>
@@ -1542,10 +1542,126 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        非目标
+        Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#271-extract-shared-types-packagessignalsrctypests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.1 Extract Shared Types (packages/signal/src/types.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#272-placeholder-provider-packagessignalsrcplaceholderts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.2 Placeholder Provider (packages/signal/src/placeholder.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#273-noble-provider-packagessignalsrcnoblets-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.3 @noble/* Provider (packages/signal/src/noble.ts) — Production
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#274-web-crypto-provider-packagessignalsrcwebcryptots-https-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.4 Web Crypto Provider (packages/signal/src/webcrypto.ts) — HTTPS only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#275-file-encryption-packagessignalsrccryptots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.5 File Encryption (packages/signal/src/crypto.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#276-provider-selection-re-export-packagessignalsrcindexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.6 Provider Selection &amp; Re-export (packages/signal/src/index.ts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#277-enable-e2ee-file-attachments-3-consumer-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.7 Enable E2EE File Attachments (3 consumer files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#278-install-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.8 Install Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#279-update-upstream-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27.9 Update Upstream Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Goals
       
     </span>
   </a>
@@ -1553,10 +1669,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#api" class="md-nav__link">
+  <a href="#files-changed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        API 端点
+        Files Changed
       
     </span>
   </a>
@@ -1564,10 +1680,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#server-impact" class="md-nav__link">
     <span class="md-ellipsis">
       
-        授权规则
+        Server Impact
       
     </span>
   </a>
@@ -1575,10 +1691,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
+  <a href="#p2p-impact" class="md-nav__link">
     <span class="md-ellipsis">
       
-        验收标准
+        P2P Impact
       
     </span>
   </a>
@@ -1586,10 +1702,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
+  <a href="#acceptance-criteria" class="md-nav__link">
     <span class="md-ellipsis">
       
-        测试计划
+        Acceptance Criteria
       
     </span>
   </a>
@@ -1597,10 +1713,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
+  <a href="#design-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        依赖关系
+        Design Reference
       
     </span>
   </a>
@@ -1627,119 +1743,172 @@
   
 
 
-<h1 id="06-1-dm">06 — 第 1 阶段 — 工作空间、渠道、DM 和会员服务<a class="headerlink" href="#06-1-dm" title="Permanent link">&para;</a></h1>
-<h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>实现每个 IM、Bot 和 E2E 功能所依赖的核心工作区/渠道域模型。</p>
-<h2 id="_2">范围<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h1 id="27-phase-1-e2ee-real-encryption-implementation">27 — Phase 1 — E2EE Real Encryption Implementation<a class="headerlink" href="#27-phase-1-e2ee-real-encryption-implementation" title="Permanent link">&para;</a></h1>
+<h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
+<p>Replace the current placeholder Base64 "encryption" in <code>packages/signal/</code> with real ECDH key exchange and AES-256-GCM symmetric encryption, refactored into an <code>IE2eeProvider</code> interface with three swappable implementations.</p>
+<h2 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h2>
+<p><code>packages/signal/src/index.ts</code> provides a complete E2EE API surface (<code>createLocalSignalIdentity</code>, <code>toPreKeyBundle</code>, <code>establishSession</code>, <code>encryptForSession</code>, <code>decryptFromSession</code>) but the implementation is entirely fake:</p>
 <ul>
-<li>工作区创建/读取/更新。</li>
-<li>工作区成员邀请/加入/删除。</li>
-<li>工作区角色：所有者/管理员/成员。</li>
-<li>公共/私人频道 CRUD。</li>
-<li>频道成员添加/删除。</li>
-<li>频道存档/删除。</li>
-<li>DM 创建和查找。</li>
-<li>通道模式：<code>normal</code>或<code>e2e</code>。</li>
-<li>网关、消息服务、机器人引擎、信号服务和附件服务使用的授权助手。</li>
+<li>Keys are random hex strings (<code>randomString()</code>), not real ECDH keypairs</li>
+<li>Encryption is <code>btoa(plaintext)</code> — Base64 encoding with zero confidentiality</li>
+<li>Decryption is <code>atob(ciphertext)</code></li>
+<li>Session establishment generates a random session ID without Diffie-Hellman exchange</li>
 </ul>
-<h2 id="_3">非目标<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>All consumer code (<code>ChatRoute.tsx</code>, <code>signal-helpers.ts</code>, <code>MessageRow.tsx</code>) imports from <code>@nexus-chat/signal</code> and will require <strong>zero changes</strong> after this refactoring.</p>
+<h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
+<h3 id="271-extract-shared-types-packagessignalsrctypests">27.1 Extract Shared Types (<code>packages/signal/src/types.ts</code>)<a class="headerlink" href="#271-extract-shared-types-packagessignalsrctypests" title="Permanent link">&para;</a></h3>
 <ul>
-<li>没有频道文件夹/类别。</li>
-<li>没有企业角色层次结构。</li>
-<li>没有访客帐户。</li>
-<li>没有跨工作空间共享通道。</li>
+<li>Move <code>LocalSignalIdentity</code>, <code>SignalSession</code>, <code>SignalSessionStore</code> from <code>index.ts</code></li>
+<li>Add <code>IE2eeProvider</code> interface (7 methods)</li>
+<li>Add <code>E2eeCiphertext</code>, <code>EncryptedFile</code>, <code>FileEncryptionKey</code> types</li>
+<li>Change key fields from <code>string</code> to <code>Uint8Array</code> in <code>LocalSignalIdentity</code></li>
+<li>Add <code>sharedKey: Uint8Array</code> to <code>SignalSession</code></li>
 </ul>
-<h2 id="api">API 端点<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<h3 id="272-placeholder-provider-packagessignalsrcplaceholderts">27.2 Placeholder Provider (<code>packages/signal/src/placeholder.ts</code>)<a class="headerlink" href="#272-placeholder-provider-packagessignalsrcplaceholderts" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Move current code from <code>index.ts</code> (with existing large header comment block and <code>@deprecated</code> annotations)</li>
+<li>Implement <code>IE2eeProvider</code> interface</li>
+<li>Mark every method <code>@deprecated</code> with reference to Task #27</li>
+<li>File only used when <code>E2EE_BACKEND=placeholder</code> (default in dev, for CI testing)</li>
+</ul>
+<h3 id="273-noble-provider-packagessignalsrcnoblets-production">27.3 @noble/* Provider (<code>packages/signal/src/noble.ts</code>) — Production<a class="headerlink" href="#273-noble-provider-packagessignalsrcnoblets-production" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Dependencies: <code>@noble/curves</code> (P-256 ECDH), <code>@noble/ciphers</code> (AES-256-GCM)</li>
+<li><code>createLocalIdentity</code>: <code>p256.utils.randomPrivateKey()</code> → ECDH keypair</li>
+<li><code>establishSession</code>: <code>p256.getSharedSecret(priv, peerPub)</code> → HKDF derive AES-256 key</li>
+<li><code>encryptForSession</code>: <code>gcm(sharedKey, iv).encrypt(plaintext)</code></li>
+<li><code>decryptFromSession</code>: <code>gcm(sharedKey, iv).decrypt(ciphertext)</code></li>
+<li>Works over plain HTTP (pure JS, no secure context required)</li>
+<li>MIT license, ~15 KB gzip</li>
+</ul>
+<h3 id="274-web-crypto-provider-packagessignalsrcwebcryptots-https-only">27.4 Web Crypto Provider (<code>packages/signal/src/webcrypto.ts</code>) — HTTPS only<a class="headerlink" href="#274-web-crypto-provider-packagessignalsrcwebcryptots-https-only" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>createLocalIdentity</code>: <code>crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" })</code></li>
+<li><code>establishSession</code>: <code>crypto.subtle.deriveBits({ name: "ECDH", public: peerKey })</code></li>
+<li><code>encryptForSession</code>: <code>crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plaintext)</code></li>
+<li><code>decryptForSession</code>: <code>crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext)</code></li>
+<li>Requires <code>window.isSecureContext === true</code> (localhost / HTTPS)</li>
+<li>Zero bundle size (built-in)</li>
+</ul>
+<h3 id="275-file-encryption-packagessignalsrccryptots">27.5 File Encryption (<code>packages/signal/src/crypto.ts</code>)<a class="headerlink" href="#275-file-encryption-packagessignalsrccryptots" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>encryptFile(blob, key)</code>: AES-256-GCM over file bytes → <code>{ ciphertext, iv, originalName, mimeType, sizeBytes }</code></li>
+<li><code>decryptFile(encryptedBlob, key)</code>: AES-256-GCM decrypt → <code>Blob</code></li>
+<li><code>deriveFileKey(session)</code>: HKDF from <code>session.sharedKey</code> with context <code>"nexus-chat-file-key-v1"</code></li>
+<li>Shared by all three providers (uses <code>@noble/ciphers</code> internally for consistency)</li>
+</ul>
+<h3 id="276-provider-selection-re-export-packagessignalsrcindexts">27.6 Provider Selection &amp; Re-export (<code>packages/signal/src/index.ts</code>)<a class="headerlink" href="#276-provider-selection-re-export-packagessignalsrcindexts" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Rewrite <code>index.ts</code> to select provider based on <code>E2EE_BACKEND</code> env var</li>
+<li>Re-export all functions with same names (backward compatible)</li>
+<li>Default: <code>nobleProvider</code> (works everywhere)</li>
+</ul>
+<h3 id="277-enable-e2ee-file-attachments-3-consumer-files">27.7 Enable E2EE File Attachments (3 consumer files)<a class="headerlink" href="#277-enable-e2ee-file-attachments-3-consumer-files" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>ChatComposer.tsx</code>: Remove <code>!isE2e</code> condition hiding 📎 button (~2 lines)</li>
+<li><code>useAttachments.ts</code>: Call <code>encryptFile()</code> before PUT in E2EE mode (~5 lines)</li>
+<li><code>MessageRow.tsx</code>: Call <code>decryptFile()</code> after GET in E2EE mode (~5 lines)</li>
+</ul>
+<h3 id="278-install-dependencies">27.8 Install Dependencies<a class="headerlink" href="#278-install-dependencies" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>packages/signal/package.json</code>: Add <code>@noble/curves</code> ^1.4, <code>@noble/ciphers</code> ^0.6</li>
+</ul>
+<h3 id="279-update-upstream-documentation">27.9 Update Upstream Documentation<a class="headerlink" href="#279-update-upstream-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Update <code>docs/ai/context.md</code> Section 6.5 stats</li>
+<li>Update <code>docs/README.md</code> design docs table if needed</li>
+</ul>
+<h2 id="non-goals">Non-Goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li>No X3DH or Double Ratchet (deferred to Phase 3, Signal Protocol, separate AGPL-3.0 branch)</li>
+<li>No server-side changes (PreKey endpoints already production-ready)</li>
+<li>No P2P-specific changes (shared encrypt/decrypt functions auto-apply)</li>
+<li>No group E2EE (Phase 2)</li>
+</ul>
+<h2 id="files-changed">Files Changed<a class="headerlink" href="#files-changed" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>方法</th>
-<th>路径</th>
-<th>描述</th>
+<th>File</th>
+<th>Change</th>
+<th>Lines</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/workspaces</code></td>
-<td>创建工作区</td>
+<td><code>packages/signal/package.json</code></td>
+<td>Add <code>@noble/curves</code>, <code>@noble/ciphers</code></td>
+<td>+2</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><code>/api/v1/workspaces</code></td>
-<td>列出用户工作区</td>
+<td><code>packages/signal/src/types.ts</code></td>
+<td><strong>New</strong>: shared types + <code>IE2eeProvider</code> interface</td>
+<td>~80</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><code>/api/v1/workspaces/:id</code></td>
-<td>获取工作区</td>
+<td><code>packages/signal/src/placeholder.ts</code></td>
+<td>Move from <code>index.ts</code>, add <code>@deprecated</code>, implement <code>IE2eeProvider</code></td>
+<td>~100</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/workspaces/:id/members</code></td>
-<td>邀请/添加会员</td>
+<td><code>packages/signal/src/noble.ts</code></td>
+<td><strong>New</strong>: <code>@noble/*</code> ECDH + AES-256-GCM</td>
+<td>~120</td>
 </tr>
 <tr>
-<td><code>DELETE</code></td>
-<td><code>/api/v1/workspaces/:id/members/:userId</code></td>
-<td>删除会员</td>
+<td><code>packages/signal/src/webcrypto.ts</code></td>
+<td><strong>New</strong>: SubtleCrypto ECDH + AES-256-GCM</td>
+<td>~120</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/workspaces/:id/channels</code></td>
-<td>创建频道</td>
+<td><code>packages/signal/src/crypto.ts</code></td>
+<td><strong>New</strong>: file encrypt/decrypt helpers</td>
+<td>~60</td>
 </tr>
 <tr>
-<td><code>GET</code></td>
-<td><code>/api/v1/workspaces/:id/channels</code></td>
-<td>列出频道</td>
+<td><code>packages/signal/src/index.ts</code></td>
+<td>Rewrite: provider selection + re-export</td>
+<td>~50</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/channels/:id/members</code></td>
-<td>添加频道会员</td>
+<td><code>apps/web/src/components/ChatComposer.tsx</code></td>
+<td>Remove <code>!isE2e</code> condition hiding 📎</td>
+<td>-2</td>
 </tr>
 <tr>
-<td><code>DELETE</code></td>
-<td><code>/api/v1/channels/:id/members/:userId</code></td>
-<td>删除频道成员</td>
+<td><code>apps/web/src/hooks/useAttachments.ts</code></td>
+<td>Call <code>encryptFile()</code> before PUT in E2EE mode</td>
+<td>+5</td>
 </tr>
 <tr>
-<td><code>POST</code></td>
-<td><code>/api/v1/dms</code></td>
-<td>创建或获取现有 DM</td>
+<td><code>apps/web/src/components/MessageRow.tsx</code></td>
+<td>Call <code>decryptFile()</code> after GET in E2EE mode</td>
+<td>+5</td>
 </tr>
 </tbody>
 </table>
-<h2 id="_4">授权规则<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p><strong>Total: ~550 new/rewritten lines, 3 consumer files with ~12 lines added.</strong></p>
+<h2 id="server-impact">Server Impact<a class="headerlink" href="#server-impact" title="Permanent link">&para;</a></h2>
+<p><strong>None.</strong> All PreKey bundle storage, session metadata, and ciphertext relay endpoints remain unchanged. The server stores opaque strings (keys as Base64, ciphertext as Base64) regardless of the crypto implementation.</p>
+<h2 id="p2p-impact">P2P Impact<a class="headerlink" href="#p2p-impact" title="Permanent link">&para;</a></h2>
+<p><strong>None.</strong> <code>encryptForSession</code> and <code>decryptFromSession</code> are shared by both relay and P2P paths. Changing their implementation automatically applies to both transport modes.</p>
+<h2 id="acceptance-criteria">Acceptance Criteria<a class="headerlink" href="#acceptance-criteria" title="Permanent link">&para;</a></h2>
 <ul>
-<li>工作区所有者可以转让所有权。</li>
-<li>工作区管理员可以邀请/删除除所有者之外的成员。</li>
-<li>频道创建者/管理员可以存档频道。</li>
-<li>读/写需要私人频道会员资格。</li>
-<li>DM 仅对参与者可见。</li>
-<li>机器人不能添加到E2E渠道。</li>
+<li>[x] <code>pnpm --filter @nexus-chat/signal typecheck</code> passes</li>
+<li>[x] <code>pnpm --filter @nexus-chat/signal test</code> passes (33 tests, updated for <code>Uint8Array</code> types and async API)</li>
+<li>[x] <code>pnpm --filter @nexus-chat/server typecheck</code> passes</li>
+<li>[x] <code>pnpm --filter @nexus-chat/web typecheck</code> passes</li>
+<li>[x] E2EE messages use real AES-256-GCM ciphertext (<code>encryptForSession</code> returns <code>algorithm: "aes-256-gcm-v1"</code> with IV)</li>
+<li>[x] <code>E2EE_BACKEND=noble</code> uses <code>@noble/*</code> provider (default, no env needed)</li>
+<li>[x] <code>E2EE_BACKEND=webcrypto</code> uses SubtleCrypto provider (verified in test with mocked <code>window.isSecureContext</code>)</li>
+<li>[x] <code>E2EE_BACKEND=placeholder</code> uses Base64 stub (current behavior preserved)</li>
+<li>[x] E2EE file attachments: 📎 button visible in E2EE mode; <code>encryptFile</code>/<code>decryptFile</code> tested with all three providers</li>
+<li>[x] Coverage: signal package 100% across all metrics</li>
 </ul>
-<h2 id="_5">验收标准<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="design-reference">Design Reference<a class="headerlink" href="#design-reference" title="Permanent link">&para;</a></h2>
 <ul>
-<li>用户可以创建工作区和默认通道。</li>
-<li>用户可以邀请其他用户。</li>
-<li>用户可以创建公共/私人频道。</li>
-<li>用户可以创建或检索 1:1 DM。</li>
-<li>授权助手可由其他模块重用。</li>
-<li>E2E通道模式在第一阶段创建后是不可变的，除非另有明确设计。</li>
-</ul>
-<h2 id="_6">测试计划<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
-<ul>
-<li>用于角色检查的单元测试。</li>
-<li>工作区/通道 CRUD 的集成测试。</li>
-<li>DM幂等性测试：相同的两个用户产生相同的DM。</li>
-<li>Bot 到 E2E 会员资格拒绝。</li>
-</ul>
-<h2 id="_7">依赖关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../03-phase-1-database-schema/">03 — Database Schema</a></li>
-<li><a href="../04-phase-1-auth-session-security/">04 — Auth &amp; Security</a></li>
+<li><a href="../../design/10_E2EE_Encryption_Abstract_Layer/">10 — E2EE Encryption Abstract Layer</a></li>
+<li><a href="../../design/00_System_High_Level_Architecture/">00 — System High-Level Architecture</a></li>
 </ul>
 
 
@@ -1767,7 +1936,7 @@
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  回到页面顶部
+  Back to top
 </button>
         
       </main>
@@ -1807,7 +1976,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
