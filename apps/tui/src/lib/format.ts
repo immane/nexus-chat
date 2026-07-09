@@ -1,8 +1,20 @@
+/**
+ * Date/Time Formatting Utilities — TUI Presentation Layer
+ *
+ * Pure functions for human-readable timestamps and file sizes.
+ * No side effects, no dependencies on the DOM or React.
+ */
 const MINUTE = 60;
 const HOUR = 3600;
 const DAY = 86400;
 const WEEK = 604800;
 
+/**
+ * Formats a relative time string from an ISO date.
+ *
+ * Thresholds: <1m → "just now", <1h → "Xm ago", <1d → "Xh ago",
+ * <2d → "Yesterday", <1w → "Xd ago", ≥1w → locale date.
+ */
 export const formatRelativeTime = (isoDate: string): string => {
   const now = Date.now();
   const then = new Date(isoDate).getTime();

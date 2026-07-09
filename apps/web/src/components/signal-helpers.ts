@@ -1,3 +1,29 @@
+/**
+ * E2EE Signal Helpers (Web Client)
+ *
+ * Bridge between the @nexus-chat/signal package (IE2eeProvider, ECDH + AES-256-GCM)
+ * and the ChatRoute UI layer.
+ *
+ * Responsibilities:
+ * - DM peer ID extraction from channel name (parseDmPeerUserId)
+ * - Disappearing message policy application (applyDisappearingPolicy)
+ * - Signal session establishment with fallback to default bundle (ensureSignalSession)
+ * - Transport label type for P2P/relay debugging
+ *
+ * Key Design Decision:
+ * ensureSignalSession uses a fallback bundle when the peer hasn't uploaded one yet.
+ * This enables E2EE to work even when the other party hasn't opened their web session,
+ * at the cost of weaker forward secrecy for those initial messages.
+ * The fallback bundle is derived deterministically from the peer's userId.
+ *
+ * Forbidden Dependencies:
+ * - Should not import from stores/ (called with explicit tokens/refs via SignalSessionContext)
+ *
+ * Related Modules:
+ * - @nexus-chat/signal: IE2eeProvider, createLocalSignalIdentity, establishSession, etc.
+ * - ChatRoute.tsx: owns signalIdentityRef, sessionsRef, sessionStoreRef
+ * - stores/domain.ts: DisappearingDraftPolicy type
+ */
 import type { Channel, SignalPreKeyBundle } from "@nexus-chat/shared";
 import {
   createLocalSignalIdentity,

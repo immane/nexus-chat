@@ -1,3 +1,8 @@
+/**
+ * Sidebar Component — Renders the channel/member/settings list in the left pane.
+ * Tab switching is controlled externally via the `selectedTab` prop ("chat" | "members" | "settings").
+ * Active channel is highlighted based on `activeIndex`.
+ */
 import { Box, Text } from "ink";
 import type { Channel } from "@nexus-chat/shared";
 

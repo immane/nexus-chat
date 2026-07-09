@@ -1,3 +1,19 @@
+/**
+ * Markdown Rendering & Time Formatting Utilities
+ *
+ * Responsibilities:
+ * - Render markdown text to safe HTML via markdown-it
+ * - Format timestamps as relative ("5m ago"), date separators ("Today", "Yesterday")
+ * - Format file sizes (B, KB, MB)
+ *
+ * Security:
+ * - html: false — markdown-it does NOT render raw HTML
+ * - linkify: true — autolinks URLs but we override link_open to add target=_blank rel=noopener
+ *
+ * Does NOT:
+ * - Handle @mentions, #channels, or :emoji: shortcodes (custom plugins deferred)
+ * - Use DOMPurify (markdown-it with html:false is sufficient for Phase 1)
+ */
 import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({

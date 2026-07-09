@@ -41,6 +41,31 @@ import { ForwardModal } from "./ForwardModal.js";
 import { MessageList } from "./MessageList.js";
 import { RightMemberPanel } from "./RightMemberPanel.js";
 
+/**
+ * ChatRoute — Main Chat Application Shell
+ *
+ * This is the central orchestrating component of the web client. It owns:
+ * - WebSocket connection lifecycle (socketRef)
+ * - P2P transport lifecycle (p2pTransportRef)
+ * - E2EE Signal identity and session refs (signalIdentityRef, sessionsRef)
+ * - E2EE message encryption/decryption
+ * - Message send orchestration (P2P vs relay, E2E vs normal, commands)
+ * - All Zustand store subscriptions
+ * - Bubble toast notifications for new messages
+ *
+ * Does NOT own (delegated to hooks):
+ * - Channel members (useChannelMembers)
+ * - File uploads (useAttachments)
+ * - Message CRUD actions (useMessageActions)
+ * - Read receipts (useReadReceipts)
+ * - Typing indicators (useTyping)
+ * - Bootstrap loading (useChatBootstrap)
+ *
+ * Architecture Note:
+ * Signal/P2P send orchestration and WebSocket ownership are intentionally
+ * kept here rather than extracted into hooks. These areas are tightly coupled
+ * to the lifecycle of refs and would introduce risky behavior changes if split.
+ */
 const ChatRoute = () => {
   const user = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -227,8 +252,11 @@ const ChatRoute = () => {
       if (event.type === "message.created" && event.payload && typeof event.payload === "object" && "id" in (event.payload as Record<string, unknown>)) {
         const serverMsg = event.payload as Message;
         const state = useMessageStore.getState();
+        // Ignore if we already have this message by server-side ID.
         if (state.messages.has(serverMsg.id)) return;
         setTransportLabels((current) => ({ ...current, [serverMsg.clientMsgId]: serverMsg.senderId === user?.id ? "relay sent" : "relay received" }));
+        // Dedup by clientMsgId: replace the optimistic entry (which had a temporary
+        // "optimistic-*" ID) with the server-confirmed message.
         const dup = [...state.messages.values()].find((m) => m.clientMsgId === serverMsg.clientMsgId);
         if (dup) {
           const newMsgs = new Map(state.messages);
@@ -366,6 +394,9 @@ const ChatRoute = () => {
     const [cmdName, ...cmdArgs] = isSlashCommand ? text.split(/\s+/) : ["", []];
     const isDemoSession = accessToken === "demo-access-token";
 
+    // ── Path A: Demo mode (no server) ──
+    // Synthesize messages locally. /help is handled inline here because
+    // the demo-access-token cannot establish a real WebSocket connection.
     if (!socketRef.current?.connected && isDemoSession) {
       const msg = createOptimisticMessage({
         workspaceId: activeChannel.workspaceId,
@@ -401,6 +432,9 @@ const ChatRoute = () => {
     }
 
     if (socketRef.current?.connected) {
+      // ── Path B: Slash command (normal channels only) ──
+      // Emit bot.command.invoke via WebSocket. The server matches the command
+      // to an installed bot and broadcasts the response message back.
       if (!isE2e && isSlashCommand && cmdName) {
         const msg = createOptimisticMessage({
           workspaceId: activeChannel.workspaceId,
@@ -432,6 +466,9 @@ const ChatRoute = () => {
           }
         );
       } else {
+        // ── Path C: Regular message (normal or E2EE) ──
+        // E2EE: encrypt client-side, try P2P first via HybridTransport, fall back to relay.
+        // Normal: emit message.send via WebSocket for server-side delivery + broadcast.
         const clientMsgId = `web-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const peerUserId = activeChannel.kind === "dm" ? parseDmPeerUserId(activeChannel, user.id) : undefined;
         const session = isE2e ? await ensureSignalSession(peerUserId ?? user.id) : undefined;

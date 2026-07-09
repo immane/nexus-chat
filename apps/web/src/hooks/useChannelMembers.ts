@@ -1,3 +1,20 @@
+/**
+ * useChannelMembers — Workspace & Channel Member Management
+ *
+ * Responsibilities:
+ * - Fetch workspace-level members once per workspace mount
+ * - Fetch channel-level members on active channel change
+ * - Add/remove channel members via REST API
+ * - Build senderNames lookup for message display
+ *
+ * Race Condition Handling:
+ * Both fetch effects use a "cancelled" flag to prevent setState after unmount.
+ * The channel members effect clears state when activeChannelId becomes undefined.
+ *
+ * Does NOT:
+ * - Handle real-time member changes via WebSocket (future enhancement)
+ * - Cache member data across navigation (re-fetches on mount)
+ */
 import { useEffect, useState } from "react";
 import { API_BASE } from "../lib/api.js";
 

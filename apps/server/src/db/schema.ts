@@ -1,3 +1,27 @@
+/**
+ * PostgreSQL Schema (Drizzle ORM)
+ *
+ * Defines 17 core tables, 6 pgEnum types, indexes, and relation mappings.
+ * Schema isolation by logical namespace (chat, bot, auth, signal) prepares for
+ * the future microservice split.
+ *
+ * Core Tables:
+ * - Users, workspaces, workspace/channel membership (auth + organization)
+ * - Channels, messages, reactions, attachments (IM core)
+ * - Bot integrations, channel memberships, event subscriptions (bot engine)
+ * - Signal pre-key bundles, one-time pre-keys, sessions (E2EE)
+ * - Audit logs (observability)
+ *
+ * Key Indexes:
+ * - messages_channel_page_idx: cursor-based pagination on (channel_id, id DESC)
+ * - messages_sender_client_msg_idx: idempotency via (sender_id, client_msg_id)
+ * - files_scan_idx: quick lookup of pending scan files
+ * - upload_sessions_cleanup_idx: periodic expired session cleanup
+ *
+ * Does NOT include:
+ * - Workflow-specific bot tables (polls, reminders, kudos, standups)
+ *   These belong to individual bots and are created via bot SDK migrations.
+ */
 import { desc, relations } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 

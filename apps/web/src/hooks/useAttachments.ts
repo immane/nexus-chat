@@ -1,3 +1,24 @@
+/**
+ * useAttachments — File Upload & Clipboard Paste Hook
+ *
+ * Responsibilities:
+ * - Manages file input ref and upload queue with progress tracking
+ * - Creates upload sessions via the server API
+ * - Uploads file content to the dev endpoint
+ * - Handles clipboard image paste interception
+ * - Tracks pending attachments before message submission
+ *
+ * Data Flow:
+ * 1. User selects a file (via button or paste) → handleFileUpload
+ * 2. POST /api/v1/attachments/upload-sessions → get session + file record
+ * 3. PUT /dev-upload/:fileId → upload raw bytes
+ * 4. POST .../complete → mark session completed
+ * 5. Add to pendingAttachments → included in next message send
+ *
+ * Does NOT:
+ * - Encrypt files for E2E channels (client-side, done in ChatRoute before upload)
+ * - Handle S3/real storage uploads (dev endpoint stores in memory)
+ */
 import { useRef, useState, type ClipboardEvent as ReactClipboardEvent } from "react";
 import { API_BASE } from "../lib/api.js";
 import { useUiStore } from "../stores/domain.js";

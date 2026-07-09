@@ -1,3 +1,29 @@
+/**
+ * HTTP REST Routes (Hono)
+ *
+ * Phase 1 monolith — 60+ endpoints organized by domain:
+ * - /healthz, /metrics (observability)
+ * - /api/v1/auth/* (registration, login, refresh, logout, me, user lookup)
+ * - /api/v1/workspaces/* (CRUD, membership, channel management, DMs)
+ * - /api/v1/channels/* (CRUD, members, pins, mute, archive, reactions)
+ * - /api/v1/messages/* (send, edit, delete, forward, save, reactions, read)
+ * - /api/v1/attachments/* (upload sessions, file retrieval, download URLs)
+ * - /api/v1/signal/* (pre-key bundles, sessions — E2EE)
+ * - /api/v1/bots/* (install, commands, channels, subscriptions)
+ * - /dev-upload, /dev-download (in-memory dev file storage)
+ *
+ * Architecture:
+ * - app.use("*") for cross-cutting middleware (requestContext, securityHeaders, cors)
+ * - authRequired middleware on every API route
+ * - zValidator for Zod-based input validation at route boundaries
+ * - Some mutation routes broadcast via WebSocket (broadcastToChannel / broadcastToWorkspace)
+ *   to notify connected clients in real time.
+ *
+ * Does NOT:
+ * - Handle WebSocket connections (owned by ws/)
+ * - Run domain logic (delegated to domain services)
+ * - Directly access the database (uses in-memory store in Phase 1)
+ */
 import { URL } from "node:url";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -42,9 +68,33 @@ import { registry } from "../observability/metrics.js";
 import { authRateLimiter, clientIpFromHeaders } from "./auth-rate-limit.js";
 import { authRequired, requestContext, securityHeaders, type AppVariables } from "./middleware.js";
 
+/**
+ * Type-narrows an unknown value to an apiFail (error) return type.
+ *
+ * Used by toResponse() to distinguish domain-layer errors from valid results.
+ * Domain services return either a business object (Message, Channel, etc.) or
+ * an apiFail() result — this guard detects the error case via the `ok: false` shape.
+ */
 const isError = (value: unknown): value is ReturnType<typeof apiFail> => typeof value === "object" && value !== null && "ok" in value && value.ok === false;
+
+/**
+ * Wraps domain service return values into the API response envelope.
+ *
+ * If the service returned an error (detected by isError), pass it through
+ * unchanged. Otherwise, wrap the raw value in apiOk() so every HTTP response
+ * has the same { ok, data/error } shape.
+ */
 const toResponse = (value: unknown) => (isError(value) ? value : apiOk(value));
+
 const requiredParam = (value: string | undefined) => value ?? "";
+
+/**
+ * CORS origin validation.
+ *
+ * Compares protocol and hostname only — intentionally ignores port differences
+ * so that localhost with any port (e.g. localhost:5173, localhost:9999) is
+ * allowed, but lookalike hosts (localhost.evil.com) are blocked.
+ */
 const isAllowedOrigin = (origin: string) => {
   if (env.WEB_ORIGIN === "*") return true;
   try {
@@ -132,6 +182,9 @@ export const createHttpApp = () => {
   });
   app.get("/api/v1/workspaces/:id/unread-counts", authRequired, (c) => c.json(apiOk(messageService.getUnreadCounts(c.get("userId"), requiredParam(c.req.param("id"))))));
   app.post("/api/v1/channels/:id/mark-read", authRequired, (c) => c.json(toResponse(messageService.markRead(c.get("userId"), requiredParam(c.req.param("id"))))));
+  // Channel PATCH — inline update rather than delegating to workspaceService because
+  // the description field was added late (Task #24) and the service layer doesn't expose
+  // a generalized channel-update method yet. Bounds name to 120 chars, description to 500.
   app.patch("/api/v1/channels/:id", authRequired, async (c) => {
     const body = await c.req.json() as { name?: string; description?: string };
     const channelId = requiredParam(c.req.param("id"));
@@ -229,6 +282,8 @@ export const createHttpApp = () => {
   app.get("/api/v1/attachments/:fileId", authRequired, (c) => c.json(toResponse(attachmentService.getFile(c.get("userId"), requiredParam(c.req.param("fileId"))))));
   app.post("/api/v1/attachments/:fileId/download-url", authRequired, (c) => c.json(toResponse(attachmentService.createDownloadUrl(c.get("userId"), requiredParam(c.req.param("fileId"))))));
 
+  // Dev-only in-memory file upload. Phase 1 stores file content in a Map
+  // (devFileContent). Phase 2 replaces with S3/R2/MinIO via Core Attachment Service.
   app.put("/dev-upload/:fileId", authRequired, async (c) => {
     const fileId = requiredParam(c.req.param("fileId"));
     const uploadSession = [...store.uploadSessions.values()].find((session) => session.fileId === fileId && session.userId === c.get("userId"));

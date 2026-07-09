@@ -1,3 +1,29 @@
+/**
+ * HTTP Middleware Stack
+ *
+ * Three middleware functions applied (via app.use) to every request:
+ *
+ * requestContext:
+ *   - Generates or preserves x-request-id for traceability
+ *   - Logs incoming requests
+ *   - Increments Prometheus HTTP counter on response
+ *
+ * securityHeaders:
+ *   - Sets nosniff, DENY frame-options, no-referrer, and strict CSP
+ *   - CSP allows 'self' and websocket connections (ws: wss:) for Socket.IO
+ *
+ * authRequired:
+ *   - Guards routes by validating Bearer JWT access tokens
+ *   - Sets userId on the Hono context for downstream handlers
+ *   - Returns 401 AUTH_REQUIRED when token is missing or invalid
+ *
+ * Dependencies:
+ * - jwt (imported from domain/auth/service.ts for verifyAccessToken)
+ * - prom-client (for httpRequests counter)
+ *
+ * Forbidden Dependencies:
+ * - Domain service logic (middleware should never call business logic)
+ */
 import type { Context, Next } from "hono";
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail } from "@nexus-chat/shared";

@@ -1,3 +1,4 @@
+/** Sticky footer bar: channel name (left), typing/status (center), keyboard shortcuts (right). */
 import { Box, Text } from "ink";
 
 export const BottomBar = ({

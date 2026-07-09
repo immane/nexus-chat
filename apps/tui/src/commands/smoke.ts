@@ -1,3 +1,32 @@
+/**
+ * Smoke & E2E Test Commands — Full API/WS/E2EE test suite for CLI validation
+ *
+ * Responsibilities:
+ * - Implements all smoke test functions invoked by the CLI commands in cli.ts
+ * - Covers: auth, workspace/channel CRUD, messages, reactions, attachments,
+ *   E2EE (identity, prekey, session, encrypt/decrypt), bots, P2P signalling,
+ *   WS events (typing, presence, ack), member removal, bad-path error cases,
+ *   Signal prekey consumption
+ *
+ * Pattern:
+ *   Each `runXxxSmoke` function is a self-contained async test that:
+ *   1. Logs a section header
+ *   2. Executes a sequence of API/WS calls using shared helpers
+ *   3. Uses `ok()` / `expectHttpError()` / `expectWsError()` for assertions
+ *   4. Sets `process.exitCode = 1` on failure, but continues to run remaining tests
+ *
+ * Shared Helpers:
+ *   `ok(label, fn)` — Executes fn, logs success with the label
+ *   `expectHttpError(label, expectedMsg, fn)` — Asserts fn throws with given message
+ *   `expectWsError(label, expectedMsg, fn)` — Asserts WS emit returns error
+ *   `okWs(label, socket, event, payload)` — Sends WS event, expects ACK with ok:true
+ *   `okSocket(label, socket, event, payload)` — Sends WS event without ACK
+ *
+ * Dependencies:
+ * - `../lib/api.js` — HTTP client (`request<T>()`, `getAccessToken()`)
+ * - `../lib/ws-client.js` — Socket.IO client
+ * - `@nexus-chat/signal` — E2EE crypto operations
+ */
 import {
   createLocalSignalIdentity,
   toPreKeyBundle,
@@ -10,6 +39,12 @@ import type { Message, SendMessageInput } from "@nexus-chat/shared";
 import { request, getAccessToken, setAccessToken, apiBase } from "../lib/api.js";
 import { createSocket, listenForMessages, sendMessage, sendBotCommand } from "../lib/ws-client.js";
 
+/**
+ * Logs in and persists the access token to `.env.tui`.
+ *
+ * Side Effects:
+ * - Writes the access token to `.env.tui` via `setAccessToken()`
+ */
 export const login = async (email: string, password: string) => {
   const session = await request<{ accessToken?: string; tokens?: { accessToken: string } }>("/api/v1/auth/login", {
     method: "POST",

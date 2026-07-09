@@ -1,3 +1,13 @@
+/**
+ * Canonical Error Codes
+ *
+ * Single source of truth for error codes used across HTTP responses
+ * and WS gateway responses. Every apiFail() call should use one of these codes.
+ *
+ * Convention:
+ * - UPPER_SNAKE_CASE
+ * - Grouped by domain (AUTH_, E2E_, etc.) for future code-splitting
+ */
 export const ERROR_CODES = {
   AUTH_REQUIRED: "AUTH_REQUIRED",
   NOT_FOUND: "NOT_FOUND",

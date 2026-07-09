@@ -1,3 +1,22 @@
+/**
+ * Refresh Session Store
+ *
+ * Defines the RefreshSessionStore interface with two implementations:
+ * - InMemoryRefreshSessionStore: default for dev, stores in InMemoryStore.refreshSessions
+ * - RedisRefreshSessionStore: production-ready, stores in Redis with PXAT expiry
+ *
+ * Implementation selection is controlled by env.SESSION_STORE ("memory" | "redis").
+ *
+ * Design Decision:
+ * We use an interface rather than a conditional class because the two backends
+ * have fundamentally different semantics (Map vs Redis with TTL). The interface
+ * allows the auth service to be completely agnostic of the storage backend.
+ *
+ * Invariants:
+ * - Redis implementation uses lazyConnect to avoid blocking server startup
+ * - Refresh tokens expire at session.expiresAt (set via Redis PXAT)
+ * - Revoked sessions persist with a revokedAt marker until natural expiry
+ */
 import { Redis } from "ioredis";
 import { env } from "../../config/env.js";
 import { store, type RefreshSession } from "../store.js";

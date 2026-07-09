@@ -1,3 +1,13 @@
+/**
+ * NotificationBot — /announce command handler
+ *
+ * Responds to "/announce <text>" by posting a formatted announcement
+ * to the channel where the command was invoked.
+ *
+ * Related Modules:
+ * - packages/bot-sdk: NexusBotClient base class
+ * - packages/bots/help: similar command-based bot pattern
+ */
 import { NexusBotClient } from "@nexus-chat/bot-sdk";
 import type { BotManifest } from "@nexus-chat/shared";
 

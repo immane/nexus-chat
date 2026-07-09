@@ -1,3 +1,23 @@
+/**
+ * Attachment Service (File Lifecycle Authority)
+ *
+ * Responsibilities:
+ * - Create upload sessions with workspace/channel access validation
+ * - Track file metadata (name, type, size, encryption status, scan status)
+ * - Generate download URLs with time-limited tokens
+ * - Validate attachment references before message creation (scan status checks)
+ * - Associate attachments with messages
+ *
+ * Does NOT:
+ * - Store file content directly (delegated to dev endpoints or S3 in production)
+ * - Scan files for malware (returns scanStatus from metadata, actual scanning deferred)
+ * - Handle E2E file encryption (client-side, the service only marks encrypted=true)
+ *
+ * Security Invariants:
+ * - E2E files must have scanStatus="skipped" (cannot be scanned by definition)
+ * - Blocked files (scanStatus="blocked") cannot be attached to messages
+ * - Download URL is scoped to workspace members via canAccessWorkspace
+ */
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail, fileSchema, nowIso, type AttachmentRef, type FileRecord } from "@nexus-chat/shared";
 import { env } from "../../config/env.js";

@@ -1,3 +1,22 @@
+/**
+ * @nexus-chat/ui — Shared UI Primitives
+ *
+ * Atomic design components reused across apps (web, desktop).
+ * Currently provides:
+ * - Badge: colored label with configurable tone (neutral/success/warning)
+ * - InputActionBar: styled container for input actions + children
+ *
+ * Design Decision:
+ * These components are intentionally minimal and presentation-only.
+ * Business logic (theme detection, state management) lives in the
+ * consumer (apps/web). This keeps the UI package framework-agnostic
+ * and avoids bundling Zustand or other state libraries.
+ *
+ * Future Evolution:
+ * - Add Storybook stories for each component
+ * - Expand with Composite components (following Atomic Design methodology)
+ * - Add design tokens via Tailwind @theme directive
+ */
 import type { PropsWithChildren, ReactNode } from "react";
 
 export const Badge = ({ children, tone = "neutral" }: PropsWithChildren<{ tone?: "neutral" | "warning" | "success" }>) => {

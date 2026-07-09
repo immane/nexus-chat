@@ -1,3 +1,29 @@
+/**
+ * P2P Connection Pool
+ *
+ * Manages RTCPeerConnection and RTCDataChannel instances per peer user.
+ * Responsible for:
+ * - Creating offers and answers for WebRTC handshake
+ * - Handling ICE candidate exchange
+ * - Managing data channel lifecycle (open/close/error)
+ * - Tracking transport state (p2p vs relay, cooldown after failure)
+ *
+ * Key Design Decisions:
+ * - Data channel uses ordered delivery with maxRetransmits: 3.
+ *   This gives some reliability without TCP-like head-of-line blocking.
+ * - After a P2P failure, the peer enters a 30-second cooldown (P2P_RELAY_COOLDOWN_MS)
+ *   to avoid repeated connection attempts that are likely to fail.
+ * - onDataChannelMessage is a callback set by HybridTransport to process
+ *   incoming E2EE messages without tight coupling.
+ *
+ * Does NOT:
+ * - Handle signaling transport (caller passes a SignalingSender callback)
+ * - Encrypt or decrypt message content (delegated to @nexus-chat/signal)
+ *
+ * Invariants:
+ * - One RTCPeerConnection per peer userId (calling createOffer twice closes the old one)
+ * - Data channel must be in "open" readyState before it can send
+ */
 import { buildRtcConfiguration } from "./config.js";
 import type { PeerTransportState } from "./types.js";
 import { P2P_RELAY_COOLDOWN_MS } from "./types.js";

@@ -1,3 +1,28 @@
+/**
+ * Bot Engine Service
+ *
+ * Responsibilities:
+ * - Bot installation with opaque nxbot_v1_... token generation (SHA-256 hashed in store)
+ * - Token validation against stored hash
+ * - Channel membership management (bots cannot join E2E channels)
+ * - Event subscription management (per-bot event type allow-list)
+ * - Command invocation dispatch (/help built-in handler, event publication)
+ * - Bot message sending (scoped to channels where the bot is a member)
+ * - Event polling for bot WebSocket connections
+ *
+ * Key Design Decisions:
+ * - Built-in /help is handled inline in invokeCommand rather than as a separate bot
+ *   because it's the only command that needs to work even before any bot is installed.
+ * - Bot tokens use "nxbot_v1_" prefix for easy identification in logs and debugging.
+ * - Events are delivered via polling (pendingEvents queue) rather than push, because
+ *   the WebSocket connection may not be established at the time the event fires.
+ * - Bots are explicitly excluded from E2E channels — they see only normal channels.
+ *
+ * Does NOT:
+ * - Parse or execute bot command arguments (returns raw args to bot)
+ * - Handle WebSocket connections (owned by ws/socket.ts)
+ * - Rate-limit bot event dispatch (owned by ws gateway)
+ */
 import { createHash, randomBytes } from "node:crypto";
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail, botEventSchema, nowIso, type BotEvent, type BotManifest, type Message, type SendMessageInput } from "@nexus-chat/shared";

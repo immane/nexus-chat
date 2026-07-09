@@ -1,3 +1,11 @@
+/**
+ * Database Schema Tests
+ *
+ * Covers:
+ * - All 17 Phase 1 core tables are exported with expected names
+ * - Generated migration contains required indexes
+ * - Workflow-specific bot tables are NOT in the base schema
+ */
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

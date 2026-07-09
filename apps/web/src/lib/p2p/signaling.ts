@@ -1,3 +1,25 @@
+/**
+ * P2P Signaling (Socket.IO Relay)
+ *
+ * Provides two functions for WebRTC signaling via the server WebSocket:
+ * - subscribeSignaling: listens for p2p.* events and dispatches to a handler
+ * - sendP2pEvent: emits a p2p.* event to the server for relaying
+ *
+ * The server acts as a signaling relay — it forwards p2p.offer, p2p.answer,
+ * p2p.ice-candidate, and p2p.hangup messages between peers without inspecting
+ * their content.
+ *
+ * Design Decision:
+ * We filter to only p2p.* event types in subscribeSignaling (rather than
+ * setting up a separate socket namespace) because the same Socket.IO connection
+ * carries both chat events and P2P signaling. This avoids a second WebSocket
+ * connection per client.
+ *
+ * Related Modules:
+ * - pool.ts: uses sendP2pEvent to emit offers/answers/ICE candidates
+ * - transport.ts: subscribes to signaling and wires it to the pool
+ * - ws/socket.ts (server): relays p2p.* events between peers
+ */
 import type { Socket } from "socket.io-client";
 
 type SignalingHandler = (type: string, fromUserId: string, payload: Record<string, unknown>) => void;

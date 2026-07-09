@@ -1,3 +1,33 @@
+/**
+ * Signal / E2EE Package Entry Point
+ *
+ * Provides the IE2eeProvider abstraction with 3 swappable backends:
+ * - noble (default, @noble/curves + @noble/ciphers, MIT license)
+ * - webcrypto (SubtleCrypto, HTTPS only)
+ * - placeholder (@deprecated, Phase 3 Signal Protocol stub)
+ *
+ * Provider selection is controlled by the E2EE_BACKEND env var:
+ * - "noble" → nobleProvider (default in Node.js)
+ * - "webcrypto" → webcryptoProvider (if secure context)
+ * - "placeholder" → placeholderProvider (dev/stub only)
+ *
+ * Exported Public API:
+ * - createLocalSignalIdentity, toPreKeyBundle: identity + key bundle creation
+ * - establishSession: ECDH handshake → shared secret
+ * - encryptForSession, decryptFromSession: AES-256-GCM message encryption
+ * - encryptFile, decryptFile, deriveFileKey: file encryption helpers
+ * - extractOneTimePreKeys, consumeOneTimePreKey: one-time pre-key management
+ *
+ * IV Embedding Convention:
+ * encryptForSession returns ciphertext in the format "iv.base64ciphertext"
+ * (with iv as base64). This allows decryptFromSession to extract the IV
+ * without requiring a separate storage field.
+ *
+ * Related Modules:
+ * - types.ts: IE2eeProvider interface and type definitions
+ * - noble.ts, webcrypto.ts, placeholder.ts: provider implementations
+ * - crypto.ts: shared file encryption and byte encoding helpers
+ */
 import { placeholderProvider } from "./placeholder.js";
 import { nobleProvider } from "./noble.js";
 import { webcryptoProvider } from "./webcrypto.js";

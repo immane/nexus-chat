@@ -1,3 +1,24 @@
+/**
+ * Demo Mode Data
+ *
+ * Pre-seeded data for the "Demo" login option — no server required.
+ * seedDemoSession() populates all Zustand stores with fake data matching
+ * the real server response shape, enabling offline UI exploration.
+ *
+ * Includes:
+ * - 1 demo user, 1 workspace, 1 normal channel, 1 E2E DM
+ * - 2 bot manifests (help, notification)
+ * - Welcome message and expired tombstone for visual testing
+ *
+ * Design Decision:
+ * Demo mode uses "demo-access-token" which is never sent to a server.
+ * The WebSocket connection is skipped; slash commands like /help are
+ * handled locally in ChatRoute.submit() with a synthetic bot response.
+ *
+ * Invariants:
+ * - All IDs are deterministic (used as keys in Maps)
+ * - Bot manifests must match the format expected by useChatBootstrap
+ */
 import type { BotManifest, Channel, Message, User, Workspace } from "@nexus-chat/shared";
 import { useAuthStore, useBotStore, useChannelStore, useMessageStore, useWorkspaceStore } from "../stores/domain.js";
 

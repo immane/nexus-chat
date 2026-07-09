@@ -1,3 +1,22 @@
+/**
+ * Message State Hook — CRUD, WebSocket Events, and Action Overlays
+ *
+ * Responsibilities:
+ * - Fetches messages from the REST API with cursor-based pagination
+ * - Sends text messages and slash commands via WebSocket (relay or bot invocation)
+ * - Handles real-time WebSocket events: message.created, updated, deleted, reaction, read, typing
+ * - Manages edit/reply modes, action overlays (forward/delete/react), typing user state, read receipts
+ *
+ * State owned:
+ * - messages[], typingUsers, readReceipts, editMode, replyMode, overlay, overlayData
+ *
+ * Dependencies:
+ * - `../lib/api.js` — REST fetch for messages
+ * - `../lib/ws-client.js` — sendMessage, sendBotCommand, WsEventHandlers type
+ *
+ * The `wsHandlers` object returned from this hook must be merged with connection-level
+ * handlers (onConnect, onDisconnect) by the caller in app.tsx.
+ */
 import { useState, useCallback } from "react";
 import type { Channel, Message } from "@nexus-chat/shared";
 import { request, apiBase } from "../lib/api.js";

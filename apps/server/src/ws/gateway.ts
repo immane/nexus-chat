@@ -1,3 +1,27 @@
+/**
+ * WebSocket Event Gateway
+ *
+ * Processes incoming WS client envelopes and dispatches them to the appropriate
+ * domain service. Acts as the WS counterpart to HTTP routes.ts.
+ *
+ * Envelope Types Handled:
+ * - message.send — relay to messageService.send, broadcast to channel
+ * - bot.command.invoke — relay to botService.invokeCommand, broadcast bot response
+ * - typing.start / typing.stop — broadcast to channel (no persistence)
+ * - presence.update — broadcast to all user's workspaces
+ * - message.ack — read receipt, triggers pending read receipt flush
+ * - p2p.offer / p2p.answer / p2p.ice-candidate / p2p.hangup — relay to target user
+ * - p2p.status — log acknowledged
+ *
+ * Rate Limiting:
+ * - createWsRateLimiter with 50 events per 10-second sliding window per user
+ * - Returns RATE_LIMITED error when exceeded
+ *
+ * Does NOT:
+ * - Handle connection lifecycle (owned by socket.ts)
+ * - Authenticate or authorize (handled before socket.ts delegates to gateway)
+ * - Persist typing indicators (ephemeral, broadcast only)
+ */
 import {
   BotCommandInvokeSchema,
   messageAckPayloadSchema,
@@ -67,7 +91,9 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     const command = payload.data.command.startsWith("/") ? payload.data.command : `/${payload.data.command}`;
     const result = botService.invokeCommand({ workspaceId: payload.data.workspaceId, channelId: payload.data.channelId, userId, command, args: payload.data.args.join(" ") });
     if ("ok" in result) return result;
-    // Broadcast bot response to channel
+    // botService.invokeCommand returns { type: "bot.response", payload: { messageId, ... } }
+    // when a built-in /help handler fires. The message is already in store.messages;
+    // we read it by ID and broadcast it so WebSocket-connected clients receive it.
     if (typeof result === "object" && result !== null && "type" in result && (result as Record<string, unknown>).type === "bot.response") {
       const payloadData = (result as { payload?: { messageId?: unknown } }).payload;
       const msgId = typeof payloadData?.messageId === "string" ? payloadData.messageId : undefined;
@@ -94,6 +120,8 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     return { ok: true, data: {} };
   }
 
+  // Ack individual message, then immediately flush pending read receipts so
+  // the sender gets batched read-count updates without waiting for a 3-second timer.
   if (envelope.data.type === "message.ack") {
     const payload = messageAckPayloadSchema.safeParse(envelope.data.payload);
     if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid ack payload" } };
@@ -103,6 +131,9 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     return { ok: true, data: result };
   }
 
+  // P2P signaling relay — the server does NOT inspect SDP or ICE candidate content.
+  // It simply forwards the envelope to the target user over their WebSocket.
+  // _senderUserId is tacked on so the receiver knows who initiated the handshake.
   if (envelope.data.type === "p2p.offer" || envelope.data.type === "p2p.answer" || envelope.data.type === "p2p.ice-candidate" || envelope.data.type === "p2p.hangup") {
     const schema = envelope.data.type === "p2p.offer" ? p2pOfferSchema
       : envelope.data.type === "p2p.answer" ? p2pAnswerSchema

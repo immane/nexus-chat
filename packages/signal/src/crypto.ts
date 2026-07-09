@@ -1,3 +1,21 @@
+/**
+ * E2EE Cryptographic Helpers (Shared Across Providers)
+ *
+ * Low-level crypto primitives and file encryption utilities used by
+ * noble.ts, webcrypto.ts, and placeholder.ts.
+ *
+ * Functions:
+ * - randomBytes: wrappers around crypto.getRandomValues
+ * - concat, bytesToBase64, base64ToBytes, hexToBytes, bytesToHex: byte encoding
+ * - hkdfSha256: key derivation via Web Crypto API (used for session key derivation)
+ * - encryptFile/decryptFile: AES-256-GCM file encryption via @noble/ciphers
+ * - deriveFileKey: session-based HKDF key derivation for file encryption
+ *
+ * Design Decision:
+ * File encryption uses @noble/ciphers (not Web Crypto SubtleCrypto) because
+ * it works consistently across all providers including the noble backend,
+ * and avoids the Blob-to-ArrayBuffer overhead that Web Crypto requires.
+ */
 import { gcm } from "@noble/ciphers/aes.js";
 import type { EncryptedFile, FileEncryptionKey, SignalSession } from "./types.js";
 

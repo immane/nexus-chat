@@ -1,3 +1,38 @@
+/**
+ * Shared Contracts — Canonical Zod Schemas
+ *
+ * Single source of truth for all API shapes, event types, and domain models
+ * shared between server and client. 40+ Zod schemas enforcing runtime type
+ * safety at every I/O boundary.
+ *
+ * Schema Categories (organized as sub-module re-exports in src/):
+ * - API envelope (apiOk, apiFail, pagination)
+ * - Auth (user, registration, login, JWT session, refresh)
+ * - Workspace and Channel (CRUD, membership, RBAC roles, DM)
+ * - Message (content, state machine, send/edit/react/forward)
+ * - Attachment (file records, upload sessions, scan status)
+ * - Bot (manifest, commands, events, scopes, tokens)
+ * - Signal / E2EE (pre-key bundles, disappearing policy, P2P signaling)
+ * - WebSocket (client envelope, server events, P2P signaling wrappers)
+ *
+ * Design Decisions:
+ * - All IDs are cuid2 strings (min 8, max 128 chars) - not auto-increment integers
+ * - Message content uses discriminated union (text | ciphertext | tombstone)
+ * - E2EE content includes readOnce and expiresAt fields inline
+ * - P2P signaling schemas live here (not packages/signal) because they are
+ *   part of the WS protocol contract between client and server
+ * - e2eDisappearingPolicySchema uses superRefine for cross-field validation
+ *   (ttl requires ttlSeconds or expiresAt; non-ttl must not have them)
+ *
+ * Does NOT:
+ * - Implement business logic or validation beyond schema parsing
+ * - Import from any other monorepo package (zero-dependency layer)
+ *
+ * Invariants:
+ * - Every schema name ending in Schema is a Zod type
+ * - Every type is exported alongside its schema via z.infer
+ * - Changing a schema here breaks both server and client at compile time
+ */
 import { z } from "zod";
 
 export const idSchema = z.string().min(8).max(128);
@@ -139,6 +174,13 @@ export const createDmSchema = z.object({
 
 export const addChannelMemberSchema = z.object({ userId: idSchema });
 
+/**
+ * Attachment reference used within message content.
+ *
+ * .strict() is applied — the server rejects unknown fields like `url` to
+ * prevent clients from smuggling unauthorized data through the attachment
+ * payload. All URLs are generated server-side via download sessions.
+ */
 export const attachmentRefSchema = z.object({
   fileId: idSchema,
   name: z.string().min(1).max(255),
@@ -167,6 +209,10 @@ export const e2eDisappearingPolicySchema = z
 
 export const E2eDisappearingPolicySchema = e2eDisappearingPolicySchema;
 
+// Message content is a discriminated union on the "type" field — Zod narrows
+// to normalMessageContentSchema, e2eMessageContentSchema, or tombstoneContentSchema
+// based on the literal value. This avoids a shared optional-fields nightmare
+// where every field must be checked for undefined.
 export const normalMessageContentSchema = z.object({
   type: z.literal("text"),
   text: z.string().min(1).max(8000),
@@ -352,6 +398,11 @@ export const signalPreKeyBundleSchema = z.object({
   oneTimePreKey: z.string().min(1).optional()
 });
 
+// Ws*Envelope schemas extend wsEnvelopeSchema with typed payloads.
+// The base envelope carries { type, payload } as unknown — these narrow
+// the payload to a specific schema via .extend(). This pattern enables
+// the WS gateway to parse a generic envelope first, then dispatch to
+// the correct handler with a fully typed payload.
 export const WsMessageSendEnvelopeSchema = wsEnvelopeSchema.extend({
   type: z.literal("message.send"),
   payload: sendMessageSchema

@@ -1,9 +1,30 @@
+/**
+ * WebSocket Client — Socket.IO Transport Layer for TUI
+ *
+ * Responsibilities:
+ * - Creates and manages Socket.IO connections with JWT auth
+ * - Provides typed send functions (message, typing, bot command, presence)
+ * - Dispatches server events to handler callbacks via `listenForAllEvents`
+ *
+ * Event Handler Model:
+ *   `listenForAllEvents(socket, handlers)` maps server event types to optional callbacks.
+ *   All chat-relevant events are handled: message lifecycle (created/updated/deleted),
+ *   reactions, read receipts, typing, presence, channel/DM creation.
+ *
+ * Send Pattern (Socket.IO ACK):
+ *   `sendMessage` wraps `socket.emit()` in a Promise that resolves with the server's
+ *   ACK response. This enables request/response semantics over the WebSocket transport.
+ *
+ * Forbidden Dependencies:
+ *   - Must NOT import from `apps/server/`
+ */
 import { io, type Socket } from "socket.io-client";
 import type { Message, SendMessageInput, Channel } from "@nexus-chat/shared";
 import { getAccessToken, apiBase } from "./api.js";
 
 type WsEvent = { type: string; payload: unknown; timestamp: string };
 
+/** Callback handlers for all server-pushed WebSocket events. Each is optional. */
 export type WsEventHandlers = {
   onMessageCreated?: (message: Message) => void;
   onMessageUpdated?: (message: Message) => void;

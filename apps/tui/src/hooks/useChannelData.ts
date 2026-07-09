@@ -1,3 +1,18 @@
+/**
+ * Channel Data Hook — Workspace, Channel, Member Fetching
+ *
+ * Responsibilities:
+ * - Fetches workspaces, channels, and members on mount from the REST API
+ * - Maintains channel list, member list, online user set, and sender name mappings
+ * - Provides mutation callbacks: createChannel, addChannel, setOnline
+ *
+ * Design Decisions:
+ * - Picks the first workspace (`wsList[0]`) since TUI is single-workspace in Phase 1
+ * - Derives `senderNames` as a Record mapping userId → displayName (falls back to email prefix or truncated userId)
+ *
+ * Forbidden Dependencies:
+ * - Must NOT import from `apps/server/`
+ */
 import { useState, useEffect, useCallback } from "react";
 import type { Channel, Workspace } from "@nexus-chat/shared";
 import { request } from "../lib/api.js";

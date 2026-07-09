@@ -1,3 +1,7 @@
+/**
+ * Polymorphic Action Overlay — Renders modals for delete confirm, react prompt, and forward picker.
+ * `kind` determines which UI variant is shown. Returns null when no overlay is active.
+ */
 import { Box, Text } from "ink";
 import type { Channel } from "@nexus-chat/shared";
 

@@ -1,3 +1,18 @@
+/**
+ * Database Seed Script
+ *
+ * Creates sample data for local development:
+ * - 2 users (Ada Lovelace, Grace Hopper) with a known password
+ * - 1 workspace ("Nexus Local")
+ * - 1 normal channel ("general")
+ * - 1 E2E DM between the two users
+ *
+ * Run via: pnpm --filter @nexus-chat/server seed
+ *
+ * Invariants:
+ * - Uses onConflictDoNothing so it is safe to re-run
+ * - Argon2id parameters match auth service defaults (memoryCost=65536, timeCost=3)
+ */
 import { createId } from "@paralleldrive/cuid2";
 import { hash } from "@node-rs/argon2";
 import { db, pool } from "./client.js";

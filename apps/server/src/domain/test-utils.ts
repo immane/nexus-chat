@@ -1,3 +1,13 @@
+/**
+ * Test Utilities
+ *
+ * Provides resetStore() which clears every data structure in InMemoryStore.
+ * Called in beforeEach() hooks to ensure test isolation.
+ *
+ * Invariants:
+ * - Must clear every Map and reset every array to maintain cleanup completeness
+ * - Adding a new field to InMemoryStore requires an update here
+ */
 import { store } from "./store.js";
 
 export const resetStore = () => {

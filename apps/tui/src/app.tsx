@@ -1,3 +1,40 @@
+/**
+ * Interactive TUI Chat Application — Ink (React-for-terminal)
+ *
+ * Responsibilities:
+ * - Renders the full two-pane chat layout: TopBar, Sidebar, ChatHeader, MessageArea, Composer, BottomBar
+ * - Manages WebSocket connection lifecycle, channel switching, and global keyboard shortcuts
+ * - Delegates data fetching to hooks (useChannelData, useMessages) and rendering to components
+ *
+ * Focus/Panel Model:
+ * - Three focusable panels: "sidebar" | "messages" | "composer"
+ * - Tab cycles between panels, each panel has its own keyboard shortcuts
+ * - Message actions (reply/edit/delete/forward/react) are triggered from the "messages" panel
+ * - Overlays (delete confirm, forward picker, react prompt) stack on top of the message area
+ *
+ * Keyboard Shortcuts by Panel:
+ *   sidebar:  ↑↓ Nav, Enter Select, n New Channel, Tab Cycle, Ctrl+1/2/3 Tabs
+ *   messages: ↑↓ Nav, PgUp/PgDn/Home/End Scroll, r Reply, e Edit, d Delete, c Copy, f Forward, + React
+ *   composer: Enter Send, Esc Cancel, Tab Switch, Ctrl+l Sidebar, Ctrl+m Messages
+ *   global:   Ctrl+q Quit
+ *
+ * Dependencies:
+ * - `./lib/api.js` — token retrieval
+ * - `./lib/ws-client.js` — Socket.IO connection + event listeners
+ * - `./hooks/useChannelData.js` — workspace/channel/member fetching
+ * - `./hooks/useMessages.js` — message CRUD + WS event handling
+ * - `./hooks/useTerminalSize.js` — terminal dimensions
+ * - `./components/*` — UI components (TopBar, Sidebar, ChatHeader, MessageArea, Composer, BottomBar, Overlay)
+ *
+ * Forbidden Dependencies:
+ * - Must NOT access the filesystem or server-side modules
+ * - Must NOT import from `apps/server/`
+ *
+ * Invariants:
+ * - Backgound color is set to dark semi-transparent (#0a0a14) via OSC sequence on mount, reset on unmount
+ * - The SIGINT signal is trapped to unmount the Ink app cleanly
+ * - Token validation happens BEFORE the Ink app mounts (fail-fast in `startInteractiveChat`)
+ */
 import { useState, useEffect, useCallback } from "react";
 import { Box, Text, useInput, useApp, useStdout } from "ink";
 import type { Channel } from "@nexus-chat/shared";
@@ -376,6 +413,12 @@ const ChatShell = () => {
   );
 };
 
+/**
+ * Renders the Ink-based interactive chat UI.
+ *
+ * Performs token validation BEFORE mounting — exits with code 1 if not authenticated.
+ * Traps SIGINT to unmount the Ink app cleanly rather than leaving the terminal in a broken state.
+ */
 export const startInteractiveChat = async () => {
   const token = getAccessToken();
   if (!token) {
