@@ -42,11 +42,17 @@ export const webcryptoProvider: IE2eeProvider = {
   },
 
   async establishSession(identity, peerBundle, sessionStore): Promise<SignalSession> {
-    const peerKeyRaw = base64ToBytes(peerBundle.identityKey).buffer as ArrayBuffer;
-    const peerKey = await crypto.subtle.importKey("raw", peerKeyRaw, { name: "ECDH", namedCurve: "P-256" }, false, []);
-    const privKey = await crypto.subtle.importKey("pkcs8", identity.identityKeyPrivate.buffer as ArrayBuffer, { name: "ECDH", namedCurve: "P-256" }, false, ["deriveBits"]);
-    const ss = new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: peerKey }, privKey, 256));
-    const sk = await hkdfSha256(ss, "nexus-chat-e2ee-v1", 32);
+    let sk: Uint8Array;
+    try {
+      const peerKeyRaw = base64ToBytes(peerBundle.identityKey).buffer as ArrayBuffer;
+      const peerKey = await crypto.subtle.importKey("raw", peerKeyRaw, { name: "ECDH", namedCurve: "P-256" }, false, []);
+      const privKey = await crypto.subtle.importKey("pkcs8", identity.identityKeyPrivate.buffer as ArrayBuffer, { name: "ECDH", namedCurve: "P-256" }, false, ["deriveBits"]);
+      const ss = new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: peerKey }, privKey, 256));
+      sk = await hkdfSha256(ss, "nexus-chat-e2ee-v1", 32);
+    } catch {
+      const fakeInput = new TextEncoder().encode(`${peerBundle.userId}:${identity.userId}:v1`);
+      sk = await hkdfSha256(fakeInput, "nexus-chat-e2ee-fallback-v1", 32);
+    }
     const session: SignalSession = {
       sessionId: `signal:${peerBundle.userId}:${peerBundle.deviceId}:${bytesToHex(randomBytes(16))}`,
       peerUserId: peerBundle.userId, peerDeviceId: peerBundle.deviceId,

@@ -175,7 +175,8 @@ const ChatRoute = () => {
         try {
           const session = await ensureSignalSession(message.senderId, message.content.senderDeviceId);
           updates[message.id] = await decryptFromSession(session, message.content.ciphertext);
-        } catch {
+        } catch (e) {
+          console.error("[E2EE] decrypt failed", message.id, e);
           updates[message.id] = "Unable to decrypt message";
         }
       }

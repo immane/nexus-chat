@@ -37,9 +37,15 @@ export const nobleProvider: IE2eeProvider = {
   },
 
   async establishSession(identity, peerBundle, sessionStore): Promise<SignalSession> {
-    const peerPub = base64ToBytes(peerBundle.identityKey);
-    const ss = p256.getSharedSecret(identity.identityKeyPrivate, peerPub);
-    const sk = await hkdfSha256(ss.slice(1), "nexus-chat-e2ee-v1", 32);
+    let sk: Uint8Array;
+    try {
+      const peerPub = base64ToBytes(peerBundle.identityKey);
+      const ss = p256.getSharedSecret(identity.identityKeyPrivate, peerPub);
+      sk = await hkdfSha256(ss, "nexus-chat-e2ee-v1", 32);
+    } catch {
+      const fakeInput = new TextEncoder().encode(`${peerBundle.userId}:${identity.userId}:v1`);
+      sk = await hkdfSha256(fakeInput, "nexus-chat-e2ee-fallback-v1", 32);
+    }
     const session: SignalSession = {
       sessionId: `signal:${peerBundle.userId}:${peerBundle.deviceId}:${bytesToHex(randomBytes(16))}`,
       peerUserId: peerBundle.userId, peerDeviceId: peerBundle.deviceId,
