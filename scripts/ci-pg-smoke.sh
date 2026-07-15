@@ -439,10 +439,12 @@ echo -e "${BOLD}  Verifying data survived${NC}"
 RESP=$(post_noauth "api/v1/auth/login" \
   "{\"email\":\"alice@nexus.dev\",\"password\":\"$PASSWORD\"}")
 check "alice login after restart" "200"
+AT=$(jsonval "$RESP" "data.tokens.accessToken")
 
 RESP=$(post_noauth "api/v1/auth/login" \
   "{\"email\":\"bob@nexus.dev\",\"password\":\"$PASSWORD\"}")
 check "bob login after restart" "200"
+BT=$(jsonval "$RESP" "data.tokens.accessToken")
 
 RESP=$(get "api/v1/channels/$EI/messages?limit=50" "$AT")
 check "messages survived" "200"
