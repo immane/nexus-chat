@@ -33,8 +33,8 @@ import jwt from "jsonwebtoken";
 import { createHash, generateKeyPairSync, randomBytes } from "node:crypto";
 import { apiFail, authSessionSchema, nowIso, type AuthSession, type User } from "@nexus-chat/shared";
 import { env } from "../../config/env.js";
-import { store } from "../store.js";
 import { refreshSessionStore } from "./session-store.js";
+import { getUserPersistence } from "./persistence.js";
 
 const localKeyPair = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const privateKey = env.JWT_PRIVATE_KEY_PEM || localKeyPair.privateKey.export({ type: "pkcs1", format: "pem" }).toString();
@@ -87,46 +87,44 @@ const createSession = async (user: User): Promise<AuthSession> => {
 
 export const authService = {
   async register(email: string, password: string, displayName: string): Promise<AuthResult> {
-    if (store.usersByEmail.has(email)) return { ok: false, error: apiFail("CONFLICT", "Email is already registered") };
     const id = createId();
     const passwordHash = await hash(password, { memoryCost: 65536, timeCost: 3, parallelism: 4 });
     const user = { id, email, displayName, passwordHash, createdAt: nowIso() };
-    store.users.set(id, user);
-    store.usersByEmail.set(email, id);
-    store.auditLogs.push({ id: createId(), actorUserId: id, action: "auth.register", metadata: {}, createdAt: nowIso() });
+    const persistence = await getUserPersistence();
+    if (!(await persistence.create(user))) return { ok: false, error: apiFail("CONFLICT", "Email is already registered") };
+    await persistence.recordAudit({ id: createId(), actorUserId: id, action: "auth.register", metadata: {}, createdAt: nowIso() });
     return { ok: true, session: await createSession(publicUser(user)) };
   },
   async login(email: string, password: string): Promise<AuthResult> {
-    const userId = store.usersByEmail.get(email);
-    const user = userId ? store.users.get(userId) : undefined;
+    const persistence = await getUserPersistence();
+    const user = await persistence.findByEmail(email);
     if (!user || !(await verify(user.passwordHash, password))) {
       return { ok: false, error: apiFail("AUTH_INVALID_CREDENTIALS", "Invalid email or password") };
     }
-    store.auditLogs.push({ id: createId(), actorUserId: user.id, action: "auth.login", metadata: {}, createdAt: nowIso() });
+    await persistence.recordAudit({ id: createId(), actorUserId: user.id, action: "auth.login", metadata: {}, createdAt: nowIso() });
     return { ok: true, session: await createSession(publicUser(user)) };
   },
   async refresh(refreshToken: string): Promise<AuthResult> {
     const session = await refreshSessionStore.get(refreshToken);
     if (!session || session.revokedAt || session.expiresAt < Date.now() || session.tokenHash !== tokenHash(refreshToken)) {
       if (session) await refreshSessionStore.revoke(refreshToken);
-      store.auditLogs.push({ id: createId(), actorUserId: session?.userId, action: "auth.refresh_reuse_detected", metadata: {}, createdAt: nowIso() });
+       await (await getUserPersistence()).recordAudit({ id: createId(), ...(session?.userId ? { actorUserId: session.userId } : {}), action: "auth.refresh_reuse_detected", metadata: {}, createdAt: nowIso() });
       return { ok: false, error: apiFail("AUTH_REFRESH_REPLAY", "Refresh token is invalid or was reused") };
     }
     await refreshSessionStore.revoke(refreshToken);
-    const user = store.users.get(session.userId);
+    const user = await (await getUserPersistence()).findById(session.userId);
     if (!user) return { ok: false, error: apiFail("AUTH_REQUIRED", "Session user no longer exists") };
     return { ok: true, session: await createSession(publicUser(user)) };
   },
   async logout(refreshToken: string): Promise<void> {
     await refreshSessionStore.revoke(refreshToken);
   },
-  me(userId: string): User | undefined {
-    const user = store.users.get(userId);
+  async me(userId: string): Promise<User | undefined> {
+    const user = await (await getUserPersistence()).findById(userId);
     return user ? publicUser(user) : undefined;
   },
-  lookupByEmail(email: string): User | undefined {
-    const userId = store.usersByEmail.get(email);
-    const user = userId ? store.users.get(userId) : undefined;
+  async lookupByEmail(email: string): Promise<User | undefined> {
+    const user = await (await getUserPersistence()).findByEmail(email);
     return user ? publicUser(user) : undefined;
   }
 };

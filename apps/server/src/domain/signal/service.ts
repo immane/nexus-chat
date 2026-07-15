@@ -1,87 +1,105 @@
 /**
  * Signal / E2EE Service
  *
- * Responsibilities:
- * - Pre-key bundle upload, fetch, and consumption (with one-time pre-key transaction)
- * - One-time pre-key count queries
- * - Session storage and retrieval
+ * Owns pre-key bundle upload, one-time pre-key consumption, and session management.
  *
- * Key Design Decisions:
- * - Bundle fetch atomically consumes one available one-time pre-key if one exists.
- *   The caller (client) uses this for X3DH-like handshake initiation.
- * - One-time pre-keys are consumed exactly once (consumedAt timestamp check); re-fetching
- *   the same bundle returns a different key or none at all.
- * - The service is protocol-agnostic — it stores opaque bundles and sessions without
- *   interpreting their contents. Actual ECDH/AES-GCM operations happen client-side via
- *   the IE2eeProvider in packages/signal.
+ * Responsibilities:
+ * - Accept and store signed pre-key bundles with optional one-time pre-keys
+ * - Serve pre-key bundles for recipient lookup (X3DH initiation)
+ * - Consume one-time pre-keys with atomic operational control
+ * - Track remaining one-time pre-key count per device
+ * - Persist Signal sessions for ratchet continuity
  *
  * Does NOT:
- * - Perform any cryptographic operations (client-side only)
- * - Handle key rotation or expiry (future Signal Protocol Phase 3)
- * - Validate key material beyond basic existence checks
+ * - Perform X3DH key agreement or Double Ratchet (client-side only)
+ * - Handle ciphertext content processing
+ * - Manage WebRTC or P2P session metadata
+ *
+ * Invariants:
+ * - Bundle upload requires the actor to match the bundle userId (ownership check)
+ * - Session ids are UUIDs, not derived from participant identifiers
+ * - One-time pre-key consumption is idempotent via persistence control
+ *
+ * Dependencies:
+ * - SignalPersistence (in-memory or PostgreSQL)
+ * - createId for session identifier generation
  *
  * Related Modules:
- * - packages/signal: IE2eeProvider interface, noble/webcrypto/placeholder implementations
- * - packages/shared: SignalPreKeyBundle Zod schema
+ * - persistence.ts: SignalPersistence interface and adapters
  */
 import { createId } from "@paralleldrive/cuid2";
 import { apiFail, nowIso, type SignalPreKeyBundle } from "@nexus-chat/shared";
-import { store } from "../store.js";
-
-const bundleKey = (userId: string, deviceId: string) => `${userId}:${deviceId}`;
-const preKeyKey = (userId: string, deviceId: string, keyId: number) => `${userId}:${deviceId}:${keyId}`;
+import { getSignalPersistence } from "./persistence.js";
 
 export const signalService = {
-  uploadBundle(actorId: string, bundle: SignalPreKeyBundle, oneTimePreKeys?: Array<{ keyId: number; publicKey: string }>): SignalPreKeyBundle | ReturnType<typeof apiFail> {
-    if (actorId !== bundle.userId) return apiFail("FORBIDDEN", "Cannot upload Signal keys for another user");
-    store.signalBundles.set(bundleKey(bundle.userId, bundle.deviceId), bundle);
-    if (oneTimePreKeys) {
-      for (const pk of oneTimePreKeys) {
-        store.oneTimePreKeys.set(preKeyKey(bundle.userId, bundle.deviceId, pk.keyId), { userId: bundle.userId, deviceId: bundle.deviceId, keyId: pk.keyId, publicKey: pk.publicKey });
-      }
-    }
+  async uploadBundle(
+    actor: string,
+    bundle: SignalPreKeyBundle,
+    keys?: Array<{ keyId: number; publicKey: string }>
+  ) {
+    if (actor !== bundle.userId)
+      return apiFail(
+        "FORBIDDEN",
+        "Cannot upload Signal keys for another user"
+      );
+    await (await getSignalPersistence()).upload(bundle, keys);
     return bundle;
   },
 
-  fetchBundle(_actorId: string, userId: string, deviceId: string): SignalPreKeyBundle | (SignalPreKeyBundle & { oneTimePreKeyId: number; oneTimePreKey: string }) | ReturnType<typeof apiFail> {
-    const bundle = store.signalBundles.get(bundleKey(userId, deviceId));
-    if (!bundle) return apiFail("NOT_FOUND", "Signal pre-key bundle not found");
-
-    const availablePreKey = [...store.oneTimePreKeys.values()]
-      .find((pk) => pk.userId === userId && pk.deviceId === deviceId && !pk.consumedAt);
-
-    if (availablePreKey) {
-      availablePreKey.consumedAt = nowIso();
-      return { ...bundle, oneTimePreKeyId: availablePreKey.keyId, oneTimePreKey: availablePreKey.publicKey } as SignalPreKeyBundle & { oneTimePreKeyId: number; oneTimePreKey: string };
-    }
-
-    return { ...bundle } as SignalPreKeyBundle;
+  async fetchBundle(_actor: string, userId: string, deviceId: string) {
+    return (
+      (await (await getSignalPersistence()).takeBundle(userId, deviceId)) ??
+      apiFail("NOT_FOUND", "Signal pre-key bundle not found")
+    );
   },
 
-  consumeOneTimePreKey(userId: string, deviceId: string, keyId: number): { consumed: true } | ReturnType<typeof apiFail> {
-    const key = preKeyKey(userId, deviceId, keyId);
-    const preKey = store.oneTimePreKeys.get(key);
-    if (!preKey) return apiFail("NOT_FOUND", "One-time pre-key not found");
-    if (preKey.consumedAt) return apiFail("CONFLICT", "One-time pre-key already consumed");
-    preKey.consumedAt = nowIso();
-    return { consumed: true };
+  async consumeOneTimePreKey(
+    userId: string,
+    deviceId: string,
+    keyId: number
+  ) {
+    const result = await (
+      await getSignalPersistence()
+    ).consume(userId, deviceId, keyId);
+    if (result === "consumed") return { consumed: true as const };
+    return apiFail(
+      result === "missing" ? "NOT_FOUND" : "CONFLICT",
+      result === "missing"
+        ? "One-time pre-key not found"
+        : "One-time pre-key already consumed"
+    );
   },
 
-  getRemainingPreKeyCount(userId: string, deviceId: string): number {
-    return [...store.oneTimePreKeys.values()].filter((pk) => pk.userId === userId && pk.deviceId === deviceId && !pk.consumedAt).length;
+  async getRemainingPreKeyCount(userId: string, deviceId: string) {
+    return (await getSignalPersistence()).count(userId, deviceId);
   },
 
-  storeSession(ownerUserId: string, peerUserId: string, deviceId: string, metadata: unknown = {}): { id: string } {
+  async storeSession(
+    owner: string,
+    peer: string,
+    device: string,
+    metadata: unknown = {}
+  ) {
     const id = createId();
-    store.signalSessions.set(id, { id, ownerUserId, peerUserId, deviceId, metadata, updatedAt: nowIso() });
+    await (await getSignalPersistence()).createSession({
+      id,
+      ownerUserId: owner,
+      peerUserId: peer,
+      deviceId: device,
+      metadata,
+      updatedAt: nowIso()
+    });
     return { id };
   },
 
-  getSession(sessionId: string) {
-    return store.signalSessions.get(sessionId) ?? apiFail("NOT_FOUND", "Signal session not found");
+  async getSession(id: string) {
+    return (
+      (await (await getSignalPersistence()).session(id)) ??
+      apiFail("NOT_FOUND", "Signal session not found")
+    );
   },
 
-  listUserSessions(userId: string) {
-    return [...store.signalSessions.values()].filter((session) => session.ownerUserId === userId || session.peerUserId === userId);
+  async listUserSessions(user: string) {
+    return (await getSignalPersistence()).sessions(user);
   }
 };
