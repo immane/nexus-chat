@@ -51,7 +51,7 @@ export const useChatBootstrap = () => {
   }, []);
 
   useEffect(() => {
-    if (!accessToken || accessToken === "demo-access-token") return;
+    if (!accessToken) return;
     let cancelled = false;
     (async () => {
       try {
