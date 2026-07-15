@@ -26,6 +26,7 @@ import {
 } from "../stores/domain.js";
 import { API_BASE } from "../lib/api.js";
 import { useAttachments } from "../hooks/useAttachments.js";
+import { useAuthRefresh } from "../hooks/useAuthRefresh.js";
 import { useChatBootstrap } from "../hooks/useChatBootstrap.js";
 import { useChannelMembers } from "../hooks/useChannelMembers.js";
 import { useMessageActions } from "../hooks/useMessageActions.js";
@@ -122,6 +123,7 @@ const ChatRoute = () => {
   const isE2e = activeChannel?.mode === "e2e";
   const suggestions = isE2e ? [] : getCommandSuggestions(manifests, deferredDraft);
   useChatBootstrap();
+  useAuthRefresh();
   const { addChannelMember, channelMembers, members, removeChannelMember, senderNames } = useChannelMembers({ accessToken, activeChannelId, workspaceId: activeWorkspaceId });
   const { clearPendingAttachments, fileInputRef, handleFileUpload, handlePaste, pendingAttachments, uploading } = useAttachments({ accessToken, setDraft, workspaceId: activeWorkspaceId });
   const { handleMessagesVisible, readReceipts, setReadReceipts } = useReadReceipts(socketRef);
