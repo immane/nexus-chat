@@ -31,16 +31,16 @@ const createBroadcaster = () => {
   return { broadcaster, channelEvents, userEvents, relayedP2pEvents };
 };
 
-describe("WebSocket gateway", () => {
-  beforeEach(() => {
+describe("WebSocket gateway", async () => {
+  beforeEach(async () => {
     resetStore();
     vi.restoreAllMocks();
   });
 
-  it("validates and broadcasts normal message sends", () => {
+  it("validates and broadcasts normal message sends", async () => {
     const { workspace, normal } = createWorkspaceWithChannels();
     const { broadcaster, channelEvents } = createBroadcaster();
-    const response = handleClientEnvelope(
+    const response = await handleClientEnvelope(
       "user-owner",
       { type: "message.send", payload: { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "client-1", content: { type: "text", text: "hello", attachments: [] } }, timestamp: now() },
       broadcaster,
@@ -51,11 +51,11 @@ describe("WebSocket gateway", () => {
     expect(channelEvents[0]).toMatchObject({ type: "message.created" });
   });
 
-  it("stores E2E ciphertext without bot dispatch", () => {
+  it("stores E2E ciphertext without bot dispatch", async () => {
     const { workspace, e2e } = createWorkspaceWithChannels();
     const publish = vi.spyOn(botService, "publishEvent");
     const { broadcaster } = createBroadcaster();
-    const response = handleClientEnvelope(
+    const response = await handleClientEnvelope(
       "user-owner",
       { type: "message.send", payload: { workspaceId: workspace.id, channelId: e2e.id, clientMsgId: "client-2", content: { type: "ciphertext", ciphertext: "abc", algorithm: "signal-v1", senderDeviceId: "device-1", attachments: [] } }, timestamp: now() },
       broadcaster,
@@ -65,18 +65,18 @@ describe("WebSocket gateway", () => {
     expect(publish).not.toHaveBeenCalled();
   });
 
-  it("routes bot commands only for normal channels", () => {
+  it("routes bot commands only for normal channels", async () => {
     const { workspace, normal, e2e } = createWorkspaceWithChannels();
     const { broadcaster } = createBroadcaster();
     const rateLimiter = createWsRateLimiter({ windowMs: 1000, maxEvents: 10 });
-    const normalResponse = handleClientEnvelope(
+    const normalResponse = await handleClientEnvelope(
       "user-owner",
       { type: "bot.command.invoke", payload: { type: "bot.command.invoke", workspaceId: workspace.id, channelId: normal.id, botName: "HelpBot", command: "help", args: [] }, timestamp: now() },
       broadcaster,
       rateLimiter
     );
     expect(normalResponse.ok).toBe(true);
-    const e2eResponse = handleClientEnvelope(
+    const e2eResponse = await handleClientEnvelope(
       "user-owner",
       { type: "bot.command.invoke", payload: { type: "bot.command.invoke", workspaceId: workspace.id, channelId: e2e.id, botName: "HelpBot", command: "help", args: [] }, timestamp: now() },
       broadcaster,
@@ -85,7 +85,7 @@ describe("WebSocket gateway", () => {
     expect(e2eResponse).toMatchObject({ ok: false, error: { code: "E2E_BOT_NOT_ALLOWED" } });
   });
 
-  it("broadcasts inline /help bot responses", () => {
+  it("broadcasts inline /help bot responses", async () => {
     const { workspace, normal } = createWorkspaceWithChannels();
     const manifest: BotManifest = {
       id: "bot-help",
@@ -94,10 +94,10 @@ describe("WebSocket gateway", () => {
       commands: [{ name: "/help", description: "Show help" }],
       scopes: ["commands:handle"]
     };
-    botService.install("user-owner", workspace.id, manifest);
+    await botService.install("user-owner", workspace.id, manifest);
     const { broadcaster, channelEvents } = createBroadcaster();
 
-    const response = handleClientEnvelope(
+    const response = await handleClientEnvelope(
       "user-owner",
       { type: "bot.command.invoke", payload: { type: "bot.command.invoke", workspaceId: workspace.id, channelId: normal.id, botName: "HelpBot", command: "help", args: [] }, timestamp: now() },
       broadcaster,
@@ -109,24 +109,24 @@ describe("WebSocket gateway", () => {
     expect(channelEvents[0]).toMatchObject({ type: "message.created", payload: { senderId: "bot-help", content: { text: expect.stringContaining("/help") } } });
   });
 
-  it("handles typing presence ack invalid payloads and rate limits", () => {
+  it("handles typing presence ack invalid payloads and rate limits", async () => {
     const { workspace, normal } = createWorkspaceWithChannels();
     const { broadcaster, channelEvents } = createBroadcaster();
     const rateLimiter = createWsRateLimiter({ windowMs: 1000, maxEvents: 4 });
-    const message = messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "ack-1", content: { type: "text", text: "ack me", attachments: [] } });
-    expect(handleClientEnvelope("user-owner", { type: "typing.start", payload: { workspaceId: workspace.id, channelId: normal.id }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: true });
-    expect(handleClientEnvelope("user-owner", { type: "presence.update", payload: { status: "online" }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: true });
-    expect(handleClientEnvelope("user-owner", { type: "message.ack", payload: { messageId: "id" in message ? message.id : "missing" }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: true });
-    expect(handleClientEnvelope("user-owner", { type: "typing.stop", payload: { workspaceId: workspace.id }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: false, error: { code: "VALIDATION_FAILED" } });
-    expect(handleClientEnvelope("user-owner", { type: "message.ack", payload: { messageId: "message-2" }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: false, error: { code: "RATE_LIMITED" } });
+    const message = await messageService.send("user-owner", { workspaceId: workspace.id, channelId: normal.id, clientMsgId: "ack-1", content: { type: "text", text: "ack me", attachments: [] } });
+    expect(await handleClientEnvelope("user-owner", { type: "typing.start", payload: { workspaceId: workspace.id, channelId: normal.id }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: true });
+    expect(await handleClientEnvelope("user-owner", { type: "presence.update", payload: { status: "online" }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: true });
+    expect(await handleClientEnvelope("user-owner", { type: "message.ack", payload: { messageId: "id" in message ? message.id : "missing" }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: true });
+    expect(await handleClientEnvelope("user-owner", { type: "typing.stop", payload: { workspaceId: workspace.id }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: false, error: { code: "VALIDATION_FAILED" } });
+    expect(await handleClientEnvelope("user-owner", { type: "message.ack", payload: { messageId: "message-2" }, timestamp: now() }, broadcaster, rateLimiter)).toMatchObject({ ok: false, error: { code: "RATE_LIMITED" } });
     expect(channelEvents[0]).toMatchObject({ type: "typing.updated" });
     expect(channelEvents[1]).toMatchObject({ type: "presence.updated" });
   });
 
-  it("relays p2p.offer to target user with sender metadata", () => {
+  it("relays p2p.offer to target user with sender metadata", async () => {
     const { broadcaster, relayedP2pEvents } = createBroadcaster();
     const rateLimiter = createWsRateLimiter({ windowMs: 1000, maxEvents: 10 });
-    const response = handleClientEnvelope(
+    const response = await handleClientEnvelope(
       "user-alice",
       { type: "p2p.offer", payload: { targetUserId: "user-bob-123456", sdp: "v=0\r\no=- ..." }, timestamp: now() },
       broadcaster,
@@ -137,16 +137,16 @@ describe("WebSocket gateway", () => {
     expect(relayedP2pEvents[0]).toMatchObject({ type: "p2p.offer", _senderUserId: "user-alice" });
   });
 
-  it("relays p2p.ice-candidate and p2p.hangup", () => {
+  it("relays p2p.ice-candidate and p2p.hangup", async () => {
     const { broadcaster, relayedP2pEvents } = createBroadcaster();
     const rateLimiter = createWsRateLimiter({ windowMs: 1000, maxEvents: 10 });
-    handleClientEnvelope(
+    await handleClientEnvelope(
       "user-alice",
       { type: "p2p.ice-candidate", payload: { targetUserId: "user-bob-123456", candidate: { candidate: "candidate:1 1 UDP 2130706431 10.0.0.1 54321 typ host", sdpMid: "0", sdpMLineIndex: 0 } }, timestamp: now() },
       broadcaster,
       rateLimiter
     );
-    handleClientEnvelope(
+    await handleClientEnvelope(
       "user-bob-123456",
       { type: "p2p.hangup", payload: { targetUserId: "user-alice-3456" }, timestamp: now() },
       broadcaster,
@@ -155,10 +155,10 @@ describe("WebSocket gateway", () => {
     expect(relayedP2pEvents).toHaveLength(2);
   });
 
-  it("logs p2p.status and does not relay", () => {
+  it("logs p2p.status and does not relay", async () => {
     const { broadcaster, relayedP2pEvents } = createBroadcaster();
     const rateLimiter = createWsRateLimiter({ windowMs: 1000, maxEvents: 10 });
-    const response = handleClientEnvelope(
+    const response = await handleClientEnvelope(
       "user-alice",
       { type: "p2p.status", payload: { targetUserId: "user-bob-123456", status: "connected" }, timestamp: now() },
       broadcaster,
@@ -168,10 +168,10 @@ describe("WebSocket gateway", () => {
     expect(relayedP2pEvents).toHaveLength(0);
   });
 
-  it("rejects p2p event with missing targetUserId", () => {
+  it("rejects p2p event with missing targetUserId", async () => {
     const { broadcaster } = createBroadcaster();
     const rateLimiter = createWsRateLimiter({ windowMs: 1000, maxEvents: 10 });
-    const response = handleClientEnvelope(
+    const response = await handleClientEnvelope(
       "user-alice",
       { type: "p2p.offer", payload: { sdp: "v=0\r\no=- ..." }, timestamp: now() },
       broadcaster,
