@@ -452,8 +452,8 @@ check "messages survived" "200"
 RESP=$(get "api/v1/channels/$DI/messages" "$AT")
 check "DM survived" "200"
 
-RESP=$(get_raw "dev-download/$FID" "$AT")
-check "file survived" "200"
+RESP=$(get "api/v1/attachments/$FID" "$AT")
+check "file metadata survived" "200"
 
 RESP=$(get "api/v1/bots/smoke-help-bot/subscriptions" "$AT")
 check "bot survived" "200"
