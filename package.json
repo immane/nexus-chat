@@ -17,7 +17,8 @@
     "db:migrate": "pnpm --filter @nexus-chat/server db:migrate",
     "db:seed": "pnpm --filter @nexus-chat/server db:seed",
     "smoke:tui": "pnpm --filter @nexus-chat/tui smoke",
-    "smoke:tui:ci": "bash scripts/ci-tui-smoke.sh"
+    "smoke:tui:ci": "bash scripts/ci-tui-smoke.sh",
+    "smoke:pg:ci": "bash scripts/ci-pg-smoke.sh"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

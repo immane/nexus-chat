@@ -254,6 +254,7 @@ nexus-chat/
 | 08 | [TUI Chat Redesign](design/08_TUI_Chat_Redesign.md) | Two-pane terminal UI layout, Ink components, WS event handling, IME-safe CJK input |
 | 09 | [Web Client UI Design](design/09_Web_Client_UI_Design.md) | Desktop layout, Zustand store architecture, component tree, mobile adaptation plan (P0/P1/P2) |
 | 10 | [E2EE Encryption Abstract Layer](design/10_E2EE_Encryption_Abstract_Layer.md) | IE2eeProvider interface, placeholder/@noble/SubtleCrypto implementations, ECDH + AES-256-GCM, Phase 3 Signal Protocol upgrade path |
+| 11 | [PostgreSQL Persistence Integration](design/11_PostgreSQL_Persistence_Integration.md) | Production PostgreSQL migration boundary, schema parity, async query-shaped ports, transaction rules, and vertical-slice rollout |
 
 ### 6.2 Research Documents
 
@@ -298,6 +299,7 @@ nexus-chat/
 | 25 | [TUI Chat Redesign](tasks/25-phase-1-tui-chat-redesign.md) | Two-pane terminal layout, WS event hooks, format utilities, IME-safe CJK input |
 | 26 | [Web Mobile Adaptation](tasks/26-phase-1-web-mobile-adaptation.md) | Viewport meta, overlay drawer sidebar, long-press context menu, responsive modals, safe area |
 | 27 | [E2EE Real Encryption](tasks/27-phase-1-e2ee-real-encryption.md) | IE2eeProvider interface, @noble/* ECDH + AES-256-GCM, WebCrypto, file encryption helpers, 119 tests |
+| 28 | [PostgreSQL Persistence Integration](tasks/28-phase-2-postgresql-persistence-integration.md) | PostgreSQL production persistence, schema parity, async ports, transaction-safe vertical migration, and in-memory test adapters |
 
 ### 6.4 Bot SDK Documentation (Multi-Language)
 
