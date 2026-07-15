@@ -1,7 +1,7 @@
 /**
  * PostgreSQL Schema (Drizzle ORM)
  *
- * Defines 17 core tables, 6 pgEnum types, indexes, and relation mappings.
+ * Defines core tables, pgEnum types, indexes, and relation mappings.
  * Schema isolation by logical namespace (chat, bot, auth, signal) prepares for
  * the future microservice split.
  *
@@ -23,7 +23,7 @@
  *   These belong to individual bots and are created via bot SDK migrations.
  */
 import { desc, relations } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { type AnyPgColumn, boolean, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const workspaceRole = pgEnum("workspace_role", ["owner", "admin", "member"]);
 export const channelKind = pgEnum("channel_kind", ["channel", "dm"]);
@@ -64,10 +64,13 @@ export const channels = pgTable(
     id: text("id").primaryKey(),
     workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
     name: text("name").notNull(),
+    description: text("description"),
     kind: channelKind("kind").notNull().default("channel"),
     mode: channelMode("mode").notNull().default("normal"),
     isPrivate: boolean("is_private").notNull().default(false),
+    createdById: text("created_by_id").references(() => users.id),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table) => ({ workspaceIdx: index("channels_workspace_idx").on(table.workspaceId), lookupIdx: uniqueIndex("channels_workspace_name_idx").on(table.workspaceId, table.name) })
@@ -79,7 +82,8 @@ export const channelMembers = pgTable(
     channelId: text("channel_id").notNull().references(() => channels.id),
     userId: text("user_id").notNull().references(() => users.id),
     joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
-    readCursorMessageId: text("read_cursor_message_id")
+    readCursorMessageId: text("read_cursor_message_id"),
+    lastReadAt: timestamp("last_read_at", { withTimezone: true })
   },
   (table) => ({ pk: primaryKey({ columns: [table.channelId, table.userId] }), userJoinedIdx: index("channel_members_user_joined_idx").on(table.userId, table.joinedAt) })
 );
@@ -94,7 +98,10 @@ export const messages = pgTable(
     clientMsgId: text("client_msg_id").notNull(),
     content: jsonb("content").notNull(),
     state: messageState("state").notNull().default("sent"),
+    replyToMessageId: text("reply_to_message_id").references((): AnyPgColumn => messages.id),
     originalMessageId: text("original_message_id"),
+    originalSenderId: text("original_sender_id").references(() => users.id),
+    originalCreatedAt: timestamp("original_created_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     editedAt: timestamp("edited_at", { withTimezone: true }),
     deletedAt: timestamp("deleted_at", { withTimezone: true })
@@ -116,11 +123,52 @@ export const messageReactions = pgTable(
   (table) => ({ pk: primaryKey({ columns: [table.messageId, table.userId, table.emoji] }) })
 );
 
+export const savedMessages = pgTable(
+  "saved_messages",
+  {
+    userId: text("user_id").notNull().references(() => users.id),
+    messageId: text("message_id").notNull().references(() => messages.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({ pk: primaryKey({ columns: [table.userId, table.messageId] }), userCreatedIdx: index("saved_messages_user_created_idx").on(table.userId, table.createdAt) })
+);
+
+export const messageReadReceipts = pgTable(
+  "message_read_receipts",
+  {
+    messageId: text("message_id").notNull().references(() => messages.id),
+    userId: text("user_id").notNull().references(() => users.id),
+    readAt: timestamp("read_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({ pk: primaryKey({ columns: [table.messageId, table.userId] }) })
+);
+
+export const channelPins = pgTable(
+  "channel_pins",
+  {
+    channelId: text("channel_id").notNull().references(() => channels.id),
+    messageId: text("message_id").notNull().references(() => messages.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({ pk: primaryKey({ columns: [table.channelId, table.messageId] }) })
+);
+
+export const channelMutes = pgTable(
+  "channel_mutes",
+  {
+    userId: text("user_id").notNull().references(() => users.id),
+    channelId: text("channel_id").notNull().references(() => channels.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({ pk: primaryKey({ columns: [table.userId, table.channelId] }) })
+);
+
 export const files = pgTable(
   "files",
   {
     id: text("id").primaryKey(),
     workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
+    channelId: text("channel_id").references(() => channels.id),
     ownerId: text("owner_id").notNull().references(() => users.id),
     fileName: text("file_name").notNull(),
     contentType: text("content_type").notNull(),
