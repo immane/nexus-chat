@@ -153,6 +153,7 @@ echo -e "\n${BOLD}── Infrastructure Setup${NC}"
 (cd "$PROJECT_ROOT" && docker compose up -d postgres redis --wait) >/dev/null 2>&1
 (cd "$PROJECT_ROOT" && docker compose exec postgres psql -U nexus -d nexus_chat \
   -c "DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS drizzle CASCADE; CREATE SCHEMA public;" 2>/dev/null)
+(cd "$PROJECT_ROOT" && pnpm --filter @nexus-chat/shared build) >/dev/null 2>&1
 (cd "$PROJECT_ROOT" && pnpm --filter @nexus-chat/server db:migrate) >/dev/null 2>&1
 (cd "$PROJECT_ROOT" && pnpm --filter @nexus-chat/server db:seed) >/dev/null 2>&1
 
