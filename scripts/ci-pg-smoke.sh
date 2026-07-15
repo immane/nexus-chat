@@ -23,6 +23,7 @@ NC='\033[0m'
 PASS=0
 FAIL=0
 SERVER_PID=""
+SERVER_LOG="${RUNNER_TEMP:-/tmp}/nexus-pg-smoke.log"
 
 # Extract a value from the JSON response body (not the HTTP status line).
 # Usage: jsonval "$RESP" "data.tokens.accessToken"
@@ -52,6 +53,34 @@ cleanup() {
   fi
 }
 trap cleanup EXIT
+
+start_server() {
+  (
+    cd "$PROJECT_ROOT/apps/server"
+    PERSISTENCE=postgres DATABASE_URL="$PG_URL" \
+      NODE_ENV=production PORT=4000 WEB_ORIGIN='*' \
+      ./node_modules/.bin/tsx src/index.ts
+  ) >"$SERVER_LOG" 2>&1 &
+  SERVER_PID=$!
+}
+
+wait_for_server() {
+  for _ in $(seq 1 30); do
+    if curl --fail --silent "$API/healthz" >/dev/null 2>&1; then
+      echo -e "  ${GREEN}Server ready${NC}"
+      return
+    fi
+    if ! kill -0 "$SERVER_PID" 2>/dev/null; then break; fi
+    sleep 1
+  done
+
+  echo -e "  ${RED}Server failed to become ready${NC}" >&2
+  if [ -f "$SERVER_LOG" ]; then
+    echo "--- Server log: $SERVER_LOG ---" >&2
+    cat "$SERVER_LOG" >&2
+  fi
+  return 1
+}
 
 check() {
   local desc="$1" expected_http="$2" expected_field="${3:-}" expected_value="${4:-}"
@@ -127,17 +156,8 @@ echo -e "\n${BOLD}── Infrastructure Setup${NC}"
 (cd "$PROJECT_ROOT" && pnpm --filter @nexus-chat/server db:migrate) >/dev/null 2>&1
 (cd "$PROJECT_ROOT" && pnpm --filter @nexus-chat/server db:seed) >/dev/null 2>&1
 
-cd "$PROJECT_ROOT/apps/server" && \
-  PERSISTENCE=postgres DATABASE_URL="$PG_URL" \
-  NODE_ENV=production PORT=4000 WEB_ORIGIN='*' \
-  npx tsx src/index.ts >/tmp/nexus-pg-smoke.log 2>&1 &
-SERVER_PID=$!
-
-for i in $(seq 1 30); do
-  if curl -s "$API/healthz" >/dev/null 2>&1; then break; fi
-  sleep 1
-done
-echo -e "  ${GREEN}Server ready${NC}"
+start_server
+wait_for_server
 
 PASSWORD="SmokeTestPass123!"
 
@@ -411,16 +431,8 @@ kill "$SERVER_PID" 2>/dev/null || true
 wait "$SERVER_PID" 2>/dev/null || true
 SERVER_PID=""
 
-cd "$PROJECT_ROOT/apps/server" && \
-  PERSISTENCE=postgres DATABASE_URL="$PG_URL" \
-  NODE_ENV=production PORT=4000 WEB_ORIGIN='*' \
-  npx tsx src/index.ts >/tmp/nexus-pg-smoke.log 2>&1 &
-SERVER_PID=$!
-
-for i in $(seq 1 30); do
-  if curl -s "$API/healthz" >/dev/null 2>&1; then break; fi
-  sleep 1
-done
+start_server
+wait_for_server
 
 echo -e "${BOLD}  Verifying data survived${NC}"
 RESP=$(post_noauth "api/v1/auth/login" \
