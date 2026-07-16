@@ -63,6 +63,7 @@ nav:
       - Web Client UI Design: design/09_Web_Client_UI_Design.md
       - E2EE Encryption Abstract Layer: design/10_E2EE_Encryption_Abstract_Layer.md
       - PostgreSQL Persistence Integration: design/11_PostgreSQL_Persistence_Integration.md
+      - Phase 2 Scale-Out Architecture: design/12_Phase_2_Scale_Out_Architecture.md
   - Research:
       - Frontend Architecture: research/frontend-architecture.md
       - Backend IM & State Machine: research/backend-im-state-machine.md

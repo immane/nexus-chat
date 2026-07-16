@@ -39,6 +39,7 @@ import { logger } from "../observability/logger.js";
 import { wsConnections } from "../observability/metrics.js";
 import { handleClientEnvelope } from "./gateway.js";
 import { setIO } from "./broadcast.js";
+import { configureSocketIoAdapter, type SocketIoAdapterCleanup } from "./redis-adapter.js";
 
 const isAllowedOrigin = (origin: string | undefined) => {
   if (!origin) return false;
@@ -59,13 +60,14 @@ const createBroadcaster = (io: Server) => ({
   relayP2pToUser: (targetUserId: string, envelope: unknown) => io.to(`user:${targetUserId}`).emit("event", envelope)
 });
 
-export const attachSocketServer = (httpServer: HttpServer) => {
+export const attachSocketServer = async (httpServer: HttpServer): Promise<SocketIoAdapterCleanup> => {
   const io = new Server(httpServer, {
     cors: { origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => { callback(null, isAllowedOrigin(origin)); }, credentials: true },
     transports: ["websocket"],
     pingInterval: 30000,
     pingTimeout: 10000
   });
+  const closeAdapter = await configureSocketIoAdapter(io);
   setIO(io);
 
   io.use((socket, next) => {
@@ -154,5 +156,5 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     });
   });
 
-  return io;
+  return closeAdapter;
 };

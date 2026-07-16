@@ -12,7 +12,7 @@
 ## Data Stores
 
 - **In-memory default for development.** The `SESSION_STORE=memory` default uses in-memory maps for session data. Production uses PostgreSQL (`PERSISTENCE=postgres`) with full async domain adapters. Switch to `SESSION_STORE=redis` for Redis-backed sessions.
-- **No Redis WebSocket adapter in dev.** Socket.IO runs as a single process without the Redis adapter, which means horizontal scaling is not supported in development mode. The Redis adapter is available for production deployment.
+- **Partial WebSocket horizontal scaling.** Set `SOCKET_IO_ADAPTER=redis` to distribute Socket.IO room broadcasts across instances. Presence counters, WebSocket rate limits, and bot event queues are still process-local, so they must be moved to shared infrastructure before independently scaling those concerns.
 
 ## Search & Attachments
 

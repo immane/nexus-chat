@@ -12,6 +12,7 @@
  * - env is immutable after initialization
  * - All optional vars have sensible defaults for local development
  * - SESSION_STORE controls Redis vs in-memory session backend
+ * - SOCKET_IO_ADAPTER controls local vs Redis-backed Socket.IO room broadcasts
  * - PERSISTENCE controls in-memory vs PostgreSQL persistence backend
  * - Production forces PERSISTENCE=postgres and requires DATABASE_URL
  * - Production forbids DB_MIGRATE_ON_BOOT (migrations run via CI/deployment job)
@@ -31,6 +32,7 @@ const envSchema = z
     PERSISTENCE: z.enum(["memory", "postgres"]).optional(),
     DB_MIGRATE_ON_BOOT: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
     SESSION_STORE: z.enum(["memory", "redis"]).default("memory"),
+    SOCKET_IO_ADAPTER: z.enum(["memory", "redis"]).default("memory"),
     JWT_ISSUER: z.string().default("nexus-chat"),
     JWT_AUDIENCE: z.string().default("nexus-chat-clients"),
     JWT_PRIVATE_KEY_PEM: z.string().default(""),

@@ -1,6 +1,6 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-17 (Phase 2 — PostgreSQL persistence Task #28 complete, CI unified with 60-check PostgreSQL multi-user smoke test, web demo removed, auto-refresh tokens)
+> Last updated: 2026-07-17 (Phase 2 — PostgreSQL persistence Task #28 complete, optional Redis Socket.IO adapter, CI unified with 60-check PostgreSQL multi-user smoke test, web demo removed, auto-refresh tokens)
 > Current status: Phase 1 complete (27/27), Phase 2 in progress. PostgreSQL persistence Task #28 is complete; production requires `PERSISTENCE=postgres`, while in-memory remains the development/test default. Real ECDH + AES-256-GCM encryption is active for 1:1 E2EE DMs.
 
 ## 1. Project Overview
@@ -60,7 +60,8 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 │ Preload bridge (contextBridge) for security   │
 ├──────────────────────────────────────────────┤
 │ Layer 2: Long Connection Gateway              │
-│ WebSocket Gateway (Socket.IO, single process) │
+│ WebSocket Gateway (Socket.IO; Redis adapter   │
+│ optional for cross-instance room broadcasts)  │
 │ Connection management + heartbeat + reconnect │
 ├──────────────────────────────────────────────┤
 │ Layer 3: Business Logic + Persistence         │
@@ -155,7 +156,7 @@ Layer 3: Channel State (members, info — lazy load + TTL) — process-local
 Layer 4: Message Hot Data (Sorted Set, recent 200 per channel) — planned
 Layer 5: Read/Unread State (per-user per-channel cursor) — PostgreSQL durable
 Layer 6: Rate Limiting (Sliding Window) — process-local Map
-Socket.IO multi-instance adapter — planned
+Socket.IO multi-instance room adapter — `SOCKET_IO_ADAPTER=redis` ✓
 ```
 
 ---
@@ -250,12 +251,13 @@ From `AGENTS.md`:
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
 - **CI validation**: Unified `ci.yml` (validate + postgres-smoke + security). `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. PostgreSQL multi-user smoke test: 60/60 assertions across 12 acts (onboarding, channels, conversation, reactions, edits, pins, read receipts, file upload/download, DM, forward/save, bot /help, concurrent Signal prekeys, server restart persistence).
 - **Coverage**: 98.07% statements/lines, 98.85% functions, 90.99% branches across core domain + shared packages
-- **Tests**: 136 tests across 21 test files covering server domain services, persistence adapters (memory + Drizzle), persistence-service RBAC, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
+- **Tests**: 138 tests across 22 test files covering server domain services, persistence adapters (memory + Drizzle), persistence-service RBAC, HTTP routes, WS gateway and Redis adapter lifecycle, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
 - **Phase 1 tasks**: 27/27 done — Phase 1 complete
 - **Phase 2 tasks**: Task #28 (PostgreSQL persistence) complete — schema parity, async adapters, `/readyz`, and 60-check smoke test
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
 - **DB schema**: 17 core tables with generated Drizzle migration. PostgreSQL runtime integration active via `PERSISTENCE=postgres` with async adapters (auth, workspace, messages, attachments, bots, signal). `FOR UPDATE SKIP LOCKED` for concurrent prekey allocation. In-memory adapter co-exists for development and tests.
 - **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage
+- **WebSocket scale-out**: `SOCKET_IO_ADAPTER=redis` creates dedicated Redis pub/sub clients for cross-instance Socket.IO room broadcasts and closes them during graceful shutdown. Presence, WebSocket rate limiting, and bot queues are still process-local.
 - **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface
 - **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce)
 - **Signal/E2E**: Real ECDH + AES-256-GCM encryption via IE2eeProvider interface with 3 implementations (placeholder/noble/webcrypto); @noble/* is default (HTTP-compatible, MIT); WebCrypto (HTTPS only); Placeholder (Phase 3 Signal Protocol stub, @deprecated). E2EE file attachments enabled. E2EE attachment encryption/decryption helpers. PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback.

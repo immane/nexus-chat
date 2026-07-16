@@ -47,6 +47,8 @@ VITE_API_BASE=http://127.0.0.1:4000
 
 如果希望本地测试 refresh session 存到 Redis，可以设置 `SESSION_STORE=redis`。
 
+当多个 server 实例共享同一个 Redis 部署时，设置 `SOCKET_IO_ADAPTER=redis`。它会同步 Socket.IO room 广播；在线状态、WebSocket 限流和 bot 队列仍是单实例问题。
+
 ## 4. 启动本地 Server 容器
 
 ```bash

@@ -60,6 +60,8 @@ services:
       DB_MIGRATE_ON_BOOT: "false"
       SESSION_STORE: redis
       REDIS_URL: redis://redis:6379
+      # Enables cross-instance Socket.IO room broadcasts when the server is scaled.
+      SOCKET_IO_ADAPTER: redis
       JWT_ISSUER: nexus-chat
       JWT_AUDIENCE: nexus-chat-clients
       JWT_PRIVATE_KEY_PEM: ""

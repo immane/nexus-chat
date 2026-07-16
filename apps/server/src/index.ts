@@ -9,7 +9,7 @@
  * Does NOT:
  * - Run database migrations in production
  * - Start background workers or bot polling
- * - Initialize Redis (lazy connect from session-store)
+ * - Initialize optional Redis-backed Socket.IO broadcasts
  *
  * Invariants:
  * - Single HTTP server serves both REST and WebSocket on the same port
@@ -34,14 +34,16 @@ async function start(): Promise<void> {
     logger.info({ host: env.HOST, port: env.PORT }, "Nexus Chat server started");
   });
 
-  attachSocketServer(httpServer as unknown as HttpServer);
+  const closeSocketAdapter = await attachSocketServer(httpServer as unknown as HttpServer);
 
   let shuttingDown = false;
   const shutdown = () => {
     if (shuttingDown) return;
     shuttingDown = true;
-    httpServer.close((error) => {
-      void closeDb().finally(() => process.exit(error ? 1 : 0));
+    void closeSocketAdapter().finally(() => {
+      httpServer.close((error) => {
+        void closeDb().finally(() => process.exit(error ? 1 : 0));
+      });
     });
   };
 

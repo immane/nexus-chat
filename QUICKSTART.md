@@ -47,6 +47,8 @@ VITE_API_BASE=http://127.0.0.1:4000
 
 Use `SESSION_STORE=redis` if you want refresh sessions stored in Redis during local testing.
 
+Set `SOCKET_IO_ADAPTER=redis` when running multiple server instances against the same Redis deployment. It synchronizes Socket.IO room broadcasts; presence, WebSocket rate limits, and bot queues remain single-instance concerns.
+
 ## 4. Start The Local Server Container
 
 ```bash

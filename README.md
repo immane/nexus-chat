@@ -563,6 +563,7 @@ Copy `.env.example` to `.env`. All variables:
 | `DB_MIGRATE_ON_BOOT` | `false` | `true` applies pending migrations; must be `false` in production |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection |
 | `SESSION_STORE` | `memory` | `memory` or `redis` |
+| `SOCKET_IO_ADAPTER` | `memory` | `memory` or `redis`; use `redis` for multi-instance Socket.IO room broadcasts |
 | `JWT_ISSUER` | `nexus-chat` | `iss` claim |
 | `JWT_AUDIENCE` | `nexus-chat-clients` | `aud` claim |
 | `JWT_KID` | `local-dev` | Key ID in JWT header |
@@ -616,7 +617,7 @@ Phase 1 is a local-development and closed-beta milestone. Key limitations:
 - **In-memory fallback:** Default persistence is in-memory for development. Production uses PostgreSQL (`PERSISTENCE=postgres`) with full async domain adapters. Drizzle schema, migrations, and seed are wired; in-memory adapter co-exists for tests and local dev.
 - **Single-device E2EE:** One device per user. Multi-device support and group E2EE (Sender Key) are deferred.
 - **No full-text search:** Message search is limited to cursor-based pagination. `tsvector` indexing is planned for Phase 2.
-- **No WebSocket horizontal scaling:** Socket.IO runs single-process without Redis Adapter in dev.
+- **Partial WebSocket horizontal scaling:** Set `SOCKET_IO_ADAPTER=redis` to distribute Socket.IO room broadcasts across instances. Presence, WebSocket rate limits, and bot event queues remain process-local.
 - **Electron packaging:** No production code signing, notarization, or auto-update publishing.
 - **Attachment UX:** Server-side attachment primitives exist; web/desktop upload UI is not built.
 - **P2P client support:** WebRTC-based P2P direct connection is available in web (browser) and Electron clients. TUI/CLI remains server-relay-only (Node.js lacks native `RTCPeerConnection`).

@@ -563,6 +563,7 @@ CI 在每次 push 和 PR 时运行：lint、typecheck、test、coverage、build�
 | `DB_MIGRATE_ON_BOOT` | `false` | `true` 时自动运行迁移；生产环境必须为 `false` |
 | `REDIS_URL` | `redis://localhost:6379` | Redis 连接 |
 | `SESSION_STORE` | `memory` | `memory` 或 `redis` |
+| `SOCKET_IO_ADAPTER` | `memory` | `memory` 或 `redis`；多实例 Socket.IO room 广播使用 `redis` |
 | `JWT_ISSUER` | `nexus-chat` | `iss` claim |
 | `JWT_AUDIENCE` | `nexus-chat-clients` | `aud` claim |
 | `JWT_KID` | `local-dev` | JWT header 中的 Key ID |
@@ -616,7 +617,7 @@ Phase 1 是本地开发和封闭测试里程碑。主要限制：
 - **内存 fallback：** 默认使用内存持久化用于开发。生产环境使用 PostgreSQL（`PERSISTENCE=postgres`）及完整的异步 domain adapter。Drizzle schema、migration 和 seed 已接入；内存 adapter 共存便于测试和本地开发。
 - **单设备 E2EE：** 每用户一个设备。多设备支持和群组 E2EE（Sender Key）已推迟。
 - **无全文搜索：** 消息搜索限于基于游标的分页。`tsvector` 索引计划在 Phase 2 实现。
-- **无 WebSocket 水平扩展：** Socket.IO 在开发环境中单进程运行，不使用 Redis Adapter。
+- **部分 WebSocket 水平扩展：** 设置 `SOCKET_IO_ADAPTER=redis` 可将 Socket.IO room 广播分发到多个实例。在线状态、WebSocket 限流和 bot 事件队列仍为进程本地状态。
 - **Electron 打包：** 无生产代码签名、公证或自动更新发布。
 - **附件 UX：** 服务端附件基元已存在；Web/Desktop 上传 UI 尚未构建。
 - **P2P 客户端支持：** 基于 WebRTC 的 P2P 直连在 Web（浏览器）和 Electron 客户端中可用。TUI/CLI 保持 server-relay-only（Node.js 无原生 `RTCPeerConnection`）。
