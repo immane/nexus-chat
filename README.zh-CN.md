@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
-  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-119%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/phase-2%20in%20progress-blue" alt="Phase">
+  <img src="https://img.shields.io/badge/coverage-99%25-brightgreen" alt="Coverage">
+  <img src="https://img.shields.io/badge/tests-150%2B%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 一个类 Slack 的工作区聊天系统，采用**混合加密**模式：普通频道支持 Bot、消息历史和服务端工作流；端到端加密 DM 中服务端只能看到密文。使用 TypeScript、React、Electron、Hono 和 Socket.IO 从零构建。
 
-Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、客户端 E2EE（ECDH + AES-256-GCM），1:1 E2EE DM 的 WebRTC P2P 直连、emoji reaction、消息回复/转发/右键菜单、Markdown 渲染、文件/图片上传、在线状态、通知等。测试套件覆盖 18 个文件，119 个测试，statement/function/line coverage 100%。
+Phase 1 交付了一个完整的 monorepo，包含 Web 客户端、Electron 桌面壳、TUI/CLI、REST/WebSocket 网关、完整的消息状态机、带 SDK 的 Bot 引擎、三个第一方 Bot、客户端 E2EE（ECDH + AES-256-GCM），1:1 E2EE DM 的 WebRTC P2P 直连、emoji reaction、消息回复/转发/右键菜单、Markdown 渲染、文件/图片上传、在线状态、通知等。Phase 2 将 PostgreSQL 作为生产环境持久化后端，添加了异步 domain adapter、统一 CI 流水线和 59 项断言的多用户 PostgreSQL 冒烟测试，覆盖完整对话生命周期及服务器重启后的数据持久化。
 
 <p align="center">
   <img src="docs/images/login-sample.jpg" alt="登录界面" width="30%">
@@ -513,16 +513,19 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 
 | 指标 | 数值 |
 | --- | --- |
-| Statements | 100.00% |
-| Branches | 92.62% |
-| Functions | 100.00% |
-| Lines | 100.00% |
+| Statements | 98.92% |
+| Branches | 91.24% |
+| Functions | 99.13% |
+| Lines | 98.92% |
 
-**测试分布（18 files, 119 tests）：**
+**测试分布（21 files, 150+ tests）：**
 
 | Package | 测试文件 | 测试数 |
 | --- | --- | --- |
 | `@nexus-chat/server` | `domain/services.test.ts` | 20 |
+| `@nexus-chat/server` | `domain/persistence-memory.test.ts` | 24 |
+| `@nexus-chat/server` | `domain/persistence-drizzle.test.ts` | 16 |
+| `@nexus-chat/server` | `domain/workspaces/persistence-service.test.ts` | 13 |
 | `@nexus-chat/server` | `ws/gateway.test.ts` | 9 |
 | `@nexus-chat/server` | `http/routes.test.ts` | 4 |
 | `@nexus-chat/server` | `observability/audit.test.ts` | 4 |
@@ -541,7 +544,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | `@nexus-chat/tui` | `index.test.ts` | 5 |
 | `@nexus-chat/desktop` | `config.test.ts` | 4 |
 
-CI 在每次 push 时运行：lint、typecheck、test、coverage、build、dependency audit 和 TUI smoke tests。
+CI 在每次 push 和 PR 时运行：lint、typecheck、test、coverage、build、依赖安全审查、TUI 冒烟测试和 PostgreSQL 多用户集成冒烟测试（12 幕 59 项检查）。
 
 ---
 
@@ -556,6 +559,8 @@ CI 在每次 push 时运行：lint、typecheck、test、coverage、build、depen
 | `PORT` | `4000` | HTTP + WebSocket 服务端端口 |
 | `WEB_ORIGIN` | `http://localhost` | CORS/WebSocket 允许的浏览器 origin；`*` 仅用于临时本地/局域网测试 |
 | `DATABASE_URL` | `postgres://nexus:nexus@localhost:5432/nexus_chat` | PostgreSQL 连接 |
+| `PERSISTENCE` | `memory` | `memory` 或 `postgres` — 生产环境必须设为 postgres |
+| `DB_MIGRATE_ON_BOOT` | `false` | `true` 时自动运行迁移；生产环境必须为 `false` |
 | `REDIS_URL` | `redis://localhost:6379` | Redis 连接 |
 | `SESSION_STORE` | `memory` | `memory` 或 `redis` |
 | `JWT_ISSUER` | `nexus-chat` | `iss` claim |
@@ -594,9 +599,9 @@ TUI 可以用 `NEXUS_API_BASE=http://192.168.1.20:4000` 连接该宿主机。Des
 | --- | --- |
 | [QUICKSTART.zh-CN.md](QUICKSTART.zh-CN.md) | 分步本地搭建指南（含故障排查） |
 | [docs/ai/context.md](docs/ai/context.md) | AI agent 完整会话上下文 |
-| [docs/design/](docs/design/) | 架构文档（7 篇，5 层 + P2P + roadmap） |
+| [docs/design/](docs/design/) | 架构文档（8 篇，5 层 + P2P + roadmap + PostgreSQL 持久化） |
 | [docs/research/](docs/research/) | 技术调查：后端, 前端, E2EE, bots, UI, AI |
-| [docs/tasks/](docs/tasks/) | 18 个实现任务分解 |
+| [docs/tasks/](docs/tasks/) | 19 个实现任务分解 |
 | [docs/sdk/](docs/sdk/) | Bot SDK 指南（Node.js, Java, Python, PHP, Go, Rust） |
 | [docs/beta-checklist.md](docs/beta-checklist.md) | 封闭测试就绪检查表 |
 | [docs/backup-restore.md](docs/backup-restore.md) | 备份和恢复流程 |
@@ -608,7 +613,7 @@ TUI 可以用 `NEXUS_API_BASE=http://192.168.1.20:4000` 连接该宿主机。Des
 
 Phase 1 是本地开发和封闭测试里程碑。主要限制：
 
-- **内存 store：** Domain services 使用 `Map` 基于的状态。PostgreSQL schema 和 migrations 已定义，但运行时持久化层尚未接入。Redis 可通过 `SESSION_STORE=redis` 用于 session 存储。
+- **内存 fallback：** 默认使用内存持久化用于开发。生产环境使用 PostgreSQL（`PERSISTENCE=postgres`）及完整的异步 domain adapter。Drizzle schema、migration 和 seed 已接入；内存 adapter 共存便于测试和本地开发。
 - **单设备 E2EE：** 每用户一个设备。多设备支持和群组 E2EE（Sender Key）已推迟。
 - **无全文搜索：** 消息搜索限于基于游标的分页。`tsvector` 索引计划在 Phase 2 实现。
 - **无 WebSocket 水平扩展：** Socket.IO 在开发环境中单进程运行，不使用 Redis Adapter。

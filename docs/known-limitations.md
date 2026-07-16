@@ -1,6 +1,6 @@
 # Known Limitations
 
-> Applies to Phase 1 (v0.1.0). Items marked with a phase reference are planned for resolution in later phases.
+> Applies to v0.1.0. Items marked with a phase reference are planned for resolution in later phases.
 
 ## Encryption
 
@@ -11,13 +11,13 @@
 
 ## Data Stores
 
-- **In-memory stores for development.** The `SESSION_STORE=memory` default uses in-memory maps for session data. PostgreSQL schema (`sessions` table) is ready but not wired at runtime in dev mode. Switch to `SESSION_STORE=redis` or `postgres` for production.
+- **In-memory default for development.** The `SESSION_STORE=memory` default uses in-memory maps for session data. Production uses PostgreSQL (`PERSISTENCE=postgres`) with full async domain adapters. Switch to `SESSION_STORE=redis` for Redis-backed sessions.
 - **No Redis WebSocket adapter in dev.** Socket.IO runs as a single process without the Redis adapter, which means horizontal scaling is not supported in development mode. The Redis adapter is available for production deployment.
 
 ## Search & Attachments
 
 - **No full-text search.** PostgreSQL `tsvector` full-text search is planned for Phase 2. Currently, message content is only searchable by exact ID or range queries.
-- **No file upload in web/desktop UI.** The attachment service backend (presigned URLs, S3 integration) is implemented, but the upload UI in the web and desktop clients is not yet built. File upload is available via the API only.
+- **Dev file upload is memory-only.** File bytes uploaded via `/dev-upload` are stored in the server process memory and are lost on restart. File metadata survives in PostgreSQL when `PERSISTENCE=postgres`. Production object storage (S3-compatible) is planned for Phase 2.
 
 ## Electron Desktop
 
@@ -32,4 +32,4 @@
 ## Observability
 
 - **No OpenTelemetry tracing.** Only Pino structured logs and Prometheus metrics are available. Distributed tracing with OpenTelemetry is planned for Phase 3.
-- **In-memory audit log.** Audit events are stored in an in-memory array during development. A persistent audit log with PostgreSQL storage is planned for Phase 2.
+- **In-memory audit log.** Audit events are stored in an in-memory array during development. With `PERSISTENCE=postgres`, audit events are persisted to the `audit_logs` table. A dedicated persistent audit pipeline is planned for Phase 2.

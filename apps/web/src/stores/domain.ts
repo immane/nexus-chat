@@ -113,13 +113,35 @@ export const selectChannelMessages = (messages: Map<string, Message>, order: str
     .filter((message) => message.channelId === channelId);
 
 export const useAuthStore = create(
-  persist<{ user: User | undefined; accessToken: string | undefined; refreshToken: string | undefined; setSession: (session: AuthSession) => void; clear: () => void }>(
+  persist<{
+    user: User | undefined;
+    accessToken: string | undefined;
+    refreshToken: string | undefined;
+    accessTokenExpiresAt: number | undefined;
+    setSession: (session: AuthSession) => void;
+    refreshSession: (session: AuthSession) => void;
+    clear: () => void;
+  }>(
     (set) => ({
       user: undefined,
       accessToken: undefined,
       refreshToken: undefined,
-      setSession: (session) => set({ user: session.user, accessToken: session.tokens.accessToken, refreshToken: session.tokens.refreshToken }),
-      clear: () => set({ user: undefined, accessToken: undefined, refreshToken: undefined })
+      accessTokenExpiresAt: undefined,
+      setSession: (session) =>
+        set({
+          user: session.user,
+          accessToken: session.tokens.accessToken,
+          refreshToken: session.tokens.refreshToken,
+          accessTokenExpiresAt: Date.now() + session.tokens.expiresInSeconds * 1000
+        }),
+      refreshSession: (session) =>
+        set({
+          accessToken: session.tokens.accessToken,
+          refreshToken: session.tokens.refreshToken,
+          accessTokenExpiresAt: Date.now() + session.tokens.expiresInSeconds * 1000
+        }),
+      clear: () =>
+        set({ user: undefined, accessToken: undefined, refreshToken: undefined, accessTokenExpiresAt: undefined })
     }),
     {
       name: "nexus-auth",

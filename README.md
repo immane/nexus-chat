@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
-  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-119%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/phase-2%20in%20progress-blue" alt="Phase">
+  <img src="https://img.shields.io/badge/coverage-99%25-brightgreen" alt="Coverage">
+  <img src="https://img.shields.io/badge/tests-150%2B%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -11,7 +11,7 @@
 
 A Slack-like workspace chat system with **hybrid encryption**: normal channels that support bots, message history, and server-side workflows, alongside end-to-end encrypted DMs where the server sees only ciphertext. Built from the ground up in TypeScript with React, Electron, Hono, and Socket.IO.
 
-Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, client-side E2EE (ECDH + AES-256-GCM) for 1:1 DMs, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. The test suite covers 18 files, 119 tests, with 100% statement, function, and line coverage.
+Phase 1 delivered a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, client-side E2EE (ECDH + AES-256-GCM) for 1:1 DMs, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. Phase 2 adds PostgreSQL as the production persistence backend with async domain adapters, a unified CI pipeline, and a 59-assertion multi-user PostgreSQL smoke test covering the full conversation lifecycle across server restart.
 
 <p align="center">
   <img src="docs/images/login-sample.jpg" alt="Login Screen" width="30%">
@@ -109,14 +109,14 @@ Every channel and DM independently selects its encryption level. There is no glo
 └──────────────────────────────────────────────────┘
 ```
 
-**Data layer in Phase 1:** Domain services use in-memory stores (`Map`-based). The full PostgreSQL schema (17 tables, Drizzle ORM) and Redis infrastructure are defined and validated through migrations, but the runtime store layer has not yet been wired to Postgres. The `SESSION_STORE=redis` path exercises Redis-backed refresh sessions via `RedisRefreshSessionStore`.
+**Data layer:** Domain services use PostgreSQL for production (`PERSISTENCE=postgres`) with full async Drizzle adapters. In-memory (`Map`-based) stores remain the default for local development and tests. The full PostgreSQL schema (17 tables, Drizzle ORM) and Redis infrastructure are wired in. The `SESSION_STORE=redis` path exercises Redis-backed refresh sessions via `RedisRefreshSessionStore`.
 
 **Data flow for a normal message send:**
 
 1. Web client emits `{ type: "message.send", payload: { workspaceId, channelId, clientMsgId, content } }` over Socket.IO.
 2. Gateway validates the WS envelope and inner payload against Zod schemas.
 3. `messageService.send()` checks channel access, mode compatibility, idempotency (`clientMsgId`), and attachment validity.
-4. A new message is created with `id` (UUID v7), state `"sent"`, and stored in-memory.
+4. A new message is created with `id` (UUID v7), state `"sent"`, and persisted via the async persistence adapter.
 5. If the channel is normal, `botService.publishEvent({ type: "message.created", ... })` dispatches to subscribed bots.
 6. The gateway broadcasts `{ type: "message.created", payload: message }` to all clients in the channel room.
 7. The client acknowledges with `{ type: "message.ack", payload: { messageId } }`.
@@ -210,13 +210,13 @@ nexus-chat/
 | **Auth** | `@node-rs/argon2`, `jsonwebtoken` (RS256) | Password hashing, JWT sign/verify |
 | **Schemas** | Zod 3.x | Every I/O boundary: API, WS, bots, E2EE |
 | **ORM** | Drizzle ORM 0.38 | Schema definitions, migrations, seed |
-| **Database** | PostgreSQL 16 (Docker) | Schema live; runtime uses in-memory stores |
+| **Database** | PostgreSQL 16 (Docker) | Production persistence via `PERSISTENCE=postgres`; in-memory for local dev |
 | **Cache** | Redis 7 (Docker) | Session store (Redis mode), ready for pub/sub |
 | **Frontend** | React 19, Vite, Zustand 5, Tailwind CSS, React Virtuoso | Web client |
 | **Desktop** | Electron | BrowserWindow, preload IPC, tray, notifications |
 | **CLI** | Commander, Ink (React 19) | TUI chat, smoke tests |
 | **Observability** | Pino, `prom-client` | Structured logs, request IDs, metrics |
-| **Testing** | Vitest + V8 coverage | 18 test files, 119 tests |
+| **Testing** | Vitest + V8 coverage | 21 test files, 150+ tests |
 | **P2P** | WebRTC (browser-native, no npm deps) | 1:1 E2EE DM direct connection + server signaling relay |
 
 ---
@@ -242,7 +242,7 @@ Messages are sorted by `(channel_id, created_at DESC, id DESC)`. The API uses cu
 
 ### Read Receipts
 
-Read receipts (`message.ack`) are buffered in-memory. The design calls for a 3-second Redis flush window; Phase 1 implements immediate flush via `messageService.flushReadReceipts()`.
+Read receipts (`message.ack`) are persisted via the read receipt persistence layer. The design calls for a 3-second Redis flush window; current implementation uses immediate flush via `messageService.flushReadReceipts()`.
 
 ### E2EE Message Handling
 
@@ -513,16 +513,19 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 
 | Metric | Value |
 | --- | --- |
-| Statements | 100.00% |
-| Branches | 92.62% |
-| Functions | 100.00% |
-| Lines | 100.00% |
+| Statements | 98.92% |
+| Branches | 91.24% |
+| Functions | 99.13% |
+| Lines | 98.92% |
 
-**Test breakdown (18 files, 119 tests):**
+**Test breakdown (21 files, 150+ tests):**
 
 | Package | Test file | Tests |
 | --- | --- | --- |
 | `@nexus-chat/server` | `domain/services.test.ts` | 20 |
+| `@nexus-chat/server` | `domain/persistence-memory.test.ts` | 24 |
+| `@nexus-chat/server` | `domain/persistence-drizzle.test.ts` | 16 |
+| `@nexus-chat/server` | `domain/workspaces/persistence-service.test.ts` | 13 |
 | `@nexus-chat/server` | `ws/gateway.test.ts` | 9 |
 | `@nexus-chat/server` | `http/routes.test.ts` | 4 |
 | `@nexus-chat/server` | `observability/audit.test.ts` | 4 |
@@ -541,7 +544,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 | `@nexus-chat/tui` | `index.test.ts` | 5 |
 | `@nexus-chat/desktop` | `config.test.ts` | 4 |
 
-CI runs on every push: lint, typecheck, test, coverage, build, dependency audit, and TUI smoke tests.
+CI runs on every push and PR: lint, typecheck, test, coverage, build, dependency review, TUI smoke, and PostgreSQL multi-user integration smoke (59 checks across 12 acts).
 
 ---
 
@@ -556,6 +559,8 @@ Copy `.env.example` to `.env`. All variables:
 | `PORT` | `4000` | HTTP + WebSocket server port |
 | `WEB_ORIGIN` | `http://localhost` | CORS/WebSocket allowed browser origin; use `*` only for temporary local/LAN testing |
 | `DATABASE_URL` | `postgres://nexus:nexus@localhost:5432/nexus_chat` | PostgreSQL connection |
+| `PERSISTENCE` | `memory` | `memory` or `postgres` — required in production |
+| `DB_MIGRATE_ON_BOOT` | `false` | `true` applies pending migrations; must be `false` in production |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection |
 | `SESSION_STORE` | `memory` | `memory` or `redis` |
 | `JWT_ISSUER` | `nexus-chat` | `iss` claim |
@@ -594,9 +599,9 @@ TUI clients can connect to that host with `NEXUS_API_BASE=http://192.168.1.20:40
 | --- | --- |
 | [QUICKSTART.md](QUICKSTART.md) | Step-by-step local setup with troubleshooting |
 | [docs/ai/context.md](docs/ai/context.md) | Full session context for AI agents |
-| [docs/design/](docs/design/) | Architecture documents (7 docs, 5 layers + P2P + roadmap) |
+| [docs/design/](docs/design/) | Architecture documents (8 docs, 5 layers + P2P + roadmap + PostgreSQL persistence) |
 | [docs/research/](docs/research/) | Technical surveys: backend, frontend, E2EE, bots, UI, AI |
-| [docs/tasks/](docs/tasks/) | 18 implementation task breakdowns |
+| [docs/tasks/](docs/tasks/) | 19 implementation task breakdowns |
 | [docs/sdk/](docs/sdk/) | Bot SDK guides (Node.js, Java, Python, PHP, Go, Rust) |
 | [docs/beta-checklist.md](docs/beta-checklist.md) | Closed beta readiness checklist |
 | [docs/backup-restore.md](docs/backup-restore.md) | Backup and recovery procedures |
@@ -608,7 +613,7 @@ TUI clients can connect to that host with `NEXUS_API_BASE=http://192.168.1.20:40
 
 Phase 1 is a local-development and closed-beta milestone. Key limitations:
 
-- **In-memory stores:** Domain services use `Map`-based state. PostgreSQL schema and migrations are defined, but the runtime persistence layer is not wired. Redis is available for session storage via `SESSION_STORE=redis`.
+- **In-memory fallback:** Default persistence is in-memory for development. Production uses PostgreSQL (`PERSISTENCE=postgres`) with full async domain adapters. Drizzle schema, migrations, and seed are wired; in-memory adapter co-exists for tests and local dev.
 - **Single-device E2EE:** One device per user. Multi-device support and group E2EE (Sender Key) are deferred.
 - **No full-text search:** Message search is limited to cursor-based pagination. `tsvector` indexing is planned for Phase 2.
 - **No WebSocket horizontal scaling:** Socket.IO runs single-process without Redis Adapter in dev.

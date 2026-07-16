@@ -2,7 +2,7 @@
 
 [English Quick Start](QUICKSTART.md) | [完整中文 README](README.zh-CN.md)
 
-本指南用于在本地启动 Nexus Chat Phase 1 开发环境，并运行基础 smoke tests。
+本指南用于在本地启动 Nexus Chat 开发环境，并运行基础 smoke tests。
 
 ## 1. 前置要求
 
@@ -61,7 +61,7 @@ docker compose ps
 curl http://127.0.0.1:4000/healthz
 ```
 
-Phase 1 运行时服务使用内存 domain stores。`docker-compose.yml` 里的 PostgreSQL 和 Redis 目前故意保持注释，直到持久化接入后再启用。
+服务器默认使用内存持久化用于本地开发。如需 PostgreSQL 生产环境，在 `.env` 中设置 `PERSISTENCE=postgres` 和 `DATABASE_URL`，然后用 `docker compose up -d --build server` 启动（PostgreSQL 和 Redis 已包含在 `docker-compose.yml` 中）。
 
 如果要同时用 Docker 启动 server 和 web：
 
@@ -111,7 +111,7 @@ pnpm dev
 - API health check: `http://127.0.0.1:4000/healthz`
 - Metrics: `http://127.0.0.1:4000/metrics`
 
-Web app 支持 demo 模式和真实服务端模式。真实服务端模式可以使用上面的开发账号，也可以通过 API/UI 注册新用户。
+Web app 连接到真实服务端。可以使用上面的开发账号，也可以通过 API/UI 注册新用户。
 
 如果要从局域网或宿主机地址访问，请统一使用宿主机 IP：
 
@@ -230,7 +230,7 @@ pnpm --filter @nexus-chat/tui dev logout
 
 如果 `pnpm dev` 或 `smoke:tui:ci` 端口绑定失败，检查是否已有进程占用 `4000`、`5173` 或 `5174`。运行 native CI smoke 前先用 `docker compose down` 停止 Docker server。
 
-如果 TUI 登录失败，确认 server 正在运行，并且当前运行时存在对应用户。因为 Phase 1 默认使用内存 store，每次 fresh server 启动后需要执行 `scripts/dev-bootstrap.sh`，或者手动注册用户。
+如果 TUI 登录失败，确认 server 正在运行，并且当前运行时存在对应用户。默认内存模式下，每次 fresh server 启动后需要执行 `scripts/dev-bootstrap.sh`，或者手动注册用户。PostgreSQL 模式下（`PERSISTENCE=postgres`），用户数据在重启后保留。
 
 如果 `pnpm db:migrate` 失败，请注意默认 Docker 流程不会启动 PostgreSQL。只有在验证 migrations 时，才需要先取消注释 `docker-compose.yml` 里的 PostgreSQL。
 

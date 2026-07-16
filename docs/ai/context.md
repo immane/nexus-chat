@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-10 (Phase 1 — E2EE real encryption implemented via IE2eeProvider + @noble/*, Task #27 complete, 119 tests, 100% coverage)
-> Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM encryption active for 1:1 E2EE DMs. IE2eeProvider interface with 3 swappable implementations (placeholder/noble/webcrypto). Signal Protocol (X3DH + Double Ratchet) deferred to Phase 3 AGPL-3.0 branch.
+> Last updated: 2026-07-16 (Phase 2 — PostgreSQL persistence integrated via async adapters, Task #28 in progress, CI unified with PostgreSQL multi-user smoke test, web demo removed, auto-refresh tokens)
+> Current status: Phase 1 complete (27/27), Phase 2 in progress. Real ECDH + AES-256-GCM encryption active for 1:1 E2EE DMs. PostgreSQL wired as production persistence with PERSISTENCE env switch; in-memory remains dev default. IE2eeProvider interface with 3 swappable implementations.
 
 ## 1. Project Overview
 
@@ -221,6 +221,7 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 25 | TUI Chat Interface Redesign | Done |
 | 26 | Web Mobile Adaptation | Done |
 | 27 | E2EE Real Encryption Implementation | Done |
+| 28 | Phase 2 PostgreSQL Persistence Integration | In Progress |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -238,20 +239,21 @@ From `AGENTS.md`:
 
 ---
 
-## 6.5 Current Implementation Stats (as of 2026-07-10)
+## 6.5 Current Implementation Stats (as of 2026-07-16)
 
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
-- **CI validation**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. Latest Web refactor verification passed `pnpm --filter @nexus-chat/web lint`, `pnpm --filter @nexus-chat/web typecheck`, `pnpm --filter @nexus-chat/web test`, `pnpm build`, and `pnpm test`.
-- **Coverage**: 100.00% statements/lines/functions, 93.34% branches across core domain + shared packages (signal package: 100% across all metrics)
-- **Tests**: 119 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
+- **CI validation**: Unified `ci.yml` (validate + postgres-smoke + security). `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. PostgreSQL multi-user smoke test: 59/59 assertions across 12 acts (onboarding, channels, conversation, reactions, edits, pins, read receipts, file upload/download, DM, forward/save, bot /help, Signal prekeys, server restart persistence).
+- **Coverage**: 98.92% statements/lines, 99.13% functions, 91.24% branches across core domain + shared packages
+- **Tests**: 150+ tests across 21 test files covering server domain services, persistence adapters (memory + Drizzle), persistence-service RBAC, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
 - **Phase 1 tasks**: 27/27 done — Phase 1 complete
+- **Phase 2 tasks**: Task #28 (PostgreSQL persistence) in progress — schema parity, async adapters, smoke test complete
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
-- **DB schema**: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)
+- **DB schema**: 17 core tables with generated Drizzle migration. PostgreSQL runtime integration active via `PERSISTENCE=postgres` with async adapters (auth, workspace, messages, attachments, bots, signal). `FOR UPDATE SKIP LOCKED` for concurrent prekey allocation. In-memory adapter co-exists for development and tests.
 - **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage
 - **Bot infra**: Dedicated `/bots` WS namespace with token auth, per-bot event polling, subscription management; `NexusBotClient` SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface
 - **Base bots**: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce)
-- **Signal/E2E**: Real ECDH + AES-256-GCM encryption via IE2eeProvider interface with 3 implementations (placeholder/noble/webcrypto); @noble/* is default (HTTP-compatible, MIT); WebCrypto (HTTPS only); Placeholder (Phase 3 Signal Protocol stub, @deprecated). E2EE file attachments enabled (📎 button visible). E2EE attachment encryption/decryption helpers. PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback.
-- **Web shell**: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar. `ChatRoute.tsx` is now split into focused UI components plus hooks for channel members, attachments, message actions, bootstrap loading, read receipts, and typing state; Signal/P2P send orchestration and WebSocket connection ownership remain in the route.
+- **Signal/E2E**: Real ECDH + AES-256-GCM encryption via IE2eeProvider interface with 3 implementations (placeholder/noble/webcrypto); @noble/* is default (HTTP-compatible, MIT); WebCrypto (HTTPS only); Placeholder (Phase 3 Signal Protocol stub, @deprecated). E2EE file attachments enabled. E2EE attachment encryption/decryption helpers. PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback.
+- **Web shell**: React/Vite renderer with real-server-only login (demo mode removed), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence with automatic access-token refresh, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar. `ChatRoute.tsx` is now split into focused UI components plus hooks for channel members, attachments, message actions, bootstrap loading, read receipts, typing state, and auth token refresh; Signal/P2P send orchestration and WebSocket connection ownership remain in the route.
 - **Server**: REST API with 60+ endpoints, WebSocket gateway with room-based broadcasting, channel description & mute support, message pinning, reply-to with validation, presence tracking with connection count, WS broadcast for reactions/edits/deletes/channel-created, in-memory dev file upload/download endpoints
 
 ---
@@ -274,9 +276,9 @@ The WebSocket gateway at `apps/server/src/ws/gateway.ts:65-68` was reading `mess
 
 `apps/tui/src/commands/smoke.ts:169-172` passed `workspaceId` via a custom `x-query-workspace-id` header, but the server's `POST /api/v1/bots/install` reads `workspaceId` from the URL query string. Fixed to use `?workspaceId=...` in the request URL.
 
-### 7.5 Web Demo `/help` Fallback
+### 7.5 Web Demo `/help` Fallback (Removed)
 
-The web client demo mode uses a fake token (`demo-access-token`) that cannot establish a real WebSocket connection. Added a local-only fallback in `apps/web/src/components/App.tsx` that synthesizes a help bot response directly in the message store when `/help` is typed in demo mode, so the "Try /help" prompt in the welcome message actually works.
+The web client demo mode and its fake token (`demo-access-token`) have been removed. The login page now directly shows the real server authentication form only. The local-only `/help` synthesis fallback in `ChatRoute.tsx` was removed along with the demo mode, as was `demo-data.ts` and all `demo-access-token` guard clauses in hooks.
 
 ### 7.6 Coverage Enhancement
 
@@ -430,10 +432,23 @@ Design and task documents created for making the Web client usable on phones (<7
 ### 8.9 AGENTS.md Git Rules (2026-07-09)
 
 Added to `AGENTS.md`:
-
 - **Do NOT commit or create commits unless the user explicitly requests it.**
 - **Do NOT push unless the user explicitly approves it.**
 - **Do NOT force-push unless the user explicitly asks for it.**
+
+### 8.11 Phase 2 PostgreSQL Persistence (2026-07-15)
+
+Task #28 in progress — PostgreSQL wired as production persistence with async domain adapters:
+
+- **Infrastructure**: `PERSISTENCE=memory|postgres` env switch with production validation. Lazy Drizzle pool, `DB_MIGRATE_ON_BOOT`, graceful `closeDb()`. Schema parity migration with FK constraints, unique indexes, and timestamp defaults.
+- **Persistence adapters** (7 new files): `auth/persistence.ts`, `workspaces/persistence.ts` + `persistence-service.ts`, `messages/persistence.ts`, `attachments/persistence.ts`, `bots/persistence.ts`, `signal/persistence.ts`. Each domain has both an `InMemory*Persistence` and `Drizzle*Persistence` class implementing the same interface, selected via `env.PERSISTENCE`.
+- **Service refactors** (5 files): All domain services migrated to `async` persistence calls. Signal and attachment services reformatted with full module documentation.
+- **HTTP/WS integration**: Routes, gateway, and socket adapted for async service methods. `index.ts` calls `pingDb()` and `runMigrations()` on startup.
+- **DB Operations**: `FOR UPDATE SKIP LOCKED` for concurrent one-time prekey allocation. Bot install creates a non-login `users` row for FK satisfaction. Message idempotency via `(sender_id, client_msg_id)` unique index.
+- **Tests**: `persistence-memory.test.ts` (24 tests), `persistence-drizzle.test.ts` (16 tests), `persistence-service.test.ts` (13 RBAC tests), updated `services.test.ts` and `gateway.test.ts`.
+- **CI**: `postgres-smoke` job in unified `ci.yml` runs `scripts/ci-pg-smoke.sh` — 59 assertions across 12 acts: Alice/Bob onboarding, channel creation/conversation, reactions/edits/pins, read receipts, dev file upload/download with content verification, DM conversation, forward/save, /help bot, Signal prekey bundle, server restart persistence verification.
+- **Security**: GitHub Dependency Review (`actions/dependency-review-action@v4`) replaces deprecated npm audit API.
+- **Design Decisions**: Domain-specific persistence ports (not generic repository). Global `getXxxPersistence()` factory pattern with service-locator style. In-memory adapter co-exists in same file as Drizzle adapter. Dev file upload bytes are memory-only and expected to disappear on restart; file metadata persists in PostgreSQL.
 
 ### 8.10 E2EE Real Encryption Implementation (2026-07-10)
 
@@ -480,3 +495,7 @@ Task #27 completed — replaced the placeholder Base64 "encryption" with real cr
 11. **Signal Protocol Phase 3**: Real ECDH + AES-256-GCM is active for 1:1 DM E2EE (Task #27). Full X3DH + Double Ratchet via `@signalapp/libsignal-client` is deferred to Phase 3 on a separate AGPL-3.0 distribution branch to avoid copyleft contamination of the MIT-licensed `main` branch.
 
 12. **Docker web VITE_API_BASE**: `VITE_API_BASE` is baked into the web Docker image at build time. Changing the API URL requires rebuilding the web image. A reverse-proxy approach should be considered for production deployments where the API URL may change without rebuilding.
+
+13. **Dependency injection for persistence**: Current `getXxxPersistence()` factory follows service-locator pattern. Future refactoring should consider constructor injection with a DI container for testability and reduced import coupling.
+
+14. **Demo mode removal impact**: `demo-data.ts` and `demo-access-token` guards are removed. Web login is now real-server-only. Screenshots and offline demos require a running server. Alternative: a standalone demo build could be restored if needed.

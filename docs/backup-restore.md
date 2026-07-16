@@ -93,7 +93,7 @@ redis-cli SAVE
 
 ## File Storage (S3 / Object Storage)
 
-Phase 1 does not include user-facing file uploads in the UI. The attachment service backend is implemented but not yet wired to the client UI. When file storage is activated in Phase 2:
+Phase 1 includes dev file upload in the web/desktop UI via `/dev-upload`. Dev file bytes are in-memory and disappear on server restart. File metadata is persisted in PostgreSQL. Production object storage (S3-compatible) is planned for Phase 2:
 
 ### Backup Strategy
 

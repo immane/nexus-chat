@@ -26,6 +26,7 @@ import {
 } from "../stores/domain.js";
 import { API_BASE } from "../lib/api.js";
 import { useAttachments } from "../hooks/useAttachments.js";
+import { useAuthRefresh } from "../hooks/useAuthRefresh.js";
 import { useChatBootstrap } from "../hooks/useChatBootstrap.js";
 import { useChannelMembers } from "../hooks/useChannelMembers.js";
 import { useMessageActions } from "../hooks/useMessageActions.js";
@@ -122,6 +123,7 @@ const ChatRoute = () => {
   const isE2e = activeChannel?.mode === "e2e";
   const suggestions = isE2e ? [] : getCommandSuggestions(manifests, deferredDraft);
   useChatBootstrap();
+  useAuthRefresh();
   const { addChannelMember, channelMembers, members, removeChannelMember, senderNames } = useChannelMembers({ accessToken, activeChannelId, workspaceId: activeWorkspaceId });
   const { clearPendingAttachments, fileInputRef, handleFileUpload, handlePaste, pendingAttachments, uploading } = useAttachments({ accessToken, setDraft, workspaceId: activeWorkspaceId });
   const { handleMessagesVisible, readReceipts, setReadReceipts } = useReadReceipts(socketRef);
@@ -174,7 +176,7 @@ const ChatRoute = () => {
     }, peerUserId, peerDeviceId);
 
   useEffect(() => {
-    if (!user || !accessToken || accessToken === "demo-access-token") return;
+    if (!user || !accessToken) return;
     void (async () => {
       if (!signalIdentityRef.current) signalIdentityRef.current = await createLocalSignalIdentity(user.id, WEB_SIGNAL_DEVICE_ID, 5);
       const identity = signalIdentityRef.current!;
@@ -392,44 +394,6 @@ const ChatRoute = () => {
     const text = draft.trim();
     const isSlashCommand = text.startsWith("/");
     const [cmdName, ...cmdArgs] = isSlashCommand ? text.split(/\s+/) : ["", []];
-    const isDemoSession = accessToken === "demo-access-token";
-
-    // ── Path A: Demo mode (no server) ──
-    // Synthesize messages locally. /help is handled inline here because
-    // the demo-access-token cannot establish a real WebSocket connection.
-    if (!socketRef.current?.connected && isDemoSession) {
-      const msg = createOptimisticMessage({
-        workspaceId: activeChannel.workspaceId,
-        channelId: activeChannel.id,
-        senderId: user.id,
-        text,
-        policy: isE2e ? policy : { mode: "none" }
-      });
-      upsertMessage(msg, "sent");
-
-      if (!isE2e && cmdName === "/help") {
-        const helpBot = manifests.find((manifest) => manifest.commands.some((command) => command.name === "/help"));
-        if (helpBot) {
-          const now = new Date().toISOString();
-          const commands = helpBot.commands.map((command) => `${command.name} - ${command.description}`).join("\n");
-          upsertMessage({
-            id: `demo-bot-${Date.now()}`,
-            workspaceId: activeChannel.workspaceId,
-            channelId: activeChannel.id,
-            senderId: helpBot.id,
-            clientMsgId: `demo-bot-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-            content: { type: "text", text: `Available commands:\n${commands}`, attachments: [] },
-            state: "sent",
-            createdAt: now
-          });
-        }
-      }
-
-      stopTyping();
-      setDraft("");
-      setReplyMessage(null);
-      return;
-    }
 
     if (socketRef.current?.connected) {
       // ── Path B: Slash command (normal channels only) ──
