@@ -948,6 +948,8 @@
       
         
       
+        
+      
     
     
     
@@ -1290,6 +1292,34 @@
     
   
     E2EE加密抽象层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/11_PostgreSQL_Persistence_Integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL 持久化集成
   
 
     
@@ -2702,7 +2732,7 @@
 <li><code>messageService.send()</code> 检查通道访问、模式兼容性、幂等性 (<code>clientMsgId</code>) 和附件有效性。</li>
 <li>使用 <code>id</code> (UUID v7)、状态 <code>"sent"</code> 创建一条新消息，并将其存储在内存中。</li>
 <li>如果通道正常，<code>botService.publishEvent({ type: "message.created", ... })</code>会调度到订阅的机器人。</li>
-<li>网关向通道房间内的所有客户端广播<code>{ type: "message.created", payload: message }</code>。</li>
+<li>网关向频道房间内的所有客户端广播<code>{ type: "message.created", payload: message }</code>。</li>
 <li>客户端通过<code>{ type: "message.ack", payload: { messageId } }</code>确认。</li>
 <li>已读收据缓冲在内存中并批量刷新（设计中为 3 秒窗口，在第一阶段立即执行）。</li>
 </ol>

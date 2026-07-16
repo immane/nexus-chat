@@ -2,242 +2,250 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/QUICKSTART/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/README.project/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/backup-restore/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/beta-checklist/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/known-limitations/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/ai/comment/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/ai/context/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/00_System_High_Level_Architecture/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/01_Client_Shell_and_UI_Rendering_Layer/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/02_Long_Connection_and_Core_Gateway_Layer/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/03_Business_Logic_and_Persistence_Backend/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/04_Async_Bot_Engine_and_Event_Dispatch_Layer/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/05_AI_Agent_Orchestration_and_Streaming/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/06_Phase_Roadmap/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/07_P2P_DM_Direct_Connection/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/08_TUI_Chat_Redesign/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/09_Web_Client_UI_Design/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/design/10_E2EE_Encryption_Abstract_Layer/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://immane.github.io/nexus-chat/zh/design/11_PostgreSQL_Persistence_Integration/</loc>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/ai-agent-orchestration/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/backend-im-state-machine/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/base-bot-catalog/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/bot-engine-microservices/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/frontend-architecture/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/security-defense-e2ee-roadmap/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/telegram-interface-analysis/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/research/ui-components-plugin-protocol/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/sdk/go/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/sdk/java/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/sdk/nodejs/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/sdk/php/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/sdk/python/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/sdk/rust/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/01-phase-1-project-scaffold/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/02-phase-1-shared-contracts/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/03-phase-1-database-schema/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/04-phase-1-auth-session-security/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/05-phase-1-core-gateway/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/06-phase-1-workspace-channel-service/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/07-phase-1-message-service/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/08-phase-1-attachment-service-foundation/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/09-phase-1-signal-dm-e2ee/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/10-phase-1-bot-engine-core/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/11-phase-1-bot-sdk-node-reference/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/12-phase-1-base-bots-minimal/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/13-phase-1-web-client-shell/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/14-phase-1-electron-shell/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/15-phase-1-observability-security-hardening/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/16-phase-1-local-dev-ci-release/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/17-phase-1-tui-cli/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/18-phase-1-p2p-dm-direct/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/19-phase-1-web-message-actions/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/20-phase-1-web-message-display/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/21-phase-1-web-rich-media/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/22-phase-1-web-presence-notifications/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/23-phase-1-server-message-reply-pin/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/24-phase-1-server-channel-mute-description/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/25-phase-1-tui-chat-redesign/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/26-phase-1-web-mobile-adaptation/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://immane.github.io/nexus-chat/zh/tasks/27-phase-1-e2ee-real-encryption/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://immane.github.io/nexus-chat/zh/tasks/28-phase-2-postgresql-persistence-integration/</loc>
+         <lastmod>2026-07-16</lastmod>
     </url>
 </urlset>

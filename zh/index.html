@@ -726,6 +726,8 @@
       
         
       
+        
+      
     
     
     
@@ -1068,6 +1070,34 @@
     
   
     E2EE加密抽象层
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="design/11_PostgreSQL_Persistence_Integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL 持久化集成
   
 
     
@@ -2139,8 +2169,8 @@
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li><a href="#1-project-summary">Project Summary</a></li>
-<li><a href="#2-key-technology-stack">Key Technology Stack</a>
+<li><a href="#1-project-summary">Project Summary</a>
+2.<a href="#2-key-technology-stack">Key Technology Stack</a>
 3.<a href="#3-architecture-overview">Architecture Overview</a></li>
 <li><a href="#4-project-structure">Project Structure</a>
 5.<a href="#5-phase-roadmap">Phase Roadmap</a></li>
@@ -2548,6 +2578,11 @@
 <td>10 <a href="design/10_E2EE_Encryption_Abstract_Layer/">E2EE Encryption Abstract Layer</a></td>
 <td>IE2eeProvider 接口、占位符/@noble/SubtleCrypto 实现、ECDH + AES-256-GCM、第 3 阶段信号协议升级路径</td>
 </tr>
+<tr>
+<td>11</td>
+<td>11 <a href="design/11_PostgreSQL_Persistence_Integration/">PostgreSQL Persistence Integration</a></td>
+<td>生产 PostgreSQL 迁移边界、模式奇偶校验、异步查询形状端口、事务规则和垂直切片部署</td>
+</tr>
 </tbody>
 </table>
 <h3 id="62">6.2 研究文件<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
@@ -2733,6 +2768,11 @@
 <td>27</td>
 <td>27 <a href="tasks/27-phase-1-e2ee-real-encryption/">E2EE Real Encryption</a></td>
 <td>IE2eeProvider 接口、@noble/* ECDH + AES-256-GCM、WebCrypto、文件加密助手、119 项测试</td>
+</tr>
+<tr>
+<td>28</td>
+<td>28 <a href="tasks/28-phase-2-postgresql-persistence-integration/">PostgreSQL Persistence Integration</a></td>
+<td>PostgreSQL 生产持久性、架构奇偶校验、异步端口、事务安全垂直迁移和内存测试适配器</td>
 </tr>
 </tbody>
 </table>

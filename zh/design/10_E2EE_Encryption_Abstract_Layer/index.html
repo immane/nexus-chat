@@ -16,7 +16,7 @@
         <link rel="prev" href="../09_Web_Client_UI_Design/">
       
       
-        <link rel="next" href="../../research/frontend-architecture/">
+        <link rel="next" href="../11_PostgreSQL_Persistence_Integration/">
       
       
         
@@ -388,6 +388,8 @@
   
     
     
+      
+        
       
         
       
@@ -1373,6 +1375,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11_PostgreSQL_Persistence_Integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL 持久化集成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2742,9 +2772,9 @@
 5. <a href="#5-implementation-placeholder">Implementation: Placeholder</a>
 6.<a href="#6-implementation-noble-production">Implementation: @noble/* (Production)</a>
 7.<a href="#7-implementation-web-crypto-api">Implementation: Web Crypto API</a>
-8. <a href="#8-file-encryption--decryption">File Encryption &amp; Decryption</a>
+8.<a href="#8-file-encryption--decryption">File Encryption &amp; Decryption</a>
 9.<a href="#9-environment-selection">Environment Selection</a>
-10.<a href="#10-layer-0-impact-analysis">Layer 0 Impact Analysis</a>
+10. <a href="#10-layer-0-impact-analysis">Layer 0 Impact Analysis</a>
 11.<a href="#11-phase-3-upgrade-path">Phase 3 Upgrade Path</a>
 12.<a href="#12-security-considerations">Security Considerations</a></p>
 <hr />
@@ -3615,7 +3645,7 @@
 </ol>
 <h3 id="123">12.3 密钥管理<a class="headerlink" href="#123" title="Permanent link">&para;</a></h3>
 <ul>
-<li>私钥<strong>永远不会离开客户端</strong>（通过构造：<code>identityKeyPrivate</code>是仅在本地用于ECDH的<code>Uint8Array</code>）</li>
+<li>私钥<strong>永远不会离开客户端</strong>（根据结构：<code>identityKeyPrivate</code>是仅在本地用于ECDH的<code>Uint8Array</code>）</li>
 <li>公钥被序列化为 Base64 并存储在服务器端的 PreKey 捆绑包中</li>
 <li>每个 E2EE DM 有一个 <code>SignalSession</code> 和一个 <code>sharedKey</code></li>
 <li>会话是针对每个对等点，而不是针对每条消息（第 3 阶段将添加针对每条消息的棘轮）</li>
