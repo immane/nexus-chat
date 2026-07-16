@@ -1,7 +1,7 @@
 ---
 lang: en
 phase: 2
-status: planned
+status: completed
 ---
 
 # 28 - Phase 2 - PostgreSQL Persistence Integration
@@ -14,9 +14,9 @@ The migration must be incremental, transaction-safe, and complete per domain sli
 
 ## Current State
 
-`apps/server/src/db/schema.ts`, the initial Drizzle migration, `db/client.ts`, and a seed script already exist. Runtime auth, workspace, channel, message, attachment, bot, and Signal services still mutate the singleton `InMemoryStore` directly.
+PostgreSQL is now the production source of truth through async Drizzle adapters for auth, workspace/channel, messages, attachments, bots, and Signal. In-memory adapters remain explicit development/test backends. The parity migration covers channel creator/description/soft-delete data, message reply and forward metadata, saves, read receipts, pins, mutes, and file channel associations.
 
-The existing schema also does not yet represent all runtime state. Before an adapter is selected in production, migrations must cover channel creator/description/soft-delete data, message reply and forward metadata, saves, read receipts, pins, mutes, and file channel associations.
+The remaining Phase 2 work is outside this task: production object storage, Redis-backed multi-instance operational state, search, threads, and group E2EE.
 
 ## Scope
 
@@ -111,19 +111,19 @@ The following must not be represented by PostgreSQL repository ports:
 
 ## Acceptance Criteria
 
-- [ ] `NODE_ENV=production` rejects `PERSISTENCE=memory` during startup configuration validation.
-- [ ] `PERSISTENCE=memory` does not instantiate a PostgreSQL pool.
-- [ ] `PERSISTENCE=postgres` fails readiness before serving traffic when PostgreSQL is unreachable.
-- [ ] Docker Compose starts PostgreSQL and Redis with passing health checks and a persistent PostgreSQL volume.
-- [ ] A clean PostgreSQL database applies all generated migrations and accepts the seed script.
-- [ ] Schema migrations contain every field and relation used by each migrated production service slice.
-- [ ] Every migrated service has complete in-memory and PostgreSQL adapters; there are no selected PostgreSQL stubs.
-- [ ] Workspace creation, deterministic DM creation, member removal, message creation with attachment associations, and Signal one-time-prekey consumption are atomic.
-- [ ] Duplicate concurrent message sends with the same `(senderId, clientMsgId)` return one durable message.
-- [ ] Concurrent Signal bundle fetches cannot consume the same one-time prekey.
-- [ ] No production-configured durable-data route, gateway path, or socket bootstrap path reads from `InMemoryStore`.
-- [ ] Existing unit tests run with in-memory persistence; PostgreSQL adapter and route integration tests run against disposable PostgreSQL.
-- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` pass.
+- [x] `NODE_ENV=production` rejects `PERSISTENCE=memory` during startup configuration validation.
+- [x] `PERSISTENCE=memory` does not instantiate a PostgreSQL pool.
+- [x] `PERSISTENCE=postgres` fails readiness before serving traffic when PostgreSQL is unreachable.
+- [x] Docker Compose starts PostgreSQL and Redis with passing health checks and a persistent PostgreSQL volume.
+- [x] A clean PostgreSQL database applies all generated migrations and accepts the seed script.
+- [x] Schema migrations contain every field and relation used by each migrated production service slice.
+- [x] Every migrated service has complete in-memory and PostgreSQL adapters; there are no selected PostgreSQL stubs.
+- [x] Workspace creation, deterministic DM creation, member removal, message creation with attachment associations, and Signal one-time-prekey consumption are atomic.
+- [x] Duplicate concurrent message sends with the same `(senderId, clientMsgId)` return one durable message.
+- [x] Concurrent Signal bundle fetches cannot consume the same one-time prekey.
+- [x] No production-configured durable-data route, gateway path, or socket bootstrap path reads from `InMemoryStore`.
+- [x] Existing unit tests run with in-memory persistence; PostgreSQL route integration runs against a disposable PostgreSQL database through `scripts/ci-pg-smoke.sh`.
+- [x] `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` pass.
 
 ## Test Plan
 

@@ -178,19 +178,7 @@ export class DrizzleSignalPersistence implements SignalPersistence {
     });
   }
   async consume(u: string, d: string, i: number) {
-    const [p] = await this.db
-      .select()
-      .from(signalOneTimePreKeys)
-      .where(
-        and(
-          eq(signalOneTimePreKeys.userId, u),
-          eq(signalOneTimePreKeys.deviceId, d),
-          eq(signalOneTimePreKeys.keyId, i)
-        )
-      );
-    if (!p) return "missing";
-    if (p.consumedAt) return "used";
-    await this.db
+    const [consumed] = await this.db
       .update(signalOneTimePreKeys)
       .set({ consumedAt: new Date() })
       .where(
@@ -200,8 +188,21 @@ export class DrizzleSignalPersistence implements SignalPersistence {
           eq(signalOneTimePreKeys.keyId, i),
           isNull(signalOneTimePreKeys.consumedAt)
         )
+      )
+      .returning({ keyId: signalOneTimePreKeys.keyId });
+    if (consumed) return "consumed";
+
+    const [existing] = await this.db
+      .select({ consumedAt: signalOneTimePreKeys.consumedAt })
+      .from(signalOneTimePreKeys)
+      .where(
+        and(
+          eq(signalOneTimePreKeys.userId, u),
+          eq(signalOneTimePreKeys.deviceId, d),
+          eq(signalOneTimePreKeys.keyId, i)
+        )
       );
-    return "consumed";
+    return existing ? "used" : "missing";
   }
   async count(u: string, d: string) {
     const [r] = await this.db

@@ -62,6 +62,11 @@ export class RedisRefreshSessionStore implements RefreshSessionStore {
     await this.set(refreshToken, { ...session, revokedAt: Date.now() });
   }
 
+  async ping() {
+    await this.ensureConnected();
+    await this.redis.ping();
+  }
+
   private key(refreshToken: string) {
     return `auth:refresh:${refreshToken}`;
   }
@@ -72,3 +77,9 @@ export class RedisRefreshSessionStore implements RefreshSessionStore {
 }
 
 export const refreshSessionStore: RefreshSessionStore = env.SESSION_STORE === "redis" ? new RedisRefreshSessionStore() : new InMemoryRefreshSessionStore();
+
+/** Verifies the configured Redis session backend without touching session data. */
+export async function pingSessionStore(): Promise<void> {
+  if (refreshSessionStore instanceof RedisRefreshSessionStore)
+    await refreshSessionStore.ping();
+}

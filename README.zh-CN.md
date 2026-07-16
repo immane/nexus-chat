@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-2%20in%20progress-blue" alt="Phase">
-  <img src="https://img.shields.io/badge/coverage-99%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-150%2B%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/coverage-98%25-brightgreen" alt="Coverage">
+  <img src="https://img.shields.io/badge/tests-136%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -513,12 +513,12 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 
 | 指标 | 数值 |
 | --- | --- |
-| Statements | 98.92% |
-| Branches | 91.24% |
-| Functions | 99.13% |
-| Lines | 98.92% |
+| Statements | 98.07% |
+| Branches | 90.99% |
+| Functions | 98.85% |
+| Lines | 98.07% |
 
-**测试分布（21 files, 150+ tests）：**
+**测试分布（21 files, 136 tests）：**
 
 | Package | 测试文件 | 测试数 |
 | --- | --- | --- |

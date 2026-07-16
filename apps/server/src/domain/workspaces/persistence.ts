@@ -110,7 +110,32 @@ export class DrizzleWorkspacePersistence implements WorkspacePersistence {
   async findChannel(id: string) { const [row] = await this.database.select().from(channels).where(eq(channels.id, id)); return row && mapChannel(row); }
   async listChannels(workspaceId: string) { return (await this.database.select().from(channels).where(eq(channels.workspaceId, workspaceId))).map(mapChannel); }
   async createChannel(channel: Channel, memberIds: string[]) { return this.database.transaction(async (tx) => { const [row] = await tx.insert(channels).values({ ...channel, description: channel.description ?? null, createdById: channel.createdById ?? null, archivedAt: channel.archivedAt ? new Date(channel.archivedAt) : null, deletedAt: channel.deletedAt ? new Date(channel.deletedAt) : null, createdAt: new Date(channel.createdAt) }).onConflictDoNothing().returning(); if (!row) return undefined; if (memberIds.length) await tx.insert(channelMembers).values(memberIds.map((userId) => ({ channelId: channel.id, userId }))).onConflictDoNothing(); return mapChannel(row); }); }
-  async createOrGetDm(channel: Channel, memberIds: string[]) { const created = await this.createChannel(channel, memberIds); if (created) return created; const [existing] = await this.database.select().from(channels).where(and(eq(channels.workspaceId, channel.workspaceId), eq(channels.name, channel.name))); if (!existing) throw new Error("DM conflict did not return an existing channel"); await this.database.insert(channelMembers).values(memberIds.map((userId) => ({ channelId: existing.id, userId }))).onConflictDoNothing(); return mapChannel(existing); }
+  async createOrGetDm(channel: Channel, memberIds: string[]) {
+    return this.database.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(channels)
+        .values({
+          ...channel,
+          description: channel.description ?? null,
+          createdById: channel.createdById ?? null,
+          archivedAt: channel.archivedAt ? new Date(channel.archivedAt) : null,
+          deletedAt: channel.deletedAt ? new Date(channel.deletedAt) : null,
+          createdAt: new Date(channel.createdAt)
+        })
+        .onConflictDoNothing()
+        .returning();
+      const existing = created ?? (await tx
+        .select()
+        .from(channels)
+        .where(and(eq(channels.workspaceId, channel.workspaceId), eq(channels.name, channel.name))))[0];
+      if (!existing) throw new Error("DM conflict did not return an existing channel");
+      await tx
+        .insert(channelMembers)
+        .values(memberIds.map((userId) => ({ channelId: existing.id, userId })))
+        .onConflictDoNothing();
+      return mapChannel(existing);
+    });
+  }
   async upsertChannelMember(channelId: string, userId: string) { await this.database.insert(channelMembers).values({ channelId, userId }).onConflictDoNothing(); }
   async deleteChannelMember(channelId: string, userId: string) { return (await this.database.delete(channelMembers).where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId))).returning()).length > 0; }
   async listChannelMembers(channelId: string) { return this.database.select({ channelId: channelMembers.channelId, userId: channelMembers.userId }).from(channelMembers).where(eq(channelMembers.channelId, channelId)); }

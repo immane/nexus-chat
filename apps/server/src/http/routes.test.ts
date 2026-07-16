@@ -67,6 +67,18 @@ describe("auth HTTP routes", () => {
     expect(lookalikeResponse.headers.get("access-control-allow-origin")).toBe("http://localhost");
   });
 
+  it("reports process liveness and configured dependency readiness separately", async () => {
+    const app = createHttpApp();
+
+    expect((await app.request("http://localhost/healthz")).status).toBe(200);
+    const ready = await app.request("http://localhost/readyz");
+    expect(ready.status).toBe(200);
+    await expect(parseJson<{ ok: true; data: { status: string } }>(ready)).resolves.toEqual({
+      ok: true,
+      data: { status: "ready" }
+    });
+  });
+
   it("supports workspace channel and DM CRUD flow", async () => {
     const app = createHttpApp();
     const ownerResponse = await app.request(jsonRequest("/api/v1/auth/register", { email: "owner@example.com", password: "Password12345!", displayName: "Owner" }));

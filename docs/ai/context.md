@@ -1,7 +1,7 @@
 # Nexus Chat — Session Context Document
 
-> Last updated: 2026-07-16 (Phase 2 — PostgreSQL persistence integrated via async adapters, Task #28 in progress, CI unified with PostgreSQL multi-user smoke test, web demo removed, auto-refresh tokens)
-> Current status: Phase 1 complete (27/27), Phase 2 in progress. Real ECDH + AES-256-GCM encryption active for 1:1 E2EE DMs. PostgreSQL wired as production persistence with PERSISTENCE env switch; in-memory remains dev default. IE2eeProvider interface with 3 swappable implementations.
+> Last updated: 2026-07-17 (Phase 2 — PostgreSQL persistence Task #28 complete, CI unified with 60-check PostgreSQL multi-user smoke test, web demo removed, auto-refresh tokens)
+> Current status: Phase 1 complete (27/27), Phase 2 in progress. PostgreSQL persistence Task #28 is complete; production requires `PERSISTENCE=postgres`, while in-memory remains the development/test default. Real ECDH + AES-256-GCM encryption is active for 1:1 E2EE DMs.
 
 ## 1. Project Overview
 
@@ -60,25 +60,25 @@ The application targets SaaS cloud deployment, with an Electron desktop client a
 │ Preload bridge (contextBridge) for security   │
 ├──────────────────────────────────────────────┤
 │ Layer 2: Long Connection Gateway              │
-│ WebSocket Gateway (Socket.IO + Redis Adapter) │
-│ Sticky-session load balancing (Nginx/ALB)     │
+│ WebSocket Gateway (Socket.IO, single process) │
 │ Connection management + heartbeat + reconnect │
 ├──────────────────────────────────────────────┤
-│ Layer 3: Business Logic                       │
+│ Layer 3: Business Logic + Persistence         │
 │ REST API (Hono) + Channel/Member management   │
 │ Message CRUD + state machine                  │
 │ Attachment Service (file lifecycle authority) │
+│ PostgreSQL (production) / In-memory (dev)     │
 │ Cursor-based pagination + UUID v7 IDs         │
 ├──────────────────────────────────────────────┤
 │ Layer 4: Async Bot Engine                     │
-│ Event-driven architecture (Redis Streams)     │
-│ Bot SDK (WebSocket + Webhook hybrid)          │
-│ BullMQ task queue for dispatch                │
+│ Event polling via WebSocket /bots namespace   │
+│ Bot SDK (WebSocket native)                    │
+│ Process-local pending event queue             │
 ├──────────────────────────────────────────────┤
-│ Layer 5: E2EE (ECDH + AES-256-GCM)             │
+│ Layer 5: E2EE (ECDH + AES-256-GCM)            │
 │ ECDH key exchange + AES-256-GCM encryption    │
-│ Sender Key distribution for groups (Phase 2)    │
-│ Client-side key storage (memory)                │
+│ Client-side key storage (memory)              │
+│ P2P WebRTC DataChannel (opportunistic)        │
 └──────────────────────────────────────────────┘
 ```
 
@@ -117,19 +117,21 @@ Key design: `clientMsgId` for idempotent deduplication. UUID v7 for time-ordered
 ### 3.4 Service Split Roadmap
 
 ```
-Phase 1 (Monolith):
+Phase 1 (Monolith): ✓ Complete
   Single Node.js backend + shared PostgreSQL (schema isolation)
-  → Redis Streams event bus + BullMQ task queue
+  In-memory development default; PERSISTENCE=postgres for production
 
-Phase 2 (Hybrid, 3-9 months):
-  Split priority: relay-service → bot-service → message-service → notification-service
-  → NATS JetStream replaces Redis Streams
-  → gRPC for internal sync calls, NATS for async events
-  → Traefik API gateway on K8s
+Phase 2 (Growth, in progress):
+  Production PostgreSQL persistence ✓ (Task #28)
+  Core Attachment Service productionization (S3/R2)
+  Full-text search (PostgreSQL tsvector + GIN)
+  Group E2EE (Sender Key)
+  Threads, production packaging, AI/streaming
 
-Phase 3 (Full Microservices, 9-18 months):
-  Database-per-service + CQRS + CDC to Elasticsearch
-  → Multi-region (NATS Leaf Nodes) + Signal E2EE GA
+Phase 3 (Scale, 9-18 months):
+  Microservice extraction (relay → bot → message → notification)
+  Database-per-service + CQRS
+  Signal Protocol GA, Bot marketplace, multi-region
 ```
 
 ### 3.5 Database Design
@@ -141,15 +143,19 @@ Phase 3 (Full Microservices, 9-18 months):
 - `(sender_id, client_msg_id)` UNIQUE constraint for idempotency
 - Schema-based logical isolation (`chat.`, `bot.`, `auth.`, `signal.`) preparing for future microservice split
 
-### 3.6 Redis Cache Layers
+### 3.6 Operational State Layers
 
+Current implementation uses process-local Maps for transient state. Redis is available for session storage (`SESSION_STORE=redis`) via `RedisRefreshSessionStore`.
+
+Planned Redis migration (Phase 2 operational state):
 ```
-Layer 1: Session & Auth (token → user/permissions)
-Layer 2: Online Presence (status + active connections)
-Layer 3: Channel State (members, info — lazy load + TTL)
-Layer 4: Message Hot Data (Sorted Set, recent 200 per channel)
-Layer 5: Read/Unread State (per-user per-channel cursor)
-Layer 6: Rate Limiting (Sliding Window, Redis-backed)
+Layer 1: Session & Auth (token → user/permissions) — RedisRefreshSessionStore ✓
+Layer 2: Online Presence (status + active connections) — process-local Map
+Layer 3: Channel State (members, info — lazy load + TTL) — process-local
+Layer 4: Message Hot Data (Sorted Set, recent 200 per channel) — planned
+Layer 5: Read/Unread State (per-user per-channel cursor) — PostgreSQL durable
+Layer 6: Rate Limiting (Sliding Window) — process-local Map
+Socket.IO multi-instance adapter — planned
 ```
 
 ---
@@ -221,7 +227,7 @@ Detailed, decoupled Phase 1 tasks are stored in `docs/tasks/`:
 | 25 | TUI Chat Interface Redesign | Done |
 | 26 | Web Mobile Adaptation | Done |
 | 27 | E2EE Real Encryption Implementation | Done |
-| 28 | Phase 2 PostgreSQL Persistence Integration | In Progress |
+| 28 | Phase 2 PostgreSQL Persistence Integration | Done |
 
 ### Later Phases
 - **Phase 2 (Growth, 3-9 months)**: Core Attachment Service productionization, Group E2EE, full-text search, threads, production packaging, streaming protocol, `@AIBot` with basic full-text search tool, advanced Bot SDK workflows, OpenTelemetry preparation
@@ -239,14 +245,14 @@ From `AGENTS.md`:
 
 ---
 
-## 6.5 Current Implementation Stats (as of 2026-07-16)
+## 6.5 Current Implementation Stats (as of 2026-07-17)
 
 - **Monorepo layout**: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo
-- **CI validation**: Unified `ci.yml` (validate + postgres-smoke + security). `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. PostgreSQL multi-user smoke test: 59/59 assertions across 12 acts (onboarding, channels, conversation, reactions, edits, pins, read receipts, file upload/download, DM, forward/save, bot /help, Signal prekeys, server restart persistence).
-- **Coverage**: 98.92% statements/lines, 99.13% functions, 91.24% branches across core domain + shared packages
-- **Tests**: 150+ tests across 21 test files covering server domain services, persistence adapters (memory + Drizzle), persistence-service RBAC, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
+- **CI validation**: Unified `ci.yml` (validate + postgres-smoke + security). `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm coverage`, `pnpm build` all passing. PostgreSQL multi-user smoke test: 60/60 assertions across 12 acts (onboarding, channels, conversation, reactions, edits, pins, read receipts, file upload/download, DM, forward/save, bot /help, concurrent Signal prekeys, server restart persistence).
+- **Coverage**: 98.07% statements/lines, 98.85% functions, 90.99% branches across core domain + shared packages
+- **Tests**: 136 tests across 21 test files covering server domain services, persistence adapters (memory + Drizzle), persistence-service RBAC, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI
 - **Phase 1 tasks**: 27/27 done — Phase 1 complete
-- **Phase 2 tasks**: Task #28 (PostgreSQL persistence) in progress — schema parity, async adapters, smoke test complete
+- **Phase 2 tasks**: Task #28 (PostgreSQL persistence) complete — schema parity, async adapters, `/readyz`, and 60-check smoke test
 - **Shared contracts**: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper
 - **DB schema**: 17 core tables with generated Drizzle migration. PostgreSQL runtime integration active via `PERSISTENCE=postgres` with async adapters (auth, workspace, messages, attachments, bots, signal). `FOR UPDATE SKIP LOCKED` for concurrent prekey allocation. In-memory adapter co-exists for development and tests.
 - **Session store**: Dual backend: `InMemoryRefreshSessionStore` (default dev) and `RedisRefreshSessionStore` (activated via `SESSION_STORE=redis`), both with full test coverage
@@ -436,9 +442,9 @@ Added to `AGENTS.md`:
 - **Do NOT push unless the user explicitly approves it.**
 - **Do NOT force-push unless the user explicitly asks for it.**
 
-### 8.11 Phase 2 PostgreSQL Persistence (2026-07-15)
+### 8.11 Phase 2 PostgreSQL Persistence (2026-07-17 — complete)
 
-Task #28 in progress — PostgreSQL wired as production persistence with async domain adapters:
+Task #28 complete — PostgreSQL wired as production persistence with async domain adapters:
 
 - **Infrastructure**: `PERSISTENCE=memory|postgres` env switch with production validation. Lazy Drizzle pool, `DB_MIGRATE_ON_BOOT`, graceful `closeDb()`. Schema parity migration with FK constraints, unique indexes, and timestamp defaults.
 - **Persistence adapters** (7 new files): `auth/persistence.ts`, `workspaces/persistence.ts` + `persistence-service.ts`, `messages/persistence.ts`, `attachments/persistence.ts`, `bots/persistence.ts`, `signal/persistence.ts`. Each domain has both an `InMemory*Persistence` and `Drizzle*Persistence` class implementing the same interface, selected via `env.PERSISTENCE`.
@@ -446,7 +452,7 @@ Task #28 in progress — PostgreSQL wired as production persistence with async d
 - **HTTP/WS integration**: Routes, gateway, and socket adapted for async service methods. `index.ts` calls `pingDb()` and `runMigrations()` on startup.
 - **DB Operations**: `FOR UPDATE SKIP LOCKED` for concurrent one-time prekey allocation. Bot install creates a non-login `users` row for FK satisfaction. Message idempotency via `(sender_id, client_msg_id)` unique index.
 - **Tests**: `persistence-memory.test.ts` (24 tests), `persistence-drizzle.test.ts` (16 tests), `persistence-service.test.ts` (13 RBAC tests), updated `services.test.ts` and `gateway.test.ts`.
-- **CI**: `postgres-smoke` job in unified `ci.yml` runs `scripts/ci-pg-smoke.sh` — 59 assertions across 12 acts: Alice/Bob onboarding, channel creation/conversation, reactions/edits/pins, read receipts, dev file upload/download with content verification, DM conversation, forward/save, /help bot, Signal prekey bundle, server restart persistence verification.
+- **CI**: `postgres-smoke` job in unified `ci.yml` runs `scripts/ci-pg-smoke.sh` — 60 assertions across 12 acts: Alice/Bob onboarding, channel creation/conversation, reactions/edits/pins, read receipts, dev file upload/download with content verification, DM conversation, forward/save, /help bot, concurrent Signal prekey allocation, server restart persistence verification.
 - **Security**: GitHub Dependency Review (`actions/dependency-review-action@v4`) replaces deprecated npm audit API.
 - **Design Decisions**: Domain-specific persistence ports (not generic repository). Global `getXxxPersistence()` factory pattern with service-locator style. In-memory adapter co-exists in same file as Drizzle adapter. Dev file upload bytes are memory-only and expected to disappear on restart; file metadata persists in PostgreSQL.
 
@@ -466,7 +472,7 @@ Task #27 completed — replaced the placeholder Base64 "encryption" with real cr
 - **Downstream fixes**: `signal-helpers.ts`, `ChatRoute.tsx`, and `smoke.ts` updated for async API (key generation, session establishment now async).
 - **Tests**: 33 tests in `packages/signal/src/index.test.ts` covering all 3 providers, crypto helpers, session store, provider selection, and legacy helpers.
 - **Coverage**: Signal package 100% lines/statements/functions/branches. Coverage thresholds met project-wide.
-- **Verification**: `pnpm build` (11/11), `pnpm test` (15/15, 119 tests), `pnpm coverage` (100/93.34/100/100).
+- **Verification**: `pnpm build` (11/11), `pnpm test` (15/15), `pnpm coverage` (100/93.34/100/100).
 
 ---
 

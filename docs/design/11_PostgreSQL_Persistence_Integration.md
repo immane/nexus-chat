@@ -4,16 +4,16 @@ lang: en
 
 # 11 - PostgreSQL Persistence Integration
 
-> Version: v1.0 | Last Updated: 2026-07-15 | Status: Approved Design
+> Version: v1.1 | Last Updated: 2026-07-17 | Status: Implemented
 > Dependencies: [03 - Business Logic & Persistence](03_Business_Logic_and_Persistence_Backend.md), [06 - Phase Roadmap](06_Phase_Roadmap.md)
 
 ---
 
 ## 1. Purpose
 
-The current server has a complete Drizzle schema, generated migration, seed script, and PostgreSQL client. Runtime domain services still read and write the singleton `InMemoryStore` directly. This document defines the smallest safe path to make PostgreSQL the durable production backend while retaining an in-memory implementation for unit tests and explicit local development.
+The server uses PostgreSQL as its durable production backend through complete async Drizzle adapters, while retaining an in-memory implementation for explicit local development and unit tests. This document records the boundaries and decisions used for that migration.
 
-This is an incremental migration. It does not introduce a parallel, partially functional persistence path.
+The implementation does not introduce a parallel, partially functional persistence path. Production requires `PERSISTENCE=postgres`; development-only file bytes remain process-local until object storage is introduced.
 
 ## 2. Decisions
 
@@ -27,15 +27,11 @@ This is an incremental migration. It does not introduce a parallel, partially fu
 | Transactions belong at service use-case boundaries. | A repository must not make cross-table operations partially durable. |
 | PostgreSQL stores durable facts only. | Presence, rate limiting, bot delivery queues, and development file bytes have different lifecycle and scaling requirements. |
 
-## 3. Current Gap
+## 3. Implementation Status
 
-`apps/server/src/db/client.ts` exports a `pg.Pool` and Drizzle client, but runtime code does not query it. The following code paths access `InMemoryStore` directly:
+The schema parity migration and adapters cover auth, workspaces/channels, messages, attachments, bots, and Signal. HTTP and WebSocket paths await the migrated services. Production durable state does not read `InMemoryStore`; remaining store use is restricted to in-memory adapters, transient process state, and development-only file bytes.
 
-- Domain services: auth, workspaces, messages, attachments, bots, and signal.
-- HTTP routes: channel patching, reaction broadcasts, and development upload/download endpoints.
-- WebSocket gateway and socket server: bot-response lookup, room bootstrap, and presence reference counts.
-
-The schema also requires reconciliation before it can faithfully persist current behavior. In particular, the current runtime model contains channel `createdById`, `description`, and `deletedAt`; message reply and forward metadata; saved messages; read receipts; channel mutes; pinned messages; file `channelId`; and a read-state representation that the migration does not yet model completely.
+`/healthz` reports process liveness. `/readyz` verifies the configured PostgreSQL and Redis session dependencies before traffic is considered ready. The PostgreSQL smoke test validates clean migration/seed, multi-user API flows, concurrent Signal prekey allocation, and persistence across restart.
 
 ## 4. Persistence Boundary
 

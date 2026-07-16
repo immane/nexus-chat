@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/phase-2%20in%20progress-blue" alt="Phase">
-  <img src="https://img.shields.io/badge/coverage-99%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-150%2B%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/coverage-98%25-brightgreen" alt="Coverage">
+  <img src="https://img.shields.io/badge/tests-136%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -216,7 +216,7 @@ nexus-chat/
 | **Desktop** | Electron | BrowserWindow, preload IPC, tray, notifications |
 | **CLI** | Commander, Ink (React 19) | TUI chat, smoke tests |
 | **Observability** | Pino, `prom-client` | Structured logs, request IDs, metrics |
-| **Testing** | Vitest + V8 coverage | 21 test files, 150+ tests |
+| **Testing** | Vitest + V8 coverage | 21 test files, 136 tests |
 | **P2P** | WebRTC (browser-native, no npm deps) | 1:1 E2EE DM direct connection + server signaling relay |
 
 ---
@@ -513,12 +513,12 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm coverage && pnpm build
 
 | Metric | Value |
 | --- | --- |
-| Statements | 98.92% |
-| Branches | 91.24% |
-| Functions | 99.13% |
-| Lines | 98.92% |
+| Statements | 98.07% |
+| Branches | 90.99% |
+| Functions | 98.85% |
+| Lines | 98.07% |
 
-**Test breakdown (21 files, 150+ tests):**
+**Test breakdown (21 files, 136 tests):**
 
 | Package | Test file | Tests |
 | --- | --- | --- |

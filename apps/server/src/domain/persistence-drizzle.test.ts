@@ -150,6 +150,7 @@ describe("PostgreSQL persistence adapters", () => {
     expect(await signal.takeBundle("user", "device")).toMatchObject({ userId: "user" });
     expect(await new DrizzleSignalPersistence(fakeDatabase([row], [])).takeBundle("user", "device")).toEqual(bundle);
     expect(await signal.consume("user", "device", 1)).toBe("consumed");
+    expect(await new DrizzleSignalPersistence(fakeDatabase([], [row])).consume("user", "device", 1)).toBe("used");
     expect(await signal.count("user", "device")).toBe(1);
     await signal.createSession({ id: "session", ownerUserId: "user", peerUserId: "peer", deviceId: "device", metadata: {}, updatedAt: workspace.createdAt });
     expect(await signal.session("session")).toMatchObject({ updatedAt: workspace.createdAt });

@@ -22,7 +22,7 @@
  * Does NOT:
  * - Handle WebSocket connections (owned by ws/)
  * - Run domain logic (delegated to domain services)
- * - Directly access the database (uses in-memory store in Phase 1)
+ * - Directly access persistence adapters (delegated to domain services)
  */
 import { URL } from "node:url";
 import { Hono } from "hono";
@@ -60,6 +60,8 @@ import { authService } from "../domain/auth/service.js";
 import { botService } from "../domain/bots/service.js";
 import { messageService } from "../domain/messages/service.js";
 import { store } from "../domain/store.js";
+import { pingDb } from "../db/client.js";
+import { pingSessionStore } from "../domain/auth/session-store.js";
 import { broadcastToChannel, broadcastToWorkspace } from "../ws/broadcast.js";
 import { signalService } from "../domain/signal/service.js";
 import { workspacePersistenceService } from "../domain/workspaces/persistence-service.js";
@@ -113,6 +115,15 @@ export const createHttpApp = () => {
   app.use("*", cors({ origin: (origin) => (isAllowedOrigin(origin) ? origin : env.WEB_ORIGIN === "*" ? origin : env.WEB_ORIGIN), credentials: true }));
 
   app.get("/healthz", (c) => c.json(apiOk({ status: "ok" })));
+  app.get("/readyz", async (c) => {
+    try {
+      if (env.PERSISTENCE === "postgres") await pingDb();
+      await pingSessionStore();
+      return c.json(apiOk({ status: "ready" }));
+    } catch {
+      return c.json(apiFail("INTERNAL_ERROR", "Configured dependency is unavailable"), 503);
+    }
+  });
   app.get("/metrics", async (c) => c.text(await registry.metrics(), 200, { "content-type": registry.contentType }));
 
   app.post("/api/v1/auth/register", zValidator("json", registerRequestSchema), async (c) => {
@@ -274,28 +285,29 @@ export const createHttpApp = () => {
   app.get("/api/v1/attachments/:fileId", authRequired, async (c) => c.json(toResponse(await attachmentService.getFile(c.get("userId"), requiredParam(c.req.param("fileId"))))));
   app.post("/api/v1/attachments/:fileId/download-url", authRequired, async (c) => c.json(toResponse(await attachmentService.createDownloadUrl(c.get("userId"), requiredParam(c.req.param("fileId"))))));
 
-  // Dev-only in-memory file upload. Phase 1 stores file content in a Map
-  // (devFileContent). Phase 2 replaces with S3/R2/MinIO via Core Attachment Service.
-  app.put("/dev-upload/:fileId", authRequired, async (c) => {
-    const fileId = requiredParam(c.req.param("fileId"));
-    if (!await attachmentService.canUploadFile(c.get("userId"), fileId)) return c.json(apiFail("FORBIDDEN", "Upload session access denied"), 403);
-    const body = await c.req.arrayBuffer();
-    const file = await attachmentService.getFile(c.get("userId"), fileId);
-    if ("ok" in file) return c.json(file, 404);
-    await attachmentService.updateDevUpload(fileId, body.byteLength);
-    store.devFileContent = store.devFileContent ?? new Map();
-    store.devFileContent.set(fileId, body);
-    return c.json({ ok: true, data: {} });
-  });
+  if (env.NODE_ENV !== "production") {
+    // Development file bytes intentionally stay process-local. Production uses object storage.
+    app.put("/dev-upload/:fileId", authRequired, async (c) => {
+      const fileId = requiredParam(c.req.param("fileId"));
+      if (!await attachmentService.canUploadFile(c.get("userId"), fileId)) return c.json(apiFail("FORBIDDEN", "Upload session access denied"), 403);
+      const body = await c.req.arrayBuffer();
+      const file = await attachmentService.getFile(c.get("userId"), fileId);
+      if ("ok" in file) return c.json(file, 404);
+      await attachmentService.updateDevUpload(fileId, body.byteLength);
+      store.devFileContent = store.devFileContent ?? new Map();
+      store.devFileContent.set(fileId, body);
+      return c.json({ ok: true, data: {} });
+    });
 
-  app.get("/dev-download/:fileId", authRequired, async (c) => {
-    const fileId = requiredParam(c.req.param("fileId"));
-    const file = await attachmentService.getFile(c.get("userId"), fileId);
-    const content = store.devFileContent?.get(fileId);
-    if ("ok" in file || !content) return c.notFound();
-    c.header("content-type", file.contentType ?? "application/octet-stream");
-    return c.body(new Uint8Array(content));
-  });
+    app.get("/dev-download/:fileId", authRequired, async (c) => {
+      const fileId = requiredParam(c.req.param("fileId"));
+      const file = await attachmentService.getFile(c.get("userId"), fileId);
+      const content = store.devFileContent?.get(fileId);
+      if ("ok" in file || !content) return c.notFound();
+      c.header("content-type", file.contentType ?? "application/octet-stream");
+      return c.body(new Uint8Array(content));
+    });
+  }
 
   app.post("/api/v1/signal/prekey-bundles", authRequired, zValidator("json", signalPreKeyBundleSchema), async (c) => {
     const { oneTimePreKeys, ...bundle } = c.req.valid("json");

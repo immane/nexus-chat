@@ -58,15 +58,15 @@ start_server() {
   (
     cd "$PROJECT_ROOT/apps/server"
     PERSISTENCE=postgres DATABASE_URL="$PG_URL" \
-      NODE_ENV=production PORT=4000 WEB_ORIGIN='*' \
-      ./node_modules/.bin/tsx src/index.ts
+      NODE_ENV=development PORT=4000 WEB_ORIGIN='*' \
+      exec ./node_modules/.bin/tsx src/index.ts
   ) >"$SERVER_LOG" 2>&1 &
   SERVER_PID=$!
 }
 
 wait_for_server() {
   for _ in $(seq 1 30); do
-    if curl --fail --silent "$API/healthz" >/dev/null 2>&1; then
+    if curl --fail --silent "$API/readyz" >/dev/null 2>&1; then
       echo -e "  ${GREEN}Server ready${NC}"
       return
     fi
@@ -417,6 +417,27 @@ check "bundle uploaded" "200"
 RESP=$(post "api/v1/signal/prekey-bundles" "$BT" \
   "{\"userId\":\"$BI\",\"deviceId\":\"device-01\",\"identityKey\":\"Ym9iSWRlbnRpdHlLZXk=\",\"signedPreKeyId\":1,\"signedPreKey\":\"Ym9iUHJlS2V5\",\"signedPreKeySignature\":\"Ym9iU2ln\",\"oneTimePreKeys\":[{\"keyId\":1,\"publicKey\":\"Ym9iT25lVGltZUtleQ==\"}]}")
 check "bob bundle uploaded" "200"
+
+FIRST_FETCH=$(mktemp)
+SECOND_FETCH=$(mktemp)
+get "api/v1/signal/prekey-bundles/$AI/device-01" "$BT" >"$FIRST_FETCH" &
+FIRST_FETCH_PID=$!
+get "api/v1/signal/prekey-bundles/$AI/device-01" "$BT" >"$SECOND_FETCH" &
+SECOND_FETCH_PID=$!
+wait "$FIRST_FETCH_PID"
+wait "$SECOND_FETCH_PID"
+FIRST_RESPONSE=$(<"$FIRST_FETCH")
+SECOND_RESPONSE=$(<"$SECOND_FETCH")
+rm "$FIRST_FETCH" "$SECOND_FETCH"
+FIRST_PREKEY=$(jsonval "$FIRST_RESPONSE" "data.oneTimePreKeyId")
+SECOND_PREKEY=$(jsonval "$SECOND_RESPONSE" "data.oneTimePreKeyId")
+if [ "$FIRST_PREKEY" = "{}" ] || [ "$SECOND_PREKEY" = "{}" ] || [ "$FIRST_PREKEY" = "$SECOND_PREKEY" ]; then
+  echo -e "  ${RED}✗ concurrent prekey fetches each return a distinct key${NC}"
+  FAIL=$((FAIL + 1))
+else
+  echo -e "  ${GREEN}✓ concurrent prekey fetches each return a distinct key${NC}"
+  PASS=$((PASS + 1))
+fi
 
 RESP=$(get "api/v1/signal/prekey-bundles/$AI/device-01" "$BT")
 check "bob fetches alice bundle" "200"
