@@ -109,14 +109,14 @@ Every channel and DM independently selects its encryption level. There is no glo
 └──────────────────────────────────────────────────┘
 ```
 
-**Data layer in Phase 1:** Domain services use in-memory stores (`Map`-based). The full PostgreSQL schema (17 tables, Drizzle ORM) and Redis infrastructure are defined and validated through migrations, but the runtime store layer has not yet been wired to Postgres. The `SESSION_STORE=redis` path exercises Redis-backed refresh sessions via `RedisRefreshSessionStore`.
+**Data layer:** Domain services use PostgreSQL for production (`PERSISTENCE=postgres`) with full async Drizzle adapters. In-memory (`Map`-based) stores remain the default for local development and tests. The full PostgreSQL schema (17 tables, Drizzle ORM) and Redis infrastructure are wired in. The `SESSION_STORE=redis` path exercises Redis-backed refresh sessions via `RedisRefreshSessionStore`.
 
 **Data flow for a normal message send:**
 
 1. Web client emits `{ type: "message.send", payload: { workspaceId, channelId, clientMsgId, content } }` over Socket.IO.
 2. Gateway validates the WS envelope and inner payload against Zod schemas.
 3. `messageService.send()` checks channel access, mode compatibility, idempotency (`clientMsgId`), and attachment validity.
-4. A new message is created with `id` (UUID v7), state `"sent"`, and stored in-memory.
+4. A new message is created with `id` (UUID v7), state `"sent"`, and persisted via the async persistence adapter.
 5. If the channel is normal, `botService.publishEvent({ type: "message.created", ... })` dispatches to subscribed bots.
 6. The gateway broadcasts `{ type: "message.created", payload: message }` to all clients in the channel room.
 7. The client acknowledges with `{ type: "message.ack", payload: { messageId } }`.
@@ -210,13 +210,13 @@ nexus-chat/
 | **Auth** | `@node-rs/argon2`, `jsonwebtoken` (RS256) | Password hashing, JWT sign/verify |
 | **Schemas** | Zod 3.x | Every I/O boundary: API, WS, bots, E2EE |
 | **ORM** | Drizzle ORM 0.38 | Schema definitions, migrations, seed |
-| **Database** | PostgreSQL 16 (Docker) | Schema live; runtime uses in-memory stores |
+| **Database** | PostgreSQL 16 (Docker) | Production persistence via `PERSISTENCE=postgres`; in-memory for local dev |
 | **Cache** | Redis 7 (Docker) | Session store (Redis mode), ready for pub/sub |
 | **Frontend** | React 19, Vite, Zustand 5, Tailwind CSS, React Virtuoso | Web client |
 | **Desktop** | Electron | BrowserWindow, preload IPC, tray, notifications |
 | **CLI** | Commander, Ink (React 19) | TUI chat, smoke tests |
 | **Observability** | Pino, `prom-client` | Structured logs, request IDs, metrics |
-| **Testing** | Vitest + V8 coverage | 18 test files, 119 tests |
+| **Testing** | Vitest + V8 coverage | 21 test files, 150+ tests |
 | **P2P** | WebRTC (browser-native, no npm deps) | 1:1 E2EE DM direct connection + server signaling relay |
 
 ---
@@ -242,7 +242,7 @@ Messages are sorted by `(channel_id, created_at DESC, id DESC)`. The API uses cu
 
 ### Read Receipts
 
-Read receipts (`message.ack`) are buffered in-memory. The design calls for a 3-second Redis flush window; Phase 1 implements immediate flush via `messageService.flushReadReceipts()`.
+Read receipts (`message.ack`) are persisted via the read receipt persistence layer. The design calls for a 3-second Redis flush window; current implementation uses immediate flush via `messageService.flushReadReceipts()`.
 
 ### E2EE Message Handling
 

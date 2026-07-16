@@ -2,7 +2,7 @@
 
 [中文快速开始](QUICKSTART.zh-CN.md) | [Full README](README.md)
 
-This guide gets a local Phase 1 Nexus Chat workspace running for development and smoke testing.
+This guide gets a local Nexus Chat workspace running for development and smoke testing.
 
 ## 1. Prerequisites
 
@@ -61,7 +61,7 @@ docker compose ps
 curl http://127.0.0.1:4000/healthz
 ```
 
-Phase 1 runtime services use in-memory domain stores. PostgreSQL and Redis are intentionally commented out in `docker-compose.yml` until persistence is wired.
+The server defaults to in-memory persistence for local dev. For PostgreSQL-backed production, set `PERSISTENCE=postgres` and `DATABASE_URL` in `.env`, then start with `docker compose up -d --build server` (Postgres and Redis are included in `docker-compose.yml`).
 
 To run both server and web with Docker:
 
@@ -75,7 +75,7 @@ The web container serves the built app on `http://127.0.0.1:5173`. `VITE_API_BAS
 VITE_API_BASE=http://192.168.1.20:4000 docker compose up -d --build web
 ```
 
-## 5. Seed In-Memory Dev Data
+## 5. Seed Dev Data
 
 ```bash
 bash scripts/dev-bootstrap.sh
@@ -88,7 +88,7 @@ Dev credentials:
 | `alice@dev.local` | `test1234abcd` |
 | `bob@dev.local` | `test1234abcd` |
 
-The bootstrap creates `Dev Workspace`, a default `#general` channel, and workspace/channel membership for Bob. Re-run it after restarting or rebuilding the server container because the store is in memory.
+The bootstrap creates `Dev Workspace`, a default `#general` channel, and workspace/channel membership for Bob. For memory-mode, re-run after restarting or rebuilding the server. With `PERSISTENCE=postgres`, data survives restarts.
 
 ## 6. Start Development Servers
 
@@ -111,7 +111,7 @@ Open:
 - API health check: `http://127.0.0.1:4000/healthz`
 - Metrics: `http://127.0.0.1:4000/metrics`
 
-The web app supports demo mode and real-server mode. In real-server mode, use the dev credentials above or register another user through the API/UI.
+The web app connects to a real server. Use the dev credentials above or register a new user through the API/UI.
 
 For LAN or host-machine access, use the host IP consistently:
 
@@ -211,7 +211,7 @@ Stop infrastructure:
 docker compose down
 ```
 
-Recreate the in-memory Docker server and seed data:
+Recreate the Docker server and seed data:
 
 ```bash
 docker compose down

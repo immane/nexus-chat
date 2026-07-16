@@ -30,7 +30,7 @@ Two-mode rendering:
 
 | State | Rendered |
 |-------|----------|
-| No authenticated user | `LoginRoute` (demo / real server toggle) |
+| No authenticated user | `LoginRoute` (email/password server auth) |
 | Authenticated user | `ChatRoute` (full chat layout) |
 
 No router. No layout wrapper. The entire app is a single-page conditional render.
