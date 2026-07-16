@@ -1,4 +1,4 @@
-name: Phase 1
+name: CI
 
 on:
   pull_request:
@@ -30,7 +30,7 @@ jobs:
       - run: pnpm build
       - run: pnpm smoke:tui:ci
 
-  security:
+  postgres-smoke:
     runs-on: ubuntu-latest
     env:
       ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
@@ -44,4 +44,22 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --prod --audit-level moderate
+      - run: pnpm smoke:pg:ci
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postgres-smoke-server-log
+          path: ${{ runner.temp }}/nexus-pg-smoke.log
+          if-no-files-found: ignore
+
+  security:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate

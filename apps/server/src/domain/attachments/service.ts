@@ -1,36 +1,85 @@
 /**
- * Attachment Service (File Lifecycle Authority)
+ * Attachment Service
+ *
+ * Owns file upload sessions, file metadata, and attachment-message associations.
  *
  * Responsibilities:
  * - Create upload sessions with workspace/channel access validation
- * - Track file metadata (name, type, size, encryption status, scan status)
- * - Generate download URLs with time-limited tokens
- * - Validate attachment references before message creation (scan status checks)
- * - Associate attachments with messages
+ * - Complete upload sessions and transition files to ready state
+ * - Generate download URLs with expiry (dev mode: /dev-download)
+ * - Associate files with messages as attachments
+ * - Validate attachment references before message creation
+ * - Provide dev-mode direct file upload via /dev-upload
  *
  * Does NOT:
- * - Store file content directly (delegated to dev endpoints or S3 in production)
- * - Scan files for malware (returns scanStatus from metadata, actual scanning deferred)
- * - Handle E2E file encryption (client-side, the service only marks encrypted=true)
+ * - Store file bytes (dev environment: local filesystem; production: S3-compatible)
+ * - Process file content or perform virus scanning
+ * - Handle WebSocket broadcasts for file events
  *
- * Security Invariants:
- * - E2E files must have scanStatus="skipped" (cannot be scanned by definition)
- * - Blocked files (scanStatus="blocked") cannot be attached to messages
- * - Download URL is scoped to workspace members via canAccessWorkspace
+ * Invariants:
+ * - Upload sessions expire after 15 minutes
+ * - Download URLs expire after 5 minutes
+ * - Encrypted files skip server-side scanning (scanStatus: "skipped")
+ * - E2E attachments must have scanStatus "skipped"
+ * - Workspace access required for upload sessions and file retrieval
+ *
+ * Dependencies:
+ * - AttachmentPersistence (in-memory or PostgreSQL)
+ * - workspacePersistenceService (access control checks)
+ * - env (API_PUBLIC_BASE for URL generation)
+ *
+ * Related Modules:
+ * - persistence.ts: AttachmentPersistence interface and adapters
+ * - message service: validates attachment refs before message creation
  */
 import { createId } from "@paralleldrive/cuid2";
-import { apiFail, fileSchema, nowIso, type AttachmentRef, type FileRecord } from "@nexus-chat/shared";
+import {
+  apiFail,
+  fileSchema,
+  nowIso,
+  type AttachmentRef,
+  type FileRecord
+} from "@nexus-chat/shared";
 import { env } from "../../config/env.js";
-import { store } from "../store.js";
-import { workspaceService } from "../workspaces/service.js";
+import { workspacePersistenceService } from "../workspaces/persistence-service.js";
+import { getAttachmentPersistence } from "./persistence.js";
 
-const objectKey = (workspaceId: string, fileId: string, fileName: string) => `workspaces/${workspaceId}/files/${fileId}/${fileName}`;
+const objectKey = (
+  workspaceId: string,
+  fileId: string,
+  fileName: string
+) => `workspaces/${workspaceId}/files/${fileId}/${fileName}`;
+
 const publicApiBase = () => env.API_PUBLIC_BASE.replace(/\/$/, "");
 
 export const attachmentService = {
-  createUploadSession(actorId: string, input: { workspaceId: string; channelId?: string | undefined; fileName: string; contentType: string; sizeBytes: number; encrypted: boolean }) {
-    if (!workspaceService.canAccessWorkspace(actorId, input.workspaceId)) return apiFail("FORBIDDEN", "Workspace access denied");
-    if (input.channelId && !workspaceService.canAccessChannel(actorId, input.channelId)) return apiFail("FORBIDDEN", "Channel access denied");
+  async createUploadSession(
+    actorId: string,
+    input: {
+      workspaceId: string;
+      channelId?: string | undefined;
+      fileName: string;
+      contentType: string;
+      sizeBytes: number;
+      encrypted: boolean;
+    }
+  ) {
+    if (
+      !(await workspacePersistenceService.canAccessWorkspace(
+        actorId,
+        input.workspaceId
+      ))
+    )
+      return apiFail("FORBIDDEN", "Workspace access denied");
+    if (
+      input.channelId &&
+      !(await workspacePersistenceService.canAccessChannel(
+        actorId,
+        input.channelId
+      ))
+    )
+      return apiFail("FORBIDDEN", "Channel access denied");
+
     const fileId = createId();
     const file = fileSchema.parse({
       id: fileId,
@@ -45,45 +94,105 @@ export const attachmentService = {
       scanStatus: input.encrypted ? "skipped" : "pending",
       createdAt: nowIso()
     });
-    store.files.set(file.id, file);
-    const uploadSession = { id: createId(), fileId: file.id, userId: actorId, uploadUrl: `${publicApiBase()}/dev-upload/${file.id}`, expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString() };
-    store.uploadSessions.set(uploadSession.id, uploadSession);
+
+    const uploadSession = {
+      id: createId(),
+      fileId,
+      userId: actorId,
+      uploadUrl: `${publicApiBase()}/dev-upload/${fileId}`,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+    };
+
+    await (await getAttachmentPersistence()).create(file, uploadSession);
     return { uploadSession, file };
   },
-  completeUpload(actorId: string, uploadSessionId: string) {
-    const uploadSession = store.uploadSessions.get(uploadSessionId);
-    if (!uploadSession || uploadSession.userId !== actorId) return apiFail("NOT_FOUND", "Upload session not found");
-    uploadSession.completedAt = nowIso();
-    return uploadSession;
+
+  async completeUpload(actorId: string, id: string) {
+    const persistence = await getAttachmentPersistence();
+    const session = await persistence.findSession(id);
+    if (!session || session.userId !== actorId)
+      return apiFail("NOT_FOUND", "Upload session not found");
+    return (
+      (await persistence.completeSession(id)) ??
+      apiFail("CONFLICT", "Upload session is not pending")
+    );
   },
-  getFile(actorId: string, fileId: string): FileRecord | ReturnType<typeof apiFail> {
-    const file = store.files.get(fileId);
-    if (!file || !workspaceService.canAccessWorkspace(actorId, file.workspaceId)) return apiFail("NOT_FOUND", "File not found");
-    return file;
+
+  async getFile(
+    actorId: string,
+    id: string
+  ): Promise<FileRecord | ReturnType<typeof apiFail>> {
+    const file = await (await getAttachmentPersistence()).findFile(id);
+    return file &&
+      (await workspacePersistenceService.canAccessWorkspace(
+        actorId,
+        file.workspaceId
+      ))
+      ? file
+      : apiFail("NOT_FOUND", "File not found");
   },
-  createDownloadUrl(actorId: string, fileId: string) {
-    const file = this.getFile(actorId, fileId);
+
+  async createDownloadUrl(actorId: string, id: string) {
+    const file = await this.getFile(actorId, id);
     if ("ok" in file) return file;
-    store.auditLogs.push({ id: createId(), actorUserId: actorId, workspaceId: file.workspaceId, action: "attachment.download_url_issued", metadata: { fileId }, createdAt: nowIso() });
-    return { url: `${publicApiBase()}/dev-download/${fileId}?token=${createId()}`, expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() };
+    return {
+      url: `${publicApiBase()}/dev-download/${id}?token=${createId()}`,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString()
+    };
   },
-  associateAttachments(messageId: string, attachments: AttachmentRef[]): void {
-    const existing = store.messageAttachments.get(messageId) ?? new Set<string>();
-    for (const att of attachments) existing.add(att.fileId);
-    store.messageAttachments.set(messageId, existing);
+
+  async associateAttachments(
+    messageId: string,
+    attachments: AttachmentRef[]
+  ) {
+    await (
+      await getAttachmentPersistence()
+    ).associate(
+      messageId,
+      attachments.map(({ fileId }) => fileId)
+    );
   },
-  validateAttachmentRefs(attachments: AttachmentRef[]): AttachmentRef[] | ReturnType<typeof apiFail> {
-    for (const att of attachments) {
-      const file = store.files.get(att.fileId);
-      if (!file) return apiFail("NOT_FOUND", `Attachment file not found: ${att.fileId}`);
-      if (file.scanStatus === "blocked") return apiFail("FORBIDDEN", `Attachment file blocked: ${att.fileId}`);
-      if (file.encrypted && att.scanStatus !== "skipped") return apiFail("VALIDATION_FAILED", "E2E attachment must have scanStatus skipped");
+
+  async validateAttachmentRefs(attachments: AttachmentRef[]) {
+    const persistence = await getAttachmentPersistence();
+    for (const attachment of attachments) {
+      const file = await persistence.findFile(attachment.fileId);
+      if (!file)
+        return apiFail(
+          "NOT_FOUND",
+          `Attachment file not found: ${attachment.fileId}`
+        );
+      if (file.scanStatus === "blocked")
+        return apiFail(
+          "FORBIDDEN",
+          `Attachment file blocked: ${attachment.fileId}`
+        );
+      if (file.encrypted && attachment.scanStatus !== "skipped")
+        return apiFail(
+          "VALIDATION_FAILED",
+          "E2E attachment must have scanStatus skipped"
+        );
     }
     return attachments;
   },
-  getMessageAttachments(messageId: string): FileRecord[] {
-    const fileIds = store.messageAttachments.get(messageId);
-    if (!fileIds) return [];
-    return [...fileIds].map((fileId) => store.files.get(fileId)).filter((file): file is FileRecord => Boolean(file));
+
+  async getMessageAttachments(messageId: string) {
+    return (await getAttachmentPersistence()).listForMessage(messageId);
+  },
+
+  async canUploadFile(actorId: string, fileId: string) {
+    return Boolean(
+      await (
+        await getAttachmentPersistence()
+      ).findSessionForFile(fileId, actorId)
+    );
+  },
+
+  async updateDevUpload(fileId: string, sizeBytes: number) {
+    return (await getAttachmentPersistence()).updateFile(fileId, {
+      objectKey: `dev-uploaded-${fileId}`,
+      scanStatus: "clean",
+      sizeBytes
+    });
   }
 };

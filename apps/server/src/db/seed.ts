@@ -15,9 +15,10 @@
  */
 import { createId } from "@paralleldrive/cuid2";
 import { hash } from "@node-rs/argon2";
-import { db, pool } from "./client.js";
+import { closeDb, getDb } from "./client.js";
 import { channelMembers, channels, users, workspaceMembers, workspaces } from "./schema.js";
 
+const db = await getDb();
 const passwordHash = await hash("Password12345!", { memoryCost: 65536, timeCost: 3, parallelism: 4 });
 const workspaceId = createId();
 const adaId = createId();
@@ -46,4 +47,4 @@ await db.insert(channelMembers).values([
   { channelId: dmId, userId: graceId }
 ]).onConflictDoNothing();
 
-await pool.end();
+await closeDb();

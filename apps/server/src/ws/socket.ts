@@ -34,7 +34,7 @@ import { env } from "../config/env.js";
 import { verifyAccessToken } from "../domain/auth/service.js";
 import { botService } from "../domain/bots/service.js";
 import { store } from "../domain/store.js";
-import { workspaceService } from "../domain/workspaces/service.js";
+import { workspacePersistenceService } from "../domain/workspaces/persistence-service.js";
 import { logger } from "../observability/logger.js";
 import { wsConnections } from "../observability/metrics.js";
 import { handleClientEnvelope } from "./gateway.js";
@@ -77,7 +77,7 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     return next();
   });
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     const userId = socket.data.userId as string;
     wsConnections.inc();
     // Reference counting for multi-tab/device support: only broadcast "online"
@@ -89,12 +89,9 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     // Room membership is determined eagerly at connection time — this avoids
     // per-event access control checks in the broadcast path.
     socket.join(`user:${userId}`);
-    for (const workspace of store.workspaces.values()) {
-      if (workspaceService.canAccessWorkspace(userId, workspace.id)) socket.join(`workspace:${workspace.id}`);
-    }
-    for (const channel of store.channels.values()) {
-      if (workspaceService.canAccessChannel(userId, channel.id)) socket.join(`channel:${channel.id}`);
-    }
+    const userWorkspaces = await workspacePersistenceService.listWorkspaces(userId);
+    for (const workspace of userWorkspaces) socket.join(`workspace:${workspace.id}`);
+    for (const workspace of userWorkspaces) for (const channel of await workspacePersistenceService.listChannels(userId, workspace.id)) socket.join(`channel:${channel.id}`);
     logger.info({ userId, socketId: socket.id }, "WebSocket connected");
 
     // Send existing online users to the connecting client
@@ -107,25 +104,21 @@ export const attachSocketServer = (httpServer: HttpServer) => {
     // Broadcast this user's online status only if they were offline (first connection)
     if (wasOffline) {
       const onlineEvent = { type: "presence.updated", payload: { userId, status: "online" }, timestamp: new Date().toISOString() };
-      for (const workspace of store.workspaces.values()) {
-        if (workspaceService.canAccessWorkspace(userId, workspace.id)) {
-          io.to(`workspace:${workspace.id}`).emit("event", onlineEvent);
-        }
-      }
+      for (const workspace of userWorkspaces) io.to(`workspace:${workspace.id}`).emit("event", onlineEvent);
     }
 
-    socket.on("event", (raw, callback?: (response: unknown) => void) => {
-      const result = handleClientEnvelope(userId, raw, createBroadcaster(io));
+    socket.on("event", async (raw, callback?: (response: unknown) => void) => {
+      const result = await handleClientEnvelope(userId, raw, createBroadcaster(io));
       if (typeof callback === "function") callback(result);
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       wsConnections.dec();
       const count = (store.onlineConnections.get(userId) ?? 1) - 1;
       if (count <= 0) {
         store.onlineConnections.delete(userId);
         const presenceEvent = { type: "presence.updated", payload: { userId, status: "offline" }, timestamp: new Date().toISOString() };
-        for (const ws of workspaceService.listWorkspaces(userId)) {
+        for (const ws of await workspacePersistenceService.listWorkspaces(userId)) {
           io.to(`workspace:${ws.id}`).emit("event", presenceEvent);
         }
       } else {
@@ -136,10 +129,10 @@ export const attachSocketServer = (httpServer: HttpServer) => {
   });
 
   const botsNamespace = io.of("/bots");
-  botsNamespace.use((socket, next) => {
+  botsNamespace.use(async (socket, next) => {
     const token = typeof socket.handshake.auth.token === "string" ? socket.handshake.auth.token : undefined;
     if (!token) return next(new Error("AUTH_REQUIRED"));
-    const bot = botService.validateToken(token);
+    const bot = await botService.validateToken(token);
     if (!bot) return next(new Error("AUTH_REQUIRED"));
     socket.data.botId = bot.id;
     socket.data.workspaceId = bot.workspaceId;

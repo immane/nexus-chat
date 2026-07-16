@@ -2,7 +2,7 @@
  * Database Schema Tests
  *
  * Covers:
- * - All 17 Phase 1 core tables are exported with expected names
+ * - All core tables are exported with expected names
  * - Generated migration contains required indexes
  * - Workflow-specific bot tables are NOT in the base schema
  */
@@ -16,12 +16,16 @@ import {
   botChannelMemberships,
   botEventSubscriptions,
   botIntegrations,
+  channelMutes,
   channelMembers,
+  channelPins,
   channels,
   files,
   messageAttachments,
+  messageReadReceipts,
   messageReactions,
   messages,
+  savedMessages,
   signalOneTimePreKeys,
   signalPreKeyBundles,
   signalSessions,
@@ -32,6 +36,7 @@ import {
 } from "./schema.js";
 
 const migrationPath = join(dirname(fileURLToPath(import.meta.url)), "../../drizzle/0000_gigantic_sally_floyd.sql");
+const parityMigrationPath = join(dirname(fileURLToPath(import.meta.url)), "../../drizzle/0001_workable_loki.sql");
 
 describe("database schema", () => {
   it("exports all phase 1 core tables", () => {
@@ -43,6 +48,10 @@ describe("database schema", () => {
       channelMembers,
       messages,
       messageReactions,
+      savedMessages,
+      messageReadReceipts,
+      channelPins,
+      channelMutes,
       files,
       uploadSessions,
       messageAttachments,
@@ -63,6 +72,10 @@ describe("database schema", () => {
       "channel_members",
       "messages",
       "message_reactions",
+      "saved_messages",
+      "message_read_receipts",
+      "channel_pins",
+      "channel_mutes",
       "files",
       "upload_sessions",
       "message_attachments",
@@ -86,5 +99,17 @@ describe("database schema", () => {
     expect(sql).toContain("CREATE INDEX \"files_scan_idx\" ON \"files\" USING btree (\"scan_status\")");
     expect(sql).toContain("CREATE INDEX \"upload_sessions_cleanup_idx\" ON \"upload_sessions\" USING btree (\"status\",\"expires_at\")");
     expect(sql).not.toMatch(/CREATE TABLE "(polls|reminders|kudos|todos|standups)"/);
+  });
+
+  it("migration reconciles the durable runtime model", () => {
+    const sql = readFileSync(parityMigrationPath, "utf8");
+    expect(sql).toContain('ALTER TABLE "channels" ADD COLUMN "created_by_id" text');
+    expect(sql).toContain('ALTER TABLE "messages" ADD COLUMN "reply_to_message_id" text');
+    expect(sql).toContain('ALTER TABLE "channel_members" ADD COLUMN "last_read_at" timestamp with time zone');
+    expect(sql).toContain('ALTER TABLE "files" ADD COLUMN "channel_id" text');
+    expect(sql).toContain('CREATE TABLE "saved_messages"');
+    expect(sql).toContain('CREATE TABLE "message_read_receipts"');
+    expect(sql).toContain('CREATE TABLE "channel_pins"');
+    expect(sql).toContain('CREATE TABLE "channel_mutes"');
   });
 });

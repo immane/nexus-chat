@@ -37,8 +37,7 @@ import {
 } from "@nexus-chat/shared";
 import { botService } from "../domain/bots/service.js";
 import { messageService } from "../domain/messages/service.js";
-import { store } from "../domain/store.js";
-import { workspaceService } from "../domain/workspaces/service.js";
+import { workspacePersistenceService } from "../domain/workspaces/persistence-service.js";
 import { logger } from "../observability/logger.js";
 import { writeAuditEvent } from "../observability/audit.js";
 
@@ -67,7 +66,7 @@ export const createWsRateLimiter = (options: { windowMs: number; maxEvents: numb
 
 export const wsRateLimiter = createWsRateLimiter({ windowMs: 10_000, maxEvents: 50 });
 
-export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: WsBroadcaster, rateLimiter = wsRateLimiter): WsGatewayResponse => {
+export const handleClientEnvelope = async (userId: string, raw: unknown, broadcaster: WsBroadcaster, rateLimiter = wsRateLimiter): Promise<WsGatewayResponse> => {
   const limited = rateLimiter.check(userId);
   if (limited) return limited;
 
@@ -77,7 +76,7 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
   if (envelope.data.type === "message.send") {
     const payload = sendMessageSchema.safeParse(envelope.data.payload);
     if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid message payload" } };
-    const result = messageService.send(userId, payload.data);
+    const result = await messageService.send(userId, payload.data);
     if ("ok" in result) return result;
     writeAuditEvent({ type: "message.sent", actor: userId, metadata: { channelId: result.channelId, messageId: result.id } });
     broadcaster.toChannel(result.channelId, { type: "message.created", payload: result, timestamp: new Date().toISOString() });
@@ -89,7 +88,7 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     const payload = BotCommandInvokeSchema.safeParse(envelope.data.payload);
     if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid bot command payload" } };
     const command = payload.data.command.startsWith("/") ? payload.data.command : `/${payload.data.command}`;
-    const result = botService.invokeCommand({ workspaceId: payload.data.workspaceId, channelId: payload.data.channelId, userId, command, args: payload.data.args.join(" ") });
+    const result = await botService.invokeCommand({ workspaceId: payload.data.workspaceId, channelId: payload.data.channelId, userId, command, args: payload.data.args.join(" ") });
     if ("ok" in result) return result;
     // botService.invokeCommand returns { type: "bot.response", payload: { messageId, ... } }
     // when a built-in /help handler fires. The message is already in store.messages;
@@ -97,7 +96,7 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     if (typeof result === "object" && result !== null && "type" in result && (result as Record<string, unknown>).type === "bot.response") {
       const payloadData = (result as { payload?: { messageId?: unknown } }).payload;
       const msgId = typeof payloadData?.messageId === "string" ? payloadData.messageId : undefined;
-      const msg = msgId ? store.messages.get(msgId) : undefined;
+       const msg = msgId ? await messageService.getMessage(msgId) : undefined;
       if (msg) broadcaster.toChannel(payload.data.channelId, { type: "message.created", payload: msg, timestamp: new Date().toISOString() });
     }
     return { ok: true, data: result };
@@ -114,7 +113,7 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
     const payload = presenceUpdatePayloadSchema.safeParse(envelope.data.payload);
     if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid presence payload" } };
     const presenceEvent = { type: "presence.updated", payload: { userId, status: payload.data.status }, timestamp: new Date().toISOString() };
-    for (const ws of workspaceService.listWorkspaces(userId)) {
+    for (const ws of await workspacePersistenceService.listWorkspaces(userId)) {
       broadcaster.toWorkspace(ws.id, presenceEvent);
     }
     return { ok: true, data: {} };
@@ -125,9 +124,9 @@ export const handleClientEnvelope = (userId: string, raw: unknown, broadcaster: 
   if (envelope.data.type === "message.ack") {
     const payload = messageAckPayloadSchema.safeParse(envelope.data.payload);
     if (!payload.success) return { ok: false, error: { code: "VALIDATION_FAILED", message: "Invalid ack payload" } };
-    const result = messageService.ackRead(userId, payload.data.messageId);
+    const result = await messageService.ackRead(userId, payload.data.messageId);
     if ("ok" in result) return result;
-    for (const batch of messageService.flushReadReceipts()) broadcaster.toChannel(batch.channelId, { type: "message.read", payload: batch, timestamp: new Date().toISOString() });
+    for (const batch of await messageService.flushReadReceipts()) broadcaster.toChannel(batch.channelId, { type: "message.read", payload: batch, timestamp: new Date().toISOString() });
     return { ok: true, data: result };
   }
 

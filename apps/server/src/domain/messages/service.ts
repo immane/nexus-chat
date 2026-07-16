@@ -1,79 +1,125 @@
 /**
- * Message Service (Core IM — Layer 3)
+ * Message Service (Core IM)
+ *
+ * Owns message lifecycle, pagination, reactions, read receipts, and pin management.
  *
  * Responsibilities:
- * - Message send with idempotency (clientMsgId deduplication)
- * - Cursor-based pagination for channel message history
- * - Edit, soft-delete, forward, save/bookmark
- * - Reactions (add/remove with count aggregation)
- * - Read receipts (ack with 3-second batch flush window)
+ * - Send messages with idempotency via clientMsgId deduplication
+ * - Cursor-based pagination over channel message history
+ * - Edit, soft-delete, forward, and save messages
+ * - Add/remove emoji reactions with count aggregation
+ * - Track read receipts with batch flush
  * - Pin/unpin messages (max 50 per channel)
- * - Message type enforcement (ciphertext-only in E2E, plaintext-only in normal)
- * - E2E tombstone generation (read-once consumed, TTL expired)
- * - Bot event dispatch for normal channels
- *
- * Key Design Decisions:
- * - idempotency via messagesByClientId prevents duplicate sends when the client retries
- * - Tombstones replace deleted/expired messages with a marker to preserve history integrity
- * - Read receipts are batched (pendingReadReceipts + flushReadReceipts) to avoid
- *   overwhelming the channel with individual read events
- * - Reply validation requires the target message to exist in the same channel and not be deleted
+ * - Tombstone expired E2E ciphertext and deleted messages
+ * - Dispatch message.created events to bots in normal channels
  *
  * Does NOT:
- * - Handle WebSocket broadcasts (caller's responsibility after send/edit/delete)
- * - Perform channel access checks for listing (delegated to workspaceService)
- * - Store files (delegated to attachmentService)
+ * - Handle WebSocket broadcasts (caller's responsibility)
+ * - Perform channel access checks for listing (delegated to workspace persistence)
+ * - Store files directly (delegated to attachment service)
+ * - Process E2E cryptographic operations (client-side only)
+ *
+ * Invariants:
+ * - Message idempotency is guaranteed by the database (sender_id, client_msg_id) unique index
+ * - Short-lived read-receipt batching uses a process-local queue, flushed through persistence
+ * - Tombstones replace deleted/expired messages to preserve history integrity
+ * - Domain events (message.updated/deleted/reaction/read) are recorded in a process-local buffer
+ *
+ * Dependencies:
+ * - MessagePersistence (in-memory or PostgreSQL)
+ * - workspacePersistenceService (channel access checks)
+ * - attachmentService (attachment validation)
+ * - botService (event publishing for normal channels)
+ *
+ * Related Modules:
+ * - persistence.ts: MessagePersistence interface and adapters
+ * - ws/gateway.ts: WebSocket message.send / ack handling
  */
 import { createId } from "@paralleldrive/cuid2";
-import { apiFail, messageSchema, nowIso, type AttachmentRef, type Message, type MessageContent, type SendMessageInput } from "@nexus-chat/shared";
+import {
+  apiFail,
+  messageSchema,
+  nowIso,
+  type AttachmentRef,
+  type Message,
+  type MessageContent,
+  type SendMessageInput
+} from "@nexus-chat/shared";
 import { messageSends } from "../../observability/metrics.js";
 import { botService } from "../bots/service.js";
-import { store } from "../store.js";
-import { workspaceService } from "../workspaces/service.js";
+import { workspacePersistenceService } from "../workspaces/persistence-service.js";
 import { attachmentService } from "../attachments/service.js";
+import { getMessagePersistence } from "./persistence.js";
+import { store } from "../store.js";
 
 type MessagePage = { items: Message[]; nextCursor?: string };
-type ReadReceiptBatch = { messageId: string; channelId: string; readCount: number; readers: string[]; flushedAt: string };
-
-const tombstone = (message: Message, reason: "deleted" | "expired" | "read_once_consumed"): Message => ({
+const tombstone = (
+  message: Message,
+  reason: "deleted" | "expired" | "read_once_consumed"
+): Message => ({
   ...message,
   content: { type: "tombstone", reason },
   state: "deleted",
   deletedAt: message.deletedAt ?? nowIso()
 });
-
-const event = (type: "message.updated" | "message.deleted" | "message.reaction" | "message.read", channelId: string, payload: unknown) => {
-  store.messageEvents.push({ type, channelId, payload, createdAt: nowIso() });
-};
-
-const visibleMessage = (message: Message): Message => {
-  if (message.state === "deleted") return tombstone(message, message.content.type === "tombstone" ? message.content.reason : "deleted");
-  if (message.content.type === "ciphertext" && message.content.expiresAt && Date.parse(message.content.expiresAt) <= Date.now()) return tombstone(message, "expired");
-  return message;
-};
+const visible = (message: Message) =>
+  message.state === "deleted"
+    ? tombstone(
+        message,
+        message.content.type === "tombstone"
+          ? message.content.reason
+          : "deleted"
+      )
+    : message.content.type === "ciphertext" &&
+        message.content.expiresAt &&
+        Date.parse(message.content.expiresAt) <= Date.now()
+      ? tombstone(message, "expired")
+      : message;
 
 export const messageService = {
-  send(actorId: string, input: SendMessageInput): Message | ReturnType<typeof apiFail> {
-    const channel = store.channels.get(input.channelId);
-    if (!channel || channel.workspaceId !== input.workspaceId || !workspaceService.canAccessChannel(actorId, input.channelId)) return apiFail("FORBIDDEN", "Channel access denied");
-    if (channel.mode === "e2e" && input.content.type !== "ciphertext") return apiFail("VALIDATION_FAILED", "E2E channels accept ciphertext only");
-    if (channel.mode === "normal" && input.content.type === "ciphertext") return apiFail("VALIDATION_FAILED", "Normal channels accept plaintext message content");
+  async send(
+    actorId: string,
+    input: SendMessageInput
+  ): Promise<Message | ReturnType<typeof apiFail>> {
+    const channel = await workspacePersistenceService.getChannel(
+      input.channelId
+    );
+    if (
+      !channel ||
+      channel.workspaceId !== input.workspaceId ||
+      !(await workspacePersistenceService.canAccessChannel(
+        actorId,
+        input.channelId
+      ))
+    )
+      return apiFail("FORBIDDEN", "Channel access denied");
+    if (channel.mode === "e2e" && input.content.type !== "ciphertext")
+      return apiFail(
+        "VALIDATION_FAILED",
+        "E2E channels accept ciphertext only"
+      );
+    if (channel.mode === "normal" && input.content.type === "ciphertext")
+      return apiFail(
+        "VALIDATION_FAILED",
+        "Normal channels accept plaintext message content"
+      );
+    const persistence = await getMessagePersistence();
+    const existing = await persistence.findByClient(actorId, input.clientMsgId);
+    if (existing) return existing;
     if (input.replyToMessageId) {
-      const repliedTo = store.messages.get(input.replyToMessageId);
-      if (!repliedTo || repliedTo.channelId !== input.channelId || repliedTo.state === "deleted") return apiFail("NOT_FOUND", "Reply target not found or deleted");
-      if (!workspaceService.canAccessChannel(actorId, repliedTo.channelId)) return apiFail("FORBIDDEN", "Cannot reply to this message");
+      const reply = await persistence.find(input.replyToMessageId);
+      if (
+        !reply ||
+        reply.channelId !== input.channelId ||
+        reply.state === "deleted"
+      )
+        return apiFail("NOT_FOUND", "Reply target not found or deleted");
     }
-    const idempotencyKey = `${actorId}:${input.clientMsgId}`;
-    // Check for duplicates: the composite (senderId:clientMsgId) is the
-    // idempotency anchor. If the client retries a send with the same
-    // clientMsgId, return the existing message instead of creating a duplicate.
-    const existingId = store.messagesByClientId.get(idempotencyKey);
-    if (existingId) return store.messages.get(existingId) ?? apiFail("CONFLICT", "Message idempotency conflict");
-    const attachments: AttachmentRef[] = "attachments" in input.content ? (input.content.attachments as AttachmentRef[]) : [];
-    if (attachments.length > 0) {
-      const validated = attachmentService.validateAttachmentRefs(attachments);
-      if ("ok" in validated) return validated;
-    }
+    const attachments: AttachmentRef[] =
+      "attachments" in input.content ? input.content.attachments : [];
+    const validation =
+      await attachmentService.validateAttachmentRefs(attachments);
+    if ("ok" in validation) return validation;
     const message = messageSchema.parse({
       id: createId(),
       workspaceId: input.workspaceId,
@@ -85,193 +131,281 @@ export const messageService = {
       state: "sent",
       createdAt: nowIso()
     });
-    store.messages.set(message.id, message);
-    store.messagesByClientId.set(idempotencyKey, message.id);
-    if (attachments.length > 0) attachmentService.associateAttachments(message.id, attachments);
+    const created = await persistence.create(
+      message,
+      attachments.map((a) => a.fileId)
+    );
     messageSends.inc({ mode: channel.mode });
-    if (channel.mode === "normal") botService.publishEvent({ type: "message.created", workspaceId: input.workspaceId, channelId: input.channelId, payload: message });
-    return message;
+    if (channel.mode === "normal")
+      await botService.publishEvent({
+        type: "message.created",
+        workspaceId: input.workspaceId,
+        channelId: input.channelId,
+        payload: created
+      });
+    return created;
   },
-  list(actorId: string, channelId: string, cursor?: string, limit = 50): Message[] {
-    return this.listPage(actorId, channelId, cursor, limit).items;
+  async list(actor: string, ch: string, c?: string, l = 50) {
+    return (await this.listPage(actor, ch, c, l)).items;
   },
-  listPage(actorId: string, channelId: string, cursor?: string, limit = 50): MessagePage {
-    if (!workspaceService.canAccessChannel(actorId, channelId)) return { items: [] };
-    this.cleanupExpiredMessages();
-    const messages = [...store.messages.values()].filter((message) => message.channelId === channelId).sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
-    const start = cursor ? messages.findIndex((message) => message.id === cursor) + 1 : 0;
-    const items = messages.slice(Math.max(start, 0), Math.max(start, 0) + limit).map(visibleMessage);
-    const nextCursor = items.length === limit ? items.at(-1)?.id : undefined;
-    return nextCursor ? { items, nextCursor } : { items };
+  async listPage(
+    actor: string,
+    ch: string,
+    c?: string,
+    l = 50
+  ): Promise<MessagePage> {
+    if (!(await workspacePersistenceService.canAccessChannel(actor, ch)))
+      return { items: [] };
+    const items = (await (await getMessagePersistence()).list(ch, c, l)).map(
+      visible
+    );
+    const last = items.at(-1)?.id;
+    return items.length === l && last ? { items, nextCursor: last } : { items };
   },
-  edit(actorId: string, messageId: string, text: string): Message | ReturnType<typeof apiFail> {
-    const message = store.messages.get(messageId);
-    if (!message || message.senderId !== actorId) return apiFail("FORBIDDEN", "Cannot edit this message");
-    if (message.content.type !== "text") return apiFail("VALIDATION_FAILED", "Only normal text messages can be edited");
-    const updated = { ...message, content: { ...message.content, text } satisfies MessageContent, editedAt: nowIso() };
-    store.messages.set(messageId, updated);
-    event("message.updated", updated.channelId, updated);
+  async edit(actor: string, id: string, text: string) {
+    const p = await getMessagePersistence(),
+      m = await p.find(id);
+    if (!m || m.senderId !== actor)
+      return apiFail("FORBIDDEN", "Cannot edit this message");
+    if (m.content.type !== "text")
+      return apiFail(
+        "VALIDATION_FAILED",
+        "Only normal text messages can be edited"
+      );
+    const updated = await p.update({
+      ...m,
+      content: { ...m.content, text } satisfies MessageContent,
+      editedAt: nowIso()
+    });
+    store.messageEvents.push({
+      type: "message.updated",
+      channelId: updated.channelId,
+      payload: updated,
+      createdAt: nowIso()
+    });
     return updated;
   },
-  softDelete(actorId: string, messageId: string): Message | ReturnType<typeof apiFail> {
-    const message = store.messages.get(messageId);
-    if (!message || message.senderId !== actorId) return apiFail("FORBIDDEN", "Cannot delete this message");
-    const updated = tombstone(message, "deleted");
-    store.messages.set(messageId, updated);
-    event("message.deleted", updated.channelId, updated);
+  async softDelete(actor: string, id: string) {
+    const p = await getMessagePersistence(),
+      m = await p.find(id);
+    if (!m || m.senderId !== actor)
+      return apiFail("FORBIDDEN", "Cannot delete this message");
+    const updated = await p.update(tombstone(m, "deleted"));
+    store.messageEvents.push({
+      type: "message.deleted",
+      channelId: updated.channelId,
+      payload: updated,
+      createdAt: nowIso()
+    });
     return updated;
   },
-  forward(actorId: string, messageId: string, targetChannelId: string, clientMsgId: string): Message | ReturnType<typeof apiFail> {
-    const source = store.messages.get(messageId);
-    const target = store.channels.get(targetChannelId);
-    if (!source || !target) return apiFail("NOT_FOUND", "Message or target channel not found");
-    if (!workspaceService.canAccessChannel(actorId, source.channelId)) return apiFail("FORBIDDEN", "Message access denied");
-    const result = this.send(actorId, { workspaceId: target.workspaceId, channelId: targetChannelId, clientMsgId, content: source.content });
-    if ("ok" in result) return result;
-    const forwarded = { ...result, originalMessageId: source.originalMessageId ?? source.id, originalSenderId: source.originalSenderId ?? source.senderId, originalCreatedAt: source.originalCreatedAt ?? source.createdAt };
-    store.messages.set(forwarded.id, forwarded);
-    return forwarded;
-  },
-  save(actorId: string, messageId: string): { messageId: string; saved: true; savedAt: string } | ReturnType<typeof apiFail> {
-    const message = store.messages.get(messageId);
-    if (!message) return apiFail("NOT_FOUND", "Message not found");
-    if (!workspaceService.canAccessChannel(actorId, message.channelId)) return apiFail("FORBIDDEN", "Message access denied");
-    const key = `${actorId}:${messageId}`;
-    const existing = store.savedMessages.get(key);
-    if (existing) return { messageId, saved: true, savedAt: existing.createdAt };
-    const savedAt = nowIso();
-    store.savedMessages.set(key, { userId: actorId, messageId, createdAt: savedAt });
-    return { messageId, saved: true, savedAt };
-  },
-  listSaved(actorId: string): Message[] {
-    return [...store.savedMessages.values()]
-      .filter((saved) => saved.userId === actorId)
-      .map((saved) => store.messages.get(saved.messageId))
-      .filter((message): message is Message => (message ? workspaceService.canAccessChannel(actorId, message.channelId) : false))
-      .map(visibleMessage);
-  },
-  react(actorId: string, messageId: string, emoji: string, action: "add" | "remove" = "add"): { messageId: string; emoji: string; count: number; reacted: boolean } | ReturnType<typeof apiFail> {
-    const message = store.messages.get(messageId);
-    if (!message) return apiFail("NOT_FOUND", "Message not found");
-    if (!workspaceService.canAccessChannel(actorId, message.channelId)) return apiFail("FORBIDDEN", "Message access denied");
-    const key = `${messageId}:${actorId}:${emoji}`;
-    if (action === "remove") store.messageReactions.delete(key);
-    else store.messageReactions.set(key, { messageId, userId: actorId, emoji, createdAt: nowIso() });
-    const count = [...store.messageReactions.values()].filter((reaction) => reaction.messageId === messageId && reaction.emoji === emoji).length;
-    const payload = { messageId, emoji, count, reacted: action === "add" };
-    event("message.reaction", message.channelId, payload);
-    return payload;
-  },
-  ackRead(actorId: string, messageId: string): { accepted: true } | ReturnType<typeof apiFail> {
-    const message = store.messages.get(messageId);
-    if (!message) return apiFail("NOT_FOUND", "Message not found");
-    if (!workspaceService.canAccessChannel(actorId, message.channelId)) return apiFail("FORBIDDEN", "Message access denied");
-    if (message.senderId === actorId) return { accepted: true };
-    const readAt = nowIso();
-    const key = `${messageId}:${actorId}`;
-    // Only push to pendingReadReceipts once per (messageId, userId) pair.
-    // flushReadReceipts drains pending receipts and broadcasts batched read counts.
-    if (!store.readReceipts.has(key)) store.pendingReadReceipts.push({ messageId, userId: actorId, readAt });
-    store.readReceipts.set(key, { messageId, userId: actorId, readAt });
-    const updated = { ...message, state: "read" as const };
-    // readOnce messages self-destruct on first read: the message is tombstoned
-    // immediately so the sender and any future viewers see the consumed marker.
-    if (message.content.type === "ciphertext" && message.content.readOnce) {
-      const consumed = tombstone(updated, "read_once_consumed");
-      store.messages.set(messageId, consumed);
-      event("message.deleted", consumed.channelId, consumed);
-    } else {
-      store.messages.set(messageId, updated);
-    }
-    return { accepted: true };
-  },
-  flushReadReceipts(channelId?: string): ReadReceiptBatch[] {
-    const pending = channelId ? store.pendingReadReceipts.filter((receipt) => store.messages.get(receipt.messageId)?.channelId === channelId) : [...store.pendingReadReceipts];
-    store.pendingReadReceipts = channelId ? store.pendingReadReceipts.filter((receipt) => store.messages.get(receipt.messageId)?.channelId !== channelId) : [];
-    const byMessage = new Map<string, string[]>();
-    for (const receipt of pending) byMessage.set(receipt.messageId, [...(byMessage.get(receipt.messageId) ?? []), receipt.userId]);
-    return [...byMessage.entries()].flatMap(([messageId, readers]) => {
-      const message = store.messages.get(messageId);
-      if (!message) return [];
-      const batch = { messageId, channelId: message.channelId, readCount: readers.length, readers, flushedAt: nowIso() };
-      event("message.read", message.channelId, batch);
-      return [batch];
+  async forward(actor: string, id: string, targetId: string, client: string) {
+    const p = await getMessagePersistence(),
+      source = await p.find(id),
+      target = await workspacePersistenceService.getChannel(targetId);
+    if (!source || !target)
+      return apiFail("NOT_FOUND", "Message or target channel not found");
+    if (
+      !(await workspacePersistenceService.canAccessChannel(
+        actor,
+        source.channelId
+      ))
+    )
+      return apiFail("FORBIDDEN", "Message access denied");
+    const sent = await this.send(actor, {
+      workspaceId: target.workspaceId,
+      channelId: targetId,
+      clientMsgId: client,
+      content: source.content
+    });
+    if ("ok" in sent) return sent;
+    return p.update({
+      ...sent,
+      originalMessageId: source.originalMessageId ?? source.id,
+      originalSenderId: source.originalSenderId ?? source.senderId,
+      originalCreatedAt: source.originalCreatedAt ?? source.createdAt
     });
   },
-  cleanupExpiredMessages(now = new Date()): Message[] {
-    const expired: Message[] = [];
-    for (const message of store.messages.values()) {
-      if (message.state === "deleted" || message.content.type !== "ciphertext" || !message.content.expiresAt || Date.parse(message.content.expiresAt) > now.getTime()) continue;
-      const updated = tombstone(message, "expired");
-      store.messages.set(message.id, updated);
-      expired.push(updated);
-      event("message.deleted", updated.channelId, updated);
-    }
-    return expired;
+  async save(actor: string, id: string) {
+    const p = await getMessagePersistence(),
+      m = await p.find(id);
+    if (!m) return apiFail("NOT_FOUND", "Message not found");
+    if (
+      !(await workspacePersistenceService.canAccessChannel(actor, m.channelId))
+    )
+      return apiFail("FORBIDDEN", "Message access denied");
+    return {
+      messageId: id,
+      saved: true as const,
+      savedAt: await p.save(actor, id)
+    };
   },
-  markRead(actorId: string, channelId: string): { ok: true } | ReturnType<typeof apiFail> {
-    if (!workspaceService.canAccessChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
-    store.channelLastRead.set(`${channelId}:${actorId}`, nowIso());
-    return { ok: true };
+  async listSaved(actor: string) {
+    const persistence = await getMessagePersistence();
+    const messages = await persistence.listSaved(actor);
+    const results = await Promise.all(
+      messages.map(async (message) =>
+        (await workspacePersistenceService.canAccessChannel(
+          actor,
+          message.channelId
+        ))
+          ? visible(message)
+          : undefined
+      )
+    );
+    return results.filter((message): message is Message => Boolean(message));
   },
-  getUnreadCounts(actorId: string, workspaceId: string): Record<string, number> {
-    if (!workspaceService.canAccessWorkspace(actorId, workspaceId)) return {};
-    const channels = [...store.channels.values()].filter((c) => c.workspaceId === workspaceId && !c.deletedAt && workspaceService.canAccessChannel(actorId, c.id));
-    const result: Record<string, number> = {};
-    for (const channel of channels) {
-      const lastRead = store.channelLastRead.get(`${channel.id}:${actorId}`);
-      const unread = [...store.messages.values()].filter((m) => m.channelId === channel.id && m.state === "sent" && (!lastRead || m.createdAt > lastRead) && m.senderId !== actorId).length;
-      if (unread > 0) result[channel.id] = unread;
-    }
-    return result;
-  },
-  getReactions(actorId: string, channelId: string): Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> {
-    if (!workspaceService.canAccessChannel(actorId, channelId)) return {};
-    const reactions = [...store.messageReactions.values()].filter((r) => {
-      const msg = store.messages.get(r.messageId);
-      return msg && msg.channelId === channelId;
+  async react(
+    actor: string,
+    id: string,
+    emoji: string,
+    action: "add" | "remove" = "add"
+  ) {
+    const p = await getMessagePersistence(),
+      m = await p.find(id);
+    if (!m) return apiFail("NOT_FOUND", "Message not found");
+    if (
+      !(await workspacePersistenceService.canAccessChannel(actor, m.channelId))
+    )
+      return apiFail("FORBIDDEN", "Message access denied");
+    const result = {
+      messageId: id,
+      emoji,
+      count: await p.react(id, actor, emoji, action === "add"),
+      reacted: action === "add"
+    };
+    store.messageEvents.push({
+      type: "message.reaction",
+      channelId: m.channelId,
+      payload: result,
+      createdAt: nowIso()
     });
-    const grouped: Record<string, Record<string, { count: number; userIds: Set<string> }>> = {};
-    for (const r of reactions) {
-      if (!grouped[r.messageId]) grouped[r.messageId] = {};
-      if (!grouped[r.messageId]![r.emoji]) grouped[r.messageId]![r.emoji] = { count: 0, userIds: new Set() };
-      grouped[r.messageId]![r.emoji]!.count += 1;
-      grouped[r.messageId]![r.emoji]!.userIds.add(r.userId);
-    }
-    const result: Record<string, Array<{ emoji: string; count: number; reacted: boolean }>> = {};
-    for (const [msgId, emojis] of Object.entries(grouped)) {
-      result[msgId] = Object.entries(emojis).map(([emoji, info]) => ({
-        emoji,
-        count: info.count,
-        reacted: info.userIds.has(actorId)
-      }));
-    }
     return result;
   },
-  pinMessage(actorId: string, channelId: string, messageId: string): { pinned: true } | ReturnType<typeof apiFail> {
-    const channel = store.channels.get(channelId);
-    if (!channel || !workspaceService.canManageChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
-    const message = store.messages.get(messageId);
-    if (!message || message.channelId !== channelId || message.state === "deleted") return apiFail("NOT_FOUND", "Message not found in channel");
-    if (!store.pinnedMessages.has(channelId)) store.pinnedMessages.set(channelId, new Set());
-    const pins = store.pinnedMessages.get(channelId)!;
-    if (pins.has(messageId)) return { pinned: true };
-    if (pins.size >= 50) return apiFail("FORBIDDEN", "Max 50 pinned messages per channel");
-    pins.add(messageId);
-    return { pinned: true };
+  async getMessage(id: string) {
+    return (await getMessagePersistence()).find(id);
   },
-  unpinMessage(actorId: string, channelId: string, messageId: string): { pinned: false } | ReturnType<typeof apiFail> {
-    const channel = store.channels.get(channelId);
-    if (!channel || !workspaceService.canManageChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
-    const pins = store.pinnedMessages.get(channelId);
-    if (!pins || !pins.has(messageId)) return apiFail("NOT_FOUND", "Message not pinned");
-    pins.delete(messageId);
-    return { pinned: false };
+  async getReactions(
+    actor: string,
+    ch: string
+  ): Promise<
+    Record<string, Array<{ emoji: string; count: number; reacted: boolean }>>
+  > {
+    return (await workspacePersistenceService.canAccessChannel(actor, ch))
+      ? (await getMessagePersistence()).reactions(ch, actor)
+      : {};
   },
-  listPins(actorId: string, channelId: string): Message[] | ReturnType<typeof apiFail> {
-    if (!workspaceService.canAccessChannel(actorId, channelId)) return apiFail("FORBIDDEN", "Channel access denied");
-    const pins = store.pinnedMessages.get(channelId);
-    if (!pins) return [];
-    return [...pins].flatMap((id) => store.messages.get(id) ?? []).filter((m) => m.state !== "deleted");
+  async ackRead(actor: string, id: string) {
+    const p = await getMessagePersistence(),
+      m = await p.find(id);
+    if (!m) return apiFail("NOT_FOUND", "Message not found");
+    if (
+      !(await workspacePersistenceService.canAccessChannel(actor, m.channelId))
+    )
+      return apiFail("FORBIDDEN", "Message access denied");
+    if (m.senderId !== actor && (await p.receipt(id, actor)))
+      store.pendingReadReceipts.push({
+        messageId: id,
+        userId: actor,
+        readAt: nowIso()
+      });
+    if (m.content.type === "ciphertext" && m.content.readOnce)
+      await p.update(tombstone({ ...m, state: "read" }, "read_once_consumed"));
+    else await p.update({ ...m, state: "read" });
+    return { accepted: true as const };
+  },
+  async flushReadReceipts(channelId?: string): Promise<
+    Array<{
+      messageId: string;
+      channelId: string;
+      readCount: number;
+      readers: string[];
+      flushedAt: string;
+    }>
+  > {
+    const pending = store.pendingReadReceipts.filter(
+      (receipt) =>
+        !channelId ||
+        store.messages.get(receipt.messageId)?.channelId === channelId
+    );
+    store.pendingReadReceipts = store.pendingReadReceipts.filter(
+      (receipt) =>
+        channelId &&
+        store.messages.get(receipt.messageId)?.channelId !== channelId
+    );
+    const groups = new Map<string, string[]>();
+    for (const receipt of pending)
+      groups.set(receipt.messageId, [
+        ...(groups.get(receipt.messageId) ?? []),
+        receipt.userId
+      ]);
+    const persistence = await getMessagePersistence();
+    const batches = await Promise.all(
+      [...groups].map(async ([messageId, readers]) => {
+        const message = await persistence.find(messageId);
+        return message
+          ? {
+              messageId,
+              channelId: message.channelId,
+              readCount: readers.length,
+              readers,
+              flushedAt: nowIso()
+            }
+          : undefined;
+      })
+    );
+    return batches.filter((batch): batch is NonNullable<typeof batch> =>
+      Boolean(batch)
+    );
+  },
+  async cleanupExpiredMessages(now = new Date()) {
+    const persistence = await getMessagePersistence();
+    const expired = await persistence.listExpired(now);
+    return Promise.all(
+      expired.map((message) =>
+        persistence.update(tombstone(message, "expired"))
+      )
+    );
+  },
+  async markRead(actor: string, ch: string) {
+    if (!(await workspacePersistenceService.canAccessChannel(actor, ch)))
+      return apiFail("FORBIDDEN", "Channel access denied");
+    await (await getMessagePersistence()).markRead(ch, actor);
+    return { ok: true as const };
+  },
+  async getUnreadCounts(actor: string, w: string) {
+    if (!(await workspacePersistenceService.canAccessWorkspace(actor, w)))
+      return {};
+    const unread = await (await getMessagePersistence()).unread(w, actor),
+      channels = await workspacePersistenceService.listChannels(actor, w);
+    return Object.fromEntries(
+      Object.entries(unread).filter(([channelId]) =>
+        channels.some((channel) => channel.id === channelId)
+      )
+    );
+  },
+  async pinMessage(actor: string, ch: string, id: string) {
+    if (!(await workspacePersistenceService.canManageChannel(actor, ch)))
+      return apiFail("FORBIDDEN", "Channel access denied");
+    const m = await (await getMessagePersistence()).find(id);
+    if (!m || m.channelId !== ch || m.state === "deleted")
+      return apiFail("NOT_FOUND", "Message not found in channel");
+    return (await (await getMessagePersistence()).pin(ch, id))
+      ? { pinned: true as const }
+      : apiFail("FORBIDDEN", "Max 50 pinned messages per channel");
+  },
+  async unpinMessage(actor: string, ch: string, id: string) {
+    if (!(await workspacePersistenceService.canManageChannel(actor, ch)))
+      return apiFail("FORBIDDEN", "Channel access denied");
+    return (await (await getMessagePersistence()).unpin(ch, id))
+      ? { pinned: false as const }
+      : apiFail("NOT_FOUND", "Message not pinned");
+  },
+  async listPins(actor: string, ch: string) {
+    if (!(await workspacePersistenceService.canAccessChannel(actor, ch)))
+      return apiFail("FORBIDDEN", "Channel access denied");
+    return (await (await getMessagePersistence()).pins(ch)).filter(
+      (m) => m.state !== "deleted"
+    );
   }
 };

@@ -7,7 +7,7 @@
  * - Binds to the configured host and port
  *
  * Does NOT:
- * - Run database migrations (handled separately via drizzle-kit)
+ * - Run database migrations in production
  * - Start background workers or bot polling
  * - Initialize Redis (lazy connect from session-store)
  *
@@ -18,13 +18,38 @@
 import { serve } from "@hono/node-server";
 import type { Server as HttpServer } from "node:http";
 import { env } from "./config/env.js";
+import { closeDb, pingDb, runMigrations } from "./db/client.js";
 import { createHttpApp } from "./http/routes.js";
 import { logger } from "./observability/logger.js";
 import { attachSocketServer } from "./ws/socket.js";
 
-const app = createHttpApp();
-const httpServer = serve({ fetch: app.fetch, hostname: env.HOST, port: env.PORT }, () => {
-  logger.info({ host: env.HOST, port: env.PORT }, "Nexus Chat server started");
-});
+async function start(): Promise<void> {
+  if (env.PERSISTENCE === "postgres") {
+    if (env.DB_MIGRATE_ON_BOOT) await runMigrations();
+    await pingDb();
+  }
 
-attachSocketServer(httpServer as unknown as HttpServer);
+  const app = createHttpApp();
+  const httpServer = serve({ fetch: app.fetch, hostname: env.HOST, port: env.PORT }, () => {
+    logger.info({ host: env.HOST, port: env.PORT }, "Nexus Chat server started");
+  });
+
+  attachSocketServer(httpServer as unknown as HttpServer);
+
+  let shuttingDown = false;
+  const shutdown = () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    httpServer.close((error) => {
+      void closeDb().finally(() => process.exit(error ? 1 : 0));
+    });
+  };
+
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
+}
+
+void start().catch((error: unknown) => {
+  logger.error({ err: error }, "Nexus Chat server failed to start");
+  void closeDb().finally(() => process.exit(1));
+});
