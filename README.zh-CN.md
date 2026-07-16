@@ -594,6 +594,28 @@ TUI 可以用 `NEXUS_API_BASE=http://192.168.1.20:4000` 连接该宿主机。Des
 
 ---
 
+## Tailscale — 零配置团队部署
+
+Nexus Chat 和 [Tailscale](https://tailscale.com) 是小团队内部 IM 的理想搭档。Tailscale 负责网络层，Nexus Chat 负责应用层，功能完全互补、零重叠。
+
+| 需求 | 由谁解决 |
+|---|---|
+| 加密传输 | Tailscale WireGuard — 无需 TLS 证书 |
+| 稳定的私有地址 | Tailscale MagicDNS 或 `tailscale ip -4` |
+| 不暴露公网 | 仅 tailnet 内可达，零公网端口 |
+| 网络层身份认证 | Tailscale 已认证设备和用户 |
+| 频道式 IM、DM、消息历史 | Nexus Chat |
+| 表情回应、Pin、回复、转发 | Nexus Chat |
+| 敏感对话 1:1 E2EE | Nexus Chat（ECDH + AES-256-GCM） |
+| 文件共享与附件管理 | Nexus Chat |
+| Bot SDK 与自动化 | Nexus Chat Bot SDK（`@nexus-chat/bot-sdk`） |
+
+一位成员运行 `docker compose up -d`，其他人浏览器打开 `http://<tailscale-ip>:5173` 即可。详细步骤见 [QUICKSTART.zh-CN.md §7](QUICKSTART.zh-CN.md#7-小团队-tailscale-部署)。
+
+对于已在用 Tailscale 的 5–50 人团队，此组合开箱即用。
+
+---
+
 ## 文档
 
 | 文档 | 内容 |

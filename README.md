@@ -594,6 +594,28 @@ TUI clients can connect to that host with `NEXUS_API_BASE=http://192.168.1.20:40
 
 ---
 
+## Tailscale — Zero-Config Team Deployment
+
+Nexus Chat and [Tailscale](https://tailscale.com) are an ideal pair for small-team internal IM. Tailscale handles the network layer; Nexus Chat handles the application layer. There is no feature overlap.
+
+| Concern | Solved by |
+|---|---|
+| Encrypted transport | Tailscale WireGuard — no TLS certificate needed |
+| Stable private addressing | Tailscale MagicDNS or `tailscale ip -4` |
+| No public internet exposure | Tailnet-only; zero open ports |
+| Authentication at network boundary | Tailscale already authenticates devices and users |
+| Channel-based IM, DM, message history | Nexus Chat |
+| Emoji reactions, pins, replies, forwarding | Nexus Chat |
+| 1:1 E2EE for sensitive conversations | Nexus Chat (ECDH + AES-256-GCM) |
+| File sharing and attachment workflow | Nexus Chat |
+| Bot SDK and automation | Nexus Chat Bot SDK (`@nexus-chat/bot-sdk`) |
+
+One team member runs `docker compose up -d`, then everyone opens `http://<tailscale-ip>:5173` in a browser. See [QUICKSTART.md §7](QUICKSTART.md#7-small-team-tailscale-deployment) for the step-by-step guide.
+
+This combination is production-ready today for teams of 5–50 people who already use Tailscale.
+
+---
+
 ## Documentation
 
 | Document | Content |

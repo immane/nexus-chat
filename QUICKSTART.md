@@ -126,7 +126,78 @@ API_PUBLIC_BASE=http://192.168.1.20:4000
 
 Replace `192.168.1.20` with your host IP or domain. TUI clients can use `NEXUS_API_BASE=http://192.168.1.20:4000`; Desktop builds use the same `VITE_API_BASE` value as the Web client.
 
-## 7. Run A Fast Validation Pass
+## 7. Small-Team Tailscale Deployment
+
+For a quick internal team setup without public DNS or TLS, Tailscale gives every machine a stable private IP and encrypted WireGuard tunnel. One team member runs the server; everyone else opens the web client in a browser.
+
+### 7.1 Start The Server
+
+On the host machine, ensure Docker is running, then:
+
+```bash
+docker compose up -d
+```
+
+If your team needs persistent data across restarts, use PostgreSQL:
+
+```env
+# .env
+PERSISTENCE=postgres
+```
+
+Then rebuild:
+
+```bash
+docker compose up -d --build server
+```
+
+### 7.2 Configure For Team Access
+
+Find your Tailscale IP:
+
+```bash
+tailscale ip -4
+# Example output: 100.64.23.42
+```
+
+Update `.env` so the server binds to all interfaces and allows cross-origin requests from your Tailscale IP:
+
+```env
+HOST=0.0.0.0
+WEB_ORIGIN=http://100.64.23.42:5173
+VITE_API_BASE=http://100.64.23.42:4000
+API_PUBLIC_BASE=http://100.64.23.42:4000
+```
+
+Rebuild the web container with the new API base:
+
+```bash
+VITE_API_BASE=http://100.64.23.42:4000 docker compose up -d --build web
+```
+
+### 7.3 Team Members Join
+
+Each team member opens a browser and navigates to:
+
+```
+http://<your-tailscale-ip>:5173
+```
+
+They register an account directly through the login page. No invitation email or admin panel is required — the first person who registers can create a workspace and share the workspace name. Other members join the same workspace by name through the sidebar.
+
+### 7.4 What Tailscale Provides
+
+| Concern | Handled by |
+|---|---|
+| Encrypted network between team | Tailscale WireGuard |
+| Stable private IPs | Tailscale MagicDNS or `tailscale ip -4` |
+| Authentication | Nexus Chat email/password (JWT) |
+| No public exposure | Tailscale only; no open ports to internet |
+| No DNS or TLS setup needed | Tailscale, not Let's Encrypt or Cloudflare |
+
+This setup is ideal for teams of 5–50 people who already use Tailscale for internal access.
+
+## 8. Run A Fast Validation Pass
 
 In a separate shell:
 
@@ -139,7 +210,7 @@ pnpm coverage
 
 Expected result: all commands pass. Current coverage is above 99% statement coverage and above 90% branch coverage.
 
-## 8. Try The TUI/CLI
+## 9. Try The TUI/CLI
 
 Show help:
 
@@ -179,7 +250,7 @@ pnpm smoke:tui:ci
 
 The CLI stores its local token in `.env.tui`, which is ignored by Git.
 
-## 9. Run Individual Apps
+## 10. Run Individual Apps
 
 Server only:
 
@@ -205,7 +276,7 @@ TUI/CLI:
 pnpm --filter @nexus-chat/tui dev --help
 ```
 
-## 10. Useful Reset Commands
+## 11. Useful Reset Commands
 
 Stop infrastructure:
 

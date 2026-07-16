@@ -126,7 +126,78 @@ API_PUBLIC_BASE=http://192.168.1.20:4000
 
 把 `192.168.1.20` 替换成你的宿主机 IP 或域名。TUI 客户端可以使用 `NEXUS_API_BASE=http://192.168.1.20:4000`；Desktop 构建使用和 Web client 相同的 `VITE_API_BASE`。
 
-## 7. 运行快速验证
+## 7. 小团队 Tailscale 部署
+
+如果团队不需要公网 DNS 和 TLS，可以通过 Tailscale 快速搭建内网 IM。Tailscale 为每台机器提供稳定的私有 IP 和加密 WireGuard 隧道。一个成员运行 server，其他人用浏览器打开 web 客户端即可。
+
+### 7.1 启动 Server
+
+在宿主机上确保 Docker 正在运行，然后：
+
+```bash
+docker compose up -d
+```
+
+如果团队需要重启后保留数据，使用 PostgreSQL：
+
+```env
+# .env
+PERSISTENCE=postgres
+```
+
+然后重新构建：
+
+```bash
+docker compose up -d --build server
+```
+
+### 7.2 配置团队访问
+
+查看你的 Tailscale IP：
+
+```bash
+tailscale ip -4
+# 例如输出：100.64.23.42
+```
+
+更新 `.env`，让 server 监听所有网络接口并允许来自 Tailscale IP 的跨域请求：
+
+```env
+HOST=0.0.0.0
+WEB_ORIGIN=http://100.64.23.42:5173
+VITE_API_BASE=http://100.64.23.42:4000
+API_PUBLIC_BASE=http://100.64.23.42:4000
+```
+
+用新的 API 地址重新构建 web 容器：
+
+```bash
+VITE_API_BASE=http://100.64.23.42:4000 docker compose up -d --build web
+```
+
+### 7.3 团队成员加入
+
+每位成员打开浏览器访问：
+
+```
+http://<你的-tailscale-ip>:5173
+```
+
+直接在登录页面注册账号，无需邀请邮件或管理后台。第一个注册的人创建 workspace 后，把 workspace 名字告诉其他人。其他成员通过侧边栏按名字加入同一个 workspace。
+
+### 7.4 Tailscale 带来的好处
+
+| 问题 | 解决方案 |
+|---|---|
+| 团队间加密网络 | Tailscale WireGuard |
+| 稳定的私有 IP | Tailscale MagicDNS 或 `tailscale ip -4` |
+| 身份认证 | Nexus Chat 邮箱/密码 (JWT) |
+| 不暴露公网 | 仅 Tailscale 网络可达，无公网端口 |
+| 无需 DNS 或 TLS 配置 | Tailscale 负责，不需要 Let's Encrypt 或 Cloudflare |
+
+此方案非常适合已在用 Tailscale 的 5–50 人团队。
+
+## 8. 运行快速验证
 
 另开一个 shell：
 
@@ -139,7 +210,7 @@ pnpm coverage
 
 预期结果：全部通过。当前 coverage 超过 99% statement coverage，并超过 90% branch coverage。
 
-## 8. 试用 TUI/CLI
+## 9. 试用 TUI/CLI
 
 查看帮助：
 
@@ -179,7 +250,7 @@ pnpm smoke:tui:ci
 
 CLI 会把本地 token 存到 `.env.tui`，该文件已被 Git ignore。
 
-## 9. 单独运行各应用
+## 10. 单独运行各应用
 
 只运行 server：
 
@@ -205,7 +276,7 @@ pnpm --filter @nexus-chat/desktop dev
 pnpm --filter @nexus-chat/tui dev --help
 ```
 
-## 10. 常用重置命令
+## 11. 常用重置命令
 
 停止基础设施：
 
