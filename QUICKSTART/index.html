@@ -462,10 +462,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-seed-in-memory-dev-data" class="md-nav__link">
+  <a href="#5-seed-dev-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Seed In-Memory Dev Data
+        5. Seed Dev Data
       
     </span>
   </a>
@@ -1777,10 +1777,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-seed-in-memory-dev-data" class="md-nav__link">
+  <a href="#5-seed-dev-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Seed In-Memory Dev Data
+        5. Seed Dev Data
       
     </span>
   </a>
@@ -1886,7 +1886,7 @@
 
 <h1 id="nexus-chat-quick-start">Nexus Chat Quick Start<a class="headerlink" href="#nexus-chat-quick-start" title="Permanent link">&para;</a></h1>
 <p><a href="QUICKSTART.zh-CN.md">中文快速开始</a> | <a href="../">Full README</a></p>
-<p>This guide gets a local Phase 1 Nexus Chat workspace running for development and smoke testing.</p>
+<p>This guide gets a local Nexus Chat workspace running for development and smoke testing.</p>
 <h2 id="1-prerequisites">1. Prerequisites<a class="headerlink" href="#1-prerequisites" title="Permanent link">&para;</a></h2>
 <p>Install these first:</p>
 <ul>
@@ -1924,14 +1924,14 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>curl<span class="w"> </span>http://127.0.0.1:4000/healthz
 </code></pre></div>
-<p>Phase 1 runtime services use in-memory domain stores. PostgreSQL and Redis are intentionally commented out in <code>docker-compose.yml</code> until persistence is wired.</p>
+<p>The server defaults to in-memory persistence for local dev. For PostgreSQL-backed production, set <code>PERSISTENCE=postgres</code> and <code>DATABASE_URL</code> in <code>.env</code>, then start with <code>docker compose up -d --build server</code> (Postgres and Redis are included in <code>docker-compose.yml</code>).</p>
 <p>To run both server and web with Docker:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>server<span class="w"> </span>web
 </code></pre></div>
 <p>The web container serves the built app on <code>http://127.0.0.1:5173</code>. <code>VITE_API_BASE</code> is baked into the web image at build time. For LAN access, rebuild with the host API URL:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">VITE_API_BASE</span><span class="o">=</span>http://192.168.1.20:4000<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>web
 </code></pre></div>
-<h2 id="5-seed-in-memory-dev-data">5. Seed In-Memory Dev Data<a class="headerlink" href="#5-seed-in-memory-dev-data" title="Permanent link">&para;</a></h2>
+<h2 id="5-seed-dev-data">5. Seed Dev Data<a class="headerlink" href="#5-seed-dev-data" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>bash<span class="w"> </span>scripts/dev-bootstrap.sh
 </code></pre></div>
 <p>Dev credentials:</p>
@@ -1953,7 +1953,7 @@
 </tr>
 </tbody>
 </table>
-<p>The bootstrap creates <code>Dev Workspace</code>, a default <code>#general</code> channel, and workspace/channel membership for Bob. Re-run it after restarting or rebuilding the server container because the store is in memory.</p>
+<p>The bootstrap creates <code>Dev Workspace</code>, a default <code>#general</code> channel, and workspace/channel membership for Bob. For memory-mode, re-run after restarting or rebuilding the server. With <code>PERSISTENCE=postgres</code>, data survives restarts.</p>
 <h2 id="6-start-development-servers">6. Start Development Servers<a class="headerlink" href="#6-start-development-servers" title="Permanent link">&para;</a></h2>
 <p>For the Docker server plus web UI flow, keep the server container running and start Vite separately:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/web<span class="w"> </span>dev
@@ -1968,7 +1968,7 @@
 <li>API health check: <code>http://127.0.0.1:4000/healthz</code></li>
 <li>Metrics: <code>http://127.0.0.1:4000/metrics</code></li>
 </ul>
-<p>The web app supports demo mode and real-server mode. In real-server mode, use the dev credentials above or register another user through the API/UI.</p>
+<p>The web app connects to a real server. Use the dev credentials above or register a new user through the API/UI.</p>
 <p>For LAN or host-machine access, use the host IP consistently:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>HOST=0.0.0.0
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>WEB_ORIGIN=http://192.168.1.20:5173
@@ -2023,7 +2023,7 @@
 <p>Stop infrastructure:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 </code></pre></div>
-<p>Recreate the in-memory Docker server and seed data:</p>
+<p>Recreate the Docker server and seed data:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 <a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>server
 <a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d

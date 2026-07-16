@@ -2605,9 +2605,9 @@
 
 
 <p align="center">
-  <img src="https://img.shields.io/badge/phase-1%20complete-blue" alt="Phase">
-  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/tests-119%20passed-green" alt="Tests">
+  <img src="https://img.shields.io/badge/phase-2%20in%20progress-blue" alt="Phase">
+  <img src="https://img.shields.io/badge/coverage-99%25-brightgreen" alt="Coverage">
+  <img src="https://img.shields.io/badge/tests-150%2B%20passed-green" alt="Tests">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Node">
   <img src="https://img.shields.io/badge/pnpm-9.15-orange" alt="pnpm">
@@ -2615,7 +2615,7 @@
 
 <h1 id="nexus-chat">Nexus Chat<a class="headerlink" href="#nexus-chat" title="Permanent link">&para;</a></h1>
 <p>A Slack-like workspace chat system with <strong>hybrid encryption</strong>: normal channels that support bots, message history, and server-side workflows, alongside end-to-end encrypted DMs where the server sees only ciphertext. Built from the ground up in TypeScript with React, Electron, Hono, and Socket.IO.</p>
-<p>Phase 1 delivers a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, client-side E2EE (ECDH + AES-256-GCM) for 1:1 DMs, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. The test suite covers 18 files, 119 tests, with 100% statement, function, and line coverage.</p>
+<p>Phase 1 delivered a monorepo with a web client, Electron desktop shell, TUI/CLI, REST/WebSocket gateway, full message state machine, bot engine with SDK, three first-party bots, client-side E2EE (ECDH + AES-256-GCM) for 1:1 DMs, opportunistic WebRTC P2P direct connection for 1:1 E2EE DMs, emoji reactions, message reply/forward/context menu, and real-time presence. Phase 2 adds PostgreSQL as the production persistence backend with async domain adapters, a unified CI pipeline, and a 59-assertion multi-user PostgreSQL smoke test covering the full conversation lifecycle across server restart.</p>
 <p align="center">
   <img src="docs/images/login-sample.jpg" alt="Login Screen" width="30%">
   <img src="docs/images/chat-sample.jpg" alt="Chat Screen" width="30%">
@@ -2726,13 +2726,13 @@
 <a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│  Inline /help handler (no connected bot needed)  │
 <a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>└──────────────────────────────────────────────────┘
 </code></pre></div>
-<p><strong>Data layer in Phase 1:</strong> Domain services use in-memory stores (<code>Map</code>-based). The full PostgreSQL schema (17 tables, Drizzle ORM) and Redis infrastructure are defined and validated through migrations, but the runtime store layer has not yet been wired to Postgres. The <code>SESSION_STORE=redis</code> path exercises Redis-backed refresh sessions via <code>RedisRefreshSessionStore</code>.</p>
+<p><strong>Data layer:</strong> Domain services use PostgreSQL for production (<code>PERSISTENCE=postgres</code>) with full async Drizzle adapters. In-memory (<code>Map</code>-based) stores remain the default for local development and tests. The full PostgreSQL schema (17 tables, Drizzle ORM) and Redis infrastructure are wired in. The <code>SESSION_STORE=redis</code> path exercises Redis-backed refresh sessions via <code>RedisRefreshSessionStore</code>.</p>
 <p><strong>Data flow for a normal message send:</strong></p>
 <ol>
 <li>Web client emits <code>{ type: "message.send", payload: { workspaceId, channelId, clientMsgId, content } }</code> over Socket.IO.</li>
 <li>Gateway validates the WS envelope and inner payload against Zod schemas.</li>
 <li><code>messageService.send()</code> checks channel access, mode compatibility, idempotency (<code>clientMsgId</code>), and attachment validity.</li>
-<li>A new message is created with <code>id</code> (UUID v7), state <code>"sent"</code>, and stored in-memory.</li>
+<li>A new message is created with <code>id</code> (UUID v7), state <code>"sent"</code>, and persisted via the async persistence adapter.</li>
 <li>If the channel is normal, <code>botService.publishEvent({ type: "message.created", ... })</code> dispatches to subscribed bots.</li>
 <li>The gateway broadcasts <code>{ type: "message.created", payload: message }</code> to all clients in the channel room.</li>
 <li>The client acknowledges with <code>{ type: "message.ack", payload: { messageId } }</code>.</li>
@@ -2857,7 +2857,7 @@
 <tr>
 <td><strong>Database</strong></td>
 <td>PostgreSQL 16 (Docker)</td>
-<td>Schema live; runtime uses in-memory stores</td>
+<td>Production persistence via <code>PERSISTENCE=postgres</code>; in-memory for local dev</td>
 </tr>
 <tr>
 <td><strong>Cache</strong></td>
@@ -2887,7 +2887,7 @@
 <tr>
 <td><strong>Testing</strong></td>
 <td>Vitest + V8 coverage</td>
-<td>18 test files, 119 tests</td>
+<td>21 test files, 150+ tests</td>
 </tr>
 <tr>
 <td><strong>P2P</strong></td>
@@ -2909,7 +2909,7 @@
 <h3 id="pagination">Pagination<a class="headerlink" href="#pagination" title="Permanent link">&para;</a></h3>
 <p>Messages are sorted by <code>(channel_id, created_at DESC, id DESC)</code>. The API uses cursor-based pagination with the message <code>id</code> as the cursor. This avoids offset drift when new messages arrive.</p>
 <h3 id="read-receipts">Read Receipts<a class="headerlink" href="#read-receipts" title="Permanent link">&para;</a></h3>
-<p>Read receipts (<code>message.ack</code>) are buffered in-memory. The design calls for a 3-second Redis flush window; Phase 1 implements immediate flush via <code>messageService.flushReadReceipts()</code>.</p>
+<p>Read receipts (<code>message.ack</code>) are persisted via the read receipt persistence layer. The design calls for a 3-second Redis flush window; current implementation uses immediate flush via <code>messageService.flushReadReceipts()</code>.</p>
 <h3 id="e2ee-message-handling">E2EE Message Handling<a class="headerlink" href="#e2ee-message-handling" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Read-once:</strong> When a ciphertext message with <code>readOnce: true</code> is acknowledged, it is immediately tombstoned (<code>type: "tombstone"</code>, <code>reason: "read_once_consumed"</code>).</li>
@@ -3533,23 +3533,23 @@
 <tbody>
 <tr>
 <td>Statements</td>
-<td>100.00%</td>
+<td>98.92%</td>
 </tr>
 <tr>
 <td>Branches</td>
-<td>92.62%</td>
+<td>91.24%</td>
 </tr>
 <tr>
 <td>Functions</td>
-<td>100.00%</td>
+<td>99.13%</td>
 </tr>
 <tr>
 <td>Lines</td>
-<td>100.00%</td>
+<td>98.92%</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Test breakdown (18 files, 119 tests):</strong></p>
+<p><strong>Test breakdown (21 files, 150+ tests):</strong></p>
 <table>
 <thead>
 <tr>
@@ -3563,6 +3563,21 @@
 <td><code>@nexus-chat/server</code></td>
 <td><code>domain/services.test.ts</code></td>
 <td>20</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>domain/persistence-memory.test.ts</code></td>
+<td>24</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>domain/persistence-drizzle.test.ts</code></td>
+<td>16</td>
+</tr>
+<tr>
+<td><code>@nexus-chat/server</code></td>
+<td><code>domain/workspaces/persistence-service.test.ts</code></td>
+<td>13</td>
 </tr>
 <tr>
 <td><code>@nexus-chat/server</code></td>
@@ -3651,7 +3666,7 @@
 </tr>
 </tbody>
 </table>
-<p>CI runs on every push: lint, typecheck, test, coverage, build, dependency audit, and TUI smoke tests.</p>
+<p>CI runs on every push and PR: lint, typecheck, test, coverage, build, dependency review, TUI smoke, and PostgreSQL multi-user integration smoke (59 checks across 12 acts).</p>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p>Copy <code>.env.example</code> to <code>.env</code>. All variables:</p>
@@ -3688,6 +3703,16 @@
 <td><code>DATABASE_URL</code></td>
 <td><code>postgres://nexus:nexus@localhost:5432/nexus_chat</code></td>
 <td>PostgreSQL connection</td>
+</tr>
+<tr>
+<td><code>PERSISTENCE</code></td>
+<td><code>memory</code></td>
+<td><code>memory</code> or <code>postgres</code> — required in production</td>
+</tr>
+<tr>
+<td><code>DB_MIGRATE_ON_BOOT</code></td>
+<td><code>false</code></td>
+<td><code>true</code> applies pending migrations; must be <code>false</code> in production</td>
 </tr>
 <tr>
 <td><code>REDIS_URL</code></td>
@@ -3808,7 +3833,7 @@
 </tr>
 <tr>
 <td><a href="docs/design/">docs/design/</a></td>
-<td>Architecture documents (7 docs, 5 layers + P2P + roadmap)</td>
+<td>Architecture documents (8 docs, 5 layers + P2P + roadmap + PostgreSQL persistence)</td>
 </tr>
 <tr>
 <td><a href="docs/research/">docs/research/</a></td>
@@ -3816,7 +3841,7 @@
 </tr>
 <tr>
 <td><a href="docs/tasks/">docs/tasks/</a></td>
-<td>18 implementation task breakdowns</td>
+<td>19 implementation task breakdowns</td>
 </tr>
 <tr>
 <td><a href="docs/sdk/">docs/sdk/</a></td>
@@ -3840,7 +3865,7 @@
 <h2 id="known-limitations">Known Limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h2>
 <p>Phase 1 is a local-development and closed-beta milestone. Key limitations:</p>
 <ul>
-<li><strong>In-memory stores:</strong> Domain services use <code>Map</code>-based state. PostgreSQL schema and migrations are defined, but the runtime persistence layer is not wired. Redis is available for session storage via <code>SESSION_STORE=redis</code>.</li>
+<li><strong>In-memory fallback:</strong> Default persistence is in-memory for development. Production uses PostgreSQL (<code>PERSISTENCE=postgres</code>) with full async domain adapters. Drizzle schema, migrations, and seed are wired; in-memory adapter co-exists for tests and local dev.</li>
 <li><strong>Single-device E2EE:</strong> One device per user. Multi-device support and group E2EE (Sender Key) are deferred.</li>
 <li><strong>No full-text search:</strong> Message search is limited to cursor-based pagination. <code>tsvector</code> indexing is planned for Phase 2.</li>
 <li><strong>No WebSocket horizontal scaling:</strong> Socket.IO runs single-process without Redis Adapter in dev.</li>

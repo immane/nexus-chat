@@ -2130,7 +2130,7 @@
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>redis-cli<span class="w"> </span>SAVE
 </code></pre></div>
 <h2 id="file-storage-s3-object-storage">File Storage (S3 / Object Storage)<a class="headerlink" href="#file-storage-s3-object-storage" title="Permanent link">&para;</a></h2>
-<p>Phase 1 does not include user-facing file uploads in the UI. The attachment service backend is implemented but not yet wired to the client UI. When file storage is activated in Phase 2:</p>
+<p>Phase 1 includes dev file upload in the web/desktop UI via <code>/dev-upload</code>. Dev file bytes are in-memory and disappear on server restart. File metadata is persisted in PostgreSQL. Production object storage (S3-compatible) is planned for Phase 2:</p>
 <h3 id="backup-strategy">Backup Strategy<a class="headerlink" href="#backup-strategy" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Enable S3 versioning</strong> on the object bucket to preserve file history</li>

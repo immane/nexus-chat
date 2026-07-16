@@ -2130,7 +2130,7 @@
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>redis-cli<span class="w"> </span>SAVE
 </code></pre></div>
 <h2 id="s3">文件存储（S3/对象存储）<a class="headerlink" href="#s3" title="Permanent link">&para;</a></h2>
-<p>第 1 阶段不包括 UI 中面向用户的文件上传。附件服务后端已实现，但尚未连接到客户端 UI。在第 2 阶段激活文件存储时：</p>
+<p>第 1 阶段包括通过 <code>/dev-upload</code> 在 Web/桌面 UI 中上传开发文件。开发文件字节位于内存中，并在服务器重新启动时消失。文件元数据保存在 PostgreSQL 中。生产对象存储（S3 兼容）计划用于第二阶段：</p>
 <h3 id="_3">备份策略<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>在对象存储桶上启用 S3 版本控制</strong>以保留文件历史记录</li>
@@ -2191,7 +2191,7 @@
 <li>[ ] 从最新的 <code>pg_dump</code> 恢复 PostgreSQL</li>
 <li>[ ] 从最新的<code>dump.rdb</code>恢复Redis</li>
 <li>[ ] 验证数据库连接：<code>psql -h localhost -U nexus -d nexus_chat -c "SELECT 1;"</code></li>
-<li>[ ] 验证Redis连接：<code>redis-cli PING</code></li>
+<li>[ ] 验证 Redis 连接：<code>redis-cli PING</code></li>
 <li>[ ] 运行数据库迁移：<code>pnpm db:migrate</code></li>
 <li>[ ] 运行冒烟测试：<code>pnpm smoke:tui</code></li>
 <li>[ ] 验证 API 健康状况：<code>curl http://127.0.0.1:4000/healthz</code></li>

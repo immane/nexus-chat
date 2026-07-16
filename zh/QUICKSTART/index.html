@@ -465,7 +465,7 @@
   <a href="#5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. 内存中的开发数据种子
+        5. 种子开发数据
       
     </span>
   </a>
@@ -1780,7 +1780,7 @@
   <a href="#5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. 内存中的开发数据种子
+        5. 种子开发数据
       
     </span>
   </a>
@@ -1886,7 +1886,7 @@
 
 <h1 id="nexus">Nexus 聊天快速入门<a class="headerlink" href="#nexus" title="Permanent link">&para;</a></h1>
 <p><a href="QUICKSTART.zh-CN.md">中文快速开始</a> | <a href="../">Full README</a></p>
-<p>本指南获取运行本地第一阶段 Nexus Chat 工作区以进行开发和冒烟测试。</p>
+<p>本指南获取运行的本地 Nexus Chat 工作区以进行开发和冒烟测试。</p>
 <h2 id="1">1.先决条件<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <p>首先安装这些：</p>
 <ul>
@@ -1924,14 +1924,14 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>curl<span class="w"> </span>http://127.0.0.1:4000/healthz
 </code></pre></div>
-<p>第 1 阶段运行时服务使用内存域存储。 PostgreSQL 和 Redis 在 <code>docker-compose.yml</code> 中被有意注释掉，直到连接持久性为止。</p>
+<p>服务器默认对本地开发进行内存持久化。对于 PostgreSQL 支持的生产，请在 <code>.env</code> 中设置 <code>PERSISTENCE=postgres</code> 和 <code>DATABASE_URL</code>，然后以 <code>docker compose up -d --build server</code> 开头（Postgres 和 Redis 包含在 <code>docker-compose.yml</code> 中）。</p>
 <p>要使用 Docker 运行服务器和 Web：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>server<span class="w"> </span>web
 </code></pre></div>
-<p>Web 容器在 <code>http://127.0.0.1:5173</code> 上为构建的应用程序提供服务。 <code>VITE_API_BASE</code> 在构建时烘焙到 Web 映像中。对于 LAN 访问，请使用主机 API URL 进行重建：</p>
+<p>Web 容器在 <code>http://127.0.0.1:5173</code> 上为构建的应用程序提供服务。 <code>VITE_API_BASE</code> 在构建时被烘焙到 Web 图像中。对于 LAN 访问，请使用主机 API URL 进行重建：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">VITE_API_BASE</span><span class="o">=</span>http://192.168.1.20:4000<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>web
 </code></pre></div>
-<h2 id="5">5. 内存中的开发数据种子<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h2 id="5">5. 种子开发数据<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>bash<span class="w"> </span>scripts/dev-bootstrap.sh
 </code></pre></div>
 <p>开发凭据：</p>
@@ -1953,12 +1953,12 @@
 </tr>
 </tbody>
 </table>
-<p>引导程序创建 <code>Dev Workspace</code>、默认 <code>#general</code> 通道以及 Bob 的工作区/通道成员资格。重新启动或重建服务器容器后重新运行它，因为存储位于内存中。</p>
+<p>引导程序创建 <code>Dev Workspace</code>、默认 <code>#general</code> 通道以及 Bob 的工作区/通道成员身份。对于内存模式，重新启动或重建服务器后重新运行。使用<code>PERSISTENCE=postgres</code>，数据在重新启动后仍然存在。</p>
 <h2 id="6">6. 启动开发服务器<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
 <p>对于 Docker 服务器加 Web UI 流程，保持服务器容器运行并单独启动 Vite：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/web<span class="w"> </span>dev
 </code></pre></div>
-<p>对于原生全应用开发流程，如果 Docker 拥有端口 <code>4000</code>，请先停止 Docker，然后运行：</p>
+<p>对于原生全应用开发流程，如果 Docker 拥有端口 <code>4000</code>，请先停止它，然后运行：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>pnpm<span class="w"> </span>dev
 </code></pre></div>
@@ -1968,7 +1968,7 @@
 <li>API健康检查：<code>http://127.0.0.1:4000/healthz</code></li>
 <li>指标：<code>http://127.0.0.1:4000/metrics</code></li>
 </ul>
-<p>Web应用程序支持演示模式和真实服务器模式。在实服务器模式下，使用上面的开发凭据或通过 API/UI 注册另一个用户。</p>
+<p>Web 应用程序连接到真实服务器。使用上面的开发凭据或通过 API/UI 注册新用户。</p>
 <p>对于 LAN 或主机访问，请一致使用主机 IP：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>HOST=0.0.0.0
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>WEB_ORIGIN=http://192.168.1.20:5173
@@ -1983,7 +1983,7 @@
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>pnpm<span class="w"> </span><span class="nb">test</span>
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>pnpm<span class="w"> </span>coverage
 </code></pre></div>
-<p>预期结果：所有命令通过。目前的报表覆盖率高于 99%，分支覆盖率高于 90%。</p>
+<p>预期结果：所有命令通过。目前的报表覆盖率超过 99%，分支覆盖率超过 90%。</p>
 <h2 id="8-tuicli">8. 尝试 TUI/CLI<a class="headerlink" href="#8-tuicli" title="Permanent link">&para;</a></h2>
 <p>显示帮助：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@nexus-chat/tui<span class="w"> </span>dev<span class="w"> </span>--help
@@ -2023,7 +2023,7 @@
 <p>停止基础设施：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 </code></pre></div>
-<p>重新创建内存中的 Docker 服务器和种子数据：</p>
+<p>重新创建 Docker 服务器和种子数据：</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
 <a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>server
 <a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
@@ -2036,7 +2036,7 @@
 <p>如果 <code>pnpm dev</code> 或 <code>smoke:tui:ci</code> 无法绑定到端口，请检查使用端口 <code>4000</code>、<code>5173</code> 或 <code>5174</code> 的现有进程。在运行本机 CI 烟雾之前使用 <code>docker compose down</code> 停止 Docker。</p>
 <p>如果在 TUI 中登录失败，请确认服务器正在运行并且运行时具有预期的用户。由于第一阶段运行时服务默认使用内存存储，因此您需要在每个新服务器启动后运行 <code>scripts/dev-bootstrap.sh</code> 或手动注册用户。</p>
 <p>如果 <code>pnpm db:migrate</code> 失败，请记住默认 Docker 流不会启动 PostgreSQL。如果要验证迁移，请先取消 <code>docker-compose.yml</code> 中 PostgreSQL 的注释。</p>
-<p>如果 WebSocket 命令失败，请确认可以通过 <code>VITE_API_BASE</code> 访问服务器。本地客户端默认为 <code>127.0.0.1</code> 以避免 IPv4/IPv6 本地主机歧义。对于浏览器客户端，将 <code>WEB_ORIGIN</code> 设置为实际的 Web 源，例如 <code>http://localhost</code>、<code>http://127.0.0.1</code> 或 <code>http://192.168.x.x:5173</code>。</p>
+<p>如果 WebSocket 命令失败，请确认可以在 <code>VITE_API_BASE</code> 访问服务器。本地客户端默认为 <code>127.0.0.1</code> 以避免 IPv4/IPv6 本地主机歧义。对于浏览器客户端，将 <code>WEB_ORIGIN</code> 设置为实际的 Web 源，例如 <code>http://localhost</code>、<code>http://127.0.0.1</code> 或 <code>http://192.168.x.x:5173</code>。</p>
 <p>仅对于临时本地/LAN 测试，设置 <code>WEB_ORIGIN=*</code> 以禁用 CORS/WebSocket 源过滤。不要将其用于公共部署。</p>
 <h2 id="_2">后续步骤<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>

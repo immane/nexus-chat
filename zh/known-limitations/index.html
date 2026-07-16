@@ -1754,7 +1754,7 @@
 
 <h1 id="_1">已知限制<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>适用于第 1 阶段 (v0.1.0)。标有阶段参考的项目计划在以后的阶段中解决。</p>
+<p>适用于 v0.1.0。标有阶段参考的项目计划在以后的阶段中解决。</p>
 </blockquote>
 <h2 id="_2">加密<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1765,13 +1765,13 @@
 </ul>
 <h2 id="_3">数据存储<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>用于开发的内存存储。</strong> <code>SESSION_STORE=memory</code> 默认使用内存映射来存储会话数据。 PostgreSQL 模式（<code>sessions</code> 表）已准备就绪，但在开发模式下运行时未连接。切换到 <code>SESSION_STORE=redis</code> 或 <code>postgres</code> 进行生产。</li>
+<li><strong>用于开发的内存中默认值。</strong> <code>SESSION_STORE=memory</code> 默认使用内存中映射来存储会话数据。生产环境使用带有完整异步域适配器的 PostgreSQL (<code>PERSISTENCE=postgres</code>)。对于 Redis 支持的会话，切换到 <code>SESSION_STORE=redis</code>。</li>
 <li><strong>开发中没有 Redis WebSocket 适配器。</strong> Socket.IO 在没有 Redis 适配器的情况下作为单个进程运行，这意味着开发模式下不支持水平扩展。 Redis 适配器可用于生产部署。</li>
 </ul>
 <h2 id="_4">搜索和附件<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>无全文搜索。</strong> PostgreSQL <code>tsvector</code> 全文搜索计划在第 2 阶段进行。目前，消息内容只能通过精确 ID 或范围查询进行搜索。</li>
-<li><strong>Web/桌面 UI 中没有文件上传。</strong> 附件服务后端（预签名 URL、S3 集成）已实现，但 Web 和桌面客户端中的上传 UI 尚未构建。文件上传只能通过 API 进行。</li>
+<li><strong>开发文件上传仅占用内存。</strong> 通过 <code>/dev-upload</code> 上传的文件字节存储在服务器进程内存中，并在重新启动时丢失。当 <code>PERSISTENCE=postgres</code> 时，文件元数据在 PostgreSQL 中保留。生产对象存储（S3 兼容）计划用于第二阶段。</li>
 </ul>
 <h2 id="_5">电子桌面<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1786,7 +1786,7 @@
 <h2 id="_7">可观察性<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>无 OpenTelemetry 跟踪。</strong> 仅 Pino 结构化日志和 Prometheus 指标可用。计划在第 3 阶段使用 OpenTelemetry 进行分布式跟踪。</li>
-<li><strong>内存审计日志。</strong>审计事件在开发过程中存储在内存数组中。计划在第 2 阶段使用 PostgreSQL 存储的持久审计日志。</li>
+<li><strong>内存审计日志。</strong>审计事件在开发过程中存储在内存数组中。使用<code>PERSISTENCE=postgres</code>，审核事件将保留到<code>audit_logs</code>表中。计划在第二阶段建立专门的持续审计管道。</li>
 </ul>
 
 

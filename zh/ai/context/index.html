@@ -1853,10 +1853,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#65-current-implementation-stats-as-of-2026-07-10" class="md-nav__link">
+  <a href="#65-current-implementation-stats-as-of-2026-07-16" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.5 Current Implementation Stats (as of 2026-07-10)
+        6.5 Current Implementation Stats (as of 2026-07-16)
       
     </span>
   </a>
@@ -1920,10 +1920,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#75-web-demo-help-fallback" class="md-nav__link">
+  <a href="#75-web-demo-help-fallback-removed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.5 Web Demo /help Fallback
+        7.5 Web Demo /help Fallback (Removed)
       
     </span>
   </a>
@@ -2117,6 +2117,17 @@
     <span class="md-ellipsis">
       
         8.9 AGENTS.md Git Rules (2026-07-09)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#811-phase-2-postgresql-persistence-2026-07-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.11 Phase 2 PostgreSQL Persistence (2026-07-15)
       
     </span>
   </a>
@@ -2473,10 +2484,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#65-current-implementation-stats-as-of-2026-07-10" class="md-nav__link">
+  <a href="#65-current-implementation-stats-as-of-2026-07-16" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.5 Current Implementation Stats (as of 2026-07-10)
+        6.5 Current Implementation Stats (as of 2026-07-16)
       
     </span>
   </a>
@@ -2540,10 +2551,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#75-web-demo-help-fallback" class="md-nav__link">
+  <a href="#75-web-demo-help-fallback-removed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.5 Web Demo /help Fallback
+        7.5 Web Demo /help Fallback (Removed)
       
     </span>
   </a>
@@ -2744,6 +2755,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#811-phase-2-postgresql-persistence-2026-07-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.11 Phase 2 PostgreSQL Persistence (2026-07-15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#810-e2ee-real-encryption-implementation-2026-07-10" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2792,8 +2814,8 @@
 
 <h1 id="nexus-chat-session-context-document">Nexus Chat — Session Context Document<a class="headerlink" href="#nexus-chat-session-context-document" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>Last updated: 2026-07-10 (Phase 1 — E2EE real encryption implemented via IE2eeProvider + @noble/*, Task #27 complete, 119 tests, 100% coverage)
-Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM encryption active for 1:1 E2EE DMs. IE2eeProvider interface with 3 swappable implementations (placeholder/noble/webcrypto). Signal Protocol (X3DH + Double Ratchet) deferred to Phase 3 AGPL-3.0 branch.</p>
+<p>Last updated: 2026-07-16 (Phase 2 — PostgreSQL persistence integrated via async adapters, Task #28 in progress, CI unified with PostgreSQL multi-user smoke test, web demo removed, auto-refresh tokens)
+Current status: Phase 1 complete (27/27), Phase 2 in progress. Real ECDH + AES-256-GCM encryption active for 1:1 E2EE DMs. PostgreSQL wired as production persistence with PERSISTENCE env switch; in-memory remains dev default. IE2eeProvider interface with 3 swappable implementations.</p>
 </blockquote>
 <h2 id="1-project-overview">1. Project Overview<a class="headerlink" href="#1-project-overview" title="Permanent link">&para;</a></h2>
 <p><strong>Nexus Chat</strong> is a Slack-like instant messaging desktop application built on a hybrid architecture:</p>
@@ -3174,6 +3196,11 @@ Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM enc
 <td>E2EE Real Encryption Implementation</td>
 <td>Done</td>
 </tr>
+<tr>
+<td>28</td>
+<td>Phase 2 PostgreSQL Persistence Integration</td>
+<td>In Progress</td>
+</tr>
 </tbody>
 </table>
 <h3 id="later-phases">Later Phases<a class="headerlink" href="#later-phases" title="Permanent link">&para;</a></h3>
@@ -3190,20 +3217,21 @@ Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM enc
 <li><strong>Git</strong>: Conventional Commits (<code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>chore:</code>, <code>refactor:</code>), branch naming <code>feat/xxx</code> / <code>fix/xxx</code> / <code>docs/xxx</code>, no secrets committed</li>
 </ul>
 <hr />
-<h2 id="65-current-implementation-stats-as-of-2026-07-10">6.5 Current Implementation Stats (as of 2026-07-10)<a class="headerlink" href="#65-current-implementation-stats-as-of-2026-07-10" title="Permanent link">&para;</a></h2>
+<h2 id="65-current-implementation-stats-as-of-2026-07-16">6.5 Current Implementation Stats (as of 2026-07-16)<a class="headerlink" href="#65-current-implementation-stats-as-of-2026-07-16" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Monorepo layout</strong>: 4 apps + 7 packages (4 apps: server, web, desktop, tui; 7 packages: shared, signal, bot-sdk, ui, help-bot, notification-bot, welcome-bot) across pnpm workspaces with Turborepo</li>
-<li><strong>CI validation</strong>: <code>pnpm lint</code>, <code>pnpm typecheck</code>, <code>pnpm test</code>, <code>pnpm coverage</code>, <code>pnpm build</code> all passing. Latest Web refactor verification passed <code>pnpm --filter @nexus-chat/web lint</code>, <code>pnpm --filter @nexus-chat/web typecheck</code>, <code>pnpm --filter @nexus-chat/web test</code>, <code>pnpm build</code>, and <code>pnpm test</code>.</li>
-<li><strong>Coverage</strong>: 100.00% statements/lines/functions, 93.34% branches across core domain + shared packages (signal package: 100% across all metrics)</li>
-<li><strong>Tests</strong>: 119 tests across 18 test files covering server domain services, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI</li>
+<li><strong>CI validation</strong>: Unified <code>ci.yml</code> (validate + postgres-smoke + security). <code>pnpm lint</code>, <code>pnpm typecheck</code>, <code>pnpm test</code>, <code>pnpm coverage</code>, <code>pnpm build</code> all passing. PostgreSQL multi-user smoke test: 59/59 assertions across 12 acts (onboarding, channels, conversation, reactions, edits, pins, read receipts, file upload/download, DM, forward/save, bot /help, Signal prekeys, server restart persistence).</li>
+<li><strong>Coverage</strong>: 98.92% statements/lines, 99.13% functions, 91.24% branches across core domain + shared packages</li>
+<li><strong>Tests</strong>: 150+ tests across 21 test files covering server domain services, persistence adapters (memory + Drizzle), persistence-service RBAC, HTTP routes, WS gateway, observability/audit, shared contracts, bot SDK, base bots, signal facade, web shell/store, Electron security config, desktop config, P2P transport, and TUI CLI</li>
 <li><strong>Phase 1 tasks</strong>: 27/27 done — Phase 1 complete</li>
+<li><strong>Phase 2 tasks</strong>: Task #28 (PostgreSQL persistence) in progress — schema parity, async adapters, smoke test complete</li>
 <li><strong>Shared contracts</strong>: 40+ canonical Zod schemas (API envelope, auth, workspace/channel, message, attachment, bot, signal/E2E, WS events) with Zod-based success envelope helper</li>
-<li><strong>DB schema</strong>: 17 core tables with generated Drizzle migration (Postgres not yet wired for runtime domain services; runtime uses in-memory adapters. Drizzle schema, migrations, and seed script are present for local infrastructure validation.)</li>
+<li><strong>DB schema</strong>: 17 core tables with generated Drizzle migration. PostgreSQL runtime integration active via <code>PERSISTENCE=postgres</code> with async adapters (auth, workspace, messages, attachments, bots, signal). <code>FOR UPDATE SKIP LOCKED</code> for concurrent prekey allocation. In-memory adapter co-exists for development and tests.</li>
 <li><strong>Session store</strong>: Dual backend: <code>InMemoryRefreshSessionStore</code> (default dev) and <code>RedisRefreshSessionStore</code> (activated via <code>SESSION_STORE=redis</code>), both with full test coverage</li>
 <li><strong>Bot infra</strong>: Dedicated <code>/bots</code> WS namespace with token auth, per-bot event polling, subscription management; <code>NexusBotClient</code> SDK with reconnect backoff, middleware pipeline, channel info API, and rate-limit surface</li>
 <li><strong>Base bots</strong>: WelcomeBot (member_added), HelpBot (/help), NotificationBot (/announce)</li>
-<li><strong>Signal/E2E</strong>: Real ECDH + AES-256-GCM encryption via IE2eeProvider interface with 3 implementations (placeholder/noble/webcrypto); @noble/* is default (HTTP-compatible, MIT); WebCrypto (HTTPS only); Placeholder (Phase 3 Signal Protocol stub, @deprecated). E2EE file attachments enabled (📎 button visible). E2EE attachment encryption/decryption helpers. PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback.</li>
-<li><strong>Web shell</strong>: React/Vite renderer with login gate (Demo + Real Server dual-mode), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar. <code>ChatRoute.tsx</code> is now split into focused UI components plus hooks for channel members, attachments, message actions, bootstrap loading, read receipts, and typing state; Signal/P2P send orchestration and WebSocket connection ownership remain in the route.</li>
+<li><strong>Signal/E2E</strong>: Real ECDH + AES-256-GCM encryption via IE2eeProvider interface with 3 implementations (placeholder/noble/webcrypto); @noble/* is default (HTTP-compatible, MIT); WebCrypto (HTTPS only); Placeholder (Phase 3 Signal Protocol stub, @deprecated). E2EE file attachments enabled. E2EE attachment encryption/decryption helpers. PreKey upload/consume with transactional one-time prekey consumption; E2E read-once/TTL tombstones; session storage; P2P WebRTC DataChannel for 1:1 E2E DMs with relay fallback.</li>
+<li><strong>Web shell</strong>: React/Vite renderer with real-server-only login (demo mode removed), workspace/channel sidebar with 3-tab bottom bar (Chat/Member/Settings), virtualized message list, slash command auto-detect, E2E policy/tombstone UI, typing indicators, read receipts, unread badges, DM creation from member list, auth session persistence with automatic access-token refresh, add channel/DM popup, right sidebar channel members, settings panel (Theme toggle, Compact mode, Sound, Notifications, Log Out), right-click context menu on messages (Reply/Copy/Forward/Edit/Delete/React), emoji reaction picker with 20 emojis, reply quote bar with reference display, forward modal with channel/DM picker, inline message editing, P2P/Signal transport mode selector for 1:1 DMs with peer online status, auto-refresh on channel/DM creation by other clients, online presence indicators (green/gray dots), toast notifications for new messages, browser notifications for background tabs, Markdown rendering (bold/italic/code/quote/lists/tables), relative timestamps, date separators, multiline textarea input (Enter send, Shift+Enter newline), emoji picker popover, image/file upload with inline rendering, clipboard image paste, Discord-style input bar. <code>ChatRoute.tsx</code> is now split into focused UI components plus hooks for channel members, attachments, message actions, bootstrap loading, read receipts, typing state, and auth token refresh; Signal/P2P send orchestration and WebSocket connection ownership remain in the route.</li>
 <li><strong>Server</strong>: REST API with 60+ endpoints, WebSocket gateway with room-based broadcasting, channel description &amp; mute support, message pinning, reply-to with validation, presence tracking with connection count, WS broadcast for reactions/edits/deletes/channel-created, in-memory dev file upload/download endpoints</li>
 </ul>
 <hr />
@@ -3216,8 +3244,8 @@ Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM enc
 <p><code>invokeCommand</code> called <code>this.publishEvent(...)</code> (which internally calls <code>dispatchToBots</code>) and then redundantly called <code>this.dispatchToBots(event)</code> again. Removed the duplicate so each bot command event is enqueued exactly once.</p>
 <h3 id="74-tui-bot-smoke-install-url">7.4 TUI Bot Smoke Install URL<a class="headerlink" href="#74-tui-bot-smoke-install-url" title="Permanent link">&para;</a></h3>
 <p><code>apps/tui/src/commands/smoke.ts:169-172</code> passed <code>workspaceId</code> via a custom <code>x-query-workspace-id</code> header, but the server's <code>POST /api/v1/bots/install</code> reads <code>workspaceId</code> from the URL query string. Fixed to use <code>?workspaceId=...</code> in the request URL.</p>
-<h3 id="75-web-demo-help-fallback">7.5 Web Demo <code>/help</code> Fallback<a class="headerlink" href="#75-web-demo-help-fallback" title="Permanent link">&para;</a></h3>
-<p>The web client demo mode uses a fake token (<code>demo-access-token</code>) that cannot establish a real WebSocket connection. Added a local-only fallback in <code>apps/web/src/components/App.tsx</code> that synthesizes a help bot response directly in the message store when <code>/help</code> is typed in demo mode, so the "Try /help" prompt in the welcome message actually works.</p>
+<h3 id="75-web-demo-help-fallback-removed">7.5 Web Demo <code>/help</code> Fallback (Removed)<a class="headerlink" href="#75-web-demo-help-fallback-removed" title="Permanent link">&para;</a></h3>
+<p>The web client demo mode and its fake token (<code>demo-access-token</code>) have been removed. The login page now directly shows the real server authentication form only. The local-only <code>/help</code> synthesis fallback in <code>ChatRoute.tsx</code> was removed along with the demo mode, as was <code>demo-data.ts</code> and all <code>demo-access-token</code> guard clauses in hooks.</p>
 <h3 id="76-coverage-enhancement">7.6 Coverage Enhancement<a class="headerlink" href="#76-coverage-enhancement" title="Permanent link">&para;</a></h3>
 <p>Coverage improved from ~97.6%/85.6% to 99.83%/92.02% by adding tests for:
 - <code>InMemoryRefreshSessionStore</code> and <code>RedisRefreshSessionStore</code> lifecycle and edge cases
@@ -3393,11 +3421,22 @@ Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM enc
 <li><strong>P2 (polish)</strong>: right panel as bottom sheet, 44px touch targets, safe area insets, composer keyboard avoidance.</li>
 </ul>
 <h3 id="89-agentsmd-git-rules-2026-07-09">8.9 AGENTS.md Git Rules (2026-07-09)<a class="headerlink" href="#89-agentsmd-git-rules-2026-07-09" title="Permanent link">&para;</a></h3>
-<p>Added to <code>AGENTS.md</code>:</p>
+<p>Added to <code>AGENTS.md</code>:
+- <strong>Do NOT commit or create commits unless the user explicitly requests it.</strong>
+- <strong>Do NOT push unless the user explicitly approves it.</strong>
+- <strong>Do NOT force-push unless the user explicitly asks for it.</strong></p>
+<h3 id="811-phase-2-postgresql-persistence-2026-07-15">8.11 Phase 2 PostgreSQL Persistence (2026-07-15)<a class="headerlink" href="#811-phase-2-postgresql-persistence-2026-07-15" title="Permanent link">&para;</a></h3>
+<p>Task #28 in progress — PostgreSQL wired as production persistence with async domain adapters:</p>
 <ul>
-<li><strong>Do NOT commit or create commits unless the user explicitly requests it.</strong></li>
-<li><strong>Do NOT push unless the user explicitly approves it.</strong></li>
-<li><strong>Do NOT force-push unless the user explicitly asks for it.</strong></li>
+<li><strong>Infrastructure</strong>: <code>PERSISTENCE=memory|postgres</code> env switch with production validation. Lazy Drizzle pool, <code>DB_MIGRATE_ON_BOOT</code>, graceful <code>closeDb()</code>. Schema parity migration with FK constraints, unique indexes, and timestamp defaults.</li>
+<li><strong>Persistence adapters</strong> (7 new files): <code>auth/persistence.ts</code>, <code>workspaces/persistence.ts</code> + <code>persistence-service.ts</code>, <code>messages/persistence.ts</code>, <code>attachments/persistence.ts</code>, <code>bots/persistence.ts</code>, <code>signal/persistence.ts</code>. Each domain has both an <code>InMemory*Persistence</code> and <code>Drizzle*Persistence</code> class implementing the same interface, selected via <code>env.PERSISTENCE</code>.</li>
+<li><strong>Service refactors</strong> (5 files): All domain services migrated to <code>async</code> persistence calls. Signal and attachment services reformatted with full module documentation.</li>
+<li><strong>HTTP/WS integration</strong>: Routes, gateway, and socket adapted for async service methods. <code>index.ts</code> calls <code>pingDb()</code> and <code>runMigrations()</code> on startup.</li>
+<li><strong>DB Operations</strong>: <code>FOR UPDATE SKIP LOCKED</code> for concurrent one-time prekey allocation. Bot install creates a non-login <code>users</code> row for FK satisfaction. Message idempotency via <code>(sender_id, client_msg_id)</code> unique index.</li>
+<li><strong>Tests</strong>: <code>persistence-memory.test.ts</code> (24 tests), <code>persistence-drizzle.test.ts</code> (16 tests), <code>persistence-service.test.ts</code> (13 RBAC tests), updated <code>services.test.ts</code> and <code>gateway.test.ts</code>.</li>
+<li><strong>CI</strong>: <code>postgres-smoke</code> job in unified <code>ci.yml</code> runs <code>scripts/ci-pg-smoke.sh</code> — 59 assertions across 12 acts: Alice/Bob onboarding, channel creation/conversation, reactions/edits/pins, read receipts, dev file upload/download with content verification, DM conversation, forward/save, /help bot, Signal prekey bundle, server restart persistence verification.</li>
+<li><strong>Security</strong>: GitHub Dependency Review (<code>actions/dependency-review-action@v4</code>) replaces deprecated npm audit API.</li>
+<li><strong>Design Decisions</strong>: Domain-specific persistence ports (not generic repository). Global <code>getXxxPersistence()</code> factory pattern with service-locator style. In-memory adapter co-exists in same file as Drizzle adapter. Dev file upload bytes are memory-only and expected to disappear on restart; file metadata persists in PostgreSQL.</li>
 </ul>
 <h3 id="810-e2ee-real-encryption-implementation-2026-07-10">8.10 E2EE Real Encryption Implementation (2026-07-10)<a class="headerlink" href="#810-e2ee-real-encryption-implementation-2026-07-10" title="Permanent link">&para;</a></h3>
 <p>Task #27 completed — replaced the placeholder Base64 "encryption" with real cryptographic operations:</p>
@@ -3454,6 +3493,12 @@ Current status: Phase 1 complete (27/27 tasks done). Real ECDH + AES-256-GCM enc
 </li>
 <li>
 <p><strong>Docker web VITE_API_BASE</strong>: <code>VITE_API_BASE</code> is baked into the web Docker image at build time. Changing the API URL requires rebuilding the web image. A reverse-proxy approach should be considered for production deployments where the API URL may change without rebuilding.</p>
+</li>
+<li>
+<p><strong>Dependency injection for persistence</strong>: Current <code>getXxxPersistence()</code> factory follows service-locator pattern. Future refactoring should consider constructor injection with a DI container for testability and reduced import coupling.</p>
+</li>
+<li>
+<p><strong>Demo mode removal impact</strong>: <code>demo-data.ts</code> and <code>demo-access-token</code> guards are removed. Web login is now real-server-only. Screenshots and offline demos require a running server. Alternative: a standalone demo build could be restored if needed.</p>
 </li>
 </ol>
 

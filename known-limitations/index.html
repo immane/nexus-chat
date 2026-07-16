@@ -1754,7 +1754,7 @@
 
 <h1 id="known-limitations">Known Limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>Applies to Phase 1 (v0.1.0). Items marked with a phase reference are planned for resolution in later phases.</p>
+<p>Applies to v0.1.0. Items marked with a phase reference are planned for resolution in later phases.</p>
 </blockquote>
 <h2 id="encryption">Encryption<a class="headerlink" href="#encryption" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1765,13 +1765,13 @@
 </ul>
 <h2 id="data-stores">Data Stores<a class="headerlink" href="#data-stores" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>In-memory stores for development.</strong> The <code>SESSION_STORE=memory</code> default uses in-memory maps for session data. PostgreSQL schema (<code>sessions</code> table) is ready but not wired at runtime in dev mode. Switch to <code>SESSION_STORE=redis</code> or <code>postgres</code> for production.</li>
+<li><strong>In-memory default for development.</strong> The <code>SESSION_STORE=memory</code> default uses in-memory maps for session data. Production uses PostgreSQL (<code>PERSISTENCE=postgres</code>) with full async domain adapters. Switch to <code>SESSION_STORE=redis</code> for Redis-backed sessions.</li>
 <li><strong>No Redis WebSocket adapter in dev.</strong> Socket.IO runs as a single process without the Redis adapter, which means horizontal scaling is not supported in development mode. The Redis adapter is available for production deployment.</li>
 </ul>
 <h2 id="search-attachments">Search &amp; Attachments<a class="headerlink" href="#search-attachments" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>No full-text search.</strong> PostgreSQL <code>tsvector</code> full-text search is planned for Phase 2. Currently, message content is only searchable by exact ID or range queries.</li>
-<li><strong>No file upload in web/desktop UI.</strong> The attachment service backend (presigned URLs, S3 integration) is implemented, but the upload UI in the web and desktop clients is not yet built. File upload is available via the API only.</li>
+<li><strong>Dev file upload is memory-only.</strong> File bytes uploaded via <code>/dev-upload</code> are stored in the server process memory and are lost on restart. File metadata survives in PostgreSQL when <code>PERSISTENCE=postgres</code>. Production object storage (S3-compatible) is planned for Phase 2.</li>
 </ul>
 <h2 id="electron-desktop">Electron Desktop<a class="headerlink" href="#electron-desktop" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1786,7 +1786,7 @@
 <h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>No OpenTelemetry tracing.</strong> Only Pino structured logs and Prometheus metrics are available. Distributed tracing with OpenTelemetry is planned for Phase 3.</li>
-<li><strong>In-memory audit log.</strong> Audit events are stored in an in-memory array during development. A persistent audit log with PostgreSQL storage is planned for Phase 2.</li>
+<li><strong>In-memory audit log.</strong> Audit events are stored in an in-memory array during development. With <code>PERSISTENCE=postgres</code>, audit events are persisted to the <code>audit_logs</code> table. A dedicated persistent audit pipeline is planned for Phase 2.</li>
 </ul>
 
 

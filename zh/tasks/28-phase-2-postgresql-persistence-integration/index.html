@@ -1787,7 +1787,7 @@
 <li>
 <p><strong>消息</strong></p>
 </li>
-<li>迁移消息、幂等性、回复/转发元数据、反应、保存的消息、pin、读取状态、收据和附件关联。</li>
+<li>迁移消息、幂等性、回复/转发元数据、反应、保存的消息、引脚、读取状态、收据和附件关联。</li>
 <li>使用数据库唯一的<code>(sender_id, client_msg_id)</code>约束实现幂等性；如果发生冲突，则返回现有消息。</li>
 <li>保留光标分页顺序和 API 行为。</li>
 <li>
@@ -1835,7 +1835,7 @@
 </thead>
 <tbody>
 <tr>
-<td>环境和生命周期</td>
+<td>环境与生命周期</td>
 <td><code>apps/server/src/config/env.ts</code>、<code>apps/server/src/db/client.ts</code>、<code>apps/server/src/index.ts</code>、<code>.env.example</code></td>
 </tr>
 <tr>

@@ -3645,7 +3645,7 @@
 </ol>
 <h3 id="123">12.3 密钥管理<a class="headerlink" href="#123" title="Permanent link">&para;</a></h3>
 <ul>
-<li>私钥<strong>永远不会离开客户端</strong>（根据结构：<code>identityKeyPrivate</code>是仅在本地用于ECDH的<code>Uint8Array</code>）</li>
+<li>私钥<strong>永远不会离开客户端</strong>（通过构造：<code>identityKeyPrivate</code>是仅在本地用于ECDH的<code>Uint8Array</code>）</li>
 <li>公钥被序列化为 Base64 并存储在服务器端的 PreKey 捆绑包中</li>
 <li>每个 E2EE DM 有一个 <code>SignalSession</code> 和一个 <code>sharedKey</code></li>
 <li>会话是针对每个对等点，而不是针对每条消息（第 3 阶段将添加针对每条消息的棘轮）</li>
