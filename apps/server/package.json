@@ -16,7 +16,7 @@
     "db:seed": "PERSISTENCE=postgres DATABASE_URL=${DATABASE_URL:-postgres://nexus:nexus@localhost:5432/nexus_chat} tsx src/db/seed.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
+    "@hono/node-server": "^2.0.10",
     "@hono/zod-validator": "^0.4.2",
     "@nexus-chat/shared": "workspace:*",
     "@node-rs/argon2": "^2.0.2",
